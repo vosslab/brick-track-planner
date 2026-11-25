@@ -1,11 +1,11 @@
 use serde::Serialize;
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque, hash_map::Entry};
 
 use crate::model::{Catalog, Endpoint, ItemKind, Layout, Project};
 use crate::ports::{self, WorldPort};
 
-#[derive(Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct EndpointRef<'a> {
     piece_id: &'a str,
@@ -144,77 +144,63 @@ pub(crate) fn trace<'a>(
     routes
 }
 
-/// Finds a buildable path through actual track routes and recognized rail joints.
-/// Finds a continuous train route.  A train must cross a physical joint after
-/// taking a route inside a part; this deliberately prevents branch-to-branch
-/// travel through the common leg of a turnout.
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+struct TraceState<'a> {
+    endpoint: EndpointRef<'a>,
+    last_kind: Option<RouteKind>,
+}
+
+/// A train must cross a joint between two internal routes through track parts.
 pub(crate) fn trace_path<'route, 'data>(
     paths: &'route [RoutePath<'data>],
     start: &Endpoint,
     target: &Endpoint,
 ) -> Vec<DirectedRoute<'route, 'data>> {
-    let key = |piece_id: &str, port_id: &str| format!("{piece_id}\u{0}{port_id}");
-    let start = key(&start.piece_id, &start.port_id);
-    let target = key(&target.piece_id, &target.port_id);
-    if start == target {
-        return Vec::new();
-    }
-    let mut neighbors: HashMap<String, Vec<(usize, String)>> = HashMap::new();
-    for (index, path) in paths.iter().enumerate() {
-        let from = key(path.from.piece_id, path.from.port_id);
-        let to = key(path.to.piece_id, path.to.port_id);
-        neighbors
-            .entry(from.clone())
-            .or_default()
-            .push((index, to.clone()));
-        neighbors.entry(to).or_default().push((index, from));
-    }
-    let mut pending = VecDeque::from([(start.clone(), None)]);
-    let mut seen = HashSet::from([(start.clone(), None)]);
-    let mut previous: HashMap<
-        (String, Option<RouteKind>),
-        ((String, Option<RouteKind>), usize, bool),
-    > = HashMap::new();
-    let mut end = None;
-    while let Some((current, previous_kind)) = pending.pop_front() {
-        for (index, next) in neighbors.get(&current).into_iter().flatten() {
-            let path = &paths[*index];
-            if previous_kind == Some(path.kind) {
-                continue;
-            }
-            let state = (next.clone(), Some(path.kind));
-            if !seen.insert(state.clone()) {
-                continue;
-            }
-            let reversed = current != key(path.from.piece_id, path.from.port_id);
-            previous.insert(
-                state.clone(),
-                ((current.clone(), previous_kind), *index, reversed),
-            );
-            if next == &target {
-                end = Some(state);
-                break;
-            }
-            pending.push_back(state);
-        }
-        if end.is_some() {
-            break;
-        }
-    }
-    let Some(mut state) = end else {
-        return Vec::new();
+    let start = TraceState {
+        endpoint: endpoint(&start.piece_id, &start.port_id),
+        last_kind: None,
     };
-    let mut result = Vec::new();
-    while state.0 != start {
-        let (before, index, reversed) = previous.remove(&state).unwrap();
-        result.push(DirectedRoute {
-            path: &paths[index],
-            reversed,
-        });
-        state = before;
+    let target = endpoint(&target.piece_id, &target.port_id);
+    if start.endpoint == target {
+        return Vec::new();
     }
-    result.reverse();
-    result
+    let mut neighbors = HashMap::new();
+    for path in paths {
+        neighbors
+            .entry(path.from)
+            .or_insert_with(Vec::new)
+            .push(path);
+        neighbors.entry(path.to).or_default().push(path);
+    }
+    let mut pending = VecDeque::from([start]);
+    let mut previous = HashMap::new();
+    while let Some(current) = pending.pop_front() {
+        if current.endpoint == target {
+            let mut result = Vec::new();
+            let mut cursor = current;
+            while let Some((parent, step)) = previous.remove(&cursor) {
+                result.push(step);
+                cursor = parent;
+            }
+            result.reverse();
+            return result;
+        }
+        for &path in neighbors.get(&current.endpoint).into_iter().flatten() {
+            if current.last_kind == Some(path.kind) {
+                continue;
+            }
+            let reversed = current.endpoint == path.to;
+            let next = TraceState {
+                endpoint: if reversed { path.from } else { path.to },
+                last_kind: Some(path.kind),
+            };
+            if let Entry::Vacant(entry) = previous.entry(next) {
+                entry.insert((current, DirectedRoute { path, reversed }));
+                pending.push_back(next);
+            }
+        }
+    }
+    Vec::new()
 }
 
 #[cfg(test)]
@@ -263,5 +249,28 @@ mod tests {
             port_id: "east".into(),
         };
         assert!(trace_path(&links, &start, &end).is_empty());
+    }
+
+    #[test]
+    fn reconstructs_a_route_in_travel_order_with_each_steps_direction() {
+        let links = [
+            link(("first", "a"), ("first", "b"), RouteKind::Internal),
+            link(("second", "b"), ("first", "b"), RouteKind::Joint),
+            link(("second", "a"), ("second", "b"), RouteKind::Internal),
+        ];
+        let start = Endpoint {
+            piece_id: "first".into(),
+            port_id: "a".into(),
+        };
+        let end = Endpoint {
+            piece_id: "second".into(),
+            port_id: "a".into(),
+        };
+        let route = trace_path(&links, &start, &end);
+        let steps: Vec<_> = route
+            .iter()
+            .map(|step| (step.path.from.port_id, step.reversed))
+            .collect();
+        assert_eq!(steps, [("a", false), ("b", true), ("a", true)]);
     }
 }

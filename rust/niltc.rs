@@ -311,10 +311,11 @@ pub(crate) fn diagnose<'a>(
 mod tests {
     use serde_json::{Value, json};
 
-    use super::{Lane, expected};
+    use super::{Lane, diagnose_route, expected};
     use crate::evaluate;
-    use crate::model::{Edge, Point, Project};
+    use crate::model::{Catalog, Edge, Layout, Point, Project};
     use crate::ports::WorldPort;
+    use crate::routes::{DirectedRoute, trace};
 
     const STRAIGHT: &str = include_str!("../examples/member-straight.btp.json");
     const CORNER: &str = include_str!("../examples/member-corner.btp.json");
@@ -423,14 +424,68 @@ mod tests {
         }
     }
 
-    #[test]
-    fn event_spacing_thresholds_are_inclusive_at_the_niltc_lengths() {
-        use super::{AFTER_S_CURVE_STRAIGHT, MIN_EVENT_STRAIGHT, TOLERANCE};
+    fn spacing_diagnostics(s_curve: bool, straight_count: usize) -> Vec<(f64, f64)> {
+        let mut project: Project = serde_json::from_str(STRAIGHT).unwrap();
+        let mut parts = vec!["trixbrix:r104"];
+        if s_curve {
+            parts.push("trixbrix:r104");
+        }
+        parts.extend(std::iter::repeat_n("trixbrix:s08", straight_count));
+        parts.push("trixbrix:r104");
+        project.items = parts
+            .into_iter()
+            .enumerate()
+            .map(|(index, part_id)| {
+                serde_json::from_value(json!({
+                    "id": index.to_string(), "kind": "track", "partId": part_id,
+                    "layerId": "layout", "x": 0, "y": 0, "angle": 0, "heightPlates": 2
+                }))
+                .unwrap()
+            })
+            .collect();
+        let links = trace(
+            &project,
+            &Layout::new(&project),
+            Catalog::load().unwrap(),
+            &[],
+        );
+        let route = links
+            .iter()
+            .enumerate()
+            .map(|(index, path)| DirectedRoute {
+                path,
+                reversed: s_curve && index == 1,
+            })
+            .collect::<Vec<_>>();
+        let mut issues = Vec::new();
+        diagnose_route(&project, Lane::Inner, false, &route, &mut issues);
+        issues
+            .into_iter()
+            .filter_map(|issue| match issue {
+                super::NiltcIssue::MainlineEventSpacing {
+                    actual_studs,
+                    required_studs,
+                    ..
+                } => Some((actual_studs, required_studs)),
+                _ => None,
+            })
+            .collect()
+    }
 
-        assert!(!(MIN_EVENT_STRAIGHT + TOLERANCE < MIN_EVENT_STRAIGHT));
-        assert!(MIN_EVENT_STRAIGHT - TOLERANCE * 2.0 + TOLERANCE < MIN_EVENT_STRAIGHT);
-        assert!(!(AFTER_S_CURVE_STRAIGHT + TOLERANCE < AFTER_S_CURVE_STRAIGHT));
-        assert!(AFTER_S_CURVE_STRAIGHT - TOLERANCE * 2.0 + TOLERANCE < AFTER_S_CURVE_STRAIGHT);
+    #[test]
+    fn enforces_event_spacing_at_sixteen_studs_and_after_an_s_curve() {
+        for (s_curve, straight_count, expected) in [
+            (false, 2, None),
+            (false, 1, Some((8.0, 16.0))),
+            (true, 8, None),
+            (true, 7, Some((56.0, 64.0))),
+        ] {
+            assert_eq!(
+                spacing_diagnostics(s_curve, straight_count),
+                expected.as_slice(),
+                "S-curve: {s_curve}, eight-stud straights: {straight_count}"
+            );
+        }
     }
 
     #[test]

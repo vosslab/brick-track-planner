@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-25
+
+### Fixes and Maintenance
+
+- Simplified route tracing to track each rail endpoint and its incoming connection
+  type directly. Replaced constant-only assertions with checks of the NILTC
+  spacing diagnostics at 16 studs and at 64 studs after an S-curve.
+
 ## 2026-11-24
 
 ### Additions and new features
