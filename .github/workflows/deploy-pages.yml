@@ -1,0 +1,72 @@
+name: Verify and deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          # Update this after local maintenance validates a newer Node major.
+          node-version: 26
+          cache: npm
+      - name: Install Rust and wasm-pack
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+          rustup default stable
+          cargo install wasm-pack --locked
+      - run: npm ci --no-audit
+      - run: ./node_modules/.bin/playwright install --with-deps chromium webkit
+      - run: ./devel/verify_release.sh --reporter=list,html
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+      - name: Upload Pages files
+        uses: actions/upload-artifact@v7
+        with:
+          name: brick-track-planner-pages
+          path: dist/
+          if-no-files-found: error
+          include-hidden-files: true
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: brick-track-planner-browser-evidence
+          path: |
+            playwright-report/
+            test-results/
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        with:
+          path: dist
+          include-hidden-files: true
+
+  deploy:
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6
+      - id: deployment
+        uses: actions/deploy-pages@v5
