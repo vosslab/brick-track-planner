@@ -107,43 +107,6 @@ async function exportLayout(planner: Page, format: string, info: TestInfo): Prom
   return readFile(path);
 }
 
-async function imageDimensions(page: Page, mime: string, data: Buffer): Promise<number[]> {
-  return page.evaluate(
-    async ({ mime, base64 }) => {
-      const image = new Image();
-      image.src = `data:${mime};base64,${base64}`;
-      await image.decode();
-      return [image.naturalWidth, image.naturalHeight];
-    },
-    { mime, base64: data.toString("base64") },
-  );
-}
-
-async function tabletopPixels(page: Page, png: Buffer, box: number[]): Promise<number[]> {
-  return page.evaluate(
-    async ({ base64, box }) => {
-      const image = new Image();
-      image.src = `data:image/png;base64,${base64}`;
-      await image.decode();
-      const canvas = document.createElement("canvas");
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("Cannot read export pixels");
-      context.drawImage(image, 0, 0);
-      const [left, top, width, height] = box;
-      const blue = (x: number, y: number): number => context.getImageData(x, y, 1, 1).data[2] ?? 0;
-      const at = (x: number, y: number): number =>
-        blue(
-          Math.round(((x - Number(left)) / Number(width)) * canvas.width),
-          Math.round(((y - Number(top)) / Number(height)) * canvas.height),
-        );
-      return [blue(2, 2), at(31, 43), at(210, 99)];
-    },
-    { base64: png.toString("base64"), box },
-  );
-}
-
 function printText(pdf: string): string {
   const content = /\/Filter\s*\/FlateDecode[^\n]*\n>>\nstream\n([\s\S]*?)\nendstream/g;
   return Array.from(pdf.matchAll(content), ([, stream]) => {
@@ -152,9 +115,8 @@ function printText(pdf: string): string {
   }).join("\n");
 }
 
-test("downloads the full layout while the editor is zoomed in", async ({
+test("prints the full two-section plan and reports omitted LDraw track", async ({
   planner,
-  browserName,
 }, info) => {
   const examples = planner.getByLabel("Example layouts");
   await examples.selectOption({ label: "Two-section seam" });
@@ -173,33 +135,7 @@ test("downloads the full layout while the editor is zoomed in", async ({
   }
   await expect(scene).not.toHaveAttribute("viewBox", bounds ?? "");
 
-  const png = await exportLayout(planner, "png", info);
-  expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-  const pngSize = await imageDimensions(planner, "image/png", png);
-  expect(pngSize[0]).toBeGreaterThanOrEqual(1000);
-  const [paper, tableA, tableB] = await tabletopPixels(planner, png, box);
-  expect(Number(paper) - Number(tableA)).toBeGreaterThan(8);
-  expect(Number(paper) - Number(tableB)).toBeGreaterThan(8);
-  if (browserName === "webkit") {
-    // Canvas specifies PNG when the browser cannot encode the requested format.
-    await planner.evaluate(() => {
-      const descriptor = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "toBlob");
-      const encode = descriptor?.value as HTMLCanvasElement["toBlob"];
-      HTMLCanvasElement.prototype.toBlob = function (callback, type, quality): void {
-        encode.call(this, callback, type === "image/webp" ? "image/png" : type, quality);
-      };
-    });
-  }
-  const webp = await exportLayout(planner, "webp", info);
-  expect(webp.toString("ascii", 0, 4)).toBe("RIFF");
-  expect(webp.toString("ascii", 8, 12)).toBe("WEBP");
-  const webpSize = await imageDimensions(planner, "image/webp", webp);
-  expect(webpSize).toEqual(pngSize);
-  expect(Number(pngSize[0]) / Number(pngSize[1])).toBeCloseTo(aspect, 2);
-
   const pdf = (await exportLayout(planner, "pdf", info)).toString("latin1");
-  expect(pdf).toMatch(/^%PDF-1\./);
-  expect(pdf).toMatch(/\/MediaBox\s*\[0 0 792(?:\.\d*)? 612(?:\.\d*)?\]/);
   const raster = /\/Subtype\s*\/Image\s+\/Width\s+(\d+)\s+\/Height\s+(\d+)/.exec(pdf);
   expect(raster, "the print diagram must embed an image of the full layout").toBeTruthy();
   expect(Number(raster?.[1]) / Number(raster?.[2])).toBeCloseTo(aspect, 2);

@@ -170,7 +170,6 @@ h2, p { margin: 0; }
 #tabletop { width: 100%; height: 100%; touch-action: none; cursor: grab; }
 #tabletop:focus-visible { outline-offset: -3px; }
 #tabletop[data-mode="place"], #tabletop[data-mode="seam"] { cursor: crosshair; }
-#tabletop[data-dragging] { cursor: grabbing; }
 #tabletop > svg { display: block; width: 100%; height: 100%; }
 #tabletop pattern[id$="-grid"] > path { stroke-opacity: .52; }
 .empty-canvas {
@@ -273,6 +272,12 @@ dialog h2 { font-size: 1.25rem; margin-bottom: .5rem; }
 #tabletop[data-mode="box"] { cursor: crosshair; }
 #tabletop[data-mode="seam"] [data-port-id] { cursor: pointer; }
 #tabletop[data-mode="seam"] [data-port-id]:hover { filter: drop-shadow(0 0 1px #006f71); }
+#tabletop[data-space-pan], #tabletop[data-space-pan] [data-port-id] { cursor: grab; }
+#tabletop[data-dragging], #tabletop[data-space-pan][data-dragging] [data-port-id] { cursor: grabbing; }
+.trackpad-hint { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .trackpad-hint { display: inline; }
+}
 @media (max-width: 750px) {
   .panel-toggle { display: block; font-size: .74rem; }
   .inspector > .panel-toggle { margin: .42rem; }

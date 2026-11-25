@@ -71,6 +71,7 @@ test("updates both seam gaps, S8 support and inventory after shifting and undoin
   await applyPose(planner, hasTouch, { "Height (plates)": "1" });
   await expect(inner).toHaveAttribute("data-status", "height");
   await expect(outer).toHaveAttribute("data-status", "joined");
+  await expect(planner.getByText("Inner: rail heights differ (1 plate)")).toBeVisible();
   await expect(planner.locator('[data-track-caption="inner-span"]')).toHaveText("+1 pl");
 });
 

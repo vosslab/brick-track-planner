@@ -121,11 +121,9 @@ medians of the three p95 results.
 | Desktop Chromium, 1,000 pieces | 3.00 ms | 13.70 ms |
 | Touch Chromium, 300 pieces | 1.00 ms | 5.20 ms |
 
-Both profiles meet the 8 ms geometry and 16.7 ms update targets. Reproduce with
-`PW_BENCHMARK=1 ./run_playwright_tests.sh benchmark.spec.ts --workers=1`. The three runs after the
-final scene polish passed six checks. See `/private/tmp/vf-certified-quiet-{1,2,3}.log`. The measured
-build had 92,615 bytes of entry JavaScript, 15,856 bytes of CSS, and 730,622 bytes of Wasm.
-[benchmark.spec.ts](../../../tests/playwright/benchmark.spec.ts)
+Both profiles met the 8 ms geometry and 16.7 ms update targets at release. The measured build had
+92,615 bytes of entry JavaScript, 15,856 bytes of CSS, and 730,622 bytes of Wasm. The timing probe
+was used for this release investigation and has been removed from the permanent suite.
 
 ## Local release gate
 

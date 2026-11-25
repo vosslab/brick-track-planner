@@ -112,6 +112,18 @@ workflow.
 
 **Owner.** [BRICK_TRACK_PLANNER_VFINAL.md](active_plans/active/BRICK_TRACK_PLANNER_VFINAL.md)
 
+### Add a connected siding as a first edit
+
+**Decision.** Offer Add a siding on a fresh straight starter. Replace two interior S16s with a
+LEGO turnout and connect a reversed R40 curve and a TrixBrix S32 behind the inner mainline.
+
+**Why.** Members can make their first connected branch with a tap and extend it from the library.
+
+**Consequence.** The turnout spans the same through route, the named exits retain their connector
+IDs, and Undo restores the original starter in one step. The highlighted space is an editor guide.
+
+**Owner.** [niltc_starters.ts](../src/niltc_starters.ts)
+
 ### Keep starter geometry table-local
 
 **Decision.** Starter baseplates use an editable 32-stud grid. NILTC starters prelay table-local

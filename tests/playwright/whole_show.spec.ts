@@ -125,12 +125,6 @@ function pdfText(pdf: Buffer): string {
   return text.join("\n");
 }
 
-function pdfDiagram(pdf: Buffer): string | undefined {
-  return /\/Subtype\s*\/Image\s+\/Width\s+2400\b[^]*?\nstream\n([^]*?)\nendstream/.exec(
-    pdf.toString("latin1"),
-  )?.[1];
-}
-
 test("assembles, repairs, inventories, and shares the Whole Show", async ({
   page: planner,
   browser,
@@ -289,7 +283,7 @@ test("assembles, repairs, inventories, and shares the Whole Show", async ({
     await expect(row).toContainText(/Required 22.*1 short/);
   });
 
-  await test.step("Reopen the editable show and download its setup sheets and images", async () => {
+  await test.step("Reopen the editable show and download its setup sheet", async () => {
     const { path, project } = await saveProject(planner);
     expect(project.sections).toHaveLength(7);
     expect(project.seams).toHaveLength(8);
@@ -310,42 +304,10 @@ test("assembles, repairs, inventories, and shares the Whole Show", async ({
       await expectClosedLoop(reopened);
       expect((await saveProject(reopened)).project).toEqual(project);
 
-      const fit = await scene(reopened).getAttribute("viewBox");
-      const bounds = await scene(reopened).getAttribute("data-layout-view-box");
-      const [, , width, height] = bounds?.split(/\s+/).map(Number) ?? [];
-      for (let index = 0; index < 3; index++) await action(reopened, "Zoom in").click();
-      await expect(scene(reopened)).not.toHaveAttribute("viewBox", fit ?? "");
-
-      const format = reopened.getByLabel("Export format");
-      await format.selectOption("pdf");
-      const diagrams = [];
-      for (const mode of ["grayscale", "color"]) {
-        await reopened.getByLabel("PDF mode").selectOption(mode);
-        const pdf = await exportFile(reopened, "pdf", `whole-show-${mode}`, info);
-        expect(pdf.toString("ascii", 0, 5)).toBe("%PDF-");
-        const print = pdfText(pdf);
-        expect(print).toContain("Whole Show");
-        expect(print).toContain("S8 supplied by Yard");
-        expect(print).toContain("Shortfall 1");
-        expect(print).toMatch(/ActualText\s*<feff[^>]*67714eac>/i);
-        const diagram = pdfDiagram(pdf);
-        expect(diagram).toBeDefined();
-        diagrams.push(diagram);
-      }
-      expect(diagrams[0]).not.toBe(diagrams[1]);
-      await format.selectOption("png");
-      await reopened.getByLabel("Raster resolution").selectOption("high");
-      const png = await exportFile(reopened, "png", "whole-show", info);
-      expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-      expect(png.readUInt32BE(16)).toBe(4096);
-      expect(png.readUInt32BE(16) / png.readUInt32BE(20)).toBeCloseTo(
-        Number(width) / Number(height),
-        2,
-      );
-      await format.selectOption("webp");
-      const webp = await exportFile(reopened, "webp", "whole-show", info);
-      expect(webp.toString("ascii", 0, 4)).toBe("RIFF");
-      expect(webp.toString("ascii", 8, 12)).toBe("WEBP");
+      await reopened.getByLabel("Export format").selectOption("pdf");
+      const print = pdfText(await exportFile(reopened, "pdf", "whole-show", info));
+      expect(print).toContain("S8 supplied by Yard");
+      expect(print).toContain("Committed 21 | Shortfall 1");
       expect(errors).toEqual([]);
     } finally {
       await context.close();

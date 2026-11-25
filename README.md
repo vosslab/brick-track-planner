@@ -5,8 +5,8 @@ and produce setup sheets and bring lists from one accurate top-down layout.
 
 ## [https://vosslab.github.io/brick-track-planner/](https://vosslab.github.io/brick-track-planner/)
 
-GitHub Pages currently serves the public v1 edition. The verified v-final build in this checkout
-adds the welcome chooser, reusable sections, whole-show planning, and the examples shown below.
+Open the hosted planner to start a NILTC layout, open a saved project, or try the Whole Show
+example. The screenshots below were captured from the local Pages build.
 
 ## Screenshots
 
@@ -25,6 +25,7 @@ adds the welcome chooser, reusable sections, whole-show planning, and the exampl
 ## Plan a club show
 
 - Start on a 40 x 40 table, a 60 x 40 straight or curved section, or an advanced blank layout.
+  Choose **Add a siding** on either straight starter to add a connected branch in one step.
 - Place NILTC mainlines on their standard guides, then build sidings and yards with connector-based
   snapping.
 - Mix LEGO, BrickTracks, TrixBrix, and measured 4DBrix launch pieces, including R104 and R120 curves.

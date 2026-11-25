@@ -16,8 +16,8 @@
 - Added reusable SVG rails, molded baseplates, and visual ballast. Close detail starts at three
   CSS pixels per stud. Added opt-in ballast recipes for compatible 001A, 022A, and 023B track, with
   44, 71, and 98 ballast pieces per track section respectively.
-- Marked each audience-facing table edge with three SVG chevrons and a close-detail label in the
-  shared starter, editor, and export renderer.
+- Marked audience-facing table edges with SVG chevrons and labeled them at overview scale on
+  single-table scenes.
 - Marked NILTC tables show the standard +2-plate height once. Track height changes remain
   marked, and each visible radius and sweep combination has a single overview caption.
 - Added full-layout PNG and WebP in Standard (2,400 px) and High (4,096 px), with a 12-megapixel cap,
@@ -34,8 +34,11 @@
 
 ### Behavior or interface changes
 
+- Two-finger scrolling pans the tabletop, pinch zoom follows the pointer, and Space-drag pans
+  across pieces without moving them.
 - Updated the welcome cards with plain-language starter choices and made Rotate available in
   the canvas toolbar for placements and selections.
+- Seam diagnostics identify the lane with differing rail heights and show the difference in plates.
 - The Pages build now locks npm dependencies, builds the Wasm module and TypeScript declarations,
   and stages Wasm and examples in `dist/`.
 - The Pages build requires and stages all four section projects, the assembled Whole Show project,
@@ -52,6 +55,9 @@
 
 ### Developer tests and notes
 
+- Removed the release timing probe, SVG node identity checks, and redundant export downloads and
+  coordinate tests. Kept the native-to-browser Wasm comparison and end-to-end editing and export
+  coverage.
 - Recorded local release evidence in
   [BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md](active_plans/active/BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md).
 - Run `./build_github_pages.sh` before the first standalone `./check_codebase.sh` to generate Wasm

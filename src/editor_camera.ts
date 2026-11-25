@@ -44,11 +44,37 @@ export class EditorCamera {
     host.addEventListener(
       "wheel",
       (event) => {
+        if (!this.#bounds) return;
         event.preventDefault();
-        this.zoom(event.deltaY < 0 ? 0.85 : 1.17, this.world(event.clientX, event.clientY));
+        if (this.#pointers.size) return;
+        const mode = event.deltaMode;
+        const page = mode === WheelEvent.DOM_DELTA_PAGE;
+        const unit = mode === WheelEvent.DOM_DELTA_LINE ? 16 : 1;
+        const y = event.deltaY * (page ? this.#viewport.height : unit);
+        if (event.ctrlKey) {
+          // Desktop trackpad pinches arrive as Ctrl+wheel, including in macOS WebKit.
+          if (y) this.zoom(Math.exp(y * 0.01), this.world(event.clientX, event.clientY));
+          return;
+        }
+        const scale = this.#pixelsPerStud;
+        const x = event.deltaX * (page ? this.#viewport.width : unit);
+        if (scale > 0 && (x || y)) this.#pan(x / scale, y / scale);
       },
       { passive: false },
     );
+    window.addEventListener("keydown", (event) => {
+      if (event.code !== "Space" || event.defaultPrevented || event.ctrlKey || event.metaKey)
+        return;
+      const target = event.target;
+      if (target !== host && (target !== document.body || !host.matches(":hover"))) return;
+      if (document.querySelector("dialog[open]")) return;
+      event.preventDefault();
+      host.toggleAttribute("data-space-pan", true);
+    });
+    window.addEventListener("keyup", (event) => {
+      if (event.code === "Space") host.removeAttribute("data-space-pan");
+    });
+    window.addEventListener("blur", () => host.removeAttribute("data-space-pan"));
     host.addEventListener("pointerdown", (event) => {
       const target = event.target;
       if (!(target instanceof Element) || event.button === 2) return;
@@ -61,7 +87,7 @@ export class EditorCamera {
           target,
           anchor: this.world(point.x, point.y),
           multi: event.shiftKey || event.ctrlKey || event.metaKey,
-          pan: event.button === 1,
+          pan: event.button === 1 || host.hasAttribute("data-space-pan"),
           drag: false,
           moved: false,
         };
@@ -229,11 +255,12 @@ export class EditorCamera {
   }
 
   #updateDetail(): void {
-    if (!this.#scene || !this.#bounds) return;
+    if (this.#scene) setSceneDetail(this.#scene, this.#pixelsPerStud);
+  }
+
+  get #pixelsPerStud(): number {
+    if (!this.#bounds) return 0;
     const { width, height } = this.#bounds;
-    setSceneDetail(
-      this.#scene,
-      Math.min(this.#viewport.width / width, this.#viewport.height / height),
-    );
+    return Math.min(this.#viewport.width / width, this.#viewport.height / height);
   }
 }

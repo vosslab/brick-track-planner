@@ -399,12 +399,14 @@ export function renderDiagnostics(
 }
 
 function seamStatus(endpoint: Analysis["seams"][number]["outer"]): string {
+  const status = endpoint.status === "height" ? "rail heights differ" : endpoint.status;
   const details: string[] = [];
   if (endpoint.ambiguous) details.push("ambiguous connector");
   if (endpoint.gap !== undefined && endpoint.gap > 0.0001)
     details.push(`${Number(endpoint.gap.toFixed(2))} studs`);
   if (endpoint.angle !== undefined && Math.abs(endpoint.angle) > 0.0001)
     details.push(`${Number(endpoint.angle.toFixed(1))} degrees`);
-  if (endpoint.height) details.push(`${endpoint.height} plates`);
-  return details.length ? `${endpoint.status} (${details.join(", ")})` : endpoint.status;
+  if (endpoint.height)
+    details.push(`${endpoint.height} ${endpoint.height === 1 ? "plate" : "plates"}`);
+  return details.length ? `${status} (${details.join(", ")})` : status;
 }

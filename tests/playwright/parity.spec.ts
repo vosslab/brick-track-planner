@@ -4,11 +4,30 @@ import { readFile, writeFile } from "node:fs/promises";
 import { expect } from "@playwright/test";
 
 import type { Analysis } from "../../src/engine";
+import type { Page } from "@playwright/test";
+
 import type { Project } from "../../src/project";
 import { example, test } from "./helper_planner";
-import { evaluateWasm } from "./helper_wasm";
 
 test.skip(({ isMobile }) => isMobile, "the identical Wasm binary is checked once");
+
+async function evaluateWasm(page: Page, projects: string[]): Promise<Analysis[]> {
+  const bindings = await readFile("generated/wasm/track_geometry.js", "utf8");
+  return page.evaluate(
+    async ({ bindings, projects }) => {
+      const url = URL.createObjectURL(new Blob([bindings], { type: "text/javascript" }));
+      const engine: {
+        default: (input: { module_or_path: URL }) => Promise<unknown>;
+        evaluate_json: (project: string, draft: string) => string;
+      } = await import(url);
+      URL.revokeObjectURL(url);
+      const wasm = new URL("./wasm/track_geometry_bg.wasm", location.href);
+      await engine.default({ module_or_path: wasm });
+      return projects.map((project) => JSON.parse(engine.evaluate_json(project, "")) as Analysis);
+    },
+    { bindings, projects },
+  );
+}
 
 function compareAnalysis(actual: Analysis, expected: Analysis): void {
   expect(actual.project).toEqual(expected.project);
@@ -60,7 +79,7 @@ test("matches the native engine with the staged browser Wasm", async ({ planner 
         ["run", "--quiet", "--locked", "--example", "oracle", "--", fixture],
         { encoding: "utf8" },
       );
-      const actual = wasm[index]?.result;
+      const actual = wasm[index];
       if (!actual) throw new Error("The staged Wasm engine returned no analysis");
       compareAnalysis(actual, JSON.parse(json) as Analysis);
     });

@@ -26,6 +26,14 @@ Use the section controls to move all tables and attached items in a section toge
 For custom or imported tables, use **Select NILTC checks** in the table inspector to check the
 guide alignment and height of named exits without changing their current geometry.
 
+## Move around the tabletop
+
+- Scroll with two fingers over the tabletop to pan in any direction.
+- Pinch over the tabletop to zoom around the pointer. With a mouse, use Control and the scroll
+  wheel to zoom.
+- Focus the tabletop and hold **Space** while dragging to pan over track or baseplates. You can
+  also drag empty space to pan. Use **Fit view** to see the full layout again.
+
 ## Try the whole-show fixture
 
 1. In **Open an example...**, choose **Whole Show**. The fixture contains eight nominal

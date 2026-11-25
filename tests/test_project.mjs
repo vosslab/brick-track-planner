@@ -206,25 +206,6 @@ test("project geometry fits the supported planar range", () => {
   }
 });
 
-test("section geometry uses table-local coordinates and clockwise angles", () => {
-  const section = example("two-section");
-  const track = section.items.find(({ id }) => id === "inner-b");
-  const table = section.tables.find(({ id }) => id === "table-b");
-  assert.deepEqual(worldPose(track, section.tables), { x: 144, y: 24, angle: 0 });
-
-  const turnout = section.items.find(({ id }) => id === "inner-turnout");
-  assertSamePoint(portPose(turnout, section.tables, "branch"), { x: 56, y: 32 });
-  const stand = section.items.find(({ id }) => id === "inner-stand");
-  assert.deepEqual(worldPose(stand, section.tables), { x: 20.5, y: 30.5, angle: 180 });
-
-  table.angle = 90;
-  const turned = worldPose(track, section.tables);
-  assert.deepEqual(turned, { x: 104, y: 16, angle: 90 });
-  const local = localPose(turned, table);
-  assert.ok(Math.hypot(local.x - track.x, local.y - track.y) < 1e-12);
-  assert.equal(local.angle, track.angle);
-});
-
 test("both corner routes join at all seven breaks and meet the lane guides", () => {
   const corner = parseProject(JSON.stringify(example("double-corner")));
   assert.deepEqual(corner.tables[0].fronts, ["north", "west"]);

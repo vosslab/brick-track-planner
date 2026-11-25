@@ -71,13 +71,8 @@ for (const starter of starters) {
       await expect(card.locator("svg")).toBeVisible();
     }
     await expect(button(page, "Open existing project")).toBeVisible();
+    await expect(button(page, "Import BlueBrick")).toBeVisible();
     const starterCard = button(page, starter.name);
-    await expect(starterCard.locator("[data-audience-front-marker]")).toHaveCount(
-      starter.curve ? 6 : 3,
-    );
-    await expect(starterCard.locator("[data-audience-front-label]")).toHaveCount(
-      starter.curve ? 2 : 1,
-    );
     await starterCard.click();
     await expect(canvas(page)).toBeVisible();
 
@@ -116,15 +111,9 @@ for (const starter of starters) {
     ]);
     await expect(canvas(page).locator('[data-port-id][data-open="true"]')).toHaveCount(4);
     await expect(canvas(page).locator("[data-table-label]")).toHaveText(/\+2 pl$/);
-    await expect(canvas(page).locator("[data-audience-front-marker]")).toHaveCount(
-      starter.curve ? 6 : 3,
-    );
-    await expect(canvas(page).locator("[data-audience-front-label]")).toHaveCount(
-      starter.curve ? 2 : 1,
-    );
-    await expect(canvas(page).getByText("Audience front", { exact: true })).toHaveCount(
-      starter.curve ? 2 : 1,
-    );
+    for (const front of table.fronts) {
+      await expect(canvas(page).locator(`[data-audience-front-label="${front}"]`)).toBeVisible();
+    }
     await expect(canvas(page).locator('use[stroke$="-raised)"]')).toHaveCount(0);
     const captions = canvas(page).locator("[data-track-caption]");
 
@@ -188,6 +177,10 @@ test("phone user adds and saves the suggested 40x40 siding without disturbing ma
   ]);
   await chooser.setFiles(path);
   await expect(scene.locator('[data-port-id][data-open="true"]')).toHaveCount(5);
+  const studs = scene.locator("[data-baseplate-studs]").first();
+  await expect(studs).toBeHidden();
+  for (let step = 0; step < 4; step++) await button(page, "Zoom in").tap();
+  await expect(studs).toBeVisible();
   expect(errors).toEqual([]);
 });
 
