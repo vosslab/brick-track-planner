@@ -4,6 +4,10 @@
 
 ### Fixes and Maintenance
 
+- Updated the README with a tested 60 by 40 inch parking-siding walkthrough
+  and fresh screenshots of the straight mainline and R104 right yard.
+- Repaired links to retired fixtures in the historical plans and encoded the
+  saved NILTC article's inch mark and trademark symbol as HTML entities.
 - Simplified route tracing to track each rail endpoint and its incoming connection
   type directly. Replaced constant-only assertions with checks of the NILTC
   spacing diagnostics at 16 studs and at 64 studs after an S-curve.

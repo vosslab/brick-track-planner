@@ -1,12 +1,10 @@
 # Whole Show fixture geometry
 
-The [assembled show](../../../examples/whole_show.btp.json) contains eight nominal 40 by 40 in
+The archived assembled show fixture contained eight nominal 40 by 40 in
 tables in a 576 by 320 stud venue. The footprint spans (32, 32) to (544, 288), leaving a
 32-stud margin on all sides. Coordinates increase to the right and down. The quarter-circle
-[Corner bundle](../../../examples/corner.btps.json) repeats with quarter turns. The
-[Siding bundle](../../../examples/siding.btps.json) contains two tables with a joined internal
-seam. The [Yard bundle](../../../examples/yard.btps.json) and
-[Connector bundle](../../../examples/connector.btps.json) each contain one table.
+`corner.btps.json` repeated with quarter turns. `siding.btps.json` contained two tables with
+a joined internal seam. `yard.btps.json` and `connector.btps.json` each contained one table.
 
 ```text
                      x=160       x=288       x=416

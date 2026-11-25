@@ -313,7 +313,7 @@ mod tests {
 
     use super::{Lane, diagnose_route, expected};
     use crate::evaluate;
-    use crate::model::{Catalog, Edge, Layout, Point, Project};
+    use crate::model::{Catalog, Edge, Layer, Layout, Point, Project};
     use crate::ports::WorldPort;
     use crate::routes::{DirectedRoute, trace};
 
@@ -425,7 +425,11 @@ mod tests {
     }
 
     fn spacing_diagnostics(s_curve: bool, straight_count: usize) -> Vec<(f64, f64)> {
-        let mut project: Project = serde_json::from_str(STRAIGHT).unwrap();
+        let mut project = area(json!(["north"]));
+        project.layers.push(Layer {
+            id: "layout".into(),
+            visible: true,
+        });
         let mut parts = vec!["trixbrix:r104"];
         if s_curve {
             parts.push("trixbrix:r104");

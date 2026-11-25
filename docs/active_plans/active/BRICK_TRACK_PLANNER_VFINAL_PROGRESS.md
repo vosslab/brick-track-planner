@@ -34,21 +34,20 @@ Read the 12 repository style files:
 - **Connector guidance (`vn_snap`).** The native check verifies that a real rail connector wins over
   a nearby lane guide. Visible placement on a rotated table lands the two S16s at local y=8 and
   y=24 and the baseplate at (16, 16). Siding placement and duplication preserve both mainlines.
-  [niltc.rs](../../../rust/niltc.rs), [niltc.spec.ts](../../../tests/playwright/niltc.spec.ts)
+  [niltc.rs](../../../rust/niltc.rs), `niltc.spec.ts`
 - **Table standards (`vn_standards`).** New starters and nominal presets carry explicit NILTC
   tags. V1 and BlueBrick imports preserve geometry and free editing with no automatic tag.
   Applying checks to imported geometry preserves its pose and reports the off-grid plate.
   NILTC table, lane, and exit findings remain separate from connector joins. The staged NILTC
   browser matrix passed 10 checks across desktop and touch Chromium.
-  [test_project.mjs](../../../tests/test_project.mjs), [niltc.spec.ts](../../../tests/playwright/niltc.spec.ts)
+  [test_project.mjs](../../../tests/test_project.mjs), `niltc.spec.ts`
 
 ## Geometry, appearance, and materials
 
 - **Project and geometry.** V1 migration creates one local section and preserves geometry and
   repairable seam references. V2 round-trips tables, sections, venue, members, and appearance.
   Native and staged Wasm compare results against the same fixture. The native engine remains
-  stateless. [test_project.mjs](../../../tests/test_project.mjs),
-  [parity.spec.ts](../../../tests/playwright/parity.spec.ts)
+  stateless. [test_project.mjs](../../../tests/test_project.mjs), `parity.spec.ts`
 - **Catalog.** 4DBrix S4 and S8 match the regular mating planes. R104 takes nine 10-degree
   segments and R120 takes ten 9-degree segments to form their respective quarter circles.
   The vendor dimensions and STL files established their geometry. The source search turned up no
@@ -61,13 +60,12 @@ Read the 12 repository style files:
   +2 plates once per NILTC table and uses one caption per visible radius and sweep pair. The
   final Chromium and WebKit captures confirm the cleaner labels and the retained height markers
   for deviations. See `/private/tmp/btp-niltc-polish-chromium.webp` and its WebKit counterpart.
-  [appearance.spec.ts](../../../tests/playwright/appearance.spec.ts)
+  `appearance.spec.ts`
 - **M5 / venue geometry (`vn_venue`).** Six focused cases cover rotated table overlap and edge
   contact, near-contact and positive overlap, venue and keepout bounds, hidden layers, and
   table and piece footprints. The input contract bounds pose coordinates to +/-100,000 studs
   and dimensions to (0, 100,000] studs. The staged venue workflow checks edits, unit conversion,
-  keepout diagnostics, and undo. [tests.rs](../../../rust/evaluation/tests.rs),
-  [venue.spec.ts](../../../tests/playwright/venue.spec.ts)
+  keepout diagnostics, and undo. `rust/evaluation/tests.rs`, `venue.spec.ts`
 - **M6 / ballast source audit.** A second transcription independently checked all 25 material rows
   against the illustrated source sheets, including color and exact compatible track. The 001A,
   022A, and 023B recipes contain 44, 71, and 98 ballast pieces per track section respectively.
@@ -101,14 +99,13 @@ Read the 12 repository style files:
   and last-corner scenarios. Three targeted browser checks against the staged artifact exercise
   reconstruction through visible controls, repair, member commitments, save and fresh reopen,
   touch editing of a named exit with a spanning S8, and raised rotated LDraw. Raising one plate
-  changes only the LDraw Y translation by -8 LDU. [whole_show.spec.ts](../../../tests/playwright/whole_show.spec.ts)
+  changes only the LDraw Y translation by -8 LDU. `whole_show.spec.ts`
 - **Sharing matrix.** Twelve checks passed across desktop Chromium, touch Chromium, and WebKit,
   including unresolved BlueBrick save and reopen, full-layout PNG/WebP after zooming, both raster
   sizes, the area cap, and PDF output in color and grayscale. Independent rendering and text
   extraction of the 11-page grayscale packet confirmed the fronts, Yard S8 supplier, shortfall,
   and the visible and searchable Japanese member name.
-  [sharing.spec.ts](../../../tests/playwright/sharing.spec.ts),
-  [sharing_final.spec.ts](../../../tests/playwright/sharing_final.spec.ts)
+  [sharing.spec.ts](../../../tests/playwright/sharing.spec.ts), `sharing_final.spec.ts`
 
 ## Performance
 
