@@ -60,6 +60,9 @@ class Planner {
         if (!this.#arrangements.pick(point))
           this.#tracks.pick(point, target, this.#camera.snapRadius);
       },
+      beginDrag: (point, target): boolean => this.#tracks.beginMove(point, target),
+      drag: (point): void => this.#tracks.move(point),
+      endDrag: (point, cancelled): void => this.#tracks.endMove(point, cancelled),
     });
     this.#tracks = new TrackTools(catalog, {
       analysis: (): Analysis => this.#requireState().analysis,
@@ -126,7 +129,6 @@ class Planner {
     button("fit-view").onclick = (): void => this.#draw(true);
     button("zoom-in").onclick = (): void => this.#camera.zoom(0.8);
     button("zoom-out").onclick = (): void => this.#camera.zoom(1.25);
-    input("grid-toggle").onchange = (): void => this.#draw();
     input("project-name").onchange = (): void => {
       const name = input("project-name").value.trim() || "My track plan";
       this.#commit({ ...this.#requireState().project, name });
@@ -144,7 +146,8 @@ class Planner {
         this.#history(event.shiftKey ? "redo" : "undo");
       } else if (event.key === "Escape") {
         this.#reset();
-      } else if (event.key === "Delete" && this.#tracks.selection.size) {
+      } else if (["Backspace", "Delete"].includes(event.key) && this.#tracks.selection.size) {
+        event.preventDefault();
         this.#tracks.remove();
       } else if (event.key === "Enter" && event.target instanceof SVGElement) {
         const port = event.target.closest<SVGElement>("[data-piece-id]");
@@ -233,7 +236,6 @@ class Planner {
     this.#scene = createScene(working, this.#catalog, checked, {
       selection: this.#tracks.selection,
       trace: this.#tracks.route,
-      grid: input("grid-toggle").checked,
       interaction: this.#tracks.pickingPort ? "ports" : "pieces",
       extendable: this.#tracks.extendablePorts,
       replacement: new Set(preview?.removedIds),

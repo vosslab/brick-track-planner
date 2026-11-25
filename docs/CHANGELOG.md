@@ -2,8 +2,17 @@
 
 ## 2026-11-25
 
+### Behavior or Interface Changes
+
+- Show each arrangement's track footprint and connection requirements. When a
+  preview cannot fit, explain what blocked it and where to adjust the plan.
+- Drag selected track or enter its position in the inspector. Delete selected
+  track from the canvas toolbar. The baseplate grid stays visible.
+
 ### Fixes and Maintenance
 
+- Align the Add track and inspector controls and contain placement dropdowns
+  inside their sections on desktop and mobile.
 - Cleared lint warnings in the HTML-to-PDF command and the parts inventory
   tests. The command reports validation errors on stderr and success on stdout.
 - Added a visual gallery of twelve editable straight layouts for a 40 by 60

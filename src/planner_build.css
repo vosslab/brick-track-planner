@@ -1,10 +1,9 @@
 /* Track library controls, arrangement previews and the editable example gallery. */
 .arrangement-info {
-  min-height: 0;
-  margin: 0.15rem 0 0;
   color: var(--muted);
-  font-size: 0.72rem;
-  line-height: 1.35;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 .arrangement-library,
 .direct-track-controls {
@@ -12,16 +11,11 @@
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;
   gap: 0.35rem;
-  padding: 0.7rem 0.75rem;
+  padding: 0.7rem var(--panel-inset);
 }
 .arrangement-library {
   background: linear-gradient(135deg, #edf5ef, var(--surface));
   border-bottom: 1px solid var(--line);
-}
-.arrangement-library h3,
-.direct-track-controls h3 {
-  margin: 0;
-  font-size: 0.86rem;
 }
 .direct-track-controls {
   border-bottom: 1px solid var(--line);
@@ -32,38 +26,47 @@
   font-size: 0.76rem;
   line-height: 1.35;
 }
+#build-hint {
+  margin: 0.45rem var(--panel-inset) 0.5rem;
+}
 .arrangement-library label,
 .direct-track-controls label {
   color: var(--muted);
   font-size: 0.73rem;
   font-weight: 700;
 }
-.arrangement-library select,
-.direct-track-controls :is(select, button) {
-  width: 100%;
+.arrangement-library :is(select, button),
+.direct-track-controls :is(select, button),
+.inspector-controls :is(select, button) {
+  inline-size: 100%;
+  min-inline-size: 0;
   font-size: 0.84rem;
+}
+:is(.arrangement-library, .direct-track-controls, .inspector-controls) select {
+  text-overflow: ellipsis;
+}
+:is(.arrangement-library, .direct-track-controls) button {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .candidate-location-controls {
   display: grid;
   gap: 0.2rem;
 }
-#arrangement-preview .arrangement-actions {
+.arrangement-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.35rem;
 }
-.arrangement-actions button {
-  flex: 1 1 0;
-  width: 100%;
+.arrangement-library .arrangement-actions button {
   padding-inline: 0.3rem;
   font-size: 0.78rem;
-  white-space: normal;
 }
 .build-modes {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.35rem;
-  margin: 0;
+  margin: 0 var(--panel-inset);
   padding: 0;
   border: 0;
 }
@@ -79,7 +82,7 @@
   color: var(--ink);
   cursor: pointer;
   font-size: 0.8rem;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .build-modes input[type="radio"],
 .assignment-options input[type="radio"],
@@ -99,23 +102,26 @@
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-:is(.placement-options, #placement-options) {
+.placement-options {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface);
 }
-:is(.placement-options, #placement-options) summary {
+.placement-options summary {
   min-height: var(--control-height);
   padding: 0.48rem 0.55rem;
   color: var(--ink);
   cursor: pointer;
   font-weight: 650;
 }
-:is(.placement-options, #placement-options)[open] summary {
+.placement-options[open] summary {
   border-bottom: 1px solid var(--line);
 }
-:is(.placement-options, #placement-options) > :not(summary) {
-  margin: 0.5rem 0.55rem;
+.placement-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+  padding: 0.55rem;
 }
 #arrangement-preview {
   display: grid;
@@ -124,15 +130,6 @@
   border: 1px solid #90a69a;
   border-radius: 6px;
   background: var(--accent-soft);
-}
-#preview-arrangement {
-  color: white;
-  border-color: var(--accent);
-  background: var(--accent);
-}
-#preview-arrangement:hover:not(:disabled) {
-  color: white;
-  background: var(--accent-dark);
 }
 
 #template-gallery[open] {

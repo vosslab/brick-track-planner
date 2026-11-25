@@ -20,6 +20,12 @@ type Hooks = {
   notice: (message: string, error?: boolean) => void;
 };
 
+type Move = {
+  item: TrackItem;
+  start: Point;
+  drawings: { node: SVGElement; transform: string | null }[];
+};
+
 function key(endpoint: Endpoint): string {
   return JSON.stringify([endpoint.pieceId, endpoint.portId]);
 }
@@ -29,6 +35,7 @@ export class TrackTools {
   readonly #hooks: Hooks;
   #mode: "extend" | "trace" | undefined;
   #selected: string | undefined;
+  #moving: Move | undefined;
   #route: RouteLink[] = [];
   #openEnds = new Map<string, Analysis["ports"][number]>();
 
@@ -59,6 +66,12 @@ export class TrackTools {
     button("trace-route").addEventListener("click", () => this.#arm("trace"));
     select("trace-from").addEventListener("change", () => this.#arm("trace"));
     button("remove-piece").addEventListener("click", () => this.remove());
+    const positionForm = element("track-position-form");
+    if (positionForm instanceof HTMLFormElement)
+      positionForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        this.#setPosition();
+      });
   }
 
   get selection(): Set<string> {
@@ -161,6 +174,7 @@ export class TrackTools {
     this.#mode = undefined;
     this.#route = [];
     this.#selected = undefined;
+    this.#clearMove();
     element("route-info").textContent = "";
     this.#selectionInfo();
     const analysis = this.#hooks.analysis();
@@ -254,6 +268,61 @@ export class TrackTools {
     this.#hooks.render();
   }
 
+  beginMove(point: Point, target: Element): boolean {
+    if (this.#mode || !this.#selected) return false;
+    const id = target.closest<SVGElement>("[data-piece-id]")?.dataset["pieceId"];
+    if (id !== this.#selected) return false;
+    const project = this.#hooks.analysis().project;
+    const item = project.items.find((entry) => entry.id === id);
+    if (!item || item.kind !== "track") return false;
+    if (project.area.exits.some((exit) => exit.outer.pieceId === id || exit.inner.pieceId === id)) {
+      this.#hooks.notice(
+        "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.",
+        true,
+      );
+      return false;
+    }
+    // Clearing an arrangement preview redraws the scene, so collect the new SVG nodes.
+    this.#hooks.cancelArrangement();
+    const drawings = Array.from(element("tabletop").querySelectorAll<SVGElement>("[data-piece-id]"))
+      .filter((node) => node.dataset["pieceId"] === id)
+      .map((node) => ({ node, transform: node.getAttribute("transform") }));
+    this.#moving = { item, start: point, drawings };
+    return true;
+  }
+
+  move(point: Point): void {
+    const moving = this.#moving;
+    if (!moving) return;
+    const dx = Math.round(point.x - moving.start.x);
+    const dy = Math.round(point.y - moving.start.y);
+    for (const { node, transform } of moving.drawings) {
+      node.setAttribute("transform", `translate(${dx} ${dy}) ${transform ?? ""}`);
+    }
+  }
+
+  endMove(point: Point, cancelled: boolean): void {
+    const moving = this.#moving;
+    if (!moving) return;
+    this.#clearMove();
+    if (!cancelled) {
+      this.#commitMove({
+        ...moving.item,
+        x: moving.item.x + Math.round(point.x - moving.start.x),
+        y: moving.item.y + Math.round(point.y - moving.start.y),
+      });
+    }
+  }
+
+  #clearMove(): void {
+    if (!this.#moving) return;
+    for (const { node, transform } of this.#moving.drawings) {
+      if (transform === null) node.removeAttribute("transform");
+      else node.setAttribute("transform", transform);
+    }
+    this.#moving = undefined;
+  }
+
   #extend(point: Point, target?: Analysis["ports"][number], centered = false): void {
     const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
     const incoming = part?.ports.find((p) => p.id === select("piece-port").value);
@@ -288,6 +357,49 @@ export class TrackTools {
     this.#hooks.notice(message);
   }
 
+  #setPosition(): void {
+    const item = this.#hooks.analysis().project.items.find((entry) => entry.id === this.#selected);
+    if (!item || item.kind !== "track") return;
+    const x = input("track-x").valueAsNumber;
+    const y = input("track-y").valueAsNumber;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+    this.#commitMove({ ...item, x, y });
+  }
+
+  #commitMove(item: TrackItem): void {
+    const project = this.#hooks.analysis().project;
+    const original = project.items.find(({ id }) => id === item.id);
+    if (!original || (original.x === item.x && original.y === item.y)) return;
+    if (
+      project.area.exits.some(
+        (exit) => exit.outer.pieceId === item.id || exit.inner.pieceId === item.id,
+      )
+    ) {
+      const message =
+        "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.";
+      this.#hooks.notice(message, true);
+      return;
+    }
+    const withoutItem = {
+      ...project,
+      items: project.items.filter((entry) => entry.id !== item.id),
+    };
+    const result = commitItems(withoutItem, this.#catalog, { items: [item] });
+    if (!result.project) {
+      const message = result.issues[0]?.message ?? "This track does not fit there.";
+      this.#hooks.notice(message, true);
+      return;
+    }
+    this.#hooks.commit({
+      ...project,
+      items: project.items.map((entry) => (entry.id === item.id ? item : entry)),
+    });
+    this.#selected = item.id;
+    this.#selectionInfo();
+    this.#hooks.render();
+    this.#hooks.notice("Moved track piece.");
+  }
+
   #selectionInfo(): void {
     const project = this.#hooks.analysis().project;
     const item = project.items.find((item) => item.id === this.#selected);
@@ -296,7 +408,21 @@ export class TrackTools {
         ? this.#catalog.parts.find((p) => p.id === item.partId)?.name
         : item?.name;
     element("selection-info").textContent = name ?? "Select a track piece in the drawing.";
-    button("remove-piece").disabled = !item;
+    const protectedExit = project.area.exits.some(
+      (exit) => exit.outer.pieceId === item?.id || exit.inner.pieceId === item?.id,
+    );
+    button("remove-piece").disabled = !item || protectedExit;
+    const movable = item?.kind === "track" && !protectedExit;
+    element("track-position").hidden = !movable;
+    element("track-edit-hint").textContent = protectedExit
+      ? "This track carries a named mainline exit and cannot be moved or deleted."
+      : movable
+        ? "Drag the selected track, or use Move track in the inspector."
+        : "Select a piece to move or delete it.";
+    if (movable && item.kind === "track") {
+      input("track-x").value = String(item.x);
+      input("track-y").value = String(item.y);
+    }
     renderBallast(project, this.#catalog, this.#selected, (changes) => {
       if (!item || item.kind !== "track") return;
       this.#hooks.commit({

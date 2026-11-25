@@ -2,8 +2,9 @@ import { button, element, select } from "./editor_dom";
 import { previewArrangement } from "./arrangements";
 import type { ArrangementResult } from "./arrangements";
 import { withParkingKits } from "./parking";
-import { findArrangementAnchors } from "./arrangement_anchors";
-import type { Catalog, Point, Pose, Project } from "./project";
+import { arrangementRequirements, findArrangementAnchors } from "./arrangement_anchors";
+import type { ArrangementAnchor } from "./arrangement_anchors";
+import type { Catalog, Point, Project } from "./project";
 
 type PreviewHooks = {
   project: () => Project;
@@ -14,14 +15,6 @@ type PreviewHooks = {
   mainlineIds?: () => readonly string[];
   beginPreview?: () => void;
   endPreview?: () => void;
-};
-
-type Candidate = {
-  label: string;
-  pose: Pose;
-  replaceIds: string[];
-  fillers: { partId: string; pose: Pose }[];
-  targetIds: string[];
 };
 
 const PRODUCTS = new Set([
@@ -53,8 +46,9 @@ export class ArrangementTools {
   readonly #cancelButton = button("cancel-arrangement");
   readonly #location = select("arrangement-location");
   readonly #info = element("arrangement-info");
+  readonly #requirements = element("arrangement-requirements");
   #result: ArrangementResult | undefined;
-  #candidates: Candidate[] = [];
+  #candidates: ArrangementAnchor[] = [];
   #candidateIndex = 0;
   #storageStuds = 0;
   #prepared = new Map<number, Catalog>();
@@ -81,6 +75,7 @@ export class ArrangementTools {
       this.#showCandidate(this.#choice.value);
     });
     this.#storage.disabled = !this.#usesStorage();
+    this.#setRequirements();
   }
 
   useDefaults(): void {
@@ -89,6 +84,7 @@ export class ArrangementTools {
     this.#storage.value = "auto";
     this.#storage.disabled = false;
     element("placement-options").removeAttribute("open");
+    this.#setRequirements();
   }
 
   reset(): void {
@@ -97,11 +93,14 @@ export class ArrangementTools {
     this.#candidateIndex = 0;
     this.#storageStuds = 0;
     this.#applyButton.disabled = true;
+    this.#applyButton.hidden = true;
     this.#cancelButton.disabled = true;
     this.#location.replaceChildren(new Option("Find fit locations first", ""));
     this.#location.disabled = true;
+    element("fit-location-controls").hidden = true;
     this.#setInfo("");
     this.#setPreviewVisible(false);
+    this.#setRequirements();
     this.hooks.endPreview?.();
     this.hooks.preview(undefined);
   }
@@ -115,17 +114,15 @@ export class ArrangementTools {
       return;
     }
     this.reset();
-    this.#setPreviewVisible(true);
     const fitting = this.#fittingAnchors();
     this.#storageStuds = fitting.storageStuds;
     this.#candidates = fitting.candidates;
+    this.#setRequirements();
     if (!this.#candidates.length) {
-      const message = this.#noFitMessage(choice);
-      this.#setInfo(message);
-      this.#cancelButton.disabled = false;
-      this.hooks.notice(message, true);
+      this.#setInfo(fitting.reason);
       return;
     }
+    this.#setPreviewVisible(true);
     this.#renderLocations();
     this.hooks.beginPreview?.();
     this.#showCandidate(choice);
@@ -173,8 +170,13 @@ export class ArrangementTools {
     this.#result = result;
     this.hooks.preview(result);
     this.#applyButton.disabled = !result.ok;
+    this.#applyButton.hidden = !result.ok;
     this.#cancelButton.disabled = false;
-    this.#setInfo(`${candidate.label}. ${this.#storageDescription()} ${describe(result)}`);
+    this.#setInfo(
+      [candidate.message + ".", this.#storageDescription(), describe(result)]
+        .filter(Boolean)
+        .join(" "),
+    );
   }
 
   #selectCandidate(index: number): void {
@@ -183,40 +185,38 @@ export class ArrangementTools {
     this.#showCandidate(this.#choice.value);
   }
 
-  #fittingAnchors(): { storageStuds: number; candidates: Candidate[] } {
-    for (const storageStuds of this.#storageChoices()) {
-      const candidates = this.#anchors(storageStuds);
-      if (candidates.length) return { storageStuds, candidates };
+  #fittingAnchors(): { storageStuds: number; candidates: ArrangementAnchor[]; reason: string } {
+    const requested = this.#anchor.value;
+    const targetIds =
+      requested === "selected"
+        ? new Set(this.hooks.selection?.() ?? [])
+        : requested === "mainline"
+          ? new Set(this.hooks.mainlineIds?.() ?? [])
+          : undefined;
+    if (targetIds?.size === 0) {
+      const reason =
+        requested === "selected"
+          ? "Select a track piece on the drawing, or choose Best connected fit."
+          : "There is no continuous protected mainline to connect to. Try Best connected fit.";
+      return { storageStuds: 0, candidates: [], reason };
     }
-    return { storageStuds: 0, candidates: [] };
-  }
-
-  #anchors(storageStuds: number): Candidate[] {
     const project = this.hooks.project();
     const heightPlates = project.area.niltc ? 2 : 0;
-    const catalog = this.#catalogFor(storageStuds);
-    let candidates = findArrangementAnchors(project, catalog, this.#choice.value, heightPlates).map(
-      (anchor) => ({
-        label: anchor.message,
-        pose: anchor.pose,
-        replaceIds: anchor.replaceIds,
-        fillers: anchor.fillers,
-        targetIds: anchor.connections.map(({ itemId }) => itemId),
-      }),
-    );
-    const requested = this.#anchor.value;
-    const selection = new Set(this.hooks.selection?.() ?? []);
-    if (requested === "selected")
-      candidates = candidates.filter(({ replaceIds, targetIds }) =>
-        [...replaceIds, ...targetIds].some((id) => selection.has(id)),
+    let reason = "No connected fit was found.";
+    for (const storageStuds of this.#storageChoices()) {
+      const result = findArrangementAnchors(
+        project,
+        this.#catalogFor(storageStuds),
+        this.#choice.value,
+        heightPlates,
+        targetIds,
       );
-    if (requested === "mainline") {
-      const mainlineIds = new Set(this.hooks.mainlineIds?.() ?? []);
-      candidates = candidates.filter(({ replaceIds, targetIds }) =>
-        [...replaceIds, ...targetIds].some((id) => mainlineIds.has(id)),
-      );
+      if (result.anchors.length) return { storageStuds, candidates: result.anchors, reason: "" };
+      reason = result.reason ?? reason;
     }
-    return candidates;
+    if (this.#usesStorage() && Number(this.#storage.value) > 0)
+      reason += " Choose Fit to space or select fewer studs in Placement options.";
+    return { storageStuds: 0, candidates: [], reason };
   }
 
   #catalogFor(storageStuds: number): Catalog {
@@ -248,6 +248,15 @@ export class ArrangementTools {
     this.#info.textContent = message;
   }
 
+  #setRequirements(): void {
+    const storage =
+      this.#storage.value === "auto" && this.#candidates.length
+        ? this.#storageStuds
+        : Number(this.#storage.value === "auto" ? 0 : this.#storage.value);
+    const catalog = this.#catalogFor(Number.isSafeInteger(storage) ? storage : 0);
+    this.#requirements.textContent = arrangementRequirements(catalog, this.#choice.value);
+  }
+
   #usesStorage(): boolean {
     return this.#choice.value.startsWith("parking:");
   }
@@ -270,18 +279,6 @@ export class ArrangementTools {
 
   #setPreviewVisible(visible: boolean): void {
     element("arrangement-preview").hidden = !visible;
-  }
-
-  #noFitMessage(id: string): string {
-    if (this.#anchor.value === "selected" && !this.hooks.selection?.().length)
-      return "Select a track piece on the drawing, or choose Best connected fit in Placement options.";
-    if (this.#usesStorage() && Number(this.#storage.value) > 0)
-      return "No connected fit at this storage length. In Placement options, choose Fit to space or select fewer studs.";
-    if (id.includes("r56-double-pass"))
-      return "This R56 pass-through needs three clear parallel straight runs.";
-    if (id.includes("r104") && (id.includes("yard") || id.includes("wye")))
-      return "This R104 arrangement needs a larger clear rear area and compatible straight runs.";
-    return "No connected fit was found at this anchor. Choose another arrangement or extend the design area.";
   }
 
   #renderLocations(): void {

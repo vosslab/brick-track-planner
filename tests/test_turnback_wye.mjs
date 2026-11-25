@@ -155,11 +155,16 @@ test("the wye finds connected space on a 100 by 60 inch mainline area", () => {
     fronts: ["north"],
   });
   const withParking = withParkingKits(catalog, 32);
-  const anchors = findArrangementAnchors(project, withParking, "parking:r104-turnback-wye", 2);
+  const anchors = findArrangementAnchors(
+    project,
+    withParking,
+    "parking:r104-turnback-wye",
+    2,
+  ).anchors;
   assert.ok(anchors.length, "a 32-stud turnback tail fits behind this mainline");
   assert.equal(
     findArrangementAnchors(project, withParkingKits(catalog, 64), "parking:r104-turnback-wye", 2)
-      .length,
+      .anchors.length,
     0,
     "the longer tail would cross the back edge",
   );

@@ -361,7 +361,7 @@ function physicalTrackIssues(
         issues.push({
           kind: "overlap",
           itemId: placed.id,
-          message: `${label(part)} overlaps ${placedPart.name}. Select it as a replacement or move the arrangement.`,
+          message: `${label(part)} overlaps ${placedPart.name}.`,
         });
       }
     }

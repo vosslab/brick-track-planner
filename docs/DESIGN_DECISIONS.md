@@ -72,6 +72,17 @@ switches and specialty connectors without double-counting them.
 
 **Owner.** [data/catalog.json](../data/catalog.json)
 
+### Measure arrangement requirements from the placement geometry
+
+**Decision.** Use the catalog parts and rail endpoints to describe the
+selected arrangement's footprint and track requirements. Use the fit search
+to report the obstacle on the member's current plan.
+
+**Why.** Storage choices change the footprint, and the same arrangement can
+fit one plan while an obstruction or incompatible rail blocks another.
+
+**Owner.** [src/arrangement_anchors.ts](../src/arrangement_anchors.ts)
+
 ### Keep standards checks on the protected mainline
 
 **Decision.** Apply NILTC lane, height, radius, and event-spacing checks to

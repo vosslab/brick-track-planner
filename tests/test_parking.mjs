@@ -112,7 +112,7 @@ test("rear parking returns behind a 60 by 40 display but not a 60 by 30 display"
       mode: "straight",
       fronts: ["north"],
     });
-  const anchors = findArrangementAnchors(area(128), parkingCatalog, rear.id, 2);
+  const anchors = findArrangementAnchors(area(128), parkingCatalog, rear.id, 2).anchors;
   assert.ok(anchors.some(({ pose }) => pose.x === 48 && pose.y === 24 && pose.angle === 0));
-  assert.equal(findArrangementAnchors(area(96), parkingCatalog, rear.id, 2).length, 0);
+  assert.equal(findArrangementAnchors(area(96), parkingCatalog, rear.id, 2).anchors.length, 0);
 });

@@ -23,6 +23,11 @@ export type ArrangementAnchor = {
   message: string;
 };
 
+export type ArrangementAnchorSearch = {
+  anchors: ArrangementAnchor[];
+  reason?: string;
+};
+
 type WorldPort = Port & { itemId: string; partId: string; heightPlates: number };
 type Bounds = { left: number; right: number; top: number; bottom: number };
 
@@ -222,30 +227,85 @@ function pairedThrough(a: Pose, b: Pose): boolean {
   );
 }
 
+function throughPairs(ports: readonly Pose[]): readonly (readonly [Pose, Pose])[] {
+  return ports.flatMap((a, index) =>
+    ports
+      .slice(index + 1)
+      .filter((b) => pairedThrough(a, b))
+      .map((b) => [a, b] as const),
+  );
+}
+
+function footprint(catalog: Catalog, kit: Kit): { width: number; depth: number } {
+  const box = kitBounds(catalog, kit, { x: 0, y: 0, angle: 0 });
+  return { width: box.right - box.left, depth: box.bottom - box.top };
+}
+
+function measurement({ width, depth }: { width: number; depth: number }): string {
+  const studs = [width, depth].map((value) => Number(value.toFixed(2))).join(" by ");
+  const inches = [width, depth].map((value) => Number((value / 3.2).toFixed(1))).join(" by ");
+  return `${studs} studs (${inches} in)`;
+}
+
+function compactNumbers(values: readonly number[]): string {
+  return [...new Set(values.map(Math.round))].sort((a, b) => a - b).join(" and ");
+}
+
+/** Summarize the measured geometry before a member asks the planner to fit it. */
+export function arrangementRequirements(catalog: Catalog, kitId: string): string {
+  const kit = catalog.kits.find((entry) => entry.id === kitId);
+  if (!kit || !kit.parts.length) return "This arrangement is not available.";
+  const size = footprint(catalog, kit);
+  const ports = exposedKitPorts(catalog, kit);
+  const through = throughPairs(ports);
+  const fit = `Footprint ${measurement(size)}.`;
+  if (!through.length) return `${fit} Connect it at an open track end.`;
+  const lengths = compactNumbers(through.map(([a, b]) => Math.hypot(a.x - b.x, a.y - b.y)));
+  if (through.length === 1)
+    return `${fit} Connect at a compatible open end or replace a ${lengths}-stud straight run.`;
+  const heading = (through[0]![0].angle * Math.PI) / 180;
+  const centers = through
+    .map(([a]) => a.y * Math.cos(heading) - a.x * Math.sin(heading))
+    .sort((a, b) => a - b);
+  const spacings = compactNumbers(
+    centers.slice(1).map((center, index) => center - centers[index]!),
+  );
+  return `${fit} Needs ${through.length} parallel straight runs ${spacings} studs apart, each ${lengths} studs long.`;
+}
+
 export function findArrangementAnchors(
   project: Project,
   catalog: Catalog,
   kitId: string,
   heightPlates = 0,
-): ArrangementAnchor[] {
+  targetIds?: ReadonlySet<string>,
+): ArrangementAnchorSearch {
   const kit = catalog.kits.find((entry) => entry.id === kitId);
-  if (!kit || !kit.parts.length) return [];
+  if (!kit || !kit.parts.length)
+    return { anchors: [], reason: "This arrangement is not available." };
+  const size = footprint(catalog, kit);
+  const spaceMessage = `It needs a clear area of ${measurement(size)}.`;
   const local = exposedKitPorts(catalog, kit);
   const ports = projectPorts(project, catalog).filter((p) => p.heightPlates === heightPlates);
-  const through = local.flatMap((a, i) =>
-    local
-      .slice(i + 1)
-      .filter((b) => pairedThrough(a, b))
-      .map((b) => [a, b] as const),
-  );
+  const through = throughPairs(local);
   const inArea = (box: Bounds): boolean =>
     box.left >= -tolerance &&
     box.top >= -tolerance &&
     box.right <= project.area.width + tolerance &&
     box.bottom <= project.area.depth + tolerance;
-  if (!visibleTrackItems(project).length) {
-    if (project.area.niltc) return [];
-    return [0, 90, 180, 270].flatMap((angle) => {
+  const track = visibleTrackItems(project);
+  if (track.length && !ports.some(({ itemId }) => !targetIds || targetIds.has(itemId)))
+    return {
+      anchors: [],
+      reason: `The connection needs a regular rail end at the required ${heightPlates}-plate rail height.`,
+    };
+  if (!track.length) {
+    if (project.area.niltc)
+      return {
+        anchors: [],
+        reason: "The NILTC mainline must stay in place before adding an arrangement.",
+      };
+    const anchors = [0, 90, 180, 270].flatMap((angle) => {
       const box = kitBounds(catalog, kit, { x: 0, y: 0, angle });
       const pose = {
         angle,
@@ -265,22 +325,23 @@ export function findArrangementAnchors(
           ]
         : [];
     });
+    return { anchors, reason: anchors.length ? undefined : spaceMessage };
   }
   const seen = new Set<string>();
   const result: ArrangementAnchor[] = [];
   const occupied = new Set(
     ports.filter((a) => ports.some((b) => a.itemId !== b.itemId && joined(a, b))),
   );
+  let outsideArea = false;
+  let blocked: string | undefined;
   function consider(pose: Pose): void {
     const key = [pose.x, pose.y, normalize(pose.angle)].map((v) => Math.round(v * 1000)).join(",");
     if (seen.has(key)) return;
     seen.add(key);
-    const box = kitBounds(catalog, kit!, pose);
-    if (!inArea(box)) return;
     const replace = new Set<string>();
     const fillers: ArrangementAnchor["fillers"] = [];
     const ends = local.map((p) => ({ ...composePose(p, pose), local: p }));
-    let matchedRuns = 0;
+    let runs = 0;
     for (const pair of through) {
       let matched = false;
       for (const [entry, exit] of [pair, [pair[1], pair[0]]] as const) {
@@ -298,7 +359,7 @@ export function findArrangementAnchors(
         matched = true;
         break;
       }
-      if (matched) matchedRuns++;
+      if (matched) runs++;
     }
     const connections: ArrangementConnection[] = [];
     for (const end of ends) {
@@ -311,13 +372,10 @@ export function findArrangementAnchors(
           itemPortId: mate.id,
         });
     }
-    if (
-      !matchedRuns &&
-      !connections.some((c) =>
-        ports.some((p) => p.itemId === c.itemId && p.id === c.itemPortId && !occupied.has(p)),
-      )
-    )
-      return;
+    const hasConnection = connections.some((c) =>
+      ports.some((p) => p.itemId === c.itemId && p.id === c.itemPortId && !occupied.has(p)),
+    );
+    if (!runs && !hasConnection) return;
     if (
       through.length > 1 &&
       !through.every(([a, b]) =>
@@ -334,9 +392,27 @@ export function findArrangementAnchors(
       return;
     const replaceIds = [...replace];
     if (
-      !previewArrangement(project, catalog, { kitId, pose, replaceIds, fillers, heightPlates }).ok
+      targetIds &&
+      !replaceIds.some((id) => targetIds.has(id)) &&
+      !connections.some(({ itemId }) => targetIds.has(itemId))
     )
       return;
+    const box = kitBounds(catalog, kit!, pose);
+    if (!inArea(box)) {
+      outsideArea = true;
+      return;
+    }
+    const preview = previewArrangement(project, catalog, {
+      kitId,
+      pose,
+      replaceIds,
+      fillers,
+      heightPlates,
+    });
+    if (!preview.ok) {
+      blocked ??= preview.issues[0]?.message;
+      return;
+    }
     const center = { x: (box.left + box.right) / 2, y: (box.top + box.bottom) / 2 };
     result.push({
       pose,
@@ -354,5 +430,20 @@ export function findArrangementAnchors(
       consider(poseConnectingPorts(end, p));
       consider(poseConnectingPorts(end, { ...p, angle: p.angle + 180 }));
     }
-  return result.sort((a, b) => b.score - a.score);
+  const anchors = result.sort((a, b) => b.score - a.score);
+  if (anchors.length) return { anchors };
+  if (blocked) return { anchors, reason: blocked };
+  if (outsideArea)
+    return { anchors, reason: `The arrangement extends outside the design area. ${spaceMessage}` };
+  if (through.length > 1)
+    return {
+      anchors,
+      reason: `No set of ${through.length} aligned parallel tracks matches this arrangement.`,
+    };
+  return {
+    anchors,
+    reason: through.length
+      ? "No compatible open track end or straight run was found."
+      : "No compatible open track end was found.",
+  };
 }

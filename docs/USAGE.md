@@ -65,8 +65,10 @@ to start there. Choose **Choose on the drawing** when you want to pick the
 location yourself. When exactly one private rail end is open, it is selected
 for you; choose **Connect piece** to extend it. Press Escape when you are done.
 
-The preview highlights the changed track and reports an overhang or collision
-before it changes the layout.
+The arrangement picker shows the selected kit's footprint and the track it
+needs. A successful preview highlights the changes. If a preview fails,
+the message below **Preview on track** explains what blocked it. Change the
+placement options or the drawing and preview again.
 
 - **Parking siding** creates a back-out or drive-through place behind the
   mainline.
@@ -110,10 +112,13 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-Click or tap a track piece to select it. Use the arrangement tools or the
-current **Single piece** action to add rail, and use **Remove selected track**
-to remove a selected piece. Undo and Redo apply one design operation at a time.
-Pinch or Control-scroll zooms. Two-finger scroll and drag pan.
+Click or tap a track piece to select it, then drag it to move it. For an exact
+position, open **Move track** in the inspector, enter X and Y in studs, and
+choose **Apply position**. X increases to the right and Y increases down.
+Use **Delete selected track** in the toolbar to remove the selection. A piece
+that carries a named mainline handoff must stay in place. Undo and Redo apply
+one design operation at a time. Drag empty space or scroll with two fingers
+to pan. Pinch or Control-scroll to zoom.
 
 The parts panel totals physical pieces in the current design. The findings
 panel reports track outside the design area, protected NILTC mainline findings,

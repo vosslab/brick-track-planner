@@ -6,6 +6,7 @@ type Gesture = {
   first: Point;
   target: Element;
   moved: boolean;
+  dragging: boolean;
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
@@ -22,6 +23,9 @@ export class EditorCamera {
     host: HTMLElement,
     hooks: {
       tap: (point: Point, target: Element) => void;
+      beginDrag?: (point: Point, target: Element) => boolean;
+      drag?: (point: Point) => void;
+      endDrag?: (point: Point, cancelled: boolean) => void;
     },
   ) {
     this.#host = host;
@@ -95,14 +99,21 @@ export class EditorCamera {
       this.#pointers.set(event.pointerId, point);
       host.setPointerCapture(event.pointerId);
       if (this.#pointers.size === 1) {
+        const world = this.world(point.x, point.y);
         this.#gesture = {
           first: point,
           target,
           moved: false,
+          dragging:
+            event.button === 0 &&
+            !host.hasAttribute("data-space-pan") &&
+            (hooks.beginDrag?.(world, target) ?? false),
         };
       } else if (this.#pointers.size === 2) {
         const initial = this.#pair();
         if (!initial || !this.#bounds) return;
+        if (this.#gesture?.dragging)
+          hooks.endDrag?.(this.world(initial.mid.x, initial.mid.y), true);
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
@@ -127,6 +138,10 @@ export class EditorCamera {
         gesture.moved = true;
       }
       const world = this.world(point.x, point.y);
+      if (gesture.dragging) {
+        hooks.drag?.(world);
+        return;
+      }
       const old = this.world(before.x, before.y);
       this.#pan(old.x - world.x, old.y - world.y);
     });
@@ -137,10 +152,12 @@ export class EditorCamera {
       this.#gesture = undefined;
       if (!gesture) return;
       const point = this.world(event.clientX, event.clientY);
+      if (gesture.dragging) hooks.endDrag?.(point, event.type !== "pointerup" || !gesture.moved);
       if (!gesture.moved && event.type === "pointerup") hooks.tap(point, gesture.target);
     };
     host.addEventListener("pointerup", finish);
     host.addEventListener("pointercancel", finish);
+    host.addEventListener("lostpointercapture", finish);
     // Keyboard-generated clicks have no pointer sequence.
     host.addEventListener("click", (event) => {
       if (event.detail !== 0 || !(event.target instanceof SVGElement)) return;

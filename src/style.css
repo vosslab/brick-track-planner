@@ -26,8 +26,7 @@
   color: var(--muted);
   font-size: 0.78rem;
 }
-.danger {
-  margin: 0 0.75rem 0.55rem;
+button.danger:not(:disabled) {
   color: var(--warning);
   border-color: currentColor;
 }
@@ -204,7 +203,7 @@ button:hover:not(:disabled) {
 select:hover:not(:disabled) {
   background-color: var(--accent-soft);
 }
-button.primary {
+button.primary:not(:disabled) {
   background: var(--accent);
   border-color: var(--accent);
   color: white;
@@ -427,6 +426,7 @@ p {
 }
 
 .workspace {
+  --panel-inset: 0.75rem;
   display: grid;
   grid-template-columns: clamp(17rem, 21vw, 19rem) minmax(0, 1fr) clamp(180px, 18vw, 268px);
   grid-template-rows: minmax(0, 1fr);
@@ -465,7 +465,7 @@ p {
   justify-content: space-between;
   gap: 0.5rem;
   min-height: 44px;
-  padding: 0.55rem 0.75rem 0.4rem;
+  padding: 0.55rem var(--panel-inset) 0.4rem;
 }
 .panel-head h2 {
   font-size: 0.9rem;
@@ -477,19 +477,8 @@ p {
   overflow: hidden;
 }
 .canvas-toolbar {
-  justify-content: space-between;
   padding: 0.4rem 0.5rem;
   border-bottom: 1px solid var(--line);
-}
-.check {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.38rem;
-  min-height: var(--control-height);
-  padding-inline: 0.2rem;
-  font-size: 0.79rem;
-  white-space: nowrap;
-  cursor: pointer;
 }
 .viewport {
   position: relative;
@@ -557,13 +546,23 @@ p {
 }
 .panel-content {
   margin: 0;
-  padding: 0 0.75rem 0.75rem;
+  padding: 0 var(--panel-inset) 0.75rem;
   font-size: 0.83rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
 .panel-content p {
   color: var(--muted);
+}
+.inspector-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+}
+.edit-hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 .panel-content form {
   display: grid;
@@ -578,7 +577,7 @@ p {
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.panel-content label:not(.check) {
+.panel-content label {
   display: grid;
   gap: 0.16rem;
   min-width: 0;
@@ -647,9 +646,6 @@ fieldset {
   border: 1px solid var(--line);
   border-radius: 7px;
 }
-fieldset .check input {
-  order: -1;
-}
 .layer-panel summary {
   cursor: pointer;
   min-height: var(--control-height);
@@ -660,7 +656,7 @@ fieldset .check input {
 .layer-panel summary:focus-visible {
   outline-offset: -3px;
 }
-.panel-content summary {
+.panel-content details:not(.placement-options) summary {
   border-top: 1px solid var(--line);
   padding: 0.55rem 0.18rem;
   font-size: 0.83rem;
@@ -712,9 +708,8 @@ dialog h2 {
 }
 
 @media (max-width: 1000px) {
-  .panel-head,
-  .panel-content {
-    padding-inline: 0.58rem;
+  .workspace {
+    --panel-inset: 0.65rem;
   }
   .inspector .panel-head {
     flex-wrap: wrap;
@@ -752,9 +747,6 @@ dialog h2 {
   }
   .library {
     height: min(475px, 75svh);
-  }
-  .canvas-toolbar {
-    justify-content: start;
   }
   .canvas-toolbar .toolbar-group {
     display: contents;

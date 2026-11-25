@@ -28,3 +28,6 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   can use them in another program. We only need to reopen our own track files.
 - Give members simple examples they can explore in the same 40 by 60 inch
   straight assignment. Track should look consistent across the examples.
+- Tell members what space and track an arrangement needs and why a preview
+  cannot fit. Make moving and deleting selected track obvious on desktop
+  and mobile.

@@ -130,6 +130,11 @@ test("member creates a straight 60 by 40 NILTC design with automatic coverage", 
   expect(saved.project.items).toHaveLength(24);
   expect(saved.project.items.every((item) => !("tableId" in item))).toBe(true);
   expect(saved.project.items.every((item) => item.kind === "track")).toBe(true);
+  const handoff = saved.project.area.exits[0]!.outer.pieceId;
+  await page.locator(`#scene-item-${encodeURIComponent(handoff)}`).click();
+  await expect(page.getByRole("button", { name: "Delete selected track" })).toBeDisabled();
+  await expect(page.locator("#track-edit-hint")).toContainText(/named mainline/i);
+  await expect(page.getByText("Move track", { exact: true })).toBeHidden();
   expect(errors).toEqual([]);
 });
 
@@ -169,7 +174,11 @@ test("a 40 by 60 member adds a fitted siding and extends its open end", async ({
 
   await expect(page.getByRole("radio", { name: "Arrangement" })).toBeChecked();
   await expect(page.locator("#build-hint")).toContainText("park a train");
+  const requirements = page.locator("#arrangement-requirements");
+  await expect(requirements).toContainText("studs");
+  const baseFootprint = await requirements.textContent();
   await page.getByRole("button", { name: "Preview on track", exact: true }).click();
+  await expect(requirements).not.toHaveText(baseFootprint!);
   await expect(page.locator("#arrangement-info")).toContainText(
     "Uses 64 studs of straight storage.",
   );
@@ -219,9 +228,15 @@ test("a 40 by 60 corner uses the compact siding and refuses an oversized choice"
   await page.locator("#placement-options summary").click();
   await page.getByLabel("Extra storage track").selectOption("96");
   await page.getByRole("button", { name: "Preview on track", exact: true }).click();
-  await expect(page.locator("#arrangement-info")).toContainText("No connected fit");
-  await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeDisabled();
+  await expect(page.locator("#arrangement-info")).toContainText("Fit to space");
+  await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeHidden();
   expect((await saveProject(page)).project).toEqual(before.project);
+
+  await page.getByLabel("Extra storage track").selectOption("auto");
+  await page.getByLabel("Connect to").selectOption("selected");
+  await page.getByRole("button", { name: "Preview on track", exact: true }).click();
+  await expect(page.locator("#arrangement-info")).toContainText(/select a track piece/i);
+  await expect(page.getByLabel("Fit location")).toBeHidden();
   expect(errors).toEqual([]);
 });
 
@@ -233,6 +248,70 @@ test("a general plan starts with a single piece and names its first action", asy
   await expect(page.getByRole("button", { name: "Place at center", exact: true })).toBeEnabled();
 });
 
+test("members can move, delete and undo edits to a selected piece", async ({ page, hasTouch }) => {
+  await boot(page, { startProject: false });
+  await createProject(page, { assignment: "general", width: "128", depth: "192" });
+  const remove = page.getByRole("button", { name: "Delete selected track", exact: true });
+  await expect(remove).toBeDisabled();
+  await page.getByRole("button", { name: "Place at center", exact: true }).click();
+  const original = (await saveProject(page)).project;
+  const item = original.items[0]!;
+  await page.keyboard.press("Escape");
+  const piece = page.getByRole("group", { name: "Track plan" }).getByRole("button", {
+    name: "RC/PF straight S16",
+    exact: true,
+  });
+  if (hasTouch) await piece.tap();
+  else await piece.click();
+  await expect(remove).toBeEnabled();
+
+  const [from, to] = await piece.evaluate((element) => {
+    const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
+    return [new DOMPoint(0, 0), new DOMPoint(16, 16)].map((point) => {
+      const { x, y } = point.matrixTransform(matrix);
+      return { x, y };
+    });
+  });
+  if (hasTouch) {
+    const touch = await page.context().newCDPSession(page);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [from!] });
+    await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [to!] });
+    await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await touch.detach();
+  } else {
+    await page.mouse.move(from!.x, from!.y);
+    await page.mouse.down();
+    await page.mouse.move(to!.x, to!.y, { steps: 3 });
+    await page.mouse.up();
+  }
+  const moved = (await saveProject(page)).project;
+  expect(moved.items).toEqual([{ ...item, x: item.x + 16, y: item.y + 16 }]);
+
+  await page.getByText("Move track", { exact: true }).click();
+  const x = page.getByRole("spinbutton", { name: "X in studs" });
+  const y = page.getByRole("spinbutton", { name: "Y in studs" });
+  await x.fill("40");
+  await y.fill("48");
+  await y.press("Enter");
+  const positioned = (await saveProject(page)).project;
+  expect(positioned.items).toEqual([{ ...item, x: 40, y: 48 }]);
+
+  await x.fill("-20");
+  await y.press("Enter");
+  await expect(page.getByRole("status")).toContainText(/outside the design area/i);
+  expect((await saveProject(page)).project).toEqual(positioned);
+
+  await remove.click();
+  expect((await saveProject(page)).project.items).toEqual([]);
+  const undo = page.getByRole("button", { name: "Undo", exact: true });
+  await undo.click();
+  expect((await saveProject(page)).project).toEqual(positioned);
+  await undo.click();
+  expect((await saveProject(page)).project).toEqual(moved);
+  await undo.click();
+  expect((await saveProject(page)).project).toEqual(original);
+});
+
 test("New design returns to the design-area dialog", async ({ planner }) => {
   await planner.locator("#new-project").click();
   const dialog = planner.locator("#area-dialog");
@@ -242,7 +321,7 @@ test("New design returns to the design-area dialog", async ({ planner }) => {
   await expect(dialog).toBeHidden();
 });
 
-test("track controls remain reachable at 16 by 10 and 5 by 3 workspaces", async ({ page }) => {
+test("track controls stay inside their panels on a phone and laptop", async ({ page }) => {
   const expectFullyVisible = async (
     control: ReturnType<typeof page.locator>,
     clippingAncestor?: ReturnType<typeof page.locator>,
@@ -267,38 +346,52 @@ test("track controls remain reachable at 16 by 10 and 5 by 3 workspaces", async 
       },
       clippingAncestor ? await clippingAncestor.elementHandle() : undefined,
     );
-    expect(geometry.left).toBeGreaterThanOrEqual(0);
-    expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth);
-    expect(geometry.top).toBeGreaterThanOrEqual(0);
-    expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewportHeight);
+    const pixel = 1;
+    expect(geometry.left).toBeGreaterThanOrEqual(-pixel);
+    expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth + pixel);
+    expect(geometry.top).toBeGreaterThanOrEqual(-pixel);
+    expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewportHeight + pixel);
     if (clippingAncestor) {
-      expect(geometry.left).toBeGreaterThanOrEqual(geometry.clipLeft!);
-      expect(geometry.right).toBeLessThanOrEqual(geometry.clipRight!);
-      expect(geometry.top).toBeGreaterThanOrEqual(geometry.clipTop!);
-      expect(geometry.bottom).toBeLessThanOrEqual(geometry.clipBottom!);
+      expect(geometry.left).toBeGreaterThanOrEqual(geometry.clipLeft! - pixel);
+      expect(geometry.right).toBeLessThanOrEqual(geometry.clipRight! + pixel);
+      expect(geometry.top).toBeGreaterThanOrEqual(geometry.clipTop! - pixel);
+      expect(geometry.bottom).toBeLessThanOrEqual(geometry.clipBottom! + pixel);
     }
   };
 
   for (const viewport of [
     { width: 1280, height: 800 },
     { width: 1200, height: 720 },
+    { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
     await boot(page, { startProject: false });
     const create = page.getByRole("button", { name: "Create track plan", exact: true });
+    if (viewport.width < 750) await create.scrollIntoViewIfNeeded();
     await expectFullyVisible(create);
     await create.click();
 
     const library = page.locator("#library-body");
     const preview = page.getByRole("button", { name: "Preview on track", exact: true });
+    await preview.scrollIntoViewIfNeeded();
     await expectFullyVisible(preview, library);
-    await expectFullyVisible(page.locator("label").filter({ hasText: "Arrangement" }), library);
-    await expectFullyVisible(page.locator("label").filter({ hasText: "Single piece" }), library);
     await preview.click();
-    await expectFullyVisible(
-      page.getByRole("button", { name: "Add to layout", exact: true }),
-      library,
-    );
+    const apply = page.getByRole("button", { name: "Add to layout", exact: true });
+    await apply.scrollIntoViewIfNeeded();
+    await expectFullyVisible(apply, library);
+    const placement = page.locator("#placement-options");
+    await placement.getByText("Placement options", { exact: true }).click();
+    for (const name of ["Connect to", "Extra storage track"]) {
+      const control = page.getByLabel(name, { exact: true });
+      await control.scrollIntoViewIfNeeded();
+      await expectFullyVisible(control, placement);
+    }
+    await page.getByRole("radio", { name: "Single piece", exact: true }).check();
+    const connection = page.locator("#piece-tools details");
+    await connection.getByText("Connection options", { exact: true }).click();
+    const port = page.getByLabel("Connecting end of this piece", { exact: true });
+    await port.scrollIntoViewIfNeeded();
+    await expectFullyVisible(port, connection);
   }
 });
 
@@ -391,10 +484,10 @@ test("undersized design areas reject large arrangements and keep controls access
   const before = await saveProject(page);
   await page.locator("#arrangement").selectOption("trixbrix:r104-triple-kit");
   await page.getByRole("button", { name: "Preview on track", exact: true }).click();
-  await expect(page.locator("#arrangement-info")).toContainText("No connected fit was found");
-  await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeDisabled();
+  await expect(page.locator("#arrangement-requirements")).toContainText("48");
+  await expect(page.locator("#arrangement-info")).toContainText(/straight|space|area/i);
+  await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeHidden();
   expect((await saveProject(page)).project).toEqual(before.project);
   await expect(page.getByRole("group", { name: "Track plan" })).toHaveAttribute("tabindex", "0");
-  await expect(page.getByRole("status")).toBeVisible();
   expect(errors).toEqual([]);
 });

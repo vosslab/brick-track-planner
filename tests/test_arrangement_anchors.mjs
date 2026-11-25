@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { findArrangementAnchors } from "../src/arrangement_anchors.ts";
+import { arrangementRequirements, findArrangementAnchors } from "../src/arrangement_anchors.ts";
 import { createNiltcStarter } from "../src/niltc_starters.ts";
 
 const measuredCatalog = JSON.parse(
@@ -108,7 +108,7 @@ test("anchors replace complete straight sections and preserve the outer join", (
       },
     ],
   };
-  const anchors = findArrangementAnchors(project, catalog, "pair");
+  const anchors = findArrangementAnchors(project, catalog, "pair").anchors;
   assert.ok(anchors.length);
   assert.ok(anchors.some((anchor) => anchor.replaceIds.includes("middle")));
   assert.ok(
@@ -122,12 +122,52 @@ test("anchors replace complete straight sections and preserve the outer join", (
 
 test("only a blank general area gets detached candidates", () => {
   const project = { version: 3, name: "test", area, layers: [], items: [] };
-  assert.equal(findArrangementAnchors(project, catalog, "pair").length, 4);
+  assert.equal(findArrangementAnchors(project, catalog, "pair").anchors.length, 4);
   assert.equal(
     findArrangementAnchors({ ...project, area: { ...area, niltc: "straight" } }, catalog, "pair")
-      .length,
+      .anchors.length,
     0,
   );
+});
+
+test("arrangement requirements report measured space and a missing fit reason", () => {
+  assert.match(arrangementRequirements(catalog, "pair"), /32 by 8 studs/);
+  assert.match(
+    arrangementRequirements(measuredCatalog, "trixbrix:r56-double-pass-through-complete"),
+    /3 parallel straight runs 16 studs apart/,
+  );
+  const project = {
+    version: 3,
+    name: "small",
+    area: { ...area, width: 16, depth: 16 },
+    layers: [],
+    items: [],
+  };
+  const result = findArrangementAnchors(project, catalog, "pair");
+  assert.equal(result.anchors.length, 0);
+  assert.match(result.reason, /clear area of 32 by 8 studs/);
+});
+
+test("anchor search identifies track at the wrong height", () => {
+  const project = {
+    version: 3,
+    name: "low track",
+    area,
+    layers: [{ id: "layout", name: "Layout", visible: true }],
+    items: [
+      {
+        id: "low",
+        kind: "track",
+        layerId: "layout",
+        partId: "straight",
+        x: 24,
+        y: 48,
+        angle: 0,
+        heightPlates: 0,
+      },
+    ],
+  };
+  assert.match(findArrangementAnchors(project, catalog, "pair", 2).reason, /2-plate/);
 });
 
 test("hidden imported track does not generate or suppress arrangement anchors", () => {
@@ -149,7 +189,7 @@ test("hidden imported track does not generate or suppress arrangement anchors", 
       },
     ],
   };
-  const anchors = findArrangementAnchors(project, catalog, "pair");
+  const anchors = findArrangementAnchors(project, catalog, "pair").anchors;
   assert.equal(anchors.length, 4);
   assert.ok(
     anchors.every(({ replaceIds, connections }) => !replaceIds.length && !connections.length),
@@ -164,7 +204,8 @@ test("R40 parallel triple belongs behind a mainline, where it has clearance to f
     fronts: ["north"],
   });
   assert.equal(
-    findArrangementAnchors(starter, measuredCatalog, "trixbrix:r40-triple-parallel", 2).length,
+    findArrangementAnchors(starter, measuredCatalog, "trixbrix:r40-triple-parallel", 2).anchors
+      .length,
     0,
     "the parallel triple would occupy the adjacent required mainline",
   );
@@ -184,7 +225,12 @@ test("R40 parallel triple belongs behind a mainline, where it has clearance to f
       })),
     ],
   };
-  const anchors = findArrangementAnchors(yard, measuredCatalog, "trixbrix:r40-triple-parallel", 2);
+  const anchors = findArrangementAnchors(
+    yard,
+    measuredCatalog,
+    "trixbrix:r40-triple-parallel",
+    2,
+  ).anchors;
   assert.ok(anchors.some(({ replaceIds }) => replaceIds.includes("yard-3")));
 });
 
@@ -200,7 +246,7 @@ test("R40 double crossover replaces matched straight runs on both mainlines", ()
     measuredCatalog,
     "trixbrix:r40-double-crossover-kit",
     2,
-  );
+  ).anchors;
   assert.ok(
     anchors.some(
       ({ replaceIds }) =>

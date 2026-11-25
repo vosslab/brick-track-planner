@@ -96,23 +96,26 @@
               aria-label="Build an arrangement"
             >
               <label for="arrangement">Siding, yard or junction</label>
-              <select id="arrangement"></select>
-              <details id="placement-options">
+              <select id="arrangement" aria-describedby="arrangement-requirements"></select>
+              <p id="arrangement-requirements" class="arrangement-info"></p>
+              <details id="placement-options" class="placement-options">
                 <summary>Placement options</summary>
-                <label for="anchor">Connect to</label>
-                <select id="anchor">
-                  <option value="center">Best connected fit</option>
-                  <option value="selected">Selected track</option>
-                  <option value="mainline">Mainline only</option>
-                </select>
-                <label for="storage-length">Extra storage track</label>
-                <select id="storage-length">
-                  <option value="auto" selected>Fit to space (up to 64 studs)</option>
-                  <option value="0">No added straights</option>
-                  <option value="32">32 studs</option>
-                  <option value="64">64 studs</option>
-                  <option value="96">96 studs</option>
-                </select>
+                <div class="placement-fields">
+                  <label for="anchor">Connect to</label>
+                  <select id="anchor">
+                    <option value="center">Best connected fit</option>
+                    <option value="selected">Selected track</option>
+                    <option value="mainline">Mainline only</option>
+                  </select>
+                  <label for="storage-length">Extra storage track</label>
+                  <select id="storage-length">
+                    <option value="auto" selected>Fit to space (64 max)</option>
+                    <option value="0">No added straights</option>
+                    <option value="32">32 studs</option>
+                    <option value="64">64 studs</option>
+                    <option value="96">96 studs</option>
+                  </select>
+                </div>
               </details>
               <button type="button" id="preview-arrangement" class="primary">
                 Preview on track
@@ -143,8 +146,10 @@
               <select id="piece-target"></select>
               <details class="placement-options">
                 <summary>Connection options</summary>
-                <label for="piece-port">Connecting end of this piece</label>
-                <select id="piece-port"></select>
+                <div class="placement-fields">
+                  <label for="piece-port">Connecting end of this piece</label>
+                  <select id="piece-port"></select>
+                </div>
               </details>
               <button type="button" class="primary" id="extend-piece">Place on drawing</button>
               <p id="piece-info" class="library-help" aria-live="polite"></p>
@@ -158,10 +163,11 @@
               <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">
                 Redo
               </button>
-              <label class="check"
-                ><input type="checkbox" id="grid-toggle" checked /> 32-stud grid</label
-              >
+              <button type="button" id="remove-piece" class="danger" disabled>
+                Delete selected track
+              </button>
             </div>
+            <p id="track-edit-hint" class="edit-hint">Select a piece to move or delete it.</p>
           </div>
           <div class="viewport">
             <div
@@ -172,7 +178,8 @@
               aria-describedby="camera-hint"
             ></div>
             <p id="camera-hint" class="screen-reader">
-              Click a connection to add or extend track. Pinch or use plus and minus to zoom.
+              Drag a selected piece to move it, or use Move track in the inspector. Drag open
+              space to pan. Pinch or use plus and minus to zoom.
             </p>
             <div class="zoom-controls" aria-label="Canvas zoom">
               <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
@@ -191,13 +198,25 @@
                 <h2>Inspector</h2>
                 <span class="inspector-caption">Selected track</span>
               </div>
-              <p id="selection-info" class="panel-content">
-                Select a track piece to inspect or extend it.
-              </p>
-              <button type="button" id="remove-piece" class="danger" disabled>
-                Remove selected track
-              </button>
-              <div id="selection-panel" class="panel-content"></div>
+              <div class="panel-content">
+                <p id="selection-info">Select a track piece to edit it.</p>
+                <details id="track-position" class="placement-options" hidden>
+                  <summary>Move track</summary>
+                  <form id="track-position-form" class="placement-fields">
+                    <div class="field-grid">
+                      <label for="track-x">
+                        X in studs
+                        <input id="track-x" type="number" step="any" required />
+                      </label>
+                      <label for="track-y">
+                        Y in studs
+                        <input id="track-y" type="number" step="any" required />
+                      </label>
+                    </div>
+                    <button type="submit">Apply position</button>
+                  </form>
+                </details>
+              </div>
             </section>
             <section class="panel-section">
               <div class="panel-head"><h2>Design area</h2></div>
@@ -224,12 +243,14 @@
                 aria-label="NILTC checks"
                 hidden
               ></section>
-              <label class="screen-reader" for="trace-from">Trace a train route from</label>
-              <select id="trace-from">
-                <option value="">Trace from...</option>
-              </select>
-              <button type="button" id="trace-route" disabled>Trace route</button>
-              <p id="route-info" class="panel-content" aria-live="polite"></p>
+              <div class="panel-content inspector-controls">
+                <label class="screen-reader" for="trace-from">Trace a train route from</label>
+                <select id="trace-from">
+                  <option value="">Trace from...</option>
+                </select>
+                <button type="button" id="trace-route" disabled>Trace route</button>
+                <p id="route-info" aria-live="polite"></p>
+              </div>
             </section>
             <details class="panel-section layer-panel">
               <summary>Mainline handoffs</summary>
