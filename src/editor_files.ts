@@ -167,29 +167,35 @@ export function setupFiles(
 
   const gallery = dialog("template-gallery");
   const cards = element("template-gallery-cards");
-  const galleryCards = new Map<string, HTMLButtonElement>();
+  const galleryCards = new Map<string, { opener: HTMLButtonElement; description: HTMLElement }>();
   const showGallery = (): void => {
     gallery.showModal();
     for (const template of straightExamples) {
       let card = galleryCards.get(template.file);
       if (!card) {
-        card = document.createElement("button");
-        card.type = "button";
-        card.className = "template-card";
+        const container = document.createElement("article");
+        container.className = "template-card";
+        const opener = document.createElement("button");
+        opener.type = "button";
+        opener.setAttribute("aria-label", `Open ${template.name}`);
         const name = document.createElement("strong");
         name.textContent = template.name;
-        card.append(name, textNode("small", template.purpose));
-        card.addEventListener("click", () => {
+        const description = textNode("small", template.purpose);
+        description.id = `example-description-${template.file}`;
+        opener.setAttribute("aria-describedby", description.id);
+        container.append(opener, name, description);
+        opener.addEventListener("click", () => {
           gallery.close();
           void openTemplate(template);
         });
+        card = { opener, description };
         galleryCards.set(template.file, card);
-        cards.append(card);
+        cards.append(container);
       }
-      if (card.dataset.preview === "ready" || card.dataset.preview === "loading") continue;
-      card.dataset.preview = "loading";
-      card.disabled = true;
-      card.querySelector("[data-preview-error]")?.remove();
+      const { opener, description } = card;
+      if (opener.dataset.preview === "ready" || opener.dataset.preview === "loading") continue;
+      opener.dataset.preview = "loading";
+      opener.disabled = true;
       void (async (): Promise<void> => {
         try {
           const project = await loadTemplate(template);
@@ -202,24 +208,19 @@ export function setupFiles(
             (sum, row) => sum + row.required,
             0,
           );
-          const description = card.querySelector("small");
           const { width, depth } = areaToSignupDimensions(project.area, project.area.fronts);
-          if (description)
-            description.textContent = `${width / 3.2} × ${depth / 3.2} in · ${total} track pieces. ${template.purpose}`;
+          description.textContent = `${width / 3.2} × ${depth / 3.2} in · ${total} track pieces. ${template.purpose}`;
           preview.setAttribute("aria-hidden", "true");
-          card.prepend(preview);
+          opener.replaceChildren(preview);
           const view = preview.viewBox.baseVal;
           const size = preview.getBoundingClientRect();
           setSceneDetail(preview, Math.min(size.width / view.width, size.height / view.height));
-          card.dataset.preview = "ready";
-          card.disabled = false;
+          opener.dataset.preview = "ready";
         } catch {
-          card.dataset.preview = "failed";
-          card.disabled = false;
-          const error = textNode("small", "Preview unavailable. Open again to retry.");
-          error.dataset.previewError = "";
-          card.append(error);
+          opener.dataset.preview = "failed";
+          description.textContent = "Preview unavailable. Open again to retry.";
         }
+        opener.disabled = false;
       })();
     }
   };

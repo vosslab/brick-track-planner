@@ -6,8 +6,8 @@
 
 - Set seven straight examples to 60 inches along the track by 40 inches deep
   and show dimensions on each card. Keep the long freight spur and two-track
-  arrival siding deeper. Retire the diagonal spur and three-track parking yard,
-  drop example numbers, and place Back-out siding after Mainline only.
+  arrival siding deeper. Retire the diagonal spur and three-track parking yard.
+  Put Back-out siding after Mainline only and label the cards with selectable names.
 - Number the straight examples and sort after the mainline baseline by track
   piece count. Frame the track in each preview. Consolidate duplicate
   sidings, move perpendicular tracks to the right, and fill the four-track
@@ -59,7 +59,7 @@
   spacing diagnostics at 16 studs and at 64 studs after an S-curve.
 - Reworked the opening screen around the assigned display area, with visible
   template and saved-plan paths, and kept the editor closed until a plan exists.
-
+- Synchronized shared style guides, tests, and repository support files from the starter template.
 ## 2026-11-24
 
 ### Additions and new features

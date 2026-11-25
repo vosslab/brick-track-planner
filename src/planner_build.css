@@ -157,18 +157,23 @@
   gap: 0.35rem;
   min-width: 0;
   padding: 0.55rem;
-  text-align: left;
-  white-space: normal;
+  border: 1px solid var(--line);
+  border-radius: 6px;
 }
-.template-card:hover:not(:disabled) {
+.template-card button:hover:not(:disabled) {
   border-color: var(--accent);
 }
-.template-card svg {
+.template-card button {
   width: 100%;
   height: clamp(7rem, 13vh, 9rem);
-  border: 1px solid var(--line);
+  padding: 0;
   border-radius: 4px;
   background: var(--board);
+}
+.template-card svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .template-card strong {
   font-size: 0.88rem;

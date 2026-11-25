@@ -137,7 +137,12 @@ for (const viewport of viewports) {
       await page.getByRole("button", { name: "Browse straight examples" }).click();
       await expect(page.locator(".template-card svg")).toHaveCount(straightExamples.length);
       await shot("02_example_gallery", "#template-gallery");
-      await rows("Example cards", "#template-gallery-cards", straightExamples.length, "button");
+      await rows(
+        "Example cards",
+        "#template-gallery-cards",
+        straightExamples.length,
+        ".template-card",
+      );
       await page.getByRole("button", { name: "Close", exact: true }).click();
 
       await createProject(page, { width: "128", depth: "192" });
