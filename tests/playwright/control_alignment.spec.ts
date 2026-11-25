@@ -134,7 +134,7 @@ for (const viewport of viewports) {
       await rows("Startup actions", ".start-alternatives > div", 3);
       await rows("Assigned dimensions", "#area-form .area-measurements", 2);
 
-      await page.getByRole("button", { name: "Browse 40 \u00d7 60 examples" }).click();
+      await page.getByRole("button", { name: "Browse straight examples" }).click();
       await expect(page.locator(".template-card svg")).toHaveCount(straightExamples.length);
       await shot("02_example_gallery", "#template-gallery");
       await rows("Example cards", "#template-gallery-cards", straightExamples.length, "button");

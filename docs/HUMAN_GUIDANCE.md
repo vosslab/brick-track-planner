@@ -26,9 +26,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   old layouts do not need compatibility behavior.
 - Give members editable track templates. Save track plans in LDraw so someone
   can use them in another program. We only need to reopen our own track files.
-- Give members simple examples they can explore in the same 40 by 60 inch
-  straight assignment. Track should look consistent across the examples.
-- Give examples numbers for discussion and compare them by part count. Keep
+- Use 60 inches along the track and 40 inches of depth for most straight
+  examples. Use the deeper footprint for longer perpendicular storage.
+- Use example names for discussion and compare plans by part count. Keep
   layouts distinct, show a short perpendicular option, and use the right edge
   for perpendicular tracks and the four-track right yard's storage.
 - Make track look like the actual parts and preserve small details on

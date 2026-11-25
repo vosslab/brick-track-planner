@@ -3,11 +3,11 @@
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
-0 !BRICKTRACK PROJECT @40%20x%2060%20straight%3A%20drive-through%20siding
-0 !BRICKTRACK AREA 128 192 @straight
+0 !BRICKTRACK PROJECT @Drive-through%20siding
+0 !BRICKTRACK AREA 192 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
-0 !BRICKTRACK EXIT @exit-east @east%20exit @east @outer-8 @b @inner-8 @b
+0 !BRICKTRACK EXIT @west @West%20mainline @west @outer-1 @a @inner-1 @a
+0 !BRICKTRACK EXIT @east @East%20mainline @east @outer-12 @b @inner-12 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
 1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
@@ -25,22 +25,38 @@
 1 72 2080 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
 1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-9 @layout @lego%3Arc-s16 - - - -
+1 72 2720 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-10 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-11 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-12 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-1 @layout @lego%3Arc-s16 - - - -
 1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @inner-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-2 @layout @lego%3Arc-s16 - - - -
+1 72 480 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-3 @layout @lego%3Arc-s16 - - - -
+1 72 800 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-10 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-11 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-12 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @arrangement-5d9d1c43-edbf-41a9-aec7-b08446bb22d5-0 @layout @lego%3Arc-r40-right-switch @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 658.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
+1 72 1298.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
 0 !BRICKTRACK TRACK @arrangement-760f92d4-32fd-4f4d-8f99-4a80559d6fc7-1 @layout @lego%3Arc-r40 @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 1123.92774194 -24 -784.62782456 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 53400.dat
+1 72 1763.92774194 -24 -784.62782456 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 53400.dat
 0 !BRICKTRACK TRACK @arrangement-fd3f71e0-0b25-418b-bdd3-2c0fc86b5a03-2 @layout @lego%3Arc-s16 @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 1120 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1760 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @arrangement-f8ac9ee6-a4a6-4b38-9c2e-6dbc65a77a42-3 @layout @lego%3Arc-s16 @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 1440 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2080 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @arrangement-f458fc62-7274-44af-ba06-5fe4555c9ee1-4 @layout @lego%3Arc-r40-left-switch @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 1901.25 -24 -607.5 -1 0 0 0 1 0 0 0 -1 bricktrack-lego-rc-r40-left-switch.dat
+1 72 2541.25 -24 -607.5 -1 0 0 0 1 0 0 0 -1 bricktrack-lego-rc-r40-left-switch.dat
 0 !BRICKTRACK TRACK @arrangement-3f1ae852-8db6-41a5-9d8a-5bc448967573-5 @layout @lego%3Arc-r40 @arrangement-873068c5-ef6d-40d1-b835-81c5ee5a840d--1 @parking%3Ar40-drive-through - -
-1 72 1436.071511397385 -24 -784.628198698272 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 53400.dat
+1 72 2076.071511397385 -24 -784.628198698272 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 53400.dat
 0 FILE bricktrack-lego-rc-r40-right-switch.dat
 0 Name: bricktrack-lego-rc-r40-right-switch.dat
 0 Brick Track Planner schematic LEGO RC/PF right switch R40

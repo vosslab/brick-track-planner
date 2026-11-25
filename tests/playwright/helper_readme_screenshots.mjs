@@ -35,7 +35,7 @@ try {
 
   await page.setViewportSize({ width: 1920, height: 1720 });
   await page.locator("#start-browse-examples").click();
-  const gallery = page.getByRole("dialog", { name: "40 × 60 straight examples" });
+  const gallery = page.getByRole("dialog", { name: "Straight examples", exact: true });
   await expect(gallery.getByRole("button").locator("svg")).toHaveCount(straightExamples.length);
   const cardGrid = gallery.locator("#template-gallery-cards");
   await expect

@@ -86,25 +86,29 @@ test("the U-shaped staging template is a fitting connected general-area plan", (
   assert.ok(reaches(result.routes, open[0], open[2]));
 });
 
-test("every 40 by 60 straight example is a clean connected NILTC assignment", () => {
+test("every straight example is a clean connected NILTC assignment", () => {
   assert.equal(
     new Set(straightExamples.map(({ file }) => file)).size,
     straightExamples.length,
     "each gallery example has its own track plan",
   );
-  assert.equal(new Set(straightExamples.map(({ id }) => id)).size, straightExamples.length);
+  assert.deepEqual(
+    straightExamples.slice(0, 2).map(({ name }) => name),
+    ["Mainline only", "Back-out siding"],
+  );
   const fingerprints = new Set();
   const parts = [];
   for (const { file, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
+    const deep = id === "12-perpendicular-freight-spur" || id === "10-two-track-arrival";
     parts.push(
       showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
     );
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
-      [128, 192, "straight"],
-      `${name} is a 40 by 60 straight assignment`,
+      deep ? [128, 192, "straight"] : [192, 128, "straight"],
+      `${name} uses its intended frontage and depth`,
     );
     assert.deepEqual(
       result.project.area.fronts,
@@ -146,7 +150,12 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
     const storageEnds = result.ports.filter(
       (port) => port.type === "regular" && !port.joined && !/^(inner|outer)-/.test(port.pieceId),
     );
-    if (/^(10|11|12)-/.test(file)) {
+    if (deep)
+      assert.ok(
+        storageEnds.some(({ y }) => y > 128),
+        `${name} needs the extra depth`,
+      );
+    if (/^(10|12)-/.test(file)) {
       const rightEdgeClearance =
         result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
       assert.ok(rightEdgeClearance >= 0 && rightEdgeClearance < 3, `${name} uses the right edge`);
@@ -163,25 +172,30 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
     fingerprints.add(fingerprint);
   }
   assert.equal(fingerprints.size, straightExamples.length);
-  const [, ...ranked] = parts;
+  const ranked = parts.slice(2);
   assert.deepEqual(
     ranked,
     [...ranked].sort((a, b) => a - b),
-    "examples after the baseline are ordered by physical track count",
+    "examples after the two starters are ordered by physical track count",
   );
 });
 
 test("the short freight spur keeps the same approach and trims only perpendicular straights", () => {
   const full = template("12-perpendicular-freight-spur");
   const short = template("12-perpendicular-freight-spur-short");
-  assert.deepEqual(short.area, full.area);
-  const retained = new Set(short.items.map(({ id }) => id));
-  const removed = full.items.filter(({ id }) => !retained.has(id));
+  const relativeBranch = ({ items, area }) =>
+    items
+      .filter(({ id }) => !/^(inner|outer)-/.test(id))
+      .map(({ x, ...item }) => ({ ...item, x: (x - area.width).toFixed(6) }));
+  const shortBranch = relativeBranch(short);
+  const fullBranch = relativeBranch(full);
+  const retained = new Set(shortBranch.map(({ id }) => id));
+  const removed = fullBranch.filter(({ id }) => !retained.has(id));
   assert.equal(removed.length, 5);
   assert.ok(removed.every(({ partId, angle }) => partId === "lego:rc-s16" && angle === 90));
   assert.deepEqual(
-    short.items,
-    full.items.filter(({ id }) => retained.has(id)),
+    shortBranch,
+    fullBranch.filter(({ id }) => retained.has(id)),
   );
 });
 

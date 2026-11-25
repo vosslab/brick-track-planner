@@ -26,16 +26,17 @@ The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan
 track instead of moving baseplates.
 
-## Compare the 40 by 60 straight examples
+## Compare the straight examples
 
-Choose **Browse 40 &times; 60 examples** on the start screen or in the editor.
-Use the example numbers when discussing designs. After the mainline baseline,
-the gallery orders plans by physical track piece count, including both
-mainlines and the parts inside assemblies.
+Choose **Browse straight examples** on the start screen or in the editor.
+Most plans use 60 inches along the track and 40 inches of depth. The long
+freight spur and two-track arrival siding use 60 inches of depth for extra
+storage. Mainline only and Back-out siding come first. The other cards are
+ordered by physical track piece count.
 
-Compare **#6** and **#8** for a short and full-depth freight spur with the
-same right-side approach. **#9** extends all three storage tracks to the right
-edge.
+The short and long perpendicular freight spurs share the same right-side
+approach. The four-track right yard extends all three storage tracks to the
+right edge.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,
@@ -43,7 +44,7 @@ choose **Save track plan** to download your copy.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Numbered track examples with drawings and piece counts](screenshots/straight_examples.webp)
+![Straight track examples with drawings, dimensions, and piece counts](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ## Add track that solves a layout job

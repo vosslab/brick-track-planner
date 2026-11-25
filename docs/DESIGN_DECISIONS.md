@@ -36,11 +36,12 @@ checks.
 **Owner.** [scene_appearance.ts](../src/scene_appearance.ts),
 [CATALOG_SOURCES.md](../data/CATALOG_SOURCES.md)
 
-### Number examples and compare track counts
+### Lead with the mainline and back-out siding examples
 
-**Decision.** Use stable example numbers and frame the track in each preview.
-Keep the mainline baseline first and order the other cards by total physical
-track count from the layout inventory.
+**Decision.** Identify examples by name and frame the track in each preview.
+Keep Mainline only and Back-out siding first. Order the remaining cards by
+total physical track count. Show the width along the track and depth on each
+card.
 
 **Why.** Members can identify a plan in conversation and compare the track
 it requires.

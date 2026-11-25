@@ -59,7 +59,7 @@
         <div class="project-actions">
           <button type="button" id="edit-design-area">Design area</button>
           <button type="button" id="new-project">New design</button>
-          <button type="button" id="browse-examples">Browse 40 &times; 60 examples</button>
+          <button type="button" id="browse-examples">Browse straight examples</button>
           <label class="screen-reader" for="templates">Track templates</label>
           <select id="templates">
             <option value="">Other templates&hellip;</option>
@@ -290,7 +290,7 @@
         <div id="startup-form"></div>
         <div class="start-alternatives" aria-label="Existing plans">
           <div>
-            <button type="button" id="start-browse-examples">Browse 40 &times; 60 examples</button>
+            <button type="button" id="start-browse-examples">Browse straight examples</button>
             <button type="button" id="start-open-project">Open track plan</button>
             <label class="screen-reader" for="start-templates">Start from a template</label>
             <select id="start-templates">
@@ -425,9 +425,10 @@
       </div>
     </dialog>
     <dialog id="template-gallery" aria-labelledby="template-gallery-title">
-      <h2 id="template-gallery-title">40 &times; 60 straight examples</h2>
+      <h2 id="template-gallery-title">Straight examples</h2>
       <p class="dialog-intro">
-        Start with the mainline baseline, then compare by track piece count. Open any example to edit it.
+        Sizes show inches along the track &times; depth. Mainline only and Back-out siding
+        come first, then the other examples are ordered by track piece count.
       </p>
       <div id="template-gallery-cards" class="template-gallery-cards" aria-live="polite"></div>
       <div class="dialog-actions">

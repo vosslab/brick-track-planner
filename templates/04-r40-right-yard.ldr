@@ -4,10 +4,10 @@
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Four-track%20right%20yard
-0 !BRICKTRACK AREA 128 192 @straight
+0 !BRICKTRACK AREA 192 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
-0 !BRICKTRACK EXIT @exit-east @east%20exit @east @outer-8 @b @inner-8 @b
+0 !BRICKTRACK EXIT @west @West%20mainline @west @outer-1 @a @inner-1 @a
+0 !BRICKTRACK EXIT @east @East%20mainline @east @outer-12 @b @inner-12 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
 1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
@@ -25,46 +25,62 @@
 1 72 2080 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
 1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-9 @layout @lego%3Arc-s16 - - - -
+1 72 2720 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-10 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-11 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @outer-12 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-1 @layout @lego%3Arc-s16 - - - -
 1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-2 @layout @lego%3Arc-s16 - - - -
+1 72 480 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-3 @layout @lego%3Arc-s16 - - - -
+1 72 800 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-4 @layout @lego%3Arc-s16 - - - -
 1 72 1120 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-5 @layout @lego%3Arc-s16 - - - -
 1 72 1440 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @inner-6 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @inner-7 @layout @lego%3Arc-s16 - - - -
-1 72 2080 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-8 @layout @lego%3Arc-s16 - - - -
 1 72 2400 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-9 @layout @lego%3Arc-s16 - - - -
+1 72 2720 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-10 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-11 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-12 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @arrangement-423a3620-0cb8-4fe6-9a3c-280921a75be3-0 @layout @trixbrix%3Ar40-right-switch @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 640 -24 -542.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 1920 -24 -542.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @arrangement-fc0a9a8e-8d3a-463f-ac09-82b1193fae7f-1 @layout @trixbrix%3Ar40-right-connector @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 800 -24 -640 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
+1 72 2080 -24 -640 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
 0 !BRICKTRACK TRACK @arrangement-b788a3ab-9328-4486-827e-c9080cd62cd0-2 @layout @trixbrix%3Ar40-yard-left-switch @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 1087.7814 -24 -809.6616 -0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 -0.55557023302 bricktrack-trixbrix-r40-yard-left-switch.dat
+1 72 2367.7814 -24 -809.6616 -0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 -0.55557023302 bricktrack-trixbrix-r40-yard-left-switch.dat
 0 !BRICKTRACK TRACK @arrangement-f589640e-1a09-4fa8-97be-cac40ea374a9-3 @layout @trixbrix%3Ar40-yard-left-switch @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 1567.7814 -24 -1129.6616 -0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 -0.55557023302 bricktrack-trixbrix-r40-yard-left-switch.dat
+1 72 2847.7814 -24 -1129.6616 -0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 -0.55557023302 bricktrack-trixbrix-r40-yard-left-switch.dat
 0 !BRICKTRACK TRACK @arrangement-e6e552b2-471e-40d4-ae36-64d10f4c320f-4 @layout @trixbrix%3Ar40-half @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 1858.1936 -24 -1339.6464 -0.923879532511 0 -0.382683432365 0 1 0 0.382683432365 0 -0.923879532511 bricktrack-trixbrix-r40-half.dat
+1 72 3138.1936 -24 -1339.6464 -0.923879532511 0 -0.382683432365 0 1 0 0.382683432365 0 -0.923879532511 bricktrack-trixbrix-r40-half.dat
 0 !BRICKTRACK TRACK @arrangement-921993b5-59c1-4ea9-822a-fab13c4c7fcb-5 @layout @trixbrix%3Ar40 @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 2076.2492 -24 -1412.4996 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-r40.dat
+1 72 3356.2492 -24 -1412.4996 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-r40.dat
 0 !BRICKTRACK TRACK @arrangement-15c0ea54-eee0-459d-a949-3a2c63940b13-6 @layout @trixbrix%3As08 @arrangement-8ce69ebf-7220-4cac-878d-d926b3a0d2a9--1 @trixbrix%3Ar40-right-yard-4 - -
-1 72 1840 -24 -1120 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-s08.dat
+1 72 3120 -24 -1120 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @yard-storage-40-72 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 1440 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2720 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-40-88 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 1760 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-40-104 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 2080 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-40-120 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 2400 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-56-104 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 2080 -24 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -24 -1120 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-56-120 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 2400 -24 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -24 -1120 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-72-120 @layout @lego%3Arc-s16 @r40-yard-storage - - -
-1 72 2400 -24 -1440 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -24 -1440 1 0 0 0 1 0 0 0 1 53401.dat
 0 FILE bricktrack-trixbrix-r40-right-switch.dat
 0 Name: bricktrack-trixbrix-r40-right-switch.dat
 0 Brick Track Planner schematic TrixBrix Right switch R40

@@ -26,16 +26,19 @@ test("members can open each packaged track template", async ({ planner }) => {
   }
 });
 
-test("the 40 by 60 gallery previews and opens editable straight examples", async ({ page }) => {
+test("the gallery previews and opens editable straight examples in both orientations", async ({
+  page,
+}) => {
   await boot(page, { startProject: false });
   const gallery = page.locator("#template-gallery");
-  await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
+  const browse = page.getByRole("button", { name: "Browse straight examples", exact: true });
+  await browse.click();
   await expect(gallery).toBeVisible();
   await expect(gallery.locator(".template-card")).toHaveCount(straightExamples.length);
   const drawings = gallery.locator(".template-card svg[data-track-scene]");
   await expect(drawings).toHaveCount(straightExamples.length);
   const mainlineFrame = (await drawings.first().getAttribute("viewBox"))?.split(" ").map(Number);
-  expect(mainlineFrame?.[3]).toBeLessThan(192);
+  expect(mainlineFrame?.[3]).toBeLessThan(128);
   const clipped = await gallery.locator(".template-card small").evaluateAll((descriptions) =>
     descriptions
       .filter((description) => {
@@ -46,33 +49,38 @@ test("the 40 by 60 gallery previews and opens editable straight examples", async
   );
   expect(clipped).toEqual([]);
   await expect(gallery.locator(".template-card strong")).toHaveText(
-    straightExamples.map(({ id, name }) => `#${id} ${name}`),
+    straightExamples.map(({ name }) => name),
   );
   await expect(
-    gallery.getByRole("button", { name: /^#2 Double crossover 15 track pieces/ }),
+    gallery.getByRole("button", { name: /^Double crossover 60 × 40 in · 23 track pieces/ }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#start-screen")).toBeVisible();
   await expect(page.locator("#editor")).toBeHidden();
 
-  await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
+  await browse.click();
   await gallery.getByRole("button", { name: /Mainline only/ }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#editor")).toBeVisible();
-  await expect(page.getByLabel("Layout name")).toHaveValue("40 x 60 straight: mainline only");
-  await expect(page.locator("#design-size")).toContainText("40 × 60");
+  await expect(page.getByLabel("Layout name")).toHaveValue("Mainline only");
+  await expect(page.locator("#design-size")).toContainText("60 × 40");
 
-  await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
-  await gallery.getByRole("button", { name: /^#6 Short perpendicular freight spur/ }).click();
+  await browse.click();
+  await gallery.getByRole("button", { name: /^Short perpendicular freight spur/ }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Short perpendicular freight spur");
   expect(
     (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("freight-straight-")),
   ).toHaveLength(2);
+
+  await browse.click();
+  await gallery.getByRole("button", { name: /^Perpendicular freight spur 40 × 60 in/ }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Perpendicular freight spur");
+  await expect(page.locator("#design-size")).toContainText("40 × 60");
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {
-  await planner.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
+  await planner.getByRole("button", { name: "Browse straight examples", exact: true }).click();
   await expect(planner.locator("#template-gallery .template-card")).toHaveCount(
     straightExamples.length,
   );

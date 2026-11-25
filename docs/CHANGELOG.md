@@ -4,6 +4,10 @@
 
 ### Behavior or Interface Changes
 
+- Set seven straight examples to 60 inches along the track by 40 inches deep
+  and show dimensions on each card. Keep the long freight spur and two-track
+  arrival siding deeper. Retire the diagonal spur and three-track parking yard,
+  drop example numbers, and place Back-out siding after Mainline only.
 - Number the straight examples and sort after the mainline baseline by track
   piece count. Frame the track in each preview. Consolidate duplicate
   sidings, move perpendicular tracks to the right, and fill the four-track

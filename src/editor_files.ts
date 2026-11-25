@@ -3,6 +3,7 @@ import straightExamples from "../data/straight_examples.json" with { type: "json
 import { button, dialog, element, input, select, textNode } from "./editor_dom";
 import { evaluate } from "./engine";
 import { MAX_TRACK_PLAN_FILE_BYTES, openTrackPlan, saveTrackPlan } from "./ldraw";
+import { areaToSignupDimensions } from "./niltc_starters";
 import type { Catalog, Project } from "./project";
 import { downloadBlob, importBlueBrick, MAX_BLUEBRICK_FILE_BYTES } from "./project_files";
 import { createScene, setSceneDetail } from "./scene";
@@ -176,7 +177,7 @@ export function setupFiles(
         card.type = "button";
         card.className = "template-card";
         const name = document.createElement("strong");
-        name.textContent = `#${template.id} ${template.name}`;
+        name.textContent = template.name;
         card.append(name, textNode("small", template.purpose));
         card.addEventListener("click", () => {
           gallery.close();
@@ -202,7 +203,9 @@ export function setupFiles(
             0,
           );
           const description = card.querySelector("small");
-          if (description) description.textContent = `${total} track pieces. ${template.purpose}`;
+          const { width, depth } = areaToSignupDimensions(project.area, project.area.fronts);
+          if (description)
+            description.textContent = `${width / 3.2} × ${depth / 3.2} in · ${total} track pieces. ${template.purpose}`;
           preview.setAttribute("aria-hidden", "true");
           card.prepend(preview);
           const view = preview.viewBox.baseVal;
