@@ -48,9 +48,14 @@ test("the gallery previews and opens editable straight examples with type codes"
       .map((description) => description.textContent),
   );
   expect(clipped).toEqual([]);
-  await expect(gallery.locator(".template-card strong")).toHaveText(
-    straightExamples.map(({ code, name }) => `${code} · ${name}`),
-  );
+  for (const frontage of [60, 40]) {
+    const collection = gallery.getByRole("region", { name: `${frontage} × 40 inches` });
+    await expect(collection.locator(".template-card strong")).toHaveText(
+      straightExamples
+        .filter((example) => example.frontage === frontage)
+        .map(({ code, name }) => `${code} · ${name}`),
+    );
+  }
   await gallery.getByText("ML · Mainline only", { exact: true }).click();
   await expect(gallery).toBeVisible();
   await expect(
@@ -76,6 +81,11 @@ test("the gallery previews and opens editable straight examples with type codes"
   expect(
     (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("freight-straight-")),
   ).toHaveLength(4);
+
+  await browse.click();
+  await gallery.getByRole("button", { name: "Open PFS40 · Compact freight spur" }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
+  await expect(page.locator("#design-size")).toContainText("40 × 40");
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {

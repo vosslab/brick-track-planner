@@ -26,8 +26,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   old layouts do not need compatibility behavior.
 - Give members editable track templates. Save track plans in LDraw so someone
   can use them in another program. We only need to reopen our own track files.
-- Use 60 inches along the track and 40 inches of depth for most straight
-  examples. Use the deeper footprint for longer perpendicular storage.
+- Lead with 60 inches along the track and 40 inches of depth, the more common
+  size. Also show a collection of 40 by 40 inch examples.
 - Give examples two-to-five-character alphanumeric codes based on their types.
   Keep layouts distinct, show a short perpendicular spur, and use the right
   edge for perpendicular tracks and the four-track right yard's storage.
@@ -39,6 +39,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use automated screenshots and fine-grained measurements to catch even
   small misalignments between controls. Measure button centering and insets
   against the visible column edges.
+- Show each example layout in its own screenshot and show the start screen
+  and blank editor separately.
 - Tell members what space and track an arrangement needs and why a preview
   cannot fit. Make moving and deleting selected track obvious on desktop
   and mobile.

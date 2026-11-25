@@ -165,7 +165,6 @@ export function setupFiles(
   }
 
   const gallery = dialog("template-gallery");
-  const cards = element("template-gallery-cards");
   const galleryCards = new Map<string, { opener: HTMLButtonElement; description: HTMLElement }>();
   const showGallery = (): void => {
     gallery.showModal();
@@ -190,7 +189,7 @@ export function setupFiles(
         });
         card = { opener, description };
         galleryCards.set(template.file, card);
-        cards.append(container);
+        element(`template-gallery-cards-${template.frontage}`).append(container);
       }
       const { opener, description } = card;
       if (opener.dataset.preview === "ready" || opener.dataset.preview === "loading") continue;

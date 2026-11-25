@@ -7,13 +7,12 @@ This project is in pre-production.
 
 ## From assigned area to siding
 
-Choose **Browse 40 &times; 60 examples** on the start screen to compare ways to
-use a straight assignment. Several sidings and yards come in shorter lengths.
-Pick a drawing to open it as an editable track plan with both club mainlines
-already connected.
+Choose **Browse straight examples** on the start screen to compare layouts
+for 60 by 40 inch and 40 by 40 inch assignments. Pick a drawing to open it as
+an editable track plan with both club mainlines already connected.
 
-Start with the space you signed up for. For example, choose 40 inches along
-the track and 60 inches from the plexiglass, then choose **Create track plan**.
+Start with the space you signed up for. For example, choose 60 inches along
+the track and 40 inches from the plexiglass, then choose **Create track plan**.
 The planner adds the assigned mainline and covers the whole area with its
 baseplate grid. The second view shows a connected parking siding behind that
 mainline.
@@ -21,23 +20,24 @@ mainline.
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
 ![Start screen for entering a member's assigned display area](docs/screenshots/member_design_start.webp)
-![A 40 by 60 inch member plan with a parking siding connected behind the mainline](docs/screenshots/member_parking_siding.webp)
+![A 60 by 40 inch member plan with a parking siding connected behind the mainline](docs/screenshots/member_parking_siding.webp)
 <!-- screenshots:end -->
+
+[See every example layout, the blank editor, and a first-track demo](docs/SCREENSHOTS.md).
 
 ## Quick start
 
 1. On the start screen, choose the width along the track and the depth from the
-   plexiglass. For a 40 by 60 inch straight display, choose **40 in** and
-   **60 in**, keep **Straight**, and choose **Create track plan**.
+   plexiglass. For a 60 by 40 inch straight display, choose **60 in** and
+   **40 in**, keep **Straight**, and choose **Create track plan**.
 2. In **Add track**, keep **Arrangement** and **Back-out parking siding**.
    Choose **Preview on track**. The preview highlights the connected fit and
    says how much storage track fits in the assigned area.
 3. Choose **Add to layout**. Select **Single piece** only when you want to
    extend an open rail end yourself. Save with **Save track plan** when ready.
 
-For a 40 by 60 straight, the default 64-stud storage can use the full available
-length. Open **Placement options** before previewing and choose 32 or 0 studs
-when you want a shorter siding with an open end to extend.
+For a shorter siding, open **Placement options** before previewing and
+choose 32 or 0 studs of added straight storage.
 
 Choose **Open track plan** to continue a saved LDraw file. For a corner assignment, choose
 **Curve** and select the public corner. The starter uses R120 on the outside

@@ -4,6 +4,8 @@
 
 ### Behavior or Interface Changes
 
+- Add five editable 40 by 40 inch straight examples. Lead with the 60 by
+  40 inch collection and use that size in the setup and siding walkthrough.
 - Center Delete selected track over the drawing. Keep the Add track mode
   buttons evenly inset when the sidebar scrolls, and refresh the editor screenshots.
 - Connect both west mainlines to the paired perpendicular freight spurs
@@ -32,6 +34,9 @@
 
 ### Fixes and Maintenance
 
+- Capture full editor screenshots for every bundled layout, show the blank
+  and mainline starters, and demonstrate single-piece placement in a short
+  animated WebP.
 - Check control alignment to a quarter CSS pixel across four viewport sizes
   and save Playwright screenshots and measurements in the browser evidence.
 - Align the Add track and inspector controls and contain placement dropdowns

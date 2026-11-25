@@ -6,7 +6,7 @@ The first screen starts a member design. Enter the width along the track and
 the depth from the plexiglass. Common values are expressed in inches and
 baseplates, and **Other** accepts a specific size.
 
-For a common 40 by 60 inch display, choose 40 inches for the width, 60 inches
+For a common 60 by 40 inch display, choose 60 inches for the width, 40 inches
 for the depth, and **Straight**, then choose **Create track plan**. The editor
 opens with both mainlines and the automatic baseplate grid already in place.
 
@@ -29,15 +29,16 @@ track instead of moving baseplates.
 ## Compare the straight examples
 
 Choose **Browse straight examples** on the start screen or in the editor.
-The six plans use 60 inches along the track and 40 inches of depth. Refer to
-examples by their type codes, such as **4TRY** for Four-track right yard.
-Mainline only and Back-out siding come first. The other cards are ordered by
-physical track piece count.
+The gallery opens with six plans for 60 inches along the track and 40 inches
+of depth, followed by five plans for a 40 by 40 inch display. In each size,
+the mainline and back-out siding come first. The remaining plans are ordered
+by physical track piece count.
 
 Use **PFS** for two perpendicular freight spurs on the right. Each has 32
 straight studs with room to extend. Use **4TRY** for three storage tracks
 ending flush at the right edge. Trains entering from the west on either
 mainline can reach every storage track in both examples without reversing.
+For the square display, **PFS40** gives the same access to a single spur.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,
@@ -45,8 +46,10 @@ choose **Save track plan** to download your copy.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Six straight track examples, including paired perpendicular spurs and a yard with access from both mainlines](screenshots/straight_examples.webp)
+![Straight examples grouped by 60 by 40 inch and 40 by 40 inch display sizes](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
+
+[See each example in the editor](SCREENSHOTS.md#straight-examples).
 
 ## Add track that solves a layout job
 
@@ -59,17 +62,17 @@ quickest way to add a useful connected build. A **General** layout starts in
    on the mainline and the storage length that fits your area.
 3. Choose **Add to layout** when the highlighted placement is the one you want.
 
-![A siding preview on a 40 by 60 inch straight display with the Add to layout button visible](screenshots/member_parking_siding_preview.webp)
+![A siding preview on a 60 by 40 inch straight display with the Add to layout button visible](screenshots/member_parking_siding_preview.webp)
 
-On a 40 by 60 straight display, the default 64-stud storage may use the full
-available length. Open **Placement options** before previewing and choose 32 or
-0 studs if you want a shorter siding with an open end to extend.
+Open **Placement options** before previewing and choose 32 or 0 studs of
+added straight storage if you want a shorter siding.
 
 Choose **Single piece** to lay an individual rail. In an empty general layout,
 the default target is the center of the design area; choose **Place at center**
 to start there. Choose **Choose on the drawing** when you want to pick the
 location yourself. When exactly one private rail end is open, it is selected
 for you; choose **Connect piece** to extend it. Press Escape when you are done.
+[Watch the first piece being placed](SCREENSHOTS.md#place-a-single-piece).
 
 The arrangement picker shows the selected kit's footprint and the track it
 needs. A successful preview highlights the changes. If a preview fails,

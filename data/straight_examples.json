@@ -1,38 +1,79 @@
 [
   {
     "code": "ML",
+    "frontage": 60,
     "file": "01-mainline-only.ldr",
     "name": "Mainline only",
     "purpose": "Keep both club lines clear and leave the full space behind them for your display."
   },
   {
     "code": "BOS",
+    "frontage": 60,
     "file": "06-long-back-out.ldr",
     "name": "Back-out siding",
     "purpose": "Park on 64 straight studs along the front. Reverse to return to the inner mainline."
   },
   {
     "code": "DCX",
+    "frontage": 60,
     "file": "07-double-crossover.ldr",
     "name": "Double crossover",
     "purpose": "Transfer between the two club lines within the mainline corridor."
   },
   {
     "code": "DTS",
+    "frontage": 60,
     "file": "08-drive-through-siding.ldr",
     "name": "Drive-through siding",
     "purpose": "Enter at one turnout and rejoin the inner mainline at the other."
   },
   {
     "code": "PFS",
+    "frontage": 60,
     "file": "12-perpendicular-freight-spur-short.ldr",
     "name": "Dual perpendicular freight spurs",
     "purpose": "From the west, either mainline serves both right-side spurs. Each has 32 straight studs."
   },
   {
     "code": "4TRY",
+    "frontage": 60,
     "file": "04-r40-right-yard.ldr",
     "name": "Four-track right yard",
     "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
+  },
+  {
+    "code": "ML40",
+    "frontage": 40,
+    "file": "compact_mainline.ldr",
+    "name": "Compact mainline",
+    "purpose": "Keep the two club mainlines clear on a square display."
+  },
+  {
+    "code": "BOS40",
+    "frontage": 40,
+    "file": "compact_back_out.ldr",
+    "name": "Short back-out siding",
+    "purpose": "Park on 32 straight studs behind the mainlines. Reverse to return to the inner line."
+  },
+  {
+    "code": "DCX40",
+    "frontage": 40,
+    "file": "compact_crossover.ldr",
+    "name": "Compact crossover",
+    "purpose": "Transfer between the two club mainlines in a square display."
+  },
+  {
+    "code": "DTS40",
+    "frontage": 40,
+    "file": "compact_drive_through.ldr",
+    "name": "Compact drive-through",
+    "purpose": "Leave and rejoin the inner mainline at opposite ends of the siding."
+  },
+  {
+    "code": "PFS40",
+    "frontage": 40,
+    "file": "compact_freight_spur.ldr",
+    "name": "Compact freight spur",
+    "purpose": "Reach a right-side spur from either west mainline. The spur has 32 straight studs."
   }
 ]

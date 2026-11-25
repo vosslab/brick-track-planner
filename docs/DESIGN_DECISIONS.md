@@ -38,16 +38,17 @@ checks.
 
 ### Lead with the mainline and back-out siding examples
 
-**Decision.** Identify examples by type code and name. Frame the track in each preview.
-Keep Mainline only and Back-out siding first. Order the remaining cards by
-total physical track count. Describe their shared 60 by 40 inch size once.
+**Decision.** Identify examples by type code and name. Frame the track in
+each preview. Group the cards by display size with 60 by 40 inches first.
+In each group, lead with the mainline and back-out siding, then order the
+remaining cards by total physical track count.
 
 **Why.** Members can identify a plan in conversation and compare the track
 it requires.
 
 **Consequence.** Keep the list in track count order when editing the plans.
-PFS and 4TRY use a west crossover to serve every storage track from both
-mainlines while keeping both through routes.
+PFS, 4TRY, and PFS40 use a west crossover to serve every storage track
+from both mainlines while keeping both through routes.
 
 **Owner.** [straight_examples.json](../data/straight_examples.json)
 

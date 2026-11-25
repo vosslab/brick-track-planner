@@ -100,16 +100,16 @@ test("every straight example is a clean connected NILTC assignment", () => {
     ["Mainline only", "Back-out siding"],
   );
   const fingerprints = new Set();
-  const parts = [];
-  for (const { code, file, name } of straightExamples) {
+  const parts = { 60: [], 40: [] };
+  for (const { code, file, frontage, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
-    parts.push(
+    parts[frontage].push(
       showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
     );
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
-      [192, 128, "straight"],
+      [frontage * 3.2, 128, "straight"],
       `${name} uses its intended frontage and depth`,
     );
     assert.deepEqual(
@@ -163,7 +163,11 @@ test("every straight example is a clean connected NILTC assignment", () => {
       assert.equal(storageEnds.length, 3);
       assert.ok(storageEnds.every(({ x }) => Math.abs(x - result.project.area.width) < 0.001));
     }
-    if (code === "PFS" || code === "4TRY") {
+    if (code === "PFS40") {
+      assert.equal(storageEnds.length, 1);
+      assert.ok(storageEnds.every(({ x, angle }) => x > 112 && Math.abs(angle - 90) < 0.001));
+    }
+    if (code === "PFS" || code === "4TRY" || code === "PFS40") {
       for (const end of storageEnds) {
         for (const lane of ["outer", "inner"]) {
           assert.ok(
@@ -181,12 +185,15 @@ test("every straight example is a clean connected NILTC assignment", () => {
     fingerprints.add(fingerprint);
   }
   assert.equal(fingerprints.size, straightExamples.length);
-  const ranked = parts.slice(2);
-  assert.deepEqual(
-    ranked,
-    [...ranked].sort((a, b) => a - b),
-    "examples after the two starters are ordered by physical track count",
-  );
+  for (const [frontage, counts] of Object.entries(parts)) {
+    assert.ok(counts.length > 2, `${frontage}-inch frontage has a collection of examples`);
+    const ranked = counts.slice(2);
+    assert.deepEqual(
+      ranked,
+      [...ranked].sort((a, b) => a - b),
+      `${frontage}-inch examples after the two starters are ordered by physical track count`,
+    );
+  }
 });
 
 test("the double crossover example transfers trains between the mainlines", () => {
