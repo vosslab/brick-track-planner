@@ -24,3 +24,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   Do not make members solve the geometry from individual pieces first.
 - This is pre-production. Improve schemas and ownership boundaries directly;
   old layouts do not need compatibility behavior.
+- Give members editable track templates. Save track plans in LDraw so someone
+  can use them in another program. We only need to reopen our own track files.
+- Give members simple examples they can explore in the same 40 by 60 inch
+  straight assignment. Track should look consistent across the examples.

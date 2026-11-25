@@ -2,9 +2,13 @@
 
 ## Start a member design
 
-The planner designs one member's assigned display area. Enter the width along
-the track and the depth from the plexiglass. Common values are expressed in
-inches and baseplates, and **Other** accepts a specific size.
+The first screen starts a member design. Enter the width along the track and
+the depth from the plexiglass. Common values are expressed in inches and
+baseplates, and **Other** accepts a specific size.
+
+For a common 40 by 60 inch display, choose 40 inches for the width, 60 inches
+for the depth, and **Straight**, then choose **Create track plan**. The editor
+opens with both mainlines and the automatic baseplate grid already in place.
 
 Choose the assigned mainline shape.
 
@@ -14,21 +18,62 @@ Choose the assigned mainline shape.
 - **General layout** creates a fully covered design area without a NILTC
   mainline.
 
+Use **Open track plan** to continue an LDraw file saved by this planner.
+**Other templates** includes the 60 by 40 straight, the corner, the larger
+R104 yard with three 128-stud storage tracks, and the U-shaped staging layout.
+
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan
 track instead of moving baseplates.
 
+## Compare the 40 by 60 straight examples
+
+Choose **Browse 40 &times; 60 examples** on the start screen or in the editor.
+Every drawing uses the same four-baseplate frontage and six-baseplate depth,
+with the plexiglass along the top. Look at where a train can leave the inner
+mainline, where it can park, and whether it must back out to leave.
+
+Choose a drawing to open it and edit the track. **Close** returns to the
+current plan. If you want to keep edits before opening another example,
+choose **Save track plan** to download your copy.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+
+![Gallery comparing straight 40 by 60 inch track plans on the same frontage](screenshots/straight_examples.webp)
+<!-- screenshots:end -->
+
 ## Add track that solves a layout job
 
-Use the arrangement tools for a complete set of pieces. The preview highlights
-the changed track and reports an overhang or collision before applying it.
+For a NILTC assignment, **Add track** starts in **Arrangement** mode. It is the
+quickest way to add a useful connected build. A **General** layout starts in
+**Single piece** mode so you can begin its track.
+
+1. Keep **Back-out parking siding** selected.
+2. Choose **Preview on track**. The preview identifies an aligned replacement
+   on the mainline and the storage length that fits your area.
+3. Choose **Add to layout** when the highlighted placement is the one you want.
+
+![A siding preview on a 40 by 60 inch straight display with the Add to layout button visible](screenshots/member_parking_siding_preview.webp)
+
+On a 40 by 60 straight display, the default 64-stud storage may use the full
+available length. Open **Placement options** before previewing and choose 32 or
+0 studs if you want a shorter siding with an open end to extend.
+
+Choose **Single piece** to lay an individual rail. In an empty general layout,
+the default target is the center of the design area; choose **Place at center**
+to start there. Choose **Choose on the drawing** when you want to pick the
+location yourself. When exactly one private rail end is open, it is selected
+for you; choose **Connect piece** to extend it. Press Escape when you are done.
+
+The preview highlights the changed track and reports an overhang or collision
+before it changes the layout.
 
 - **Parking siding** creates a back-out or drive-through place behind the
   mainline.
 - **Double crossover** changes between two parallel tracks.
 - **Triple switch** opens three routes from one entrance. Choose it on an open
-  track or a free area, select **Preview**, then use **Fit location** or
-  **Next fit** to choose an offered aligned placement before **Apply**.
+  track or a free area, choose **Preview on track**, then use **Fit location**
+  to choose between available placements before **Add to layout**.
 - **Four-track drive-through yard** uses opposite-handed R40 yard ladders and
   joins all four storage tracks at both ends. Its selected storage length is
   measured from the shortest track. It needs 192 studs plus the selected
@@ -38,6 +83,11 @@ the changed track and reports an overhang or collision before applying it.
   R104Y adapters, a tail lead, and a two-direction mainline closure.
   Its 32-stud tail fits in a 100 by 60 inch area; use 100 by 70 inches for a
   64-stud tail.
+
+For a larger example, choose **Member yard** under **Other templates**. The
+inner mainline remains open past the R104 switches. Each of the three private
+tracks has eight S16 straights for parking and ends 16 studs before the edge.
+[See the 100 by 60 inch R104 yard](screenshots/member_r104_yard.webp).
 
 TrixBrix product sets can include required specialty connectors and separately
 sold entrance switches. The inventory lists each placed physical part, rather
@@ -60,9 +110,9 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-Click or tap a track piece to select it. Use the arrangement tools or
-**Place connected track** to add rail, and use **Remove selected track** to
-remove a selected piece. Undo and Redo apply one design operation at a time.
+Click or tap a track piece to select it. Use the arrangement tools or the
+current **Single piece** action to add rail, and use **Remove selected track**
+to remove a selected piece. Undo and Redo apply one design operation at a time.
 Pinch or Control-scroll zooms. Two-finger scroll and drag pan.
 
 The parts panel totals physical pieces in the current design. The findings
@@ -73,11 +123,13 @@ the route panel explains the selected path.
 
 ## Save and export
 
-**Save** downloads the editable `.btp.json` project. **Open** validates a
-saved file before replacing the current design. **Import BlueBrick** creates a
+**Save track plan** downloads an editable LDraw `.ldr` file. Share that file
+with other LDraw users or use **Open track plan** to continue working on it here.
+The planner opens the track files it creates, including its templates.
+**Import BlueBrick** creates a
 reviewable track plan in the current design-area model and identifies any part
 the catalog cannot place.
 
-Choose PNG, WebP, PDF, or LDraw from Export. The PDF is the member handoff:
+Choose PNG or WebP for a drawing. Choose PDF for a member build sheet with
 design area dimensions, public edge, assigned mainline, named exits, drawing,
-route information, and parts list. LDraw includes mapped track only.
+route information, and parts list.

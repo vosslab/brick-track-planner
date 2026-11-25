@@ -5,37 +5,36 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# Resolve entry point.
-if [ -f "src/main.ts" ]; then
-	ENTRY="src/main.ts"
-elif [ -f "src/init.ts" ]; then
-	ENTRY="src/init.ts"
-	echo "WARNING: using legacy src/init.ts. Rename to src/main.ts." >&2
-else
-	echo "ERROR: no entry point. Create src/main.ts (preferred) or src/init.ts." >&2
-	exit 1
-fi
+ENTRY="src/main.ts"
 
 # Verify required static assets before any destructive step.
-for required in src/index.html src/style.css; do
+for required in "$ENTRY" src/index.html src/style.css src/planner_build.css; do
 	if [ ! -f "$required" ]; then
 		echo "ERROR: required source file missing: $required" >&2
-		case "$required" in
-			src/index.html)
-				echo "  Create src/index.html with a <script type=\"module\" src=\"main.js\"></script> tag." >&2 ;;
-			src/style.css)
-				echo "  Create src/style.css (empty file is fine)." >&2 ;;
-		esac
 		exit 1
 	fi
 done
-required_examples=(examples/member-straight.btp.json examples/member-corner.btp.json examples/member-yard.btp.json examples/u-shaped-staging.btp.json examples/bluebrick-example.bbm)
-for example in "${required_examples[@]}"; do
-	if [ ! -s "$example" ]; then
-		echo "ERROR: required release example is missing or empty: $example" >&2
+required_templates=(
+	templates/member-straight.ldr
+	templates/member-corner.ldr
+	templates/member-yard.ldr
+	templates/u-shaped-staging.ldr
+)
+while IFS= read -r template; do
+	required_templates+=("templates/$template")
+done < <(
+	node -e 'for (const template of require("./data/straight_examples.json")) console.log(template.file)'
+)
+for template in "${required_templates[@]}"; do
+	if [ ! -s "$template" ]; then
+		echo "ERROR: required release template is missing or empty: $template" >&2
 		exit 1
 	fi
 done
+if [ ! -s examples/bluebrick-example.bbm ]; then
+	echo "ERROR: required BlueBrick import example is missing or empty." >&2
+	exit 1
+fi
 required_reference="docs/references/niltc-track-specifications/index.html"
 if [ ! -s "$required_reference" ]; then
 	echo "ERROR: required offline NILTC reference is missing or empty: $required_reference" >&2
@@ -58,7 +57,7 @@ wasm-pack build . --target web --release --out-dir generated/wasm --out-name tra
 ./node_modules/.bin/tsc --noEmit -p tsconfig.json
 
 rm -rf dist
-mkdir -p dist/wasm dist/examples dist/references
+mkdir -p dist/wasm dist/templates dist/examples dist/references
 
 ./node_modules/.bin/esbuild "main=$ENTRY" \
 	--bundle \
@@ -72,17 +71,21 @@ mkdir -p dist/wasm dist/examples dist/references
 
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
+cp src/planner_build.css dist/planner_build.css
 cp generated/wasm/track_geometry_bg.wasm dist/wasm/
-cp examples/*.btp.json examples/*.bbm dist/examples/
+cp "${required_templates[@]}" dist/templates/
+cp examples/bluebrick-example.bbm dist/examples/
 cp -R docs/references/niltc-track-specifications dist/references/
 touch dist/.nojekyll
 
 test -s dist/index.html
+test -s dist/planner_build.css
 test -s dist/main.js
 test -s dist/wasm/track_geometry_bg.wasm
-for example in "${required_examples[@]}"; do
-	test -s "dist/$example"
+for template in "${required_templates[@]}"; do
+	test -s "dist/$template"
 done
+test -s dist/examples/bluebrick-example.bbm
 test -s dist/references/niltc-track-specifications/index.html
 
 echo "Built dist/ (GitHub Pages-ready)."

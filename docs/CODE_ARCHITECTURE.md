@@ -10,8 +10,9 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 
 - [`../src/main.ts`](../src/main.ts) starts the browser editor and coordinates
   input, undoable state changes, rendering, and exports.
-- [`../src/project.ts`](../src/project.ts) defines and validates the version 3
-  single-area project contract.
+- [`../src/project.ts`](../src/project.ts) defines and validates the single-area
+  project passed between the editor and Rust. [`../src/ldraw.ts`](../src/ldraw.ts)
+  reads and writes editable LDraw track plans.
 - [`../src/area_form.ts`](../src/area_form.ts) and
   [`../src/niltc_starters.ts`](../src/niltc_starters.ts) create a member's
   assigned area and protected straight or corner mainline.
@@ -35,13 +36,13 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 
 ## Data flow
 
-1. A starter or form creates one validated `Project` with one `area`.
+1. A starter, LDraw template, or reopened plan supplies one `Project` with one `area`.
 2. Editor tools add individual physical track items in area coordinates.
 3. [`../src/engine.ts`](../src/engine.ts) sends the project and catalog to the
    Rust/Wasm evaluator.
 4. The evaluator returns joins, collisions, routes, NILTC findings, and
    inventory data.
-5. The scene, diagnostics, parts list, PDF, image, and LDraw exporters consume
+5. The scene, diagnostics, parts list, PDF, image exporters, and LDraw writer consume
    that same placed-track representation.
 
 ## Testing and verification

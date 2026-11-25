@@ -6,7 +6,6 @@ import {
   angleGap,
   composePose,
   newProject,
-  parseProject,
   poseConnectingPorts,
   validateProject,
 } from "../src/project.ts";
@@ -39,7 +38,7 @@ test("rail port placements join regular and flipped track at any turn count", ()
 test("new projects own one design area", () => {
   const project = newProject();
   assert.deepEqual(project.area, { width: 192, depth: 128, fronts: [], exits: [] });
-  assert.deepEqual(parseProject(JSON.stringify(project)), project);
+  validateProject(project);
 });
 
 test("design area validates NILTC assignments and boundary exits", () => {
@@ -70,7 +69,6 @@ test("design area validates NILTC assignments and boundary exits", () => {
     },
   });
   validateProject(project);
-  assert.deepEqual(parseProject(JSON.stringify(project)), project);
 });
 
 test("schema rejects table-era projects and malformed design areas", () => {
@@ -83,7 +81,7 @@ test("schema rejects table-era projects and malformed design areas", () => {
     [{ ...project, area: { ...project.area, fronts: ["north"] } }, /0 public edge/],
   ];
   for (const [value, error] of invalid) {
-    assert.throws(() => parseProject(JSON.stringify(value)), error);
+    assert.throws(() => validateProject(value), error);
   }
 });
 
@@ -101,7 +99,7 @@ test("schema validates placed physical track and arrangement identity", () => {
     y: 0,
     angle: 0,
   });
-  assert.deepEqual(parseProject(JSON.stringify(project)), project);
+  validateProject(project);
   project.items[0].partId = "not-a-part";
   assert.throws(() => validateProject(project), /catalog track part/);
   project.items[0].partId = physicalPartId;

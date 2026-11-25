@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { newProject, parseProject } from "../src/project.ts";
+import { newProject, validateProject } from "../src/project.ts";
 
 test("a member project owns one named design area and local track", () => {
   const project = newProject();
@@ -44,7 +44,7 @@ test("a member project owns one named design area and local track", () => {
     },
   );
 
-  assert.deepEqual(parseProject(JSON.stringify(project)), project);
+  validateProject(project);
   assert.equal("tables" in project, false);
   assert.equal(
     project.items.every((item) => !("tableId" in item)),
@@ -64,7 +64,7 @@ test("the pre-production member format rejects table, seam, and baseplate record
     sections: [],
     members: [],
   };
-  assert.throws(() => parseProject(JSON.stringify(legacy)), /project\.version/);
+  assert.throws(() => validateProject(legacy), /project\.version/);
 
   project.items.push({
     id: "baseplate",
@@ -74,5 +74,5 @@ test("the pre-production member format rejects table, seam, and baseplate record
     y: 16,
     angle: 0,
   });
-  assert.throws(() => parseProject(JSON.stringify(project)), /track or unresolved/);
+  assert.throws(() => validateProject(project), /track or unresolved/);
 });

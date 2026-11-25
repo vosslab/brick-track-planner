@@ -317,9 +317,6 @@ mod tests {
     use crate::ports::WorldPort;
     use crate::routes::{DirectedRoute, trace};
 
-    const STRAIGHT: &str = include_str!("../examples/member-straight.btp.json");
-    const CORNER: &str = include_str!("../examples/member-corner.btp.json");
-
     fn analyze(project: &Value) -> Value {
         serde_json::from_str(&evaluate(&project.to_string()).unwrap()).unwrap()
     }
@@ -333,6 +330,32 @@ mod tests {
             "items": []
         }))
         .unwrap()
+    }
+
+    fn straight_mainline() -> Value {
+        let items = [("outer", 8.0), ("inner", 24.0)]
+            .into_iter()
+            .flat_map(|(lane, y)| {
+                (1..=12).map(move |index| {
+                    json!({
+                        "id": format!("{lane}-{index}"), "kind": "track", "partId": "lego:rc-s16",
+                        "layerId": "layout", "x": 8.0 + 16.0 * (index - 1) as f64, "y": y,
+                        "angle": 0.0, "heightPlates": 2
+                    })
+                })
+            })
+            .collect::<Vec<_>>();
+        json!({
+            "version": 3, "name": "straight mainline",
+            "area": {
+                "width": 192, "depth": 128, "fronts": ["north"], "niltc": "straight",
+                "exits": [
+                    {"id":"west","edge":"west","outer":{"pieceId":"outer-1","portId":"a"},"inner":{"pieceId":"inner-1","portId":"a"}},
+                    {"id":"east","edge":"east","outer":{"pieceId":"outer-12","portId":"b"},"inner":{"pieceId":"inner-12","portId":"b"}}
+                ]
+            },
+            "layers": [{"id":"layout","name":"Layout","visible":true}], "items": items
+        })
     }
 
     fn port(x: f64, y: f64, angle: f64, connector_type: &'static str) -> WorldPort<'static> {
@@ -532,7 +555,7 @@ mod tests {
 
     #[test]
     fn requires_each_named_mainline_exit_to_have_a_track_route() {
-        let mut project: Value = serde_json::from_str(STRAIGHT).unwrap();
+        let mut project = straight_mainline();
         assert_eq!(analyze(&project)["niltcIssues"], json!([]));
         project["items"]
             .as_array_mut()
@@ -542,11 +565,5 @@ mod tests {
             analyze(&project)["niltcIssues"],
             json!([{"kind":"missing-mainline", "lane":"outer"}]),
         );
-    }
-
-    #[test]
-    fn accepts_the_measured_corner_fixture() {
-        let project: Value = serde_json::from_str(CORNER).unwrap();
-        assert_eq!(analyze(&project)["niltcIssues"], json!([]));
     }
 }

@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#153f34" />
     <title>Brick Track Planner</title>
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./planner_build.css" />
     <script type="module" src="./main.js"></script>
   </head>
   <body>
@@ -15,16 +16,15 @@
         <span>Brick Track <strong>Planner</strong></span>
       </a>
       <div class="file-controls" aria-label="Project files">
-        <button type="button" id="open-project">Open</button>
+        <button type="button" id="open-project" hidden>Open track plan</button>
         <button type="button" id="import-project">Import BlueBrick</button>
-        <div id="project-file-actions" class="project-file-action">
-          <button type="button" id="save-project">Save project</button>
+        <div id="project-file-actions" class="project-file-action" hidden>
+          <button type="button" id="save-project">Save track plan</button>
           <label class="screen-reader" for="export-format">Export format</label>
           <select id="export-format">
             <option value="png">PNG</option>
             <option value="webp">WebP</option>
             <option value="pdf">PDF</option>
-            <option value="ldraw">LDraw</option>
           </select>
           <label class="screen-reader" for="raster-resolution">Raster resolution</label>
           <select id="raster-resolution">
@@ -38,11 +38,11 @@
           </select>
           <button type="button" id="export-layout" class="primary">Export</button>
         </div>
-        <input id="project-file" type="file" accept=".btp.json,.json" hidden />
+        <input id="project-file" type="file" accept=".ldr" hidden />
         <input id="import-file" type="file" accept=".bbm,.xml" hidden />
       </div>
     </header>
-    <main id="editor">
+    <main id="editor" hidden>
       <div class="project-bar">
         <div class="project-title">
           <span id="design-title">Layout name</span>
@@ -59,64 +59,96 @@
         <div class="project-actions">
           <button type="button" id="edit-design-area">Design area</button>
           <button type="button" id="new-project">New design</button>
-          <label class="screen-reader" for="examples">Example layouts</label>
-          <select id="examples">
-            <option value="">Open an example&hellip;</option>
+          <button type="button" id="browse-examples">Browse 40 &times; 60 examples</button>
+          <label class="screen-reader" for="templates">Track templates</label>
+          <select id="templates">
+            <option value="">Other templates&hellip;</option>
           </select>
         </div>
       </div>
       <div class="workspace">
         <aside class="panel library" aria-labelledby="library-title">
           <div class="panel-head">
-            <h2 id="library-title">Track library</h2>
+            <h2 id="library-title" tabindex="-1">Add track</h2>
           </div>
           <div id="library-body">
-            <section class="arrangement-library" aria-labelledby="arrangement-heading">
-              <h3 id="arrangement-heading">Parking and track arrangements</h3>
-              <p class="library-help">Add a complete, connected track build to the design area.</p>
-              <label for="arrangement">Arrangement</label>
-              <select id="arrangement">
-                <option value="">Add a complete arrangement...</option>
-              </select>
-              <label for="anchor">Location</label>
-              <select id="anchor">
-                <option value="center">Best connected fit</option>
-                <option value="selected">Replace selected straight</option>
-                <option value="mainline">Use the mainline</option>
-              </select>
-              <label for="arrangement-location">Fit location</label>
-              <div class="candidate-location-controls">
-                <select id="arrangement-location" aria-label="Fit location" disabled>
-                  <option>Preview to choose a fit</option>
+            <fieldset class="build-modes">
+              <legend class="screen-reader">How to add track</legend>
+              <label
+                ><input
+                  type="radio"
+                  name="build-tool"
+                  id="build-arrangement"
+                  value="arrangement"
+                  checked
+                />
+                Arrangement</label
+              >
+              <label
+                ><input type="radio" name="build-tool" id="build-piece" value="piece" /> Single
+                piece</label
+              >
+            </fieldset>
+            <p id="build-hint" class="library-help"></p>
+            <section
+              id="arrangement-tools"
+              class="arrangement-library"
+              aria-label="Build an arrangement"
+            >
+              <label for="arrangement">Siding, yard or junction</label>
+              <select id="arrangement"></select>
+              <details id="placement-options">
+                <summary>Placement options</summary>
+                <label for="anchor">Connect to</label>
+                <select id="anchor">
+                  <option value="center">Best connected fit</option>
+                  <option value="selected">Selected track</option>
+                  <option value="mainline">Mainline only</option>
                 </select>
-                <button id="next-arrangement-location" type="button" disabled>Next fit</button>
-              </div>
-              <label for="storage-length">Straight storage length</label>
-              <select id="storage-length">
-                <option value="0">No added storage</option>
-                <option value="32">32 studs</option>
-                <option value="64" selected>64 studs</option>
-                <option value="96">96 studs</option>
-              </select>
-              <div class="arrangement-actions">
-                <button type="button" id="preview-arrangement">Preview</button>
-                <button type="button" id="apply-arrangement" class="primary" disabled>Apply</button>
-                <button type="button" id="cancel-arrangement" disabled>Cancel</button>
-              </div>
+                <label for="storage-length">Extra storage track</label>
+                <select id="storage-length">
+                  <option value="auto" selected>Fit to space (up to 64 studs)</option>
+                  <option value="0">No added straights</option>
+                  <option value="32">32 studs</option>
+                  <option value="64">64 studs</option>
+                  <option value="96">96 studs</option>
+                </select>
+              </details>
+              <button type="button" id="preview-arrangement" class="primary">
+                Preview on track
+              </button>
               <p id="arrangement-info" class="arrangement-info" aria-live="polite"></p>
+              <div id="arrangement-preview" hidden>
+                <div id="fit-location-controls" class="candidate-location-controls">
+                  <label for="arrangement-location">Fit location</label>
+                  <select id="arrangement-location"></select>
+                </div>
+                <div class="arrangement-actions">
+                  <button type="button" id="apply-arrangement" class="primary" disabled>
+                    Add to layout
+                  </button>
+                  <button type="button" id="cancel-arrangement" disabled>Cancel preview</button>
+                </div>
+              </div>
             </section>
-            <div class="direct-track-controls">
-              <h3>Add an individual piece</h3>
+            <section
+              id="piece-tools"
+              class="direct-track-controls"
+              aria-label="Place a single piece"
+              hidden
+            >
               <label for="piece-choice">Track piece</label>
-              <select id="piece-choice">
-                <option value="">Choose a piece...</option>
-              </select>
-              <label for="piece-port">Connect from</label>
-              <select id="piece-port">
-                <option value="">Choose a track piece first</option>
-              </select>
-              <button type="button" id="extend-piece" disabled>Place connected track</button>
-            </div>
+              <select id="piece-choice"></select>
+              <label for="piece-target">Place at</label>
+              <select id="piece-target"></select>
+              <details class="placement-options">
+                <summary>Connection options</summary>
+                <label for="piece-port">Connecting end of this piece</label>
+                <select id="piece-port"></select>
+              </details>
+              <button type="button" class="primary" id="extend-piece">Place on drawing</button>
+              <p id="piece-info" class="library-help" aria-live="polite"></p>
+            </section>
           </div>
         </aside>
         <section class="workbench" aria-label="Track plan workspace">
@@ -227,37 +259,58 @@
         </aside>
       </div>
     </main>
+    <main id="start-screen" aria-labelledby="start-title">
+      <section class="start-card">
+        <h1 id="start-title">Start with your assigned display area</h1>
+        <p class="dialog-intro">
+          Enter the space you signed up for and choose your assigned mainline.
+          Then add a parking siding or yard behind it.
+        </p>
+        <div id="startup-form"></div>
+        <div class="start-alternatives" aria-label="Existing plans">
+          <div>
+            <button type="button" id="start-browse-examples">Browse 40 &times; 60 examples</button>
+            <button type="button" id="start-open-project">Open track plan</button>
+            <label class="screen-reader" for="start-templates">Start from a template</label>
+            <select id="start-templates">
+              <option value="">Other templates&hellip;</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </main>
     <p id="status" role="status" class="status">Loading track geometry&hellip;</p>
     <dialog id="area-dialog" aria-labelledby="area-form-title">
-      <form id="area-form">
-        <p class="eyebrow">Your assigned display</p>
+      <div class="dialog-heading">
         <h2 id="area-form-title">Set up your design area</h2>
-        <p class="dialog-intro">
-          Enter the space you will fill. Baseplates cover the whole area automatically.
-        </p>
+        <p id="area-form-intro" class="dialog-intro"></p>
+      </div>
+    </dialog>
+    <template id="area-form-template">
+      <form id="area-form">
         <label for="area-name">Design name</label>
         <input id="area-name" required maxlength="120" value="My NILTC layout" />
         <div class="field-grid area-measurements">
           <label
             >Width along the track<select id="area-width">
-              <option value="128">40 in * 4 baseplates</option>
-              <option value="192" selected>60 in * 6 baseplates</option>
-              <option value="256">80 in * 8 baseplates</option>
-              <option value="320">100 in * 10 baseplates</option>
+              <option value="128">40 in (4 baseplates)</option>
+              <option value="192" selected>60 in (6 baseplates)</option>
+              <option value="256">80 in (8 baseplates)</option>
+              <option value="320">100 in (10 baseplates)</option>
               <option value="other">Other</option>
             </select></label
           >
           <label
             >Depth from plexiglass<select id="area-depth">
-              <option value="96">30 in * 3 baseplates</option>
-              <option value="128" selected>40 in * 4 baseplates</option>
-              <option value="192">60 in * 6 baseplates</option>
+              <option value="96">30 in (3 baseplates)</option>
+              <option value="128" selected>40 in (4 baseplates)</option>
+              <option value="192">60 in (6 baseplates)</option>
               <option value="other">Other</option>
             </select></label
           >
         </div>
         <div id="area-other-dimensions" class="field-grid" hidden>
-          <label
+          <label id="area-other-width-field"
             >Width in nominal inches<input
               id="area-other-width"
               type="number"
@@ -265,7 +318,7 @@
               step="10"
               value="60"
           /></label>
-          <label
+          <label id="area-other-depth-field"
             >Depth in nominal inches<input
               id="area-other-depth"
               type="number"
@@ -275,7 +328,7 @@
           /></label>
         </div>
         <fieldset class="assignment-fieldset">
-          <legend>Roger assigned</legend>
+          <legend>Mainline assignment</legend>
           <div class="assignment-options" role="radiogroup" aria-label="Assigned mainline">
             <label
               ><input type="radio" name="assignment" value="straight" checked /><span
@@ -339,7 +392,7 @@
           ><button type="submit" id="create-area" class="primary">Create track plan</button>
         </div>
       </form>
-    </dialog>
+    </template>
     <dialog id="import-preview" aria-labelledby="preview-title">
       <h2 id="preview-title">Review BlueBrick import</h2>
       <p id="preview-name"></p>
@@ -350,10 +403,15 @@
         <button type="button" id="confirm-import" class="primary">Open imported layout</button>
       </div>
     </dialog>
-    <dialog id="export-report" aria-labelledby="report-title">
-      <h2 id="report-title">LDraw export details</h2>
-      <div id="export-notes"></div>
-      <form class="dialog-actions" method="dialog"><button class="primary">Done</button></form>
+    <dialog id="template-gallery" aria-labelledby="template-gallery-title">
+      <h2 id="template-gallery-title">40 &times; 60 straight examples</h2>
+      <p class="dialog-intro">
+        Each example keeps the NILTC mainline on the public edge. Open one to edit its track.
+      </p>
+      <div id="template-gallery-cards" class="template-gallery-cards" aria-live="polite"></div>
+      <div class="dialog-actions">
+        <button type="button" id="close-template-gallery">Close</button>
+      </div>
     </dialog>
   </body>
 </html>

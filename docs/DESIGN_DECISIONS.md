@@ -20,6 +20,20 @@ venue placement, members, and movable baseplates are absent from version 3.
 
 **Owner.** [FILE_FORMAT.md](FILE_FORMAT.md)
 
+### Save designs and templates as LDraw track plans
+
+**Decision.** Use the same LDraw format for member downloads and bundled
+templates. Track placement belongs in LDraw part references. Planner metadata
+holds the design area, handoffs, and other editing details.
+
+**Why.** Members can share their track with other LDraw tools and reopen it
+here without a second project file. The editor can stay focused on track.
+
+**Consequence.** Open supports the planner's own files. The geometry engine
+still receives the validated in-memory project through its JSON interface.
+
+**Owner.** [FILE_FORMAT.md](FILE_FORMAT.md)
+
 ### Derive baseplate coverage
 
 **Decision.** Render a 32-stud baseplate grid from the design area.

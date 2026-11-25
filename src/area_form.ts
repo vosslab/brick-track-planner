@@ -30,23 +30,37 @@ function edgeForCorner(edge: string): AreaSetup["fronts"] {
 
 /** Wires the small area dialog. Project construction stays in the editor. */
 export function setupAreaForm(hooks: Hooks): {
+  start: () => void;
   open: (existing?: AreaSetup) => void;
   read: () => AreaSetup;
 } {
   const dialog = required("area-dialog", HTMLDialogElement);
-  const form = required("area-form", HTMLFormElement);
+  const startup = required("startup-form", HTMLElement);
+  const template = required("area-form-template", HTMLTemplateElement);
+  const form = template.content.firstElementChild?.cloneNode(true);
+  if (!(form instanceof HTMLFormElement)) throw new Error("Missing area form.");
+  startup.append(form);
   const width = required("area-width", HTMLSelectElement);
   const depth = required("area-depth", HTMLSelectElement);
   const other = required("area-other-dimensions", HTMLElement);
+  const otherWidthField = required("area-other-width-field", HTMLElement);
+  const otherDepthField = required("area-other-depth-field", HTMLElement);
   const otherWidth = required("area-other-width", HTMLInputElement);
   const otherDepth = required("area-other-depth", HTMLInputElement);
   const name = required("area-name", HTMLInputElement);
   const fronts = required("area-fronts", HTMLFieldSetElement);
   const frontsLabel = required("area-fronts-label", HTMLElement);
   const error = required("area-error", HTMLElement);
+  const title = required("area-form-title", HTMLElement);
+  const intro = required("area-form-intro", HTMLElement);
+  const submit = required("create-area", HTMLButtonElement);
 
   const updateDimensions = (): void => {
     other.hidden = width.value !== "other" && depth.value !== "other";
+    otherWidthField.hidden = width.value !== "other";
+    otherDepthField.hidden = depth.value !== "other";
+    otherWidth.disabled = width.value !== "other";
+    otherDepth.disabled = depth.value !== "other";
   };
   const updateAssignment = (): void => {
     const assignment = selected("assignment").value as AreaSetup["assignment"];
@@ -86,6 +100,16 @@ export function setupAreaForm(hooks: Hooks): {
             ? [edge as AreaSetup["fronts"][number]]
             : [],
     };
+  };
+  const start = (): void => {
+    error.textContent = "";
+    dialog.dataset["editing"] = "false";
+    form.dataset["startup"] = "true";
+    startup.append(form);
+    required("cancel-area", HTMLButtonElement).hidden = true;
+    submit.textContent = "Create track plan";
+    updateDimensions();
+    updateAssignment();
   };
   const open = (existing?: AreaSetup): void => {
     error.textContent = "";
@@ -131,6 +155,14 @@ export function setupAreaForm(hooks: Hooks): {
     }
     updateDimensions();
     updateAssignment();
+    form.dataset["startup"] = "false";
+    required("cancel-area", HTMLButtonElement).hidden = false;
+    title.textContent = existing ? "Edit your design area" : "Start a new design";
+    intro.textContent = existing
+      ? "The current track stays in place while you adjust the available space."
+      : "Choose a new assigned space and mainline.";
+    submit.textContent = existing ? "Update design area" : "Create track plan";
+    dialog.append(form);
     dialog.showModal();
   };
 
@@ -140,16 +172,17 @@ export function setupAreaForm(hooks: Hooks): {
     choice.addEventListener("change", updateAssignment);
   }
   required("cancel-area", HTMLButtonElement).addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => startup.append(form));
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     try {
       const setup = read();
       if (dialog.dataset["editing"] === "true" && hooks.update) hooks.update(setup);
       else hooks.create(setup);
-      dialog.close();
+      if (form.dataset["startup"] !== "true") dialog.close();
     } catch (reason) {
       error.textContent = reason instanceof Error ? reason.message : String(reason);
     }
   });
-  return { open, read };
+  return { start, open, read };
 }

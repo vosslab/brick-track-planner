@@ -47,7 +47,7 @@ function start(setup: AreaSetup, catalog: Catalog): Project {
 class Planner {
   readonly #catalog: Catalog;
   readonly #camera: EditorCamera;
-  readonly #state: EditorState;
+  #state: EditorState | undefined;
   readonly #tracks: TrackTools;
   readonly #arrangements: ArrangementTools;
   #preview: ArrangementResult | undefined;
@@ -55,15 +55,6 @@ class Planner {
 
   constructor(catalog: Catalog) {
     this.#catalog = catalog;
-    this.#state = new EditorState(
-      createNiltcStarter(catalog, {
-        width: 192,
-        depth: 128,
-        mode: "straight",
-        fronts: ["north"],
-        name: "My track plan",
-      }),
-    );
     this.#camera = new EditorCamera(element("tabletop"), {
       tap: (point, target): void => {
         if (!this.#arrangements.pick(point))
@@ -71,17 +62,17 @@ class Planner {
       },
     });
     this.#tracks = new TrackTools(catalog, {
-      analysis: (): Analysis => this.#state.analysis,
+      analysis: (): Analysis => this.#requireState().analysis,
       commit: (project): void => this.#commit(project),
       render: (): void => this.#draw(),
       cancelArrangement: (): void => this.#arrangements.reset(),
       notice,
     });
     this.#arrangements = new ArrangementTools(catalog, {
-      project: (): Project => this.#state.project,
+      project: (): Project => this.#requireState().project,
       selection: (): string[] => [...this.#tracks.selection],
       mainlineIds: (): string[] => {
-        const { project, routes } = this.#state.analysis;
+        const { project, routes } = this.#requireState().analysis;
         const [a, b] = project.area.exits;
         if (!a || !b) return [];
         return [
@@ -105,15 +96,15 @@ class Planner {
       notice,
     });
     setupFiles(catalog, {
-      analysis: (): Analysis => this.#state.analysis,
-      open: (project): void => this.#commit(project, true),
+      analysis: (): Analysis => this.#requireState().analysis,
+      open: (project): void => this.#replace(project),
       notice,
     });
     const form = setupAreaForm({
-      create: (setup): void => this.#commit(start(setup, catalog), true),
+      create: (setup): void => this.#replace(start(setup, catalog)),
       update: (setup): void =>
         this.#commit(
-          resizeDesignArea(this.#state.project, catalog, {
+          resizeDesignArea(this.#requireState().project, catalog, {
             ...setup,
             ...signupToAreaDimensions(setup, setup.fronts),
           }),
@@ -122,7 +113,7 @@ class Planner {
     });
     button("new-project").onclick = (): void => form.open();
     button("edit-design-area").onclick = (): void => {
-      const { name, area } = this.#state.project;
+      const { name, area } = this.#requireState().project;
       form.open({
         name,
         ...areaToSignupDimensions(area, area.fronts),
@@ -138,7 +129,7 @@ class Planner {
     input("grid-toggle").onchange = (): void => this.#draw();
     input("project-name").onchange = (): void => {
       const name = input("project-name").value.trim() || "My track plan";
-      this.#commit({ ...this.#state.project, name });
+      this.#commit({ ...this.#requireState().project, name });
     };
     document.addEventListener("keydown", (event) => {
       if (
@@ -147,6 +138,7 @@ class Planner {
         event.target instanceof HTMLSelectElement
       )
         return;
+      if (!this.#state) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
         this.#history(event.shiftKey ? "redo" : "undo");
@@ -163,16 +155,35 @@ class Planner {
         }
       }
     });
-    this.#reset(true);
+    form.start();
+    notice("");
   }
 
   #commit(project: Project, fit = false): void {
-    this.#state.commit(project);
+    this.#requireState().commit(project);
     this.#reset(fit);
   }
 
+  #replace(project: Project): void {
+    this.#state = new EditorState(project);
+    element("editor").hidden = false;
+    element("start-screen").hidden = true;
+    button("open-project").hidden = false;
+    element("project-file-actions").hidden = false;
+    document.body.dataset["projectOpen"] = "";
+    this.#arrangements.useDefaults();
+    this.#tracks.useDefaultTool();
+    this.#reset(true);
+    element("library-title").focus();
+  }
+
+  #requireState(): EditorState {
+    if (!this.#state) throw new Error("Start a design or open a track plan first.");
+    return this.#state;
+  }
+
   #history(direction: "undo" | "redo"): void {
-    this.#state.change(direction);
+    this.#requireState().change(direction);
     this.#reset(true);
     notice(direction === "undo" ? "Edit undone." : "Edit restored.");
   }
@@ -182,7 +193,8 @@ class Planner {
     notice("");
     this.#tracks.reset();
     this.#arrangements.reset();
-    const { project, analysis } = this.#state;
+    const state = this.#requireState();
+    const { project, analysis } = state;
     input("project-name").value = project.name;
     const inches = (studs: number): string => String(Number(((studs * 10) / 32).toFixed(2)));
     const { width, depth } = areaToSignupDimensions(project.area, project.area.fronts);
@@ -191,15 +203,15 @@ class Planner {
     element("area-summary").textContent = project.area.niltc
       ? `NILTC ${project.area.niltc === "corner" ? "90° corner" : "straight"} · Plexiglass on the ${project.area.fronts.join(" and ")}`
       : "General track layout";
-    button("undo").disabled = !this.#state.canUndo;
-    button("redo").disabled = !this.#state.canRedo;
+    button("undo").disabled = !state.canUndo;
+    button("redo").disabled = !state.canRedo;
     renderInventory(showInventory(project, this.#catalog));
     renderDiagnostics(analysis, (id) => this.#tracks.selectPiece(id));
     this.#draw(fit);
   }
 
   #draw(fit = false): void {
-    const { analysis, project } = this.#state;
+    const { analysis, project } = this.#requireState();
     const preview = this.#preview;
     const candidate = preview?.candidateItems ?? [];
     const working =
@@ -223,6 +235,7 @@ class Planner {
       trace: this.#tracks.route,
       grid: input("grid-toggle").checked,
       interaction: this.#tracks.pickingPort ? "ports" : "pieces",
+      extendable: this.#tracks.extendablePorts,
       replacement: new Set(preview?.removedIds),
       addition: new Set(preview?.addedIds),
       reuse: this.#scene,

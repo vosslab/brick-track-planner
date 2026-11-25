@@ -21,8 +21,8 @@ GitHub Pages artifact.
 | M10 LDraw export | `cad`. Spec review by `review_geometry_spec`. | Independent reference-model calibration confirmed the mapped turnout, straight, and wide curve coupling points and turnout handedness. Raising the turnout one plate changes only Y by -8 LDU. Export reports omissions and custom-model requirements. |
 | M11 Release artifact | `build`, `browser_tests`, `docs`, `release_docs`. Independent integration review by `release_audit`. | A clean source snapshot with no generated inputs passed `npm ci` and `./devel/verify_release.sh`. The gate staged and tested the artifact at `/brick-track-planner/` and retained image, PDF, and LDraw outputs. The root Pages workflow awaits manual activation on GitHub. |
 
-The named release examples were `two-section.btp.json` and
-`double-corner.btp.json`. The retained BlueBrick example is
+The retired release examples have been replaced with editable LDraw templates.
+The retained BlueBrick example is
 [bluebrick-example.bbm](../../../examples/bluebrick-example.bbm).
 
 The full gate passed 15 Rust tests, 13 TypeScript tests, and 19 Playwright checks. The repository's

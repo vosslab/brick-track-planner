@@ -1,5 +1,5 @@
-import { composePose, newProject, poseConnectingPorts } from "./project";
-import type { Catalog, Edge, Part, Pose, Project, SectionExit } from "./project";
+import { angleGap, composePose, newProject, poseConnectingPorts } from "./project";
+import type { Catalog, Edge, Item, Part, Pose, Project, SectionExit } from "./project";
 
 export type SignupDimensions = { width: number; depth: number };
 export type NiltcStarterOptions = {
@@ -225,10 +225,57 @@ export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOption
   return project;
 }
 
+const starterTolerance = 1e-6;
+
+function sameNumber(left: number, right: number): boolean {
+  return Math.abs(left - right) <= starterTolerance;
+}
+
+function sameAngle(left: number, right: number): boolean {
+  return angleGap(left, right) <= starterTolerance;
+}
+
+function sameItem(left: Item, right: Item): boolean {
+  if (
+    left.kind !== right.kind ||
+    left.id !== right.id ||
+    left.layerId !== right.layerId ||
+    !sameNumber(left.x, right.x) ||
+    !sameNumber(left.y, right.y) ||
+    !sameAngle(left.angle, right.angle)
+  )
+    return false;
+  if (left.kind === "track" && right.kind === "track") {
+    return (
+      left.partId === right.partId &&
+      left.heightPlates === right.heightPlates &&
+      left.groupId === right.groupId &&
+      left.arrangementId === right.arrangementId &&
+      left.ballast === right.ballast &&
+      left.countBallast === right.countBallast
+    );
+  }
+  return false;
+}
+
+function sameExit(left: SectionExit, right: SectionExit): boolean {
+  return (
+    left.id === right.id &&
+    left.name === right.name &&
+    left.edge === right.edge &&
+    left.outer.pieceId === right.outer.pieceId &&
+    left.outer.portId === right.outer.portId &&
+    left.inner.pieceId === right.inner.pieceId &&
+    left.inner.portId === right.inner.portId
+  );
+}
+
 function sameStarterItems(left: Project, right: Project): boolean {
   return (
-    JSON.stringify(left.items) === JSON.stringify(right.items) &&
-    JSON.stringify(left.area.exits) === JSON.stringify(right.area.exits)
+    left.items.length === right.items.length &&
+    left.items.every((item, index) => sameItem(item, right.items[index]!)) &&
+    left.area.exits.length === right.area.exits.length &&
+    left.area.exits.every((exit, index) => sameExit(exit, right.area.exits[index]!))
   );
 }
 

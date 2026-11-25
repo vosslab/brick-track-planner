@@ -3,34 +3,44 @@
 Plan the track in your LEGO train club display space. Start with the assigned NILTC straight or corner, then connect a parking siding or storage yard and trace a train's route back to the mainline.
 
 [Open the published planner](https://vosslab.github.io/brick-track-planner/).
-This project is in pre-production. If the published editor shows **New layout**,
-use the [local build](#run-the-current-build) for the **New design** workflow below.
+This project is in pre-production.
 
-## From mainline to yard
+## From assigned area to siding
 
-The first view shows a 60 by 40 inch assignment. Two mainlines run along the
-plexiglass, and the baseplate grid covers the full area. The **Member yard**
-example shows how a single-ended R104 right yard branches off the inner line
-to store trains behind the display.
+Choose **Browse 40 &times; 60 examples** on the start screen to compare twelve
+ways to use a straight assignment. Pick a drawing to open it as an editable
+track plan. Both club mainlines are already connected.
+
+Start with the space you signed up for. For example, choose 40 inches along
+the track and 60 inches from the plexiglass, then choose **Create track plan**.
+The planner adds the assigned mainline and covers the whole area with its
+baseplate grid. The second view shows a connected parking siding behind that
+mainline.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Two straight mainlines along the plexiglass edge of a 60 by 40 inch design area](docs/screenshots/member_design_start.webp)
-![Four storage tracks branching from the inner mainline in the Member R104 right yard example](docs/screenshots/member_yard.webp)
+
+![Start screen for entering a member's assigned display area](docs/screenshots/member_design_start.webp)
+![A 40 by 60 inch member plan with a parking siding connected behind the mainline](docs/screenshots/member_parking_siding.webp)
 <!-- screenshots:end -->
 
 ## Quick start
 
-1. Choose **New design**. Keep the 60 inch width along the track, 40 inch
-   depth from the plexiglass, and **Straight** assignment. Choose **Create track plan**.
-2. Under **Arrangement**, choose **Back-out parking siding**. Set **Location**
-   to **Use the mainline** and choose **Preview**. The planner highlights the
-   fit and identifies the two straight pieces it will replace.
-3. Choose **Apply** to connect the siding, then **Save project** to download an
-   editable `.btp.json` file. Use **Open** to return to it later.
+1. On the start screen, choose the width along the track and the depth from the
+   plexiglass. For a 40 by 60 inch straight display, choose **40 in** and
+   **60 in**, keep **Straight**, and choose **Create track plan**.
+2. In **Add track**, keep **Arrangement** and **Back-out parking siding**.
+   Choose **Preview on track**. The preview highlights the connected fit and
+   says how much storage track fits in the assigned area.
+3. Choose **Add to layout**. Select **Single piece** only when you want to
+   extend an open rail end yourself. Save with **Save track plan** when ready.
 
-For a corner assignment, choose **Curve** and select the public corner. The
-starter uses R120 on the outside and R104 on the inside. Choose **General**
-to lay your own track on a covered area.
+For a 40 by 60 straight, the default 64-stud storage can use the full available
+length. Open **Placement options** before previewing and choose 32 or 0 studs
+when you want a shorter siding with an open end to extend.
+
+Choose **Open track plan** to continue a saved LDraw file. For a corner assignment, choose
+**Curve** and select the public corner. The starter uses R120 on the outside
+and R104 on the inside. Choose **General** to lay your own track on a covered area.
 
 ## Plan a larger yard
 
@@ -48,15 +58,19 @@ to lay your own track on a covered area.
   private yards. The catalog covers plastic RC/PF-compatible LEGO, BrickTracks,
   and TrixBrix track.
 
-The included examples cover a straight assignment, a corner, a yard, and a
-general U-shaped staging layout. The U shape follows the visible geometry in
+Use **Other templates** on the first screen or in the editor for these larger
+or differently shaped assignments. You can also download the LDraw files for
+[straight mainline](templates/member-straight.ldr), [corner](templates/member-corner.ldr),
+[yard](templates/member-yard.ldr), and [U-shaped staging](templates/u-shaped-staging.ldr).
+The U shape follows the visible geometry in
 [LUK Railway's BlueBrick planning example](https://www.lukrailway.co.uk/wp-content/uploads/2026/06/lego-train-track-planning-software_bluebrick-example.png).
 
 ## Save, import, and share
 
 Export a PDF build sheet for the show with the public edge, mainline exits,
-track drawing, and parts list. PNG and WebP export the drawing. LDraw exports
-mapped track and reports pieces that need a custom model. Importing a supported
+track drawing, and parts list. PNG and WebP export the drawing. Share the
+same `.ldr` file with an LDraw user. The planner reopens its own track plans
+and templates. Importing a supported
 BlueBrick Map v9 `.bbm` keeps unrecognized pieces visible for review.
 
 ## Run the current build

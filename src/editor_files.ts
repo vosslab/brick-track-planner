@@ -1,18 +1,41 @@
 import type { Analysis } from "./engine";
+import straightExamples from "../data/straight_examples.json" with { type: "json" };
 import { button, dialog, element, input, select, textNode } from "./editor_dom";
-import { exportLDraw } from "./ldraw";
-import { parseProject } from "./project";
+import { evaluate } from "./engine";
+import { MAX_TRACK_PLAN_FILE_BYTES, openTrackPlan, saveTrackPlan } from "./ldraw";
 import type { Catalog, Project } from "./project";
 import { downloadBlob, importBlueBrick, MAX_BLUEBRICK_FILE_BYTES } from "./project_files";
+import { createScene, setSceneDetail } from "./scene";
 import { exportSharing } from "./share";
 
 type ImportReview = ReturnType<typeof importBlueBrick>;
-const examples: [string, string][] = [
-  ["member-straight.btp.json", "Member straight"],
-  ["member-corner.btp.json", "Member corner"],
-  ["member-yard.btp.json", "Member yard"],
-  ["u-shaped-staging.btp.json", "U-shaped staging layout"],
-  ["bluebrick-example.bbm", "BlueBrick track"],
+type Template = {
+  file: string;
+  name: string;
+  purpose: string;
+};
+
+const templates: readonly Template[] = [
+  {
+    file: "member-straight.ldr",
+    name: "Member straight",
+    purpose: "NILTC straight mainline.",
+  },
+  {
+    file: "member-corner.ldr",
+    name: "Member corner",
+    purpose: "NILTC R120 and R104 corner.",
+  },
+  {
+    file: "member-yard.ldr",
+    name: "Member yard",
+    purpose: "R104 yard with three 128-stud storage tracks.",
+  },
+  {
+    file: "u-shaped-staging.ldr",
+    name: "U-shaped staging layout",
+    purpose: "General staging layout.",
+  },
 ];
 
 export function setupFiles(
@@ -67,16 +90,21 @@ export function setupFiles(
       if (bluebrick && file.size > MAX_BLUEBRICK_FILE_BYTES) {
         throw new Error("BlueBrick files must be 8 MiB or smaller.");
       }
+      if (!bluebrick && file.size > MAX_TRACK_PLAN_FILE_BYTES) {
+        throw new Error("Track plan files must be 8 MiB or smaller.");
+      }
       const content = await file.text();
       if (version !== revision) return;
       if (bluebrick) previewImport(importBlueBrick(content, catalog));
-      else hooks.open(parseProject(content));
+      else hooks.open(openTrackPlan(content, catalog));
     } catch (error) {
       if (version === revision) hooks.notice(errorMessage(error), true);
     }
   };
 
-  button("open-project").addEventListener("click", () => input("project-file").click());
+  const chooseTrackPlan = (): void => input("project-file").click();
+  button("open-project").addEventListener("click", chooseTrackPlan);
+  button("start-open-project").addEventListener("click", chooseTrackPlan);
   input("project-file").addEventListener("change", () => {
     void processFile(input("project-file"), false);
   });
@@ -86,37 +114,109 @@ export function setupFiles(
   });
 
   button("save-project").addEventListener("click", () => {
-    const { project } = hooks.analysis();
-    downloadBlob(
-      new Blob([JSON.stringify(project, null, 2) + "\n"], { type: "application/json" }),
-      `${filename(project)}.btp.json`,
-    );
-    hooks.notice("Project downloaded.");
+    try {
+      const { project } = hooks.analysis();
+      downloadBlob(
+        new Blob([saveTrackPlan(project, catalog)], { type: "text/plain" }),
+        `${filename(project)}.ldr`,
+      );
+      hooks.notice("Track plan downloaded.");
+    } catch (error) {
+      hooks.notice(errorMessage(error), true);
+    }
   });
 
-  const exampleSelect = select("examples");
-  for (const [file, name] of examples) {
-    exampleSelect.add(new Option(name, file));
-  }
-  exampleSelect.addEventListener("change", () => {
-    const file = exampleSelect.value;
-    exampleSelect.value = "";
-    if (!file) return;
+  const loadedTemplates = new Map<string, Project>();
+  const loadTemplate = async (template: Template): Promise<Project> => {
+    const loaded = loadedTemplates.get(template.file);
+    if (loaded) return loaded;
+    const response = await fetch(new URL("./templates/" + template.file, import.meta.url));
+    if (!response.ok) throw new Error("Could not open the packaged template.");
+    const project = openTrackPlan(await response.text(), catalog);
+    loadedTemplates.set(template.file, project);
+    return project;
+  };
+  const openTemplate = async (template: Template): Promise<void> => {
     const version = ++revision;
-    async function openExample(): Promise<void> {
-      try {
-        const response = await fetch(new URL(`./examples/${file}`, import.meta.url));
-        if (!response.ok) throw new Error("Could not open the packaged example.");
-        const content = await response.text();
-        if (version !== revision) return;
-        if (file.endsWith(".bbm")) previewImport(importBlueBrick(content, catalog));
-        else hooks.open(parseProject(content));
-      } catch (error) {
-        if (version === revision) hooks.notice(errorMessage(error), true);
-      }
+    try {
+      const project = await loadTemplate(template);
+      if (version !== revision) return;
+      hooks.open(project);
+    } catch (error) {
+      if (version === revision) hooks.notice(errorMessage(error), true);
     }
-    void openExample();
-  });
+  };
+
+  const templateSelects = [select("templates"), select("start-templates")];
+  for (const templateSelect of templateSelects) {
+    for (const template of templates) {
+      const option = new Option(template.name, template.file);
+      option.title = template.purpose;
+      templateSelect.add(option);
+    }
+    templateSelect.addEventListener("change", () => {
+      const file = templateSelect.value;
+      templateSelect.value = "";
+      if (!file) return;
+      const template = templates.find((candidate) => candidate.file === file);
+      if (template) void openTemplate(template);
+    });
+  }
+
+  const gallery = dialog("template-gallery");
+  const cards = element("template-gallery-cards");
+  const galleryCards = new Map<string, HTMLButtonElement>();
+  const showGallery = (): void => {
+    gallery.showModal();
+    for (const template of straightExamples) {
+      let card = galleryCards.get(template.file);
+      if (!card) {
+        card = document.createElement("button");
+        card.type = "button";
+        card.className = "template-card";
+        card.setAttribute("aria-label", template.name + ". " + template.purpose);
+        const name = document.createElement("strong");
+        name.textContent = template.name;
+        card.append(name, textNode("small", template.purpose));
+        card.addEventListener("click", () => {
+          gallery.close();
+          void openTemplate(template);
+        });
+        galleryCards.set(template.file, card);
+        cards.append(card);
+      }
+      if (card.dataset.preview === "ready" || card.dataset.preview === "loading") continue;
+      card.dataset.preview = "loading";
+      card.disabled = true;
+      card.querySelector("[data-preview-error]")?.remove();
+      void (async (): Promise<void> => {
+        try {
+          const project = await loadTemplate(template);
+          const preview = createScene(project, catalog, evaluate(project), {
+            frame: "track",
+            grid: true,
+            sharing: true,
+          });
+          preview.setAttribute("aria-hidden", "true");
+          card.prepend(preview);
+          const view = preview.viewBox.baseVal;
+          const size = preview.getBoundingClientRect();
+          setSceneDetail(preview, Math.min(size.width / view.width, size.height / view.height));
+          card.dataset.preview = "ready";
+          card.disabled = false;
+        } catch {
+          card.dataset.preview = "failed";
+          card.disabled = false;
+          const error = textNode("small", "Preview unavailable. Open again to retry.");
+          error.dataset.previewError = "";
+          card.append(error);
+        }
+      })();
+    }
+  };
+  button("browse-examples").addEventListener("click", showGallery);
+  button("start-browse-examples").addEventListener("click", showGallery);
+  button("close-template-gallery").addEventListener("click", () => gallery.close());
 
   const exportFormat = select("export-format");
   const rasterResolution = select("raster-resolution");
@@ -137,18 +237,14 @@ export function setupFiles(
       const { project } = analysis;
       exportButton.disabled = true;
       try {
-        if (format === "ldraw") {
-          const report = exportLDraw(project, catalog);
-          downloadBlob(new Blob([report.text], { type: "text/plain" }), `${filename(project)}.ldr`);
-          if (report.omitted.length || report.custom.length) showLDrawReport(report);
-        } else if (format === "png" || format === "webp" || format === "pdf") {
+        if (format === "png" || format === "webp" || format === "pdf") {
           const blob = await exportSharing(format, project, catalog, analysis, {
             rasterResolution: rasterResolution.value === "high" ? "high" : "standard",
             pdfMode: pdfMode.value === "color" ? "color" : "grayscale",
           });
           downloadBlob(blob, `${filename(project)}.${format}`);
         }
-        hooks.notice(`${format === "ldraw" ? "LDraw" : format.toUpperCase()} downloaded.`);
+        hooks.notice(`${format.toUpperCase()} downloaded.`);
       } catch (error) {
         hooks.notice(errorMessage(error), true);
       } finally {
@@ -157,31 +253,6 @@ export function setupFiles(
     }
     void downloadLayout();
   });
-}
-
-function showLDrawReport(report: ReturnType<typeof exportLDraw>): void {
-  const nodes: HTMLElement[] = [];
-  if (report.omitted.length) {
-    const list = document.createElement("ul");
-    list.append(...report.omitted.map(({ name, count }) => textNode("li", `${count} x ${name}`)));
-    nodes.push(textNode("p", "Track omitted from the export"), list);
-  }
-  if (report.custom.length) {
-    const list = document.createElement("ul");
-    for (const { filename, url } of report.custom) {
-      const link = document.createElement("a");
-      link.href = url;
-      link.textContent = filename;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      const row = document.createElement("li");
-      row.append(link);
-      list.append(row);
-    }
-    nodes.push(textNode("p", "Custom parts required"), list);
-  }
-  element("export-notes").replaceChildren(...nodes);
-  dialog("export-report").showModal();
 }
 
 function filename(project: Project): string {

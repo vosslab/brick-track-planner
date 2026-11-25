@@ -330,11 +330,6 @@ export function validateProject(value: unknown): asserts value is Project {
   });
   validateExitEndpoints(project);
 }
-export function parseProject(text: string): Project {
-  const project: unknown = JSON.parse(text);
-  validateProject(project);
-  return project;
-}
 export function newProject(): Project {
   return {
     version: 3,

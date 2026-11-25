@@ -9,16 +9,31 @@ because project files save them.
 
 ## Source archives
 
-| Archive | Catalog measurements | MD5 of the archive checked |
-| --- | --- | --- |
-| [BlueBrick 1.9.2](https://bluebrick.lswproject.com/download/BlueBrick.1.9.2.zip) | LEGO `parts/Track/` records `2865.8`, `2867.8`, `2861.8`, and `2859.8` | `0121736cf112ce8ae322164536f53f38` |
+| Archive                                                                                  | Catalog measurements                                                                                                                          | MD5 of the archive checked         |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| [BlueBrick 1.9.2](https://bluebrick.lswproject.com/download/BlueBrick.1.9.2.zip)         | LEGO `parts/Track/` records `2865.8`, `2867.8`, `2861.8`, and `2859.8`                                                                        | `0121736cf112ce8ae322164536f53f38` |
 | [BrickTracks 1.1](https://bluebrick.lswproject.com/download/package/BrickTracks.1.1.zip) | `BT S04.8`, `BT S08.8`, `BT R104.8`, `BT R120.8`, separate R104A/R104B records, each turnout body, its stand, and four stand-placement groups | `1ad967b0410498543794e7ded11c3e0d` |
-| [TrixBrix 1.8.6](https://bluebrick.lswproject.com/download/package/TrixBrix.1.8.6.zip) | `tb st8.8`, `tb st32.8`, `tb ct r104.8`, `tb ct r120.8`, and left/right R104 assembled and component records | `b8f3656361628792afb57f2852389a3d` |
+| [TrixBrix 1.8.6](https://bluebrick.lswproject.com/download/package/TrixBrix.1.8.6.zip)   | `tb st8.8`, `tb st32.8`, `tb ct r104.8`, `tb ct r120.8`, and left/right R104 assembled and component records                                  | `b8f3656361628792afb57f2852389a3d` |
 
 The source XML provides connector positions and angles. Its hull points are pixel centers, converted
 with eight pixels per stud relative to the image center. Each alias with a custom XML hull keeps
 that hull in `sourceHull` for BlueBrick import. The catalog includes original numeric geometry and
 omits third-party images and archives. Package credits are on the [BlueBrick downloads page](https://bluebrick.lswproject.com/download.html).
+
+## Embedded LDraw curve models
+
+Native LDraw saves embed the vendor-authored single-model DAT text for the supported BrickTracks
+R104 and R120 curves. The source is [Michael Gale's L-Gauge BrickTracks curve pack](https://l-gauge.org/downloads/BricktracksCurvesRev1.0.zip).
+The embedded `BrickTracksR104.dat` and `BrickTracksR120.dat` retain their original title, name,
+author, `!LDRAW_ORG Unofficial_Part` status, and `Redistributable under CCAL version 2.0` license
+notice. The planner bundles the original LDraw records in `data/ldraw/bricktracks_models.json`.
+A recipient can open the saved curves with the standard LDraw parts library.
+
+Other catalog track does not claim an unverified manufacturer LDraw model.
+Saved files embed generated rails with sleeper slabs from the same measured
+centerlines and ports used by the planner. The generated model makes turnouts,
+yard components, and compatible straight track recognizable in an LDraw
+viewer while retaining the catalog geometry as the authoritative layout data.
 
 ## Track geometry
 
@@ -54,12 +69,12 @@ omits third-party images and archives. Package credits are on the [BlueBrick dow
 
 ### 4DBrix part dimensions
 
-| Catalog ID | 4DBrix part | Length or radius | Sweep | Pieces in a 90-degree bend |
-| --- | --- | --- | --- | --- |
-| `4dbrix:s04` | [2.04.005](https://www.4dbrix.com/products/train/2-04-tracks/005/index.php) | 4 studs long | | |
-| `4dbrix:s08` | [2.04.001](https://www.4dbrix.com/products/train/2-04-tracks/001/index.php) | 8 studs long | | |
-| `4dbrix:r104` | [2.04.072](https://www.4dbrix.com/products/train/2-04-tracks/072/index.php) | 104-stud radius | 10 degrees | 9 |
-| `4dbrix:r120` | [2.04.073](https://www.4dbrix.com/products/train/2-04-tracks/073/index.php) | 120-stud radius | 9 degrees | 10 |
+| Catalog ID    | 4DBrix part                                                                 | Length or radius | Sweep      | Pieces in a 90-degree bend |
+| ------------- | --------------------------------------------------------------------------- | ---------------- | ---------- | -------------------------- |
+| `4dbrix:s04`  | [2.04.005](https://www.4dbrix.com/products/train/2-04-tracks/005/index.php) | 4 studs long     |            |                            |
+| `4dbrix:s08`  | [2.04.001](https://www.4dbrix.com/products/train/2-04-tracks/001/index.php) | 8 studs long     |            |                            |
+| `4dbrix:r104` | [2.04.072](https://www.4dbrix.com/products/train/2-04-tracks/072/index.php) | 104-stud radius  | 10 degrees | 9                          |
+| `4dbrix:r120` | [2.04.073](https://www.4dbrix.com/products/train/2-04-tracks/073/index.php) | 120-stud radius  | 9 degrees  | 10                         |
 
 ## R104 turnout assemblies
 
@@ -85,7 +100,6 @@ are saved as individual project parts, and the complete turnout aliases import t
 [TrixBrix right R104 turnout](https://trixbrix.eu/en/p/track/switches-and-crossovers/switches-and-crossovers-r104/right-switch-r104/9951-right-switch-r104)
 
 ## Route metadata
-
 
 Each catalog part names the connector pairs that a train may follow in
 `routes`. Routes point to the matching rendered centerline in `paths`. They

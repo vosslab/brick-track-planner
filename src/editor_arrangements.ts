@@ -39,7 +39,7 @@ const PRODUCTS = new Set([
 ]);
 
 function describe(result: ArrangementResult): string {
-  if (result.ok) return "This arrangement fits. Apply to add it to the plan.";
+  if (result.ok) return "This fits. Choose Add to layout to keep it.";
   return result.issues.map(({ message }) => message).join(" ");
 }
 
@@ -52,11 +52,11 @@ export class ArrangementTools {
   readonly #applyButton = button("apply-arrangement");
   readonly #cancelButton = button("cancel-arrangement");
   readonly #location = select("arrangement-location");
-  readonly #nextLocation = button("next-arrangement-location");
   readonly #info = element("arrangement-info");
   #result: ArrangementResult | undefined;
   #candidates: Candidate[] = [];
   #candidateIndex = 0;
+  #storageStuds = 0;
   #prepared = new Map<number, Catalog>();
 
   constructor(
@@ -66,7 +66,10 @@ export class ArrangementTools {
     this.#fillChoices();
     this.#previewButton.addEventListener("click", () => this.preview());
     this.#applyButton.addEventListener("click", () => this.apply());
-    this.#cancelButton.addEventListener("click", () => this.reset());
+    this.#cancelButton.addEventListener("click", () => {
+      this.reset();
+      this.#previewButton.focus();
+    });
     this.#choice.addEventListener("change", () => {
       this.#storage.disabled = !this.#usesStorage();
       this.reset();
@@ -77,22 +80,28 @@ export class ArrangementTools {
       this.#candidateIndex = this.#location.selectedIndex;
       this.#showCandidate(this.#choice.value);
     });
-    this.#nextLocation.addEventListener("click", () =>
-      this.#selectCandidate((this.#candidateIndex + 1) % this.#candidates.length),
-    );
     this.#storage.disabled = !this.#usesStorage();
+  }
+
+  useDefaults(): void {
+    this.#choice.value = "parking:r40-back-out";
+    this.#anchor.value = "center";
+    this.#storage.value = "auto";
+    this.#storage.disabled = false;
+    element("placement-options").removeAttribute("open");
   }
 
   reset(): void {
     this.#result = undefined;
     this.#candidates = [];
     this.#candidateIndex = 0;
+    this.#storageStuds = 0;
     this.#applyButton.disabled = true;
     this.#cancelButton.disabled = true;
     this.#location.replaceChildren(new Option("Find fit locations first", ""));
     this.#location.disabled = true;
-    this.#nextLocation.disabled = true;
     this.#setInfo("");
+    this.#setPreviewVisible(false);
     this.hooks.endPreview?.();
     this.hooks.preview(undefined);
   }
@@ -105,14 +114,18 @@ export class ArrangementTools {
       this.hooks.notice(message, true);
       return;
     }
-    this.#candidates = this.#anchors();
+    this.reset();
+    this.#setPreviewVisible(true);
+    const fitting = this.#fittingAnchors();
+    this.#storageStuds = fitting.storageStuds;
+    this.#candidates = fitting.candidates;
     if (!this.#candidates.length) {
       const message = this.#noFitMessage(choice);
       this.#setInfo(message);
+      this.#cancelButton.disabled = false;
       this.hooks.notice(message, true);
       return;
     }
-    this.#candidateIndex = Math.min(this.#candidateIndex, this.#candidates.length - 1);
     this.#renderLocations();
     this.hooks.beginPreview?.();
     this.#showCandidate(choice);
@@ -135,18 +148,21 @@ export class ArrangementTools {
 
   private apply(): void {
     if (!this.#result?.ok || !this.#result.project) return;
+    const storage = this.#storageDescription();
+    const name = this.#choice.selectedOptions[0]!.text;
+    const message = `Added ${name}.${storage ? ` ${storage}` : ""} Choose Single piece to extend an open end.`;
     this.hooks.commit(this.#result.project);
-    this.hooks.notice("Arrangement added to the design area.");
-    this.reset();
+    this.#setInfo(message);
+    this.hooks.notice(message);
+    this.#previewButton.focus();
   }
 
   #showCandidate(choice: string): void {
     const candidate = this.#candidates[this.#candidateIndex];
     if (!candidate) return;
     const project = this.hooks.project();
-    const storageLength = Number(this.#storage.value);
     const heightPlates = project.area.niltc ? 2 : 0;
-    const catalog = this.#catalogFor(storageLength);
+    const catalog = this.#catalogFor(this.#storageStuds);
     const result = previewArrangement(project, catalog, {
       kitId: choice,
       pose: candidate.pose,
@@ -158,7 +174,7 @@ export class ArrangementTools {
     this.hooks.preview(result);
     this.#applyButton.disabled = !result.ok;
     this.#cancelButton.disabled = false;
-    this.#setInfo(`${candidate.label}. ${describe(result)}`);
+    this.#setInfo(`${candidate.label}. ${this.#storageDescription()} ${describe(result)}`);
   }
 
   #selectCandidate(index: number): void {
@@ -167,10 +183,18 @@ export class ArrangementTools {
     this.#showCandidate(this.#choice.value);
   }
 
-  #anchors(): Candidate[] {
+  #fittingAnchors(): { storageStuds: number; candidates: Candidate[] } {
+    for (const storageStuds of this.#storageChoices()) {
+      const candidates = this.#anchors(storageStuds);
+      if (candidates.length) return { storageStuds, candidates };
+    }
+    return { storageStuds: 0, candidates: [] };
+  }
+
+  #anchors(storageStuds: number): Candidate[] {
     const project = this.hooks.project();
     const heightPlates = project.area.niltc ? 2 : 0;
-    const catalog = this.#catalogFor(Number(this.#storage.value));
+    const catalog = this.#catalogFor(storageStuds);
     let candidates = findArrangementAnchors(project, catalog, this.#choice.value, heightPlates).map(
       (anchor) => ({
         label: anchor.message,
@@ -204,13 +228,12 @@ export class ArrangementTools {
   }
 
   #fillChoices(): void {
-    const selected = this.#choice.value;
     this.#choice.replaceChildren();
     const parking = document.createElement("optgroup");
     parking.label = "Parking and turning trains";
     const products = document.createElement("optgroup");
     products.label = "Switches, crossovers and yard ladders";
-    for (const kit of this.#catalogFor(Number(this.#storage.value)).kits) {
+    for (const kit of this.#catalogFor(64).kits) {
       const group = kit.id.startsWith("parking:")
         ? parking
         : PRODUCTS.has(kit.id)
@@ -219,11 +242,6 @@ export class ArrangementTools {
       group?.append(new Option(kit.name, kit.id));
     }
     this.#choice.append(parking, products);
-    if (selected && [...this.#choice.options].some(({ value }) => value === selected)) {
-      this.#choice.value = selected;
-    } else {
-      this.#choice.value = "parking:r40-back-out";
-    }
   }
 
   #setInfo(message: string): void {
@@ -234,7 +252,31 @@ export class ArrangementTools {
     return this.#choice.value.startsWith("parking:");
   }
 
+  #storageChoices(): number[] {
+    if (!this.#usesStorage()) return [0];
+    if (this.#storage.value === "auto") return [64, 32, 0];
+    const storageStuds = Number(this.#storage.value);
+    return Number.isSafeInteger(storageStuds) ? [storageStuds] : [0];
+  }
+
+  #storageDescription(): string {
+    if (!this.#usesStorage()) return "";
+    if (!this.#storageStuds)
+      return this.#choice.value === "parking:r40-back-out"
+        ? "Uses the turnout and return curve with no added straight storage."
+        : "No extra storage straights.";
+    return `Uses ${this.#storageStuds} studs of straight storage.`;
+  }
+
+  #setPreviewVisible(visible: boolean): void {
+    element("arrangement-preview").hidden = !visible;
+  }
+
   #noFitMessage(id: string): string {
+    if (this.#anchor.value === "selected" && !this.hooks.selection?.().length)
+      return "Select a track piece on the drawing, or choose Best connected fit in Placement options.";
+    if (this.#usesStorage() && Number(this.#storage.value) > 0)
+      return "No connected fit at this storage length. In Placement options, choose Fit to space or select fewer studs.";
     if (id.includes("r56-double-pass"))
       return "This R56 pass-through needs three clear parallel straight runs.";
     if (id.includes("r104") && (id.includes("yard") || id.includes("wye")))
@@ -255,13 +297,13 @@ export class ArrangementTools {
                 ? "west"
                 : "east";
         return new Option(
-          `Location ${index + 1}: near ${side} side (${Math.round(pose.x)}, ${Math.round(pose.y)})`,
+          `${index + 1} of ${this.#candidates.length} - ${side} side`,
           String(index),
         );
       }),
     );
     this.#location.disabled = this.#candidates.length < 2;
     this.#location.selectedIndex = this.#candidateIndex;
-    this.#nextLocation.disabled = this.#candidates.length < 2;
+    element("fit-location-controls").hidden = this.#candidates.length < 2;
   }
 }

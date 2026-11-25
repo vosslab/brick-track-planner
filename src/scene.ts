@@ -47,8 +47,11 @@ export type SceneOptions = {
   routes?: readonly SceneRoute[];
   trace?: readonly SceneTrace[];
   grid?: boolean;
+  frame?: "track" | "area";
   sharing?: boolean;
   interaction?: "pieces" | "ports" | "placement";
+  /** Open ports available as the next endpoint while extending a track. */
+  extendable?: Pick<ReadonlySet<string>, "has">;
   sidingSpace?: boolean;
   reuse?: SVGSVGElement;
 };
@@ -189,15 +192,20 @@ function portDrawing(
   selected: boolean,
   bounds: Bounds,
 ): SVGGElement {
-  const radius = port.ambiguous ? 1.5 : port.joined ? 0.65 : 1.05;
+  const portKey = JSON.stringify([port.pieceId, port.portId]);
+  const extendable = options.extendable?.has(portKey) ?? false;
+  const radius = extendable ? 1.8 : port.ambiguous ? 1.5 : port.joined ? 0.65 : 1.05;
   const group = svg("g", {
     "data-piece-id": port.pieceId,
     "data-port-id": port.portId,
     "data-open": String(!port.joined),
     "data-ambiguous": String(port.ambiguous ?? false),
-    "aria-label": `${port.pieceId} / ${port.portId}`,
+    "data-extendable": String(extendable),
+    "aria-label": extendable
+      ? `Connect a new track piece at ${port.pieceId} / ${port.portId}`
+      : `${port.pieceId} / ${port.portId}`,
   });
-  if (options.interaction === "ports") {
+  if (options.interaction === "ports" && (!options.extendable || extendable)) {
     group.setAttribute("role", "button");
     group.setAttribute("tabindex", "0");
   }
@@ -207,20 +215,42 @@ function portDrawing(
       svg("circle", {
         cx: port.x,
         cy: port.y,
-        r: options.interaction === "ports" ? 4 : 2.8,
+        r: extendable ? 5 : options.interaction === "ports" ? 4 : 2.8,
         fill: "transparent",
       }),
     );
-  group.append(
-    svg("circle", {
-      cx: port.x,
-      cy: port.y,
-      r: radius,
-      fill: port.joined ? "#36312b" : paper,
-      stroke: port.joined ? paper : selected ? selectionInk : warningInk,
-      "stroke-width": 0.42,
-    }),
-  );
+  if (extendable)
+    group.append(
+      svg("circle", {
+        cx: port.x,
+        cy: port.y,
+        r: radius + 0.9,
+        fill: "#d8f2e3",
+        stroke: selectionInk,
+        "stroke-width": 0.6,
+      }),
+    );
+  const marker = svg("circle", {
+    cx: port.x,
+    cy: port.y,
+    r: radius,
+    fill: port.joined ? "#36312b" : paper,
+    stroke: extendable ? selectionInk : port.joined ? paper : selected ? selectionInk : warningInk,
+    "stroke-width": extendable ? 0.6 : 0.42,
+  });
+  if (port.joined && !selected && !port.ambiguous && options.interaction !== "ports")
+    marker.setAttribute("style", detailStyle);
+  group.append(marker);
+  if (extendable)
+    group.append(
+      svg("path", {
+        d: `M ${port.x - 0.85} ${port.y} H ${port.x + 0.85} M ${port.x} ${port.y - 0.85} V ${port.y + 0.85}`,
+        fill: "none",
+        stroke: selectionInk,
+        "stroke-width": 0.45,
+        "stroke-linecap": "round",
+      }),
+    );
   return group;
 }
 
@@ -231,8 +261,10 @@ function drawArea(
   options: SceneOptions,
 ): void {
   const { area } = project;
-  addBounds(bounds, { x: 0, y: 0 });
-  addBounds(bounds, { x: area.width, y: area.depth });
+  if (options.frame !== "track") {
+    addBounds(bounds, { x: 0, y: 0 });
+    addBounds(bounds, { x: area.width, y: area.depth });
+  }
   const group = svg("g", { "data-design-area": "true", "aria-label": "Design area" });
   group.append(
     svg("rect", {

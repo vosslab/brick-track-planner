@@ -83,7 +83,7 @@ profiling identifies repeated work worth caching.
 
 ### Project files and sharing
 
-- Save and open a versioned `.btp.json` across browsers. Preserve tables, fronts, poses, plate
+- Save and open an editable LDraw track plan across browsers. Preserve tables, fronts, poses, plate
   heights, attachments, layer order and visibility, seam pairs, and unresolved items. Recompute
   diagnostics on open.
 - Import BlueBrick v9 `.bbm`. Preview supported items and summarize skipped layer types.

@@ -1,4 +1,4 @@
-import type { Edge, Point, Pose } from "./project";
+import type { Edge, Point, Port, Pose } from "./project";
 
 export type Attributes = Record<string, string | number>;
 export type Bounds = { left: number; top: number; right: number; bottom: number };
@@ -10,6 +10,15 @@ export const ink = "#2a2721";
 export const selectionInk = "#006f71";
 export const warningInk = "#923722";
 export const detailStyle = "display: var(--track-detail, none)";
+export const trackRailOffset = 2.5;
+export const sleeperHalfWidth = 3.75;
+export const sleeperSpacing = 4;
+
+export type Sleeper = {
+  left: Point;
+  right: Point;
+  tangent: Point;
+};
 
 export function svg<Tag extends keyof SVGElementTagNameMap>(
   name: Tag,
@@ -30,6 +39,67 @@ export function pathData(points: readonly Point[], closed = false): string {
 export function unit(start: Point, end: Point): Point {
   const length = Math.hypot(end.x - start.x, end.y - start.y);
   return length ? { x: (end.x - start.x) / length, y: (end.y - start.y) / length } : { x: 0, y: 0 };
+}
+
+/** Returns a continuous rail line offset from a measured track centerline. */
+export function offsetRail(
+  route: readonly Point[],
+  offset: number,
+  ports: readonly Port[],
+): Point[] {
+  return route.map((point, index) => {
+    const before = route[index - 1];
+    const after = route[index + 1];
+    if (!before || !after) {
+      const port = ports.find((port) => Math.hypot(port.x - point.x, port.y - point.y) < 0.0001);
+      if (port) {
+        const radians = ((port.angle + (before ? 0 : 180)) * Math.PI) / 180;
+        return { x: point.x - Math.sin(radians) * offset, y: point.y + Math.cos(radians) * offset };
+      }
+    }
+    const incoming = before ? unit(before, point) : undefined;
+    const outgoing = after ? unit(point, after) : undefined;
+    const first = incoming ?? outgoing ?? { x: 1, y: 0 };
+    const second = outgoing ?? first;
+    const scale = offset / Math.max(0.5, 1 + first.x * second.x + first.y * second.y);
+    return { x: point.x - (first.y + second.y) * scale, y: point.y + (first.x + second.x) * scale };
+  });
+}
+
+/** Returns sleeper spans at the four-stud rhythm used by LEGO RC/PF straight track. */
+export function sleepers(route: readonly Point[]): Sleeper[] {
+  const result: Sleeper[] = [];
+  let chainage = 0;
+  let next = 0;
+  for (let index = 1; index < route.length; index += 1) {
+    const start = route[index - 1];
+    const end = route[index];
+    if (!start || !end) continue;
+    const length = Math.hypot(end.x - start.x, end.y - start.y);
+    if (!length) continue;
+    const tangent = unit(start, end);
+    while (next <= chainage + length + 0.000_001) {
+      const along = next - chainage;
+      const center = {
+        x: start.x + tangent.x * along,
+        y: start.y + tangent.y * along,
+      };
+      result.push({
+        left: {
+          x: center.x - tangent.y * sleeperHalfWidth,
+          y: center.y + tangent.x * sleeperHalfWidth,
+        },
+        right: {
+          x: center.x + tangent.y * sleeperHalfWidth,
+          y: center.y - tangent.x * sleeperHalfWidth,
+        },
+        tangent,
+      });
+      next += sleeperSpacing;
+    }
+    chainage += length;
+  }
+  return result;
 }
 
 export function emptyBounds(): Bounds {

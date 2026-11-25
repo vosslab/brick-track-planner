@@ -1,5 +1,8 @@
 # Brick Track Planner v-final
 
+This historical plan describes the retired section-bundle design. The current
+planner uses [editable LDraw track templates](../../FILE_FORMAT.md).
+
 ## Finish line
 
 The welcome screen asks &ldquo;What are you designing?&rdquo; and offers 40x40, 60x40 Straight,
@@ -32,7 +35,7 @@ Hosted publishing is independent of implementation and acceptance.
 
 ## File contracts and editing
 
-- **Show project.** Version 2 of `.btp.json` adds sections, member commitments, a rectangular
+- **Show project.** The retired pre-production project format added sections, member commitments, a rectangular
   venue with keep-outs, and named exit links on seams. Tables retain world poses. Attached items
   retain table-local poses. TypeScript normalizes v1 on file open before passing the project to
   Rust, grouping existing tables into one local section while preserving colors, poses, heights,

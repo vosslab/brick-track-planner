@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import catalog from "../data/catalog.json" with { type: "json" };
-import { newProject, parseProject } from "../src/project.ts";
+import { openTrackPlan, saveTrackPlan } from "../src/ldraw.ts";
+import { newProject } from "../src/project.ts";
 import { diagnosticsFor } from "../src/editor_panels.ts";
 import { recipeFor, showInventory } from "../src/show_inventory.ts";
 
@@ -28,6 +29,10 @@ function addKit(project, kitId) {
   );
 }
 
+function compareRows([left], [right]) {
+  return left.localeCompare(right);
+}
+
 test("member inventory counts only visible physical track and keeps an arrangement together", () => {
   const project = newProject();
   const straight = catalog.parts.find((part) => part.ports.length === 2);
@@ -48,7 +53,7 @@ test("assembled R40 triple reports its six physical elements", () => {
   const project = newProject();
   addKit(project, "trixbrix:r40-triple");
   const report = showInventory(project, catalog);
-  assert.deepEqual(report.track.map(({ key, required }) => [key, required]).sort(), [
+  assert.deepEqual(report.track.map(({ key, required }) => [key, required]).sort(compareRows), [
     ["trixbrix:r40-half", 2],
     ["trixbrix:r40-left-connector", 1],
     ["trixbrix:r40-right-connector", 1],
@@ -62,7 +67,7 @@ test("assembled R40 triple reports its six physical elements", () => {
     parallelRows.reduce((total, row) => total + row.required, 0),
     9,
   );
-  assert.deepEqual(parallelRows.map(({ key, required }) => [key, required]).sort(), [
+  assert.deepEqual(parallelRows.map(({ key, required }) => [key, required]).sort(compareRows), [
     ["trixbrix:r40", 2],
     ["trixbrix:r40-half", 2],
     ["trixbrix:r40-left-connector", 1],
@@ -97,13 +102,13 @@ test("unknown imports and missing ballast recipes remain visible in the member h
     assert.ok(report.unknown.some((row) => row.key.startsWith("recipe:")));
 });
 
-test("v3 inventory survives save and reopen", () => {
+test("inventory survives saving and reopening the track plan", () => {
   const project = newProject();
   const straight = catalog.parts.find((part) => part.ports.length === 2);
   assert.ok(straight);
   project.items.push(track("one", straight.id, "yard"));
   assert.deepEqual(
-    showInventory(parseProject(JSON.stringify(project)), catalog),
+    showInventory(openTrackPlan(saveTrackPlan(project, catalog), catalog), catalog),
     showInventory(project, catalog),
   );
 });

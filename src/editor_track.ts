@@ -1,5 +1,5 @@
 import { commitItems } from "./arrangements";
-import { button, element, select } from "./editor_dom";
+import { button, element, input, select } from "./editor_dom";
 import { renderBallast } from "./editor_panels";
 import type { Analysis } from "./engine";
 import {
@@ -30,10 +30,17 @@ export class TrackTools {
   #mode: "extend" | "trace" | undefined;
   #selected: string | undefined;
   #route: RouteLink[] = [];
+  #openEnds = new Map<string, Analysis["ports"][number]>();
 
   constructor(catalog: Catalog, hooks: Hooks) {
     this.#catalog = catalog;
     this.#hooks = hooks;
+    for (const radio of [input("build-arrangement"), input("build-piece")]) {
+      radio.addEventListener("change", () => {
+        this.#hooks.cancelArrangement();
+        this.#showTool();
+      });
+    }
     const choices = select("piece-choice");
     for (const part of catalog.parts.filter(({ ports }) =>
       ports.some(({ type }) => type === "regular"),
@@ -43,7 +50,12 @@ export class TrackTools {
     choices.value = "lego:rc-s16";
     choices.addEventListener("change", () => this.#piecePorts());
     this.#piecePorts();
-    button("extend-piece").addEventListener("click", () => this.#arm("extend"));
+    select("piece-target").addEventListener("change", () => {
+      this.stopPicking();
+      this.#showTool();
+      this.#hooks.render();
+    });
+    button("extend-piece").addEventListener("click", () => this.#placePiece());
     button("trace-route").addEventListener("click", () => this.#arm("trace"));
     select("trace-from").addEventListener("change", () => this.#arm("trace"));
     button("remove-piece").addEventListener("click", () => this.remove());
@@ -52,17 +64,66 @@ export class TrackTools {
   get selection(): Set<string> {
     return new Set(this.#selected ? [this.#selected] : []);
   }
+  useDefaultTool(): void {
+    input(this.#hooks.analysis().project.area.niltc ? "build-arrangement" : "build-piece").checked =
+      true;
+  }
+
+  #showTool(): void {
+    const piece = input("build-piece").checked;
+    element("arrangement-tools").hidden = piece;
+    element("piece-tools").hidden = !piece;
+    const { project } = this.#hooks.analysis();
+    const empty = !visibleTrackItems(project).length;
+    element("build-hint").textContent = piece
+      ? empty
+        ? "Choose a piece to start the track in your design area."
+        : this.#openEnds.size
+          ? "Extend an open track end with the piece you choose."
+          : project.area.exits.length
+            ? "The mainline ends connect to the next display. Choose Arrangement to branch off with a siding or switch."
+            : "There are no open track ends. Choose Arrangement to insert a switch."
+      : project.area.niltc
+        ? "To park a train behind your display, preview a siding off the mainline."
+        : "Preview a connected group of track pieces in your design area.";
+    const target = select("piece-target").value;
+    const action = button("extend-piece");
+    action.textContent =
+      target === "drawing"
+        ? "Place on drawing"
+        : target === "center"
+          ? "Place at center"
+          : "Connect piece";
+    action.disabled = !select("piece-port").value || (!empty && !this.#openEnds.size);
+  }
+
+  #placePiece(): void {
+    const target = select("piece-target").value;
+    if (target === "drawing") {
+      this.#arm("extend");
+      return;
+    }
+    const { area } = this.#hooks.analysis().project;
+    const port = this.#openEnds.get(target);
+    if (target === "center" || port) {
+      this.#extend({ x: area.width / 2, y: area.depth / 2 }, port, target === "center");
+    }
+  }
   get route(): RouteLink[] {
     return this.#route;
   }
   get pickingPort(): boolean {
     return Boolean(this.#mode);
   }
+  get extendablePorts(): Pick<ReadonlySet<string>, "has"> | undefined {
+    return this.#mode === "extend" ? this.#openEnds : undefined;
+  }
 
   stopPicking(): void {
     this.#mode = undefined;
     this.#route = [];
     element("route-info").textContent = "";
+    element("piece-info").textContent = "";
   }
 
   selectPiece(id: string): void {
@@ -78,7 +139,6 @@ export class TrackTools {
         .filter(({ type }) => type === "regular")
         .map((p) => new Option(p.id, p.id)),
     );
-    button("extend-piece").disabled = !select("piece-port").options.length;
   }
 
   #arm(mode: "extend" | "trace"): void {
@@ -93,6 +153,7 @@ export class TrackTools {
           : "Click inside the design area to start the track.";
     this.#hooks.notice(instruction);
     if (mode === "trace") element("route-info").textContent = instruction;
+    else element("piece-info").textContent = instruction;
     this.#hooks.render();
   }
 
@@ -111,6 +172,10 @@ export class TrackTools {
     }
     const tracks = new Map(visibleTrackItems(analysis.project).map((item) => [item.id, item]));
     const names = new Map(this.#catalog.parts.map((part) => [part.id, part.name]));
+    this.#openEnds.clear();
+    const target = select("piece-target");
+    target.replaceChildren(new Option("Choose on the drawing", "drawing"));
+    if (!tracks.size) target.add(new Option("Center of design area", "center", true, true));
     for (const port of analysis.ports) {
       const item = tracks.get(port.pieceId);
       if (
@@ -119,12 +184,16 @@ export class TrackTools {
         !options.has(key(port)) &&
         item?.kind === "track"
       ) {
-        options.set(
-          key(port),
-          `${names.get(item.partId)} · ${port.portId} (${Math.round(port.x)}, ${Math.round(port.y)})`,
-        );
+        const label = `${names.get(item.partId)} · ${port.portId} (${Math.round(port.x)}, ${Math.round(port.y)})`;
+        if (!port.ambiguous) {
+          this.#openEnds.set(key(port), port);
+          target.add(new Option(label, key(port)));
+        }
+        options.set(key(port), label);
       }
     }
+    if (this.#openEnds.size === 1) target.selectedIndex = 1;
+    this.#showTool();
     const selectFrom = select("trace-from");
     const previous = selectFrom.value;
     selectFrom.replaceChildren(...[...options].map(([value, label]) => new Option(label, value)));
@@ -146,10 +215,14 @@ export class TrackTools {
       .sort((a, b) => a.distance - b.distance);
     if (this.#mode === "extend") {
       const candidate = ports.find(
-        ({ port, distance }) => !port.joined && (portId || distance <= radius || id),
+        ({ port, distance }) =>
+          this.#openEnds.has(key(port)) && (portId || distance <= radius || id),
       );
       if (!candidate && analysis.ports.length) {
-        this.#hooks.notice("Choose an open rail connector.", true);
+        const message =
+          "Choose an open end inside your layout. The mainline handoffs belong to the next display.";
+        element("piece-info").textContent = message;
+        this.#hooks.notice(message, true);
         return;
       }
       this.#extend(point, candidate?.port);
@@ -181,14 +254,14 @@ export class TrackTools {
     this.#hooks.render();
   }
 
-  #extend(point: Point, target?: Analysis["ports"][number]): void {
+  #extend(point: Point, target?: Analysis["ports"][number], centered = false): void {
     const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
     const incoming = part?.ports.find((p) => p.id === select("piece-port").value);
     if (!part || !incoming) return;
     const working = ensureVisibleWorkingLayer(this.#hooks.analysis().project);
     const project = working.project;
     const anchor = target ?? { x: Math.round(point.x), y: Math.round(point.y), angle: 0 };
-    const placement = poseConnectingPorts(incoming, anchor);
+    const placement = centered ? { ...point, angle: 0 } : poseConnectingPorts(incoming, anchor);
     const id = projectId("track");
     const item: TrackItem = {
       kind: "track",
@@ -200,7 +273,9 @@ export class TrackTools {
     };
     const result = commitItems(project, this.#catalog, { items: [item] });
     if (!result.project) {
-      this.#hooks.notice(result.issues[0]?.message ?? "This piece does not fit.", true);
+      const message = result.issues[0]?.message ?? "This piece does not fit.";
+      element("piece-info").textContent = message;
+      this.#hooks.notice(message, true);
       return;
     }
     this.#hooks.commit(result.project);
@@ -208,9 +283,9 @@ export class TrackTools {
     this.#selected = id;
     this.#selectionInfo();
     this.#hooks.render();
-    this.#hooks.notice(
-      `Placed ${part.name}. Choose another open end to continue, or press Escape.`,
-    );
+    const message = `Placed ${part.name}. Choose another open end to continue, or press Escape.`;
+    element("piece-info").textContent = message;
+    this.#hooks.notice(message);
   }
 
   #selectionInfo(): void {

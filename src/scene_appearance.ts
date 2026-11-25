@@ -1,57 +1,8 @@
-import type { Catalog, Point, TrackItem } from "./project";
-import { detailStyle, pathData, svg, unit } from "./scene_drawing";
+import type { Catalog, TrackItem } from "./project";
+import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
 
 type Part = Catalog["parts"][number];
 type Ballast = NonNullable<TrackItem["ballast"]>;
-
-function offsetRail(
-  route: readonly Point[],
-  offset: number,
-  ports: Catalog["parts"][number]["ports"],
-): Point[] {
-  return route.map((point, index) => {
-    const before = route[index - 1];
-    const after = route[index + 1];
-    if (!before || !after) {
-      const port = ports.find((port) => Math.hypot(port.x - point.x, port.y - point.y) < 0.0001);
-      if (port) {
-        const radians = ((port.angle + (before ? 0 : 180)) * Math.PI) / 180;
-        return { x: point.x - Math.sin(radians) * offset, y: point.y + Math.cos(radians) * offset };
-      }
-    }
-    const incoming = before ? unit(before, point) : undefined;
-    const outgoing = after ? unit(point, after) : undefined;
-    const a = incoming ?? outgoing ?? { x: 1, y: 0 };
-    const b = outgoing ?? a;
-    const scale = offset / Math.max(0.5, 1 + a.x * b.x + a.y * b.y);
-    return { x: point.x - (a.y + b.y) * scale, y: point.y + (a.x + b.x) * scale };
-  });
-}
-
-function sleepers(route: readonly Point[]): string {
-  let result = "";
-  let chainage = 0;
-  let nextTie = 0.85;
-  for (let index = 1; index < route.length; index++) {
-    const start = route[index - 1];
-    const end = route[index];
-    if (!start || !end) continue;
-    const length = Math.hypot(end.x - start.x, end.y - start.y);
-    const tangent = unit(start, end);
-    while (nextTie < chainage + length - 0.15) {
-      const along = nextTie - chainage;
-      const x = start.x + along * tangent.x;
-      const y = start.y + along * tangent.y;
-      result += pathData([
-        { x: x - tangent.y * 3.55, y: y + tangent.x * 3.55 },
-        { x: x + tangent.y * 3.55, y: y - tangent.x * 3.55 },
-      ]);
-      nextTie += 2;
-    }
-    chainage += length;
-  }
-  return result;
-}
 
 type PartGeometry = {
   route: string;
@@ -69,10 +20,15 @@ export function partGeometry(part: Part): PartGeometry {
       route: part.paths.map((route) => pathData(route)).join(" "),
       rails: part.paths
         .flatMap((route) =>
-          [-2.5, 2.5].map((offset) => pathData(offsetRail(route, offset, part.ports))),
+          [-trackRailOffset, trackRailOffset].map((offset) =>
+            pathData(offsetRail(route, offset, part.ports)),
+          ),
         )
         .join(" "),
-      ties: part.paths.map(sleepers).join(" "),
+      ties: part.paths
+        .flatMap((route) => sleepers(route))
+        .map((sleeper) => pathData([sleeper.left, sleeper.right]))
+        .join(" "),
       footprint: pathData(part.footprint, true),
     };
     geometries.set(part, geometry);
@@ -106,7 +62,7 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
     svg("path", {
       d: geometry.ties,
       "stroke-width": 0.9,
-      style: `${detailStyle}; stroke: var(--track-tie, #565a55)`,
+      style: "display: var(--track-sleepers, none); stroke: var(--track-tie, #565a55)",
       "pointer-events": "none",
     }),
     svg("path", {
@@ -242,8 +198,9 @@ export function studPattern(id: string, color: string): SVGPatternElement {
 }
 
 export function setSceneDetail(scene: SVGSVGElement, pixelsPerStud: number): void {
-  const value = pixelsPerStud >= 3 ? "close" : "overview";
+  const value = pixelsPerStud >= 3 ? "close" : pixelsPerStud >= 1 ? "overview" : "thumbnail";
   if (scene.getAttribute("data-scene-detail") === value) return;
   scene.setAttribute("data-scene-detail", value);
+  scene.style.setProperty("--track-sleepers", value === "thumbnail" ? "none" : "inline");
   scene.style.setProperty("--track-detail", value === "close" ? "inline" : "none");
 }

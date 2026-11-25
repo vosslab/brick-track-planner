@@ -4,13 +4,38 @@
 
 ### Fixes and Maintenance
 
-- Updated the README with a tested 60 by 40 inch parking-siding walkthrough
-  and fresh screenshots of the straight mainline and R104 right yard.
+- Cleared lint warnings in the HTML-to-PDF command and the parts inventory
+  tests. The command reports validation errors on stderr and success on stdout.
+- Added a visual gallery of twelve editable straight layouts for a 40 by 60
+  inch assignment, from a bare double mainline to private parking yards.
+- Matched sleeper spacing across the editor and schematic LDraw parts. Yard
+  switches now export with sleepers and raised rails. At normal editor zoom,
+  track sleepers remain visible and ordinary joint markers recede.
+- Extended the member R104 yard's three storage tracks to 128 studs while
+  retaining a 16-stud clearance inside its 100 by 60 inch display area.
+- Open directly on the member's assigned-area form. A straight or corner plan
+  opens with a parking siding ready to preview, and a general plan offers to
+  place the first track piece. Members can also open a template or saved plan.
+- Fit siding storage to the available straight run and show its length before
+  adding it. Single-piece placement offers the siding's open end and preserves
+  the club handoffs.
+- Fixed clipped track controls at laptop widths and aligned the styling of
+  buttons, dropdowns, and keyboard focus across the setup form and editor.
+- Replaced the native JSON download and separate LDraw export with one editable
+  LDraw track plan. The straight, corner, yard, and U-shaped staging templates
+  use the same file format as member designs.
+- Corrected the LDraw straight and R40 curve references to the plastic LEGO
+  track parts. Plans embed the L-Gauge R104 and R120 models when used, draw
+  rails for other catalog track, and show the footprint of switch stands.
+- Updated the README and usage guide with a 40 by 60 inch parking-siding
+  walkthrough and screenshots of setup, preview, and the connected siding.
 - Repaired links to retired fixtures in the historical plans and encoded the
   saved NILTC article's inch mark and trademark symbol as HTML entities.
 - Simplified route tracing to track each rail endpoint and its incoming connection
   type directly. Replaced constant-only assertions with checks of the NILTC
   spacing diagnostics at 16 studs and at 64 studs after an S-curve.
+- Reworked the opening screen around the assigned display area, with visible
+  template and saved-plan paths, and kept the editor closed until a plan exists.
 
 ## 2026-11-24
 
@@ -24,6 +49,8 @@
   the table-era identity pose helpers.
 - Added [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md) and
   [FILE_STRUCTURE.md](FILE_STRUCTURE.md) for the current single-area design.
+- Export switch stands and other catalog accessories as footprint schematics
+  when their physical catalog entry has no rail centerline.
 - Simplified camera interaction to pan, zoom, fit view, and tap selection;
   canvas drags no longer move layout surfaces or track accidentally.
 - Added practical measured track arrangements for parking, double crossovers,

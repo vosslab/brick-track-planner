@@ -82,7 +82,7 @@ Read the 12 repository style files:
   repeated Corner imports have fresh independent IDs. Section export preserves attached pieces,
   used layers, internal seams, and named exits. Invalid data is rejected before insertion.
   [test_sections.mjs](../../../tests/test_sections.mjs),
-  [test_show_fixture.mjs](../../../tests/test_show_fixture.mjs)
+  [test_track_templates.mjs](../../../tests/test_track_templates.mjs)
 - **Alignment and assembly (`vn_alignment`, `vn_assembly`).** The M7-M11 integrated fixture has
   seven independent section instances, eight tagged 128x128-stud tables, eight seams, and 16
   joined lanes within 0.000001 stud. The independent connector walk proves disjoint closed

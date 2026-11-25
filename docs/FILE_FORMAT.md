@@ -1,45 +1,54 @@
-# File format
+# Track plan files
 
-The planner saves editable member designs as `.btp.json`. Version 3 stores one
-design area and its track. The format is validated before a project opens.
+A saved member design is an LDraw model with the extension `.ldr`. The
+planner reads the same format for **Open track plan** and its built-in examples.
+Each file represents one display area. Opening a template creates an editable
+plan in the browser. Saving downloads the member's copy. The
+[straight mainline template](../templates/member-straight.ldr) is a complete example.
 
-## Project shape
+## Track placement
 
-Required root keys are `version`, `name`, `area`, `layers`, and `items`.
+Each catalog track piece has a standard LDraw type-1 reference. Its translation
+and rotation place it in the model. Moving a reference moves the track. One
+stud is 20 LDraw units (LDU) and one plate is 8 LDU. The planner's right and
+down on the drawing map to LDraw +X and -Z. Raising track moves it toward -Y.
+For example, this is the first outer straight in the 60 by 40 inch template.
 
-```json
-{
-  "version": 3,
-  "name": "Example yard",
-  "area": {
-    "width": 192,
-    "depth": 128,
-    "fronts": ["north"],
-    "niltc": "straight",
-    "exits": []
-  },
-  "layers": [{ "id": "layout", "name": "Layout", "visible": true }],
-  "items": []
-}
+```text
+1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
 ```
 
-Coordinates are studs, with X increasing right and Y increasing down. Angles
-are degrees. Every item pose is measured directly in the design area. Width and
-depth must be positive and coordinates must be between -100,000 and 100,000
-studs.
+Other LDraw programs can read the references as a model. The plastic LEGO straight and
+R40 curve use standard library parts `53401.dat` and `53400.dat`. When a
+plan uses BrickTracks R104 or R120 curves, the file includes the corresponding
+detailed models from [Michael Gale's L-Gauge curve pack](https://l-gauge.org/downloads/BricktracksCurvesRev1.0.zip).
+Track without a verified library model uses a simplified drawing built from
+its catalog geometry and embedded in the file. Rail pieces include paired,
+raised rail strips and regular sleeper slabs. A switch preserves each measured
+route through that shared track geometry. A switch stand has no rail path, so
+its embedded model remains its measured footprint.
 
-`area.fronts` contains one public edge for a straight assignment or two
-adjacent public edges for a curve. `area.niltc` is `straight` or `corner` when
-the design uses club mainlines. `area.exits` names the outer and inner rail
-endpoints that connect to the neighboring club display.
+## Planner editing information
 
-Track items have `kind: "track"`, `partId`, `heightPlates`, `layerId`, and a
-pose. `groupId` optionally identifies the arrangement that placed related
-physical pieces. Unresolved import items retain their `sourceId`, source name,
-and orientation. Their width and depth are the axis-aligned bounds BlueBrick
-recorded after rotation.
+Lines starting with `0 !BRICKTRACK` identify planner files and store the data
+needed to continue editing. These include the design name, width and depth,
+public edges, straight or corner assignment, and named inner and outer
+mainline exits. Each track reference has a stable item ID, catalog part ID and
+layer. Saving includes track on hidden layers. The planner restores their
+visibility on open, while LDraw viewers can display the whole model. Grouping
+and ballast settings stay with the item. The automatically tiled baseplate
+surface is derived from the area dimensions.
 
-The baseplate grid is derived from the area. It is not saved as movable items.
+Track geometry, handoff checks and inventory come from the planner's catalog.
+An unresolved BlueBrick record retains its source ID, description and bounds
+for the member to review. A third-party LDraw editor may discard application
+metadata on save. Keep the planner-written original for further editing here.
+
+The planner recognizes its own track-plan records and validates them before
+replacing the current design. General LDraw model import is outside the Open
+workflow. The JSON interface between the editor and the geometry engine is
+internal. [LDraw file specification](https://www.ldraw.org/article/218.html)
+and [multi-part document specification](https://www.ldraw.org/article/47.html).
 
 ## Catalog contract
 
@@ -64,6 +73,4 @@ geometry into one design area. It never creates physical table records. Imported
 9V parts remain unresolved because the planner does not substitute a different
 electrical track system.
 
-PNG, WebP, and PDF export the visible design. LDraw exports only visible mapped
-track and reports omitted parts and custom model requirements. It does not
-export the derived baseplate grid, ballast, or unresolved objects.
+PNG and WebP export the visible drawing. PDF exports the member build sheet.

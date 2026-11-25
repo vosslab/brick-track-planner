@@ -10,6 +10,11 @@ import { pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 import { cwd } from "node:process";
 
+function fail(message) {
+  process.stderr.write(`Error: ${message}\n`);
+  process.exitCode = 1;
+}
+
 async function main() {
   const options = {
     input: { type: "string" },
@@ -22,8 +27,7 @@ async function main() {
 
   // Validate required flags
   if (!input) {
-    console.error("Error: --input flag is required");
-    process.exit(1);
+    return fail("--input flag is required");
   }
 
   // Derive output filename from input if not provided
@@ -37,16 +41,14 @@ async function main() {
       input.startsWith("https://") ||
       input.startsWith("file://")
     ) {
-      console.error("Error: --output flag is required when input is a URL");
-      process.exit(1);
+      return fail("--output flag is required when input is a URL");
     }
 
     // Derive output from input: same directory + same basename + .pdf extension
     const parsed = parse(input);
     // Check if input already ends with .pdf to avoid overwriting
     if (parsed.ext.toLowerCase() === ".pdf") {
-      console.error(`Error: input file already has .pdf extension, cannot derive output: ${input}`);
-      process.exit(1);
+      return fail(`input file already has .pdf extension, cannot derive output: ${input}`);
     }
     outputPath = format({
       dir: parsed.dir || ".",
@@ -63,8 +65,7 @@ async function main() {
     // Resolve relative paths against cwd
     const filePath = resolve(cwd(), input);
     if (!existsSync(filePath)) {
-      console.error(`Error: input file not found: ${filePath}`);
-      process.exit(1);
+      return fail(`input file not found: ${filePath}`);
     }
     url = pathToFileURL(filePath).href;
   }
@@ -93,7 +94,7 @@ async function main() {
   });
 
   await browser.close();
-  console.log(`PDF generated: ${outputPath}`);
+  process.stdout.write(`PDF generated: ${outputPath}\n`);
 }
 
 await main();

@@ -6,7 +6,8 @@
 data/       Track catalog, ballast recipes, and source records
 devel/      Build, release, and repository-maintenance scripts
 docs/       User, format, geometry, architecture, and reference documentation
-examples/   Editable member design examples
+examples/   BlueBrick map for exercising the separate import workflow
+templates/  Editable LDraw track plans shipped with the planner
 rust/       Rust/Wasm geometry evaluator
 src/        Browser editor and export implementation
 tests/      Node, Python policy, and Playwright tests
@@ -17,8 +18,8 @@ TypeScript tooling. `Cargo.toml` defines the Rust/Wasm crate.
 
 ## Key source areas
 
-- [`../src/project.ts`](../src/project.ts) owns the validated version 3 file
-  contract.
+- [`../src/project.ts`](../src/project.ts) owns the validated in-memory
+  track plan shared with the geometry engine.
 - [`../src/main.ts`](../src/main.ts) owns browser startup and editor control
   flow.
 - [`../src/scene.ts`](../src/scene.ts) renders the one design area and placed
@@ -27,8 +28,8 @@ TypeScript tooling. `Cargo.toml` defines the Rust/Wasm crate.
 - [`../src/arrangements.ts`](../src/arrangements.ts) and its focused modules
   describe complete practical track plans.
 - [`../src/project_files.ts`](../src/project_files.ts) imports BlueBrick maps.
-  [`../src/share_pdf.ts`](../src/share_pdf.ts) and
-  [`../src/ldraw.ts`](../src/ldraw.ts) export member designs.
+  [`../src/ldraw.ts`](../src/ldraw.ts) reads and writes member plans and
+  templates. [`../src/share_pdf.ts`](../src/share_pdf.ts) produces build sheets.
 - [`../rust/model.rs`](../rust/model.rs), [`../rust/ports.rs`](../rust/ports.rs),
   [`../rust/routes.rs`](../rust/routes.rs), [`../rust/coverage.rs`](../rust/coverage.rs),
   and [`../rust/niltc.rs`](../rust/niltc.rs) evaluate the project model.

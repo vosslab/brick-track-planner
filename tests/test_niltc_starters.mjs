@@ -8,7 +8,8 @@ import {
   resizeDesignArea,
   signupToAreaDimensions,
 } from "../src/niltc_starters.ts";
-import { composePose, newProject, parseProject } from "../src/project.ts";
+import { openTrackPlan, saveTrackPlan } from "../src/ldraw.ts";
+import { composePose, newProject, validateProject } from "../src/project.ts";
 
 const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8"));
 const tolerance = 1e-6;
@@ -41,7 +42,7 @@ test("NILTC starters create a one-area project with RC/PF mainlines", () => {
     [192, 128, "corner", ["north", "west"]],
   ]) {
     const project = createNiltcStarter(catalog, { width, depth, mode, fronts });
-    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    validateProject(project);
     assert.equal(project.version, 3);
     assert.deepEqual(
       [project.area.width, project.area.depth, project.area.niltc],
@@ -78,7 +79,7 @@ test("a curve fits 40 by 60 and names its rotated exits", () => {
     ],
   ]) {
     const project = createNiltcStarter(catalog, { width: 128, depth: 192, mode: "corner", fronts });
-    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    validateProject(project);
     assert.equal(project.items.filter(({ partId }) => partId === "bricktracks:r104").length, 8);
     assert.equal(project.items.filter(({ partId }) => partId === "bricktracks:r120").length, 8);
     assertJoinedMainlines(project);
@@ -103,7 +104,7 @@ test("straight mainlines follow every public edge", () => {
       mode: "straight",
       fronts: [front],
     });
-    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    validateProject(project);
     assertJoinedMainlines(project);
     assert.equal(project.area.exits.length, 2);
   }
@@ -155,9 +156,27 @@ test("resizing an untouched starter rebuilds mainline legs and exits", () => {
   });
   assert.equal(resized.name, "Tall corner");
   assert.deepEqual([resized.area.width, resized.area.depth], [128, 192]);
-  assert.deepEqual(parseProject(JSON.stringify(resized)), resized);
+  validateProject(resized);
   assertJoinedMainlines(resized);
   assert.equal(resized.items.filter(({ partId }) => partId === "lego:rc-s16").length, 8);
+});
+
+test("resizing accepts a reopened starter's equivalent track poses", () => {
+  const starter = createNiltcStarter(catalog, {
+    width: 192,
+    depth: 128,
+    mode: "corner",
+    fronts: ["north", "west"],
+  });
+  const project = openTrackPlan(saveTrackPlan(starter, catalog), catalog);
+  for (const item of project.items) {
+    item.x += 1e-8;
+    item.y -= 1e-8;
+    item.angle += 360;
+  }
+  const resized = resizeDesignArea(project, catalog, { width: 128, depth: 192 });
+  assert.deepEqual([resized.area.width, resized.area.depth], [128, 192]);
+  assertJoinedMainlines(resized);
 });
 
 test("resizing protects an edited NILTC mainline and keeps general track", () => {

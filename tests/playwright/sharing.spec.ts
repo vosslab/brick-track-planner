@@ -87,10 +87,10 @@ test("imports measured external track, preserves it on save and reopens it", asy
   try {
     const reopened = await fresh.newPage();
     const errors = watchErrors(reopened);
-    await boot(reopened, { startAdvanced: false });
+    await boot(reopened, { startProject: false });
     await chooseFile(
       reopened,
-      reopened.getByRole("button", { name: "Open", exact: true }),
+      reopened.getByRole("button", { name: "Open track plan", exact: true }),
       saved.path,
     );
     await expect(reopened.locator('[data-kind="unresolved"]')).toHaveCount(1);
@@ -101,6 +101,21 @@ test("imports measured external track, preserves it on save and reopens it", asy
   }
 });
 
+test("rejects an ordinary LDraw file without replacing the track plan", async ({ planner }) => {
+  const before = await saveProject(planner);
+  const [chooser] = await Promise.all([
+    planner.waitForEvent("filechooser"),
+    planner.getByRole("button", { name: "Open track plan", exact: true }).click(),
+  ]);
+  await chooser.setFiles({
+    name: "external.ldr",
+    mimeType: "text/plain",
+    buffer: Buffer.from("0 External LDraw model\r\n1 16 0 0 0 1 0 0 0 1 0 0 0 1 3001.dat\r\n"),
+  });
+  await expect(planner.getByRole("status")).toContainText("Brick Track");
+  expect((await saveProject(planner)).project).toEqual(before.project);
+});
+
 test("exports a real PNG layout file", async ({ planner }, info) => {
   const png = await exportLayout(planner, "png", info);
   expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
@@ -108,7 +123,7 @@ test("exports a real PNG layout file", async ({ planner }, info) => {
 });
 
 test("PDF export includes the named NILTC mainline handoffs", async ({ planner }, info) => {
-  await planner.getByLabel("Example layouts").selectOption({ label: "Member straight" });
+  await planner.getByLabel("Track templates").selectOption({ label: "Member straight" });
   await expect(planner.getByLabel("Layout name")).toHaveValue("Member 60 x 40 straight");
   const pdf = (await exportLayout(planner, "pdf", info)).toString("latin1");
   expect(pdf).toContain("%PDF");

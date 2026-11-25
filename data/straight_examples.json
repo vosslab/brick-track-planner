@@ -1,0 +1,62 @@
+[
+  {
+    "file": "01-mainline-only.ldr",
+    "name": "Mainline only",
+    "purpose": "Keep both club lines clear and leave all the space behind them for your display."
+  },
+  {
+    "file": "02-back-out-siding.ldr",
+    "name": "Back-out siding",
+    "purpose": "Take the inner turnout onto a short spur. Reverse to return to the mainline."
+  },
+  {
+    "file": "03-ballasted-return.ldr",
+    "name": "Ballasted switch return",
+    "purpose": "Follow the ballasted right turnout and return curve onto a parallel siding."
+  },
+  {
+    "file": "04-r40-right-yard.ldr",
+    "name": "Four-track yard throat",
+    "purpose": "Follow the R40 ladder to three branches. Add straight storage behind it."
+  },
+  {
+    "file": "05-diagonal-loading-spur.ldr",
+    "name": "Diagonal loading spur",
+    "purpose": "Spot freight cars on a 48-stud diagonal spur behind the inner track."
+  },
+  {
+    "file": "06-long-back-out.ldr",
+    "name": "Long back-out siding",
+    "purpose": "Park along 64 studs of straight track, parallel to the display front."
+  },
+  {
+    "file": "07-double-crossover.ldr",
+    "name": "Double crossover",
+    "purpose": "Move a train from either club mainline onto the other."
+  },
+  {
+    "file": "08-drive-through-siding.ldr",
+    "name": "Drive-through siding",
+    "purpose": "Enter at one turnout and rejoin at the other without reversing."
+  },
+  {
+    "file": "09-rear-parking.ldr",
+    "name": "Rear parking",
+    "purpose": "Turn back behind the display on seven R40 curves."
+  },
+  {
+    "file": "10-two-track-arrival.ldr",
+    "name": "Two-track arrival siding",
+    "purpose": "Hold two trains behind the display on 80- and 64-stud storage tracks."
+  },
+  {
+    "file": "11-three-track-parking.ldr",
+    "name": "Three-track parking yard",
+    "purpose": "Choose among three storage tracks with 64, 48 and 32 straight studs."
+  },
+  {
+    "file": "12-perpendicular-freight-spur.ldr",
+    "name": "Perpendicular freight spur",
+    "purpose": "Turn away from the public edge and run 80 straight studs into the display."
+  }
+]
