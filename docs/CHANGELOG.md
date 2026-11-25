@@ -4,6 +4,9 @@
 
 ### Behavior or Interface Changes
 
+- Name the two turnaround templates R104 semicircle return and R120 corner return.
+- Replace U-shaped staging with two editable turnarounds based on the
+  Downers Grove and Aurora show plans.
 - Show mirrored drawings beside the two curve choices. Add the R40
   pass-through and both T-junctions as editable examples with screenshots.
 - Give DTS60 80 straight studs of storage and run the layout across the

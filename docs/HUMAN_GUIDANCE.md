@@ -22,6 +22,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   T-junctions, R40 and R40-R56. Show each as an example.
 - Show pictures for the two curve choices. Use the full frontage for the
   longer drive-through siding, with a longer straight in the center.
+- Replace the U-shaped staging template with turnarounds based on the
+  Downers Grove and Aurora show plans.
+- Name turnarounds for their shape and track parts.
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.

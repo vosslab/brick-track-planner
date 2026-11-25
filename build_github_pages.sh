@@ -18,7 +18,8 @@ required_templates=(
 	templates/member-straight.ldr
 	templates/member-corner.ldr
 	templates/member-yard.ldr
-	templates/u-shaped-staging.ldr
+	templates/r104-semicircle-return.ldr
+	templates/r120-corner-return.ldr
 )
 while IFS= read -r template; do
 	required_templates+=("templates/$template")

@@ -73,19 +73,35 @@ test("the Rust route graph reaches the inner mainline and each full-length yard 
   for (const target of targets) assert.ok(reaches(result.routes, start, target));
 });
 
-test("the U-shaped staging template is a fitting connected general-area plan", () => {
-  const project = template("u-shaped-staging");
-  assert.equal(project.name, "U-shaped staging layout");
-  assert.equal(project.area.niltc, undefined);
-  assert.equal(project.area.exits.length, 0);
-  assert.ok(project.items.some(({ groupId }) => groupId === "staging-siding"));
-
-  const result = evaluate(project);
-  assert.deepEqual(result.overhangs, []);
-  const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
-  assert.equal(open.length, 3, "two U-run ends plus the staging-siding end");
-  assert.ok(reaches(result.routes, open[0], open[1]));
-  assert.ok(reaches(result.routes, open[0], open[2]));
+test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", () => {
+  for (const [file, width, depth, edge] of [
+    ["r104-semicircle-return", 416, 256, "east"],
+    ["r120-corner-return", 384, 320, "west"],
+  ]) {
+    const project = template(file);
+    assert.deepEqual([project.area.width, project.area.depth], [width, depth]);
+    assert.equal(project.area.niltc, undefined);
+    assert.equal(project.area.exits.length, 1);
+    const [handoff] = project.area.exits;
+    assert.equal(handoff.edge, edge);
+    const result = evaluate(project);
+    assert.deepEqual(result.overhangs, []);
+    assert.deepEqual(result.unresolved, []);
+    const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+    assert.equal(open.length, 2);
+    for (const [lane, offset] of [
+      ["outer", 8],
+      ["inner", 24],
+    ]) {
+      const port = open.find((candidate) => endpointKey(candidate) === endpointKey(handoff[lane]));
+      const x = edge === "east" ? width : 0;
+      assert.ok(port && Math.hypot(port.x - x, port.y - offset) < 0.05);
+      assert.equal(port.angle, edge === "east" ? 0 : 180);
+      assert.equal(port.heightPlates, 2);
+    }
+    assert.ok(reaches(result.routes, handoff.outer, handoff.inner));
+    assertCollisionFree(project, file);
+  }
 });
 
 test("every straight example fits and connects the intended routes", () => {

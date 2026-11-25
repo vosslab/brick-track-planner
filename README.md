@@ -64,9 +64,9 @@ covered area.
 Use **Other templates** on the first screen or in the editor for these larger
 or differently shaped assignments. You can also download the LDraw files for
 [straight mainline](templates/member-straight.ldr), [corner](templates/member-corner.ldr),
-[yard](templates/member-yard.ldr), and [U-shaped staging](templates/u-shaped-staging.ldr).
-The U shape follows the visible geometry in
-[LUK Railway's BlueBrick planning example](https://www.lukrailway.co.uk/wp-content/uploads/2026/06/lego-train-track-planning-software_bluebrick-example.png).
+[yard](templates/member-yard.ldr), [R104 semicircle return](templates/r104-semicircle-return.ldr),
+and [R120 corner return](templates/r120-corner-return.ldr). The two turnarounds
+bring a train back to the same boundary on the other track.
 
 ## Save, import, and share
 

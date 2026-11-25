@@ -144,10 +144,16 @@ Open these plans from **Other templates** on the start screen or in the editor.
 ![A 100 by 60 inch R104 right yard with three long storage tracks](screenshots/member_r104_yard.webp)
 <!-- screenshots:end -->
 
-### U-shaped staging
+### R104 semicircle return
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A general U-shaped staging layout with a siding](screenshots/u_shaped_staging.webp)
+![A 130 by 80 inch turnaround with an R104 semicircle and diagonal return](screenshots/r104_semicircle_return.webp)
+<!-- screenshots:end -->
+
+### R120 corner return
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 120 by 100 inch turnaround with an R120 quarter-turn and a straight between bends](screenshots/r120_corner_return.webp)
 <!-- screenshots:end -->
 
 ## Place track

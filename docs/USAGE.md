@@ -21,7 +21,9 @@ Choose the assigned mainline shape.
 
 Use **Open track plan** to continue an LDraw file saved by this planner.
 **Other templates** includes the 60 by 40 straight, the corner, the larger
-R104 yard with three 128-stud storage tracks, and the U-shaped staging layout.
+R104 yard with three 128-stud storage tracks, the 130 by 80 inch R104 semicircle
+return, and the 120 by 100 inch R120 corner return. Each turnaround links the
+two approach tracks at the same edge. [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
 
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan

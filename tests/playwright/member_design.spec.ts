@@ -18,7 +18,8 @@ test("members can open each packaged track template", async ({ planner }) => {
     ["Member straight", "Member 60 x 40 straight"],
     ["Member corner", "NILTC 60 \u00d7 40 in"],
     ["Member yard", "Member R104 right yard"],
-    ["U-shaped staging layout", "U-shaped staging layout"],
+    ["R104 semicircle return", "R104 semicircle return"],
+    ["R120 corner return", "R120 corner return"],
   ] as const;
   for (const [option, name] of templates) {
     await planner.getByLabel("Track templates").selectOption({ label: option });

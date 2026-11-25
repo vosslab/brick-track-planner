@@ -45,6 +45,23 @@ checks.
 **Owner.** [scene_appearance.ts](../src/scene_appearance.ts),
 [CATALOG_SOURCES.md](../data/CATALOG_SOURCES.md)
 
+### Provide two turnarounds drawn from club shows
+
+**Decision.** The R104 semicircle return follows the 130 by 80 inch west-end
+return in the November 2026 Downers Grove drawing. The R120 corner return
+follows the 120 by 100 inch east-end return shown there and in the March
+2026 Aurora drawing. Rebuild both shapes from catalog curves and straights.
+
+**Why.** The 180-degree bend and diagonal return are a different layout from
+the mixed-radius loop. Both return trains to the other lane at one boundary.
+
+**Consequence.** Use General plans with a named handoff for each pair of lanes.
+The openings follow the 8- and 24-stud offsets at +2 plates within the
+planner's connector tolerance. The show drawings provide the footprint and
+shape. The bundled plans use a fitted stock-part reconstruction.
+
+**Owner.** [templates](../templates/), [editor_files.ts](../src/editor_files.ts)
+
 ### Lead with the mainline and back-out siding examples
 
 **Decision.** Identify examples by type code and name. Frame the track in
