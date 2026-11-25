@@ -10,6 +10,7 @@
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![The startup form with dimensions, mainline choices, and template controls](screenshots/member_design_start.webp)
+![Curve setup showing mirrored drawings for the top-left and top-right corners](screenshots/member_curve_options.webp)
 <!-- screenshots:end -->
 
 ### Blank General editor
@@ -53,10 +54,16 @@ Open these plans with **Browse straight examples**. Both collections use
 ![Double crossover linking the two straight club mainlines](screenshots/example_dcx.webp)
 <!-- screenshots:end -->
 
-#### DTS - Drive-through siding
+#### DTS60 - Drive-through siding
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Drive-through siding branching off the inner mainline and joining it again](screenshots/example_dts.webp)
+![Drive-through siding with 80 straight studs of storage between the two ends of the inner mainline](screenshots/example_dts60.webp)
+<!-- screenshots:end -->
+
+#### PT40 - R40 right pass-through
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The R40 pass-through crossover joining the outer mainline to the rear track across an independent middle track](screenshots/example_pt40.webp)
 <!-- screenshots:end -->
 
 #### PFS - Dual perpendicular freight spurs
@@ -65,10 +72,22 @@ Open these plans with **Browse straight examples**. Both collections use
 ![Two perpendicular freight spurs on the right with a crossover to both mainlines](screenshots/example_pfs.webp)
 <!-- screenshots:end -->
 
+#### TJ40 - R40 T-junction
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The R40 T-junction reaching a perpendicular spur from both ends of the inner mainline](screenshots/example_tj40.webp)
+<!-- screenshots:end -->
+
 #### 4TRY - Four-track right yard
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A four-track yard with three storage tracks ending at the right edge and access from both mainlines](screenshots/example_4try.webp)
+<!-- screenshots:end -->
+
+#### TJ56 - R40–R56 T-junction
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The R40–R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
 <!-- screenshots:end -->
 
 ### 40 by 40 inches

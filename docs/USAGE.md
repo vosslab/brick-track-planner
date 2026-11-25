@@ -13,8 +13,9 @@ opens with both mainlines and the automatic baseplate grid already in place.
 Choose the assigned mainline shape.
 
 - **Straight** puts both NILTC mainlines along the top plexiglass edge.
-- **Curve** puts an R120 outer line and an R104 inner line around the top-left
-  or top-right public corner. The width and depth stay on the same drawing axes.
+- **Curve** shows a drawing of each public corner. Choose the top-left or
+  top-right bend for the R120 outer line and R104 inner line. The width and
+  depth stay on the same drawing axes.
 - **General layout** creates a fully covered design area without a NILTC
   mainline.
 
@@ -29,7 +30,7 @@ track instead of moving baseplates.
 ## Compare the straight examples
 
 Choose **Browse straight examples** on the start screen or in the editor.
-The gallery opens with six plans for 60 inches along the track and 40 inches
+The gallery opens with nine plans for 60 inches along the track and 40 inches
 of depth, followed by five plans for a 40 by 40 inch display. In each size,
 the mainline and back-out siding come first. The remaining plans are ordered
 by physical track piece count.
@@ -39,6 +40,13 @@ straight studs with room to extend. Use **4TRY** for three storage tracks
 ending flush at the right edge. Trains entering from the west on either
 mainline can reach every storage track in both examples without reversing.
 For the square display, **PFS40** gives the same access to a single spur.
+**DTS60** fits 80 straight studs of storage into the drive-through siding,
+with a short lead at each end.
+
+**PT40** connects the outer mainline to a third track while the middle track
+runs straight through. **TJ40** serves one perpendicular spur from either
+end of the inner mainline. **TJ56** demonstrates two perpendicular spurs on
+a private double-track line using a General plan.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,

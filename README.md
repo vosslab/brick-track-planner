@@ -8,8 +8,8 @@ This project is in pre-production.
 ## From assigned area to siding
 
 Choose **Browse straight examples** on the start screen to compare layouts
-for 60 by 40 inch and 40 by 40 inch assignments. Pick a drawing to open it as
-an editable track plan with both club mainlines already connected.
+for 60 by 40 inch and 40 by 40 inch displays. Pick a drawing to open its
+editable track plan.
 
 Start with the space you signed up for. For example, choose 60 inches along
 the track and 40 inches from the plexiglass, then choose **Create track plan**.
@@ -40,9 +40,10 @@ For a shorter siding, open **Placement options** before previewing and
 choose 32 or 0 studs of added straight storage.
 
 Choose **Open track plan** to continue a saved LDraw file. For a corner assignment, choose
-**Curve** and choose the top-left or top-right corner. The starter uses R120 on
-the outside and R104 on the inside. Use the rotate button beside **Fit view** to
-turn the drawing. Choose **General** to lay your own track on a covered area.
+**Curve** and pick the drawing of the top-left or top-right corner. The starter
+uses R120 on the outside and R104 on the inside. Use the rotate button beside
+**Fit view** to turn the drawing. Choose **General** to lay your own track on a
+covered area.
 
 ## Plan a larger yard
 

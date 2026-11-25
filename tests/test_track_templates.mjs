@@ -88,7 +88,7 @@ test("the U-shaped staging template is a fitting connected general-area plan", (
   assert.ok(reaches(result.routes, open[0], open[2]));
 });
 
-test("every straight example is a clean connected NILTC assignment", () => {
+test("every straight example fits and connects the intended routes", () => {
   assert.equal(
     new Set(straightExamples.map(({ file }) => file)).size,
     straightExamples.length,
@@ -109,15 +109,16 @@ test("every straight example is a clean connected NILTC assignment", () => {
     parts[frontage].push(
       showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
     );
+    const privateJunction = code === "TJ56";
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
-      [frontage * 3.2, 128, "straight"],
+      [frontage * 3.2, 128, privateJunction ? undefined : "straight"],
       `${name} uses its intended frontage and depth`,
     );
     assert.deepEqual(
       result.project.area.fronts,
-      ["north"],
-      `${name} keeps the public edge toward the plexiglass`,
+      privateJunction ? [] : ["north"],
+      `${name} uses the intended public edge`,
     );
     assert.deepEqual(result.niltcIssues, [], `${name} preserves the required mainline geometry`);
     assert.deepEqual(result.overhangs, [], `${name} fits the assigned display area`);
@@ -127,6 +128,25 @@ test("every straight example is a clean connected NILTC assignment", () => {
       `${name} has no ambiguous track joints`,
     );
     assertCollisionFree(template(id), name);
+
+    const fingerprint = result.project.items
+      .map(({ partId, x, y, angle }) => `${partId}@${x},${y},${angle}`)
+      .sort()
+      .join("|");
+    fingerprints.add(fingerprint);
+
+    if (privateJunction) {
+      const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+      const west = open.filter(({ x }) => x < 0.05);
+      const east = open.filter(({ x }) => x > 191.95);
+      const spurs = open.filter(({ y }) => y > 127.95);
+      assert.deepEqual([west.length, east.length, spurs.length], [2, 2, 2]);
+      for (const entrance of west) {
+        assert.ok(east.some((end) => reaches(result.routes, entrance, end)));
+        assert.ok(spurs.some((end) => reaches(result.routes, entrance, end)));
+      }
+      continue;
+    }
 
     const [west, east] = result.project.area.exits;
     assert.deepEqual([west.edge, east.edge], ["west", "east"], `${name} keeps both named handoffs`);
@@ -141,13 +161,18 @@ test("every straight example is a clean connected NILTC assignment", () => {
         ({ kind, id }) => kind === "track" && !id.startsWith("outer-") && !id.startsWith("inner-"),
       )
       .filter(({ id }) => result.ports.some((port) => port.pieceId === id));
-    const innerReach = reachableEndpoints(result.routes, west.inner);
+    const served = new Set([
+      ...reachableEndpoints(result.routes, west.inner),
+      ...reachableEndpoints(result.routes, west.outer),
+      ...reachableEndpoints(result.routes, east.inner),
+      ...reachableEndpoints(result.routes, east.outer),
+    ]);
     for (const rail of privateRails) {
       assert.ok(
         result.ports
           .filter(({ pieceId }) => pieceId === rail.id)
-          .some((port) => innerReach.has(endpointKey(port))),
-        `${name} connects private rail ${rail.id} to the inner mainline`,
+          .some((port) => served.has(endpointKey(port))),
+        `${name} connects private rail ${rail.id} to a mainline`,
       );
     }
 
@@ -169,6 +194,23 @@ test("every straight example is a clean connected NILTC assignment", () => {
       assert.equal(storageEnds.length, 1);
       assert.ok(storageEnds.every(({ x, angle }) => x > 112 && Math.abs(angle - 90) < 0.001));
     }
+    if (code === "DTS60") {
+      const storage = result.project.items.filter(
+        ({ partId, y }) => partId === "lego:rc-s16" && y > 32,
+      );
+      assert.equal(storage.length * 16, 80, "the center siding has 80 straight studs");
+    }
+    if (code === "PT40") {
+      const eastSpur = storageEnds.find(({ x }) => x > 191.95);
+      assert.ok(eastSpur && reaches(result.routes, west.outer, eastSpur));
+      assert.ok(!reaches(result.routes, west.inner, eastSpur));
+    }
+    if (code === "TJ40") {
+      assert.equal(storageEnds.length, 1);
+      assert.equal(storageEnds[0].y, 128);
+      assert.ok(reaches(result.routes, west.inner, storageEnds[0]));
+      assert.ok(reaches(result.routes, east.inner, storageEnds[0]));
+    }
     if (code === "PFS" || code === "4TRY" || code === "PFS40") {
       for (const end of storageEnds) {
         for (const lane of ["outer", "inner"]) {
@@ -179,12 +221,6 @@ test("every straight example is a clean connected NILTC assignment", () => {
         }
       }
     }
-
-    const fingerprint = result.project.items
-      .map(({ partId, x, y, angle }) => `${partId}@${x},${y},${angle}`)
-      .sort()
-      .join("|");
-    fingerprints.add(fingerprint);
   }
   assert.equal(fingerprints.size, straightExamples.length);
   for (const [frontage, counts] of Object.entries(parts)) {
@@ -224,6 +260,19 @@ function assertCollisionFree(project, name) {
     const batch = commitItems(placed, catalog, { items });
     assert.equal(batch.ok, true, `${name} places ${key} without a collision`);
 
+    const kit = items[0]?.arrangementId;
+    if (
+      [
+        "trixbrix:r40-right-pass-through",
+        "trixbrix:r40-t-junction",
+        "trixbrix:r40-r56-t-junction",
+      ].includes(kit)
+    ) {
+      // The adjoining manufacturer parts have overlapping bounding hulls inside the assembly.
+      assertKitPlacement(items, kit);
+      placed = batch.project;
+      continue;
+    }
     let pathPlaced = placed;
     for (const item of items) {
       const part =

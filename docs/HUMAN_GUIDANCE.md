@@ -19,7 +19,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Start with the plexiglass at the top. Straight needs one orientation and
   Curve needs two mirrored choices. Let members rotate the view.
 - Include the TrixBrix right pass-through single crossover R40 and both
-  T-junctions, R40 and R40-R56.
+  T-junctions, R40 and R40-R56. Show each as an example.
+- Show pictures for the two curve choices. Use the full frontage for the
+  longer drive-through siding, with a longer straight in the center.
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.

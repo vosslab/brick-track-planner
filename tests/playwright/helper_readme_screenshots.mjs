@@ -37,10 +37,10 @@ try {
       target.getByRole("heading", { name: "Start with your assigned display area" }),
     ).toBeVisible();
   };
-  const capture = async (name, target = page) => {
+  const capture = async (name, target = page, scale = "device") => {
     await page.mouse.move(0, 0);
     execFileSync("cwebp", ["-quiet", "-q", "90", "-o", join(output, `${name}.webp`), "--", "-"], {
-      input: await target.screenshot(screenshotOptions),
+      input: await target.screenshot({ ...screenshotOptions, scale }),
     });
   };
   const track = page.locator("#tabletop [data-kind=track]");
@@ -50,6 +50,9 @@ try {
   const layoutName = page.getByLabel("Layout name");
   await start();
   await capture("member_design_start");
+  await page.getByRole("radio", { name: /^Curve/ }).check();
+  await capture("member_curve_options");
+  await page.getByRole("radio", { name: /^Straight/ }).check();
 
   await page.setViewportSize({ width: 1920, height: 1720 });
   await page.locator("#start-browse-examples").click();
@@ -59,7 +62,7 @@ try {
   await expect
     .poll(() => collections.evaluate((groups) => groups.scrollHeight - groups.clientHeight))
     .toBe(0);
-  await capture("straight_examples", gallery);
+  await capture("straight_examples", gallery, "css");
   await gallery.getByRole("button", { name: "Close", exact: true }).click();
   await page.setViewportSize(desktopViewport);
 

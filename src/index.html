@@ -381,10 +381,16 @@
         <fieldset id="area-curve" class="assignment-fieldset" hidden>
           <legend>Public corner</legend>
           <div class="curve-options">
-            <label><input type="radio" name="curve-side" value="west" /> Top-left corner</label>
-            <label
-              ><input type="radio" name="curve-side" value="east" checked /> Top-right corner</label
-            >
+            <label>
+              <input type="radio" name="curve-side" value="west" />
+              <span>Top-left corner</span>
+              <span class="curve-preview" aria-hidden="true"></span>
+            </label>
+            <label>
+              <input type="radio" name="curve-side" value="east" checked />
+              <span>Top-right corner</span>
+              <span class="curve-preview" aria-hidden="true"></span>
+            </label>
           </div>
         </fieldset>
         <p id="area-error" data-dialog-error role="alert"></p>

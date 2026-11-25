@@ -115,13 +115,42 @@ button.danger:not(:disabled) {
   gap: 0.35rem;
 }
 .curve-options label {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 0.32rem;
   padding: 0.35rem;
   border-radius: 5px;
   font-size: 0.83rem;
   cursor: pointer;
+}
+.curve-preview {
+  position: relative;
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(7rem, 100%);
+  height: 2.8rem;
+  border: 1px solid #90a69a;
+  border-top: 2px solid #4a7c68;
+  border-left: 2px solid #4a7c68;
+  border-radius: 4px;
+  background: #f9fcfa;
+}
+.curve-preview::before,
+.curve-preview::after {
+  content: "";
+  position: absolute;
+  inset: 4px 0 0 5px;
+  border: solid #4a7c68;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: 2rem;
+}
+.curve-preview::after {
+  inset: 10px 0 0 11px;
+  border-top-left-radius: 1.6rem;
+}
+.curve-options [value="east"] ~ .curve-preview {
+  transform: scaleX(-1);
 }
 .curve-options label:has(input:checked),
 .assignment-options label:has(input:checked) {
@@ -352,7 +381,7 @@ p {
   font-size: 0.84rem;
   font-weight: 650;
 }
-#area-form :is(input:not([type="checkbox"]), select) {
+#area-form :is(input:not([type="checkbox"], [type="radio"]), select) {
   width: 100%;
 }
 #startup-form #area-form {

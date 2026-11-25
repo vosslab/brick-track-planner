@@ -58,6 +58,8 @@ it requires.
 **Consequence.** Keep the list in track count order when editing the plans.
 PFS, 4TRY, and PFS40 use a west crossover to serve every storage track
 from both mainlines while keeping both through routes.
+TJ56 uses a General plan because the R40–R56 assembly has less than the
+NILTC-required spacing between the inner switches and the crossing.
 
 **Owner.** [straight_examples.json](../data/straight_examples.json)
 

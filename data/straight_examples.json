@@ -21,11 +21,18 @@
     "purpose": "Transfer between the two club lines within the mainline corridor."
   },
   {
-    "code": "DTS",
+    "code": "DTS60",
     "frontage": 60,
     "file": "08-drive-through-siding.ldr",
     "name": "Drive-through siding",
-    "purpose": "Enter at one turnout and rejoin the inner mainline at the other."
+    "purpose": "Park on 80 straight studs between the two ends of the inner mainline."
+  },
+  {
+    "code": "PT40",
+    "frontage": 60,
+    "file": "r40_right_pass_through.ldr",
+    "name": "R40 right pass-through",
+    "purpose": "Cross from the outer mainline to the rear track while the middle line stays independent."
   },
   {
     "code": "PFS",
@@ -35,11 +42,25 @@
     "purpose": "From the west, either mainline serves both right-side spurs. Each has 32 straight studs."
   },
   {
+    "code": "TJ40",
+    "frontage": 60,
+    "file": "r40_t_junction.ldr",
+    "name": "R40 T-junction",
+    "purpose": "Reach a right-side spur from either end of the inner mainline."
+  },
+  {
     "code": "4TRY",
     "frontage": 60,
     "file": "04-r40-right-yard.ldr",
     "name": "Four-track right yard",
     "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
+  },
+  {
+    "code": "TJ56",
+    "frontage": 60,
+    "file": "r40_r56_t_junction.ldr",
+    "name": "R40–R56 T-junction",
+    "purpose": "Use two perpendicular spurs on a private double-track line."
   },
   {
     "code": "ML40",

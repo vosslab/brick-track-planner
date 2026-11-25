@@ -4,6 +4,10 @@
 
 ### Behavior or Interface Changes
 
+- Show mirrored drawings beside the two curve choices. Add the R40
+  pass-through and both T-junctions as editable examples with screenshots.
+- Give DTS60 80 straight studs of storage and run the layout across the
+  60-inch frontage with short leads at each end.
 - Start straight designs along the top plexiglass edge and offer top-left
   and top-right curves at the entered width and depth. Rotate the view in
   quarter turns without changing the track plan.
