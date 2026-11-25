@@ -7,6 +7,7 @@ import catalog from "../data/catalog.json" with { type: "json" };
 import straightExamples from "../data/straight_examples.json" with { type: "json" };
 import { commitItems } from "../src/arrangements.ts";
 import { openTrackPlan } from "../src/ldraw.ts";
+import { showInventory } from "../src/show_inventory.ts";
 
 const template = (name) =>
   openTrackPlan(
@@ -21,17 +22,6 @@ test("the straight template has two named NILTC handoffs", () => {
   assert.deepEqual(
     project.area.exits.map(({ edge }) => edge),
     ["west", "east"],
-  );
-});
-
-test("the ballasted switch-return example reopens with its gray ballast", () => {
-  const ballasted = template("03-ballasted-return").items.filter(
-    ({ kind, arrangementId }) =>
-      kind === "track" && arrangementId === "lego:rc-r40-right-switch-return",
-  );
-  assert.equal(ballasted.length, 4);
-  assert.ok(
-    ballasted.every(({ ballast, countBallast }) => ballast === "gray" && countBallast === false),
   );
 });
 
@@ -102,10 +92,13 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
     straightExamples.length,
     "each gallery example has its own track plan",
   );
+  assert.equal(new Set(straightExamples.map(({ id }) => id)).size, straightExamples.length);
   const fingerprints = new Set();
+  const parts = [];
   for (const { file, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
+    parts.push(showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0));
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
       [128, 192, "straight"],
@@ -148,6 +141,18 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
       );
     }
 
+    const storageEnds = result.ports.filter(
+      (port) => port.type === "regular" && !port.joined && !/^(inner|outer)-/.test(port.pieceId),
+    );
+    if (/^(10|11|12)-/.test(file)) {
+      const rightEdgeClearance = result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
+      assert.ok(rightEdgeClearance >= 0 && rightEdgeClearance < 3, `${name} uses the right edge`);
+    }
+    if (id === "04-r40-right-yard") {
+      assert.equal(storageEnds.length, 3);
+      assert.ok(storageEnds.every(({ x }) => Math.abs(x - result.project.area.width) < 0.001));
+    }
+
     const fingerprint = result.project.items
       .map(({ partId, x, y, angle }) => `${partId}@${x},${y},${angle}`)
       .sort()
@@ -155,27 +160,19 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
     fingerprints.add(fingerprint);
   }
   assert.equal(fingerprints.size, straightExamples.length);
+  const [, ...ranked] = parts;
+  assert.deepEqual(ranked, [...ranked].sort((a, b) => a - b), "examples after the baseline are ordered by physical track count");
 });
 
-test("short gallery variants trim storage straights from the original plans", () => {
-  const shortExamples = straightExamples.filter(({ file }) => file.endsWith("-short.ldr"));
-  assert.ok(shortExamples.length > 0);
-  for (const { file, name } of shortExamples) {
-    const original = template(file.replace(/-short\.ldr$/, ""));
-    const short = template(file.replace(/\.ldr$/, ""));
-    const retained = new Set(short.items.map(({ id }) => id));
-    const removed = original.items.filter(({ id }) => !retained.has(id));
-    assert.ok(removed.length > 0, `${name} shortens the original`);
-    assert.ok(
-      removed.every(({ id, partId }) => partId === "lego:rc-s16" && !/^(outer|inner)-/.test(id)),
-      `${name} removes only private straights`,
-    );
-    assert.deepEqual(
-      short.items,
-      original.items.filter(({ id }) => retained.has(id)),
-    );
-    assert.deepEqual(short.area, original.area);
-  }
+test("the short freight spur keeps the same approach and trims only perpendicular straights", () => {
+  const full = template("12-perpendicular-freight-spur");
+  const short = template("12-perpendicular-freight-spur-short");
+  assert.deepEqual(short.area, full.area);
+  const retained = new Set(short.items.map(({ id }) => id));
+  const removed = full.items.filter(({ id }) => !retained.has(id));
+  assert.equal(removed.length, 5);
+  assert.ok(removed.every(({ partId, angle }) => partId === "lego:rc-s16" && angle === 90));
+  assert.deepEqual(short.items, full.items.filter(({ id }) => retained.has(id)));
 });
 
 test("the double crossover example transfers trains between the mainlines", () => {

@@ -35,6 +35,34 @@ centerlines and ports used by the planner. The generated model makes turnouts,
 yard components, and compatible straight track recognizable in an LDraw
 viewer while retaining the catalog geometry as the authoritative layout data.
 
+## Vector track artwork
+
+[track_artwork.json](ldraw/track_artwork.json) contains top-down projections of
+the LEGO RC/PF S16 and R40 models (`53401.dat` and `53400.dat`) by Ronald
+Vallenduuk, the two LEGO R40 switch assemblies (`53404c01.dat` and
+`53407c01.dat`) by Jens Bruehl, and Michael Gale's BrickTracks R104 and R120
+models. The projections combine visible CAD faces into shaded SVG paths and
+register their connector centers with the catalog's track ports.
+
+The LEGO and shared primitives are from the [LDraw train parts library](https://library.ldraw.org/tracker/summary/11)
+under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The BrickTracks
+model records are from the curve pack above under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+Shared part and primitive contributors include Alex Taylor, Chris Dee,
+Donald Sutter, J.C. Tchang, James Jessiman, Ludo Soete, Magnus Forsberg,
+Manfred Moolhuysen, Marc Klein, Mark Kennedy, Max Martin Richter, Niels Karsdorp,
+Orion Pobursky, Paul Easter, Philippe Hurbain, Steffen, Steve Bliss, Tim Gould,
+Tore Eriksson, and Willy Tschager.
+
+To regenerate, unpack the [complete LDraw library](https://library.ldraw.org/updates?latest)
+and overlay the [right switch ZIP](https://library.ldraw.org/library/unofficial/parts/53404c01.zip)
+and [left switch ZIP](https://library.ldraw.org/library/unofficial/parts/53407c01.zip)
+in its `ldraw` directory. Keep each ZIP's `parts/` and `p/` subdirectories.
+With the development dependencies installed, run:
+
+```bash
+source source_me.sh && python3 devel/render_track_artwork.py /path/to/ldraw
+```
+
 ## Track geometry
 
 - LEGO RC/PF S16 is straight. The compatible R40 curve sweeps 22.5 degrees.

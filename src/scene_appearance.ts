@@ -1,3 +1,4 @@
+import trackArtwork from "../data/ldraw/track_artwork.json" with { type: "json" };
 import type { Catalog, TrackItem } from "./project";
 import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
 
@@ -12,6 +13,9 @@ type PartGeometry = {
 };
 
 const geometries = new WeakMap<Part, PartGeometry>();
+const modelDrawings = new Map<string, Readonly<Record<string, string>>>(
+  Object.entries(trackArtwork),
+);
 
 export function partGeometry(part: Part): PartGeometry {
   let geometry = geometries.get(part);
@@ -53,17 +57,26 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
 
   const route = svg("path", { id: `${id}-route`, d: geometry.route, fill: "none" });
   const shape = svg("g", { id, fill: "none", "stroke-linejoin": "round" });
-  shape.append(
+  const artwork = modelDrawings.get(part.id);
+  const schematic = svg("g", {
+    style: artwork ? "display: var(--track-compact, inline)" : "",
+    "pointer-events": "none",
+  });
+  schematic.append(
     svg("use", {
       href: `#${id}-route`,
-      style: "stroke: var(--track-bed, #93948f)",
+      style: "display: var(--track-compact, inline); stroke: var(--track-bed, #93948f)",
       "stroke-width": 7.5,
     }),
     svg("path", {
       d: geometry.ties,
-      "stroke-width": 0.9,
-      style: "display: var(--track-sleepers, none); stroke: var(--track-tie, #565a55)",
-      "pointer-events": "none",
+      "stroke-width": 1.4,
+      style: "display: var(--track-sleepers, none); stroke: var(--track-rail, #2d302e)",
+    }),
+    svg("path", {
+      d: geometry.ties,
+      "stroke-width": 0.95,
+      style: "display: var(--track-sleepers, none); stroke: var(--track-tie, #858882)",
     }),
     svg("path", {
       d: geometry.rails,
@@ -79,6 +92,40 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
       style: detailStyle,
     }),
   );
+  shape.append(svg("path", { d: geometry.footprint, fill: "transparent" }), schematic);
+  if (artwork) {
+    const model = svg("g", {
+      "data-track-model": part.id,
+      "fill-rule": "evenodd",
+      "pointer-events": "none",
+      style: "display: var(--track-sleepers, none)",
+    });
+    // The silhouette under the visible faces keeps adjoining colors from revealing the grid.
+    const tones = [
+      ["outline", 20],
+      ["bevel", 26],
+      ["body", 34],
+      ["middle", 44],
+      ["top", 58],
+      ["gold-edge", "#ac7d21"],
+      ["gold", "#f5ce40"],
+    ] as const;
+    for (const [tone, lightness] of tones) {
+      const drawing = artwork[tone];
+      if (!drawing) continue;
+      const fill =
+        typeof lightness === "string"
+          ? lightness
+          : `hsl(var(--track-plastic, 215 8%) ${lightness}%)`;
+      model.append(
+        svg("path", {
+          d: drawing,
+          style: `fill: ${fill}${tone === "outline" ? `; stroke: ${fill}; stroke-width: .13` : ""}`,
+        }),
+      );
+    }
+    shape.append(model);
+  }
   defs.append(route, shape);
 }
 
@@ -101,7 +148,10 @@ export function partInstance(
   group.setAttribute("data-ballast", ballast);
 
   if (selected) {
-    group.setAttribute("style", "--track-bed:#b5dfd9; --track-rail:#006064; --track-tie:#45847c");
+    group.setAttribute(
+      "style",
+      "--track-bed:#b5dfd9; --track-rail:#006064; --track-tie:#45847c; --track-plastic:174 66%",
+    );
   }
 
   const hasRails = part.paths.length > 0;
@@ -201,6 +251,7 @@ export function setSceneDetail(scene: SVGSVGElement, pixelsPerStud: number): voi
   const value = pixelsPerStud >= 3 ? "close" : pixelsPerStud >= 1 ? "overview" : "thumbnail";
   if (scene.getAttribute("data-scene-detail") === value) return;
   scene.setAttribute("data-scene-detail", value);
+  scene.style.setProperty("--track-compact", value === "thumbnail" ? "inline" : "none");
   scene.style.setProperty("--track-sleepers", value === "thumbnail" ? "none" : "inline");
   scene.style.setProperty("--track-detail", value === "close" ? "inline" : "none");
 }

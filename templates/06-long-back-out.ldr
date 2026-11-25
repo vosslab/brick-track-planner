@@ -3,7 +3,7 @@
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
-0 !BRICKTRACK PROJECT @40%20x%2060%20straight%3A%20long%20back-out%20siding
+0 !BRICKTRACK PROJECT @Back-out%20siding
 0 !BRICKTRACK AREA 128 192 @straight
 0 !BRICKTRACK FRONT @north
 0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a

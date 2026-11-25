@@ -7,6 +7,7 @@ import type { Catalog, Project } from "./project";
 import { downloadBlob, importBlueBrick, MAX_BLUEBRICK_FILE_BYTES } from "./project_files";
 import { createScene, setSceneDetail } from "./scene";
 import { exportSharing } from "./share";
+import { showInventory } from "./show_inventory";
 
 type ImportReview = ReturnType<typeof importBlueBrick>;
 type Template = {
@@ -174,9 +175,8 @@ export function setupFiles(
         card = document.createElement("button");
         card.type = "button";
         card.className = "template-card";
-        card.setAttribute("aria-label", template.name + ". " + template.purpose);
         const name = document.createElement("strong");
-        name.textContent = template.name;
+        name.textContent = `#${template.id} ${template.name}`;
         card.append(name, textNode("small", template.purpose));
         card.addEventListener("click", () => {
           gallery.close();
@@ -193,10 +193,12 @@ export function setupFiles(
         try {
           const project = await loadTemplate(template);
           const preview = createScene(project, catalog, evaluate(project), {
-            frame: "track",
             grid: true,
             sharing: true,
           });
+          const total = showInventory(project, catalog).track.reduce((sum, row) => sum + row.required, 0);
+          const description = card.querySelector("small");
+          if (description) description.textContent = `${total} track pieces. ${template.purpose}`;
           preview.setAttribute("aria-hidden", "true");
           card.prepend(preview);
           const view = preview.viewBox.baseVal;

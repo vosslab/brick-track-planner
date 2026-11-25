@@ -45,6 +45,8 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
       testMatch: [
         "**/member_design.spec.ts",
+        "**/control_alignment.spec.ts",
+        "**/track_artwork.spec.ts",
         "**/sharing.spec.ts",
         "**/bluebrick_geometry.spec.ts",
       ],

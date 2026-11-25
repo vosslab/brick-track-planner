@@ -20,6 +20,22 @@ venue placement, members, and movable baseplates are absent from version 3.
 
 **Owner.** [FILE_FORMAT.md](FILE_FORMAT.md)
 
+### Draw track from available part models
+
+**Decision.** Project verified LDraw parts into vector artwork and draw other
+rail pieces from their measured catalog paths. At thumbnail scale, use compact
+rail drawings.
+
+**Why.** Real sleepers, interlocks, and switch controls become legible as the
+view gets larger. Shared SVG paths scale for high-density displays and exports.
+
+**Consequence.** Regeneration uses LDraw source files and Shapely. The planner
+bundles the resulting paths and uses the catalog for placement and collision
+checks.
+
+**Owner.** [scene_appearance.ts](../src/scene_appearance.ts),
+[CATALOG_SOURCES.md](../data/CATALOG_SOURCES.md)
+
 ### Save designs and templates as LDraw track plans
 
 **Decision.** Use the same LDraw format for member downloads and bundled
@@ -58,6 +74,16 @@ cross a double crossover, or reach a storage track.
 handoffs, and keep isolated crossing lines isolated.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
+
+### Compare rendered control geometry
+
+**Decision.** Check control alignment from rendered CSS-pixel rectangles
+and save screenshots and measurements with each browser test run.
+
+**Why.** Rectangle comparisons catch small shifts in edges and spacing
+across browsers. Screenshots show what a member sees in the same state.
+
+**Owner.** [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md#control-alignment)
 
 ### Expand arrangements into physical parts
 

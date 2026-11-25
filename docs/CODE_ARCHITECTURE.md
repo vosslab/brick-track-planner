@@ -55,6 +55,26 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 - [`../build_github_pages.sh`](../build_github_pages.sh) builds the Wasm
   bindings and Pages artifact used by browser tests.
 
+### Control alignment
+
+Run the alignment collection against a fresh build from the repository root.
+The screenshot encoder is `cwebp`, supplied by the `webp` package in the
+[Brewfile](../Brewfile) and in the Pages verification workflow.
+
+```sh
+./run_playwright_tests.sh --build tests/playwright/control_alignment.spec.ts
+```
+
+The suite runs at 360, 600, 751, and 1280 CSS pixels in Chromium, WebKit,
+and Chromium touch emulation. Each run writes numbered WebP screenshots
+and a `control-layout.json` file under `test-results/`. The Pages workflow
+includes those files in the `brick-track-planner-browser-evidence` artifact.
+
+For control groups that should align, the test compares rendered edges
+and gaps with a tolerance of 0.25 CSS pixels. The JSON records the measured
+rectangles and computed gaps. Screenshots show the surrounding page and
+controls for visual review.
+
 ## Extension points
 
 - Add a physical part, its ports, paths, routes, and source evidence in

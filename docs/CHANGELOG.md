@@ -4,6 +4,8 @@
 
 ### Behavior or Interface Changes
 
+- Draw six LEGO and BrickTracks pieces from their LDraw models. Show open
+  sleepers on other rail pieces and simplify track when zoomed out.
 - Add shorter gallery versions of the diagonal and perpendicular spurs,
   back-out siding, two-track arrival siding, and three-track parking yard.
 - Show each arrangement's track footprint and connection requirements. When a
@@ -13,6 +15,8 @@
 
 ### Fixes and Maintenance
 
+- Check control alignment to a quarter CSS pixel across four viewport sizes
+  and save Playwright screenshots and measurements in the browser evidence.
 - Align the Add track and inspector controls and contain placement dropdowns
   inside their sections on desktop and mobile.
 - Cleared lint warnings in the HTML-to-PDF command and the parts inventory

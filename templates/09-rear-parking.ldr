@@ -3,7 +3,7 @@
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
-0 !BRICKTRACK PROJECT @40%20x%2060%20straight%3A%20rear%20parking
+0 !BRICKTRACK PROJECT @Rear%20parking%20siding
 0 !BRICKTRACK AREA 128 192 @straight
 0 !BRICKTRACK FRONT @north
 0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
@@ -53,6 +53,10 @@
 1 72 1112.163696440104 -24 -2143.379369380155 -0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 -0.831469612303 53400.dat
 0 !BRICKTRACK TRACK @arrangement-60fc541d-884a-4e30-b676-fbfdfe615dff-7 @layout @lego%3Arc-r40 @arrangement-43513153-1a2f-4c0f-8900-8ee577c3662e--1 @parking%3Ar40-rear-siding - -
 1 72 823.780559337385 -24 -2262.831640778272 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 53400.dat
+0 !BRICKTRACK TRACK @rear-storage-1 @layout @lego%3Arc-s16 @rear-storage - - -
+1 72 507.70596 -24 -2278.205 -1 0 0 0 1 0 0 0 -1 53401.dat
+0 !BRICKTRACK TRACK @rear-storage-2 @layout @lego%3Arc-s16 @rear-storage - - -
+1 72 187.70596 -24 -2278.205 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 FILE bricktrack-lego-rc-r40-right-switch.dat
 0 Name: bricktrack-lego-rc-r40-right-switch.dat
 0 Brick Track Planner schematic LEGO RC/PF right switch R40

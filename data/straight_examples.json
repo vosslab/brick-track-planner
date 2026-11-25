@@ -1,87 +1,68 @@
 [
   {
+    "id": 1,
     "file": "01-mainline-only.ldr",
     "name": "Mainline only",
-    "purpose": "Keep both club lines clear and leave all the space behind them for your display."
+    "purpose": "Keep both club lines clear and leave the full space behind them for your display."
   },
   {
-    "file": "02-back-out-siding.ldr",
-    "name": "Back-out siding",
-    "purpose": "Take the inner turnout onto a short spur. Reverse to return to the mainline."
-  },
-  {
-    "file": "03-ballasted-return.ldr",
-    "name": "Ballasted switch return",
-    "purpose": "Follow the ballasted right turnout and return curve onto a parallel siding."
-  },
-  {
-    "file": "04-r40-right-yard.ldr",
-    "name": "Four-track yard throat",
-    "purpose": "Follow the R40 ladder to three branches. Add straight storage behind it."
-  },
-  {
-    "file": "05-diagonal-loading-spur.ldr",
-    "name": "Diagonal loading spur",
-    "purpose": "Spot freight cars on a 48-stud diagonal spur behind the inner track."
-  },
-  {
-    "file": "05-diagonal-loading-spur-short.ldr",
-    "name": "Short diagonal loading spur",
-    "purpose": "Use 16 studs of straight track at the same angle."
-  },
-  {
-    "file": "06-long-back-out.ldr",
-    "name": "Long back-out siding",
-    "purpose": "Park along 64 studs of straight track, parallel to the display front."
-  },
-  {
-    "file": "06-long-back-out-short.ldr",
-    "name": "32-stud back-out siding",
-    "purpose": "Fit the same turnout and return curve with two S16 storage straights."
-  },
-  {
+    "id": 2,
     "file": "07-double-crossover.ldr",
     "name": "Double crossover",
-    "purpose": "Move a train from either club mainline onto the other."
+    "purpose": "Transfer between the two club lines within the mainline corridor."
   },
   {
+    "id": 3,
     "file": "08-drive-through-siding.ldr",
     "name": "Drive-through siding",
-    "purpose": "Enter at one turnout and rejoin at the other without reversing."
+    "purpose": "Enter at one turnout and rejoin the inner mainline at the other."
   },
   {
-    "file": "09-rear-parking.ldr",
-    "name": "Rear parking",
-    "purpose": "Turn back behind the display on seven R40 curves."
+    "id": 4,
+    "file": "05-diagonal-loading-spur.ldr",
+    "name": "Diagonal loading spur",
+    "purpose": "Spot freight cars along 64 studs of diagonal track near the right edge."
   },
   {
-    "file": "10-two-track-arrival.ldr",
-    "name": "Two-track arrival siding",
-    "purpose": "Hold two trains behind the display on 80- and 64-stud storage tracks."
+    "id": 5,
+    "file": "06-long-back-out.ldr",
+    "name": "Back-out siding",
+    "purpose": "Park on 64 straight studs along the front. Reverse to return to the inner mainline."
   },
   {
-    "file": "10-two-track-arrival-short.ldr",
-    "name": "Short two-track arrival siding",
-    "purpose": "Keep both arrival tracks with 48 and 32 studs of straight storage."
-  },
-  {
-    "file": "11-three-track-parking.ldr",
-    "name": "Three-track parking yard",
-    "purpose": "Choose among three storage tracks with 64, 48 and 32 straight studs."
-  },
-  {
-    "file": "11-three-track-parking-short.ldr",
-    "name": "Short three-track parking yard",
-    "purpose": "Use the same ladder with 48, 32 and 16 studs of straight storage."
-  },
-  {
-    "file": "12-perpendicular-freight-spur.ldr",
-    "name": "Perpendicular freight spur",
-    "purpose": "Turn away from the public edge and run 80 straight studs into the display."
-  },
-  {
+    "id": 6,
     "file": "12-perpendicular-freight-spur-short.ldr",
     "name": "Short perpendicular freight spur",
-    "purpose": "Keep the turn away from the public edge with 32 studs of straight track."
+    "purpose": "Use 32 straight studs along the right side and keep the rear open."
+  },
+  {
+    "id": 7,
+    "file": "09-rear-parking.ldr",
+    "name": "Rear parking siding",
+    "purpose": "Turn back behind the display and park on 32 straight studs facing left."
+  },
+  {
+    "id": 8,
+    "file": "12-perpendicular-freight-spur.ldr",
+    "name": "Perpendicular freight spur",
+    "purpose": "Use the same right-side approach as #6 with 112 straight studs reaching toward the rear."
+  },
+  {
+    "id": 9,
+    "file": "04-r40-right-yard.ldr",
+    "name": "Four-track right yard",
+    "purpose": "Keep the inner mainline open. Three storage tracks end flush at the right edge."
+  },
+  {
+    "id": 10,
+    "file": "10-two-track-arrival.ldr",
+    "name": "Two-track arrival siding",
+    "purpose": "Hold two trains along the right side on 80 and 64 studs of straight storage."
+  },
+  {
+    "id": 11,
+    "file": "11-three-track-parking.ldr",
+    "name": "Three-track parking yard",
+    "purpose": "Use the right-side ladder for 64, 48, and 32 studs of straight storage."
   }
 ]

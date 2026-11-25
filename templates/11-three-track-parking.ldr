@@ -29,8 +29,8 @@
 1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-2 @layout @lego%3Arc-s16 - - - -
 1 72 480 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @inner-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @inner-3 @layout @lego%3Arc-s16 - - - -
+1 72 800 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-6 @layout @lego%3Arc-s16 - - - -
 1 72 1760 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-7 @layout @lego%3Arc-s16 - - - -
@@ -38,39 +38,39 @@
 0 !BRICKTRACK TRACK @inner-8 @layout @lego%3Arc-s16 - - - -
 1 72 2400 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-1 @layout @lego%3Arc-r40-right-switch @three-track-parking - - -
-1 72 978.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
+1 72 1298.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
 0 !BRICKTRACK TRACK @three-track-parking-2 @layout @lego%3Arc-r40 @three-track-parking - - -
-1 72 1432.163441028846 -24 -813.031536124903 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 53400.dat
+1 72 1752.163441028846 -24 -813.031536124903 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 53400.dat
 0 !BRICKTRACK TRACK @three-track-parking-3 @layout @lego%3Arc-r40 @three-track-parking - - -
-1 72 1652.882398440155 -24 -1033.750408779896 0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 0.55557023302 53400.dat
+1 72 1972.882398440155 -24 -1033.750408779896 0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 0.55557023302 53400.dat
 0 !BRICKTRACK TRACK @three-track-parking-4 @layout @lego%3Arc-r40 @three-track-parking - - -
-1 72 1772.334669858272 -24 -1322.133545882615 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 53400.dat
+1 72 2092.334669858272 -24 -1322.133545882615 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 53400.dat
 0 !BRICKTRACK TRACK @three-track-parking-5 @layout @lego%3Arc-r40-right-switch @three-track-parking - - -
-1 72 1660.20650522 -24 -1816.95497094 0 0 1 0 1 0 -1 0 0 bricktrack-lego-rc-r40-right-switch.dat
+1 72 1980.20650522 -24 -1816.95497094 0 0 1 0 1 0 -1 0 0 bricktrack-lego-rc-r40-right-switch.dat
 0 !BRICKTRACK TRACK @three-track-parking-6 @layout @lego%3Arc-r40 @three-track-parking - - -
-1 72 1483.07868066 -24 -2282.13271288 0.195090322016 0 -0.980785280403 0 1 0 0.980785280403 0 0.195090322016 53400.dat
+1 72 1803.07868066 -24 -2282.13271288 0.195090322016 0 -0.980785280403 0 1 0 0.980785280403 0 0.195090322016 53400.dat
 0 !BRICKTRACK TRACK @three-track-parking-7 @layout @lego%3Arc-r40-left-switch @three-track-parking - - -
-1 72 1915.20650522 -24 -2456.95497094 0 0 1 0 1 0 -1 0 0 bricktrack-lego-rc-r40-left-switch.dat
+1 72 2235.20650522 -24 -2456.95497094 0 0 1 0 1 0 -1 0 0 bricktrack-lego-rc-r40-left-switch.dat
 0 !BRICKTRACK TRACK @three-track-parking-8 @layout @lego%3Arc-r40 @three-track-parking - - -
-1 72 2092.334703918272 -24 -2922.133459542615 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 53400.dat
+1 72 2412.334703918272 -24 -2922.133459542615 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 53400.dat
 0 !BRICKTRACK TRACK @three-track-parking-9 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1467.70690522 -24 -2598.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 1787.70690522 -24 -2598.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-10 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1467.70690522 -24 -2918.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 1787.70690522 -24 -2918.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-11 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1467.70690522 -24 -3238.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 1787.70690522 -24 -3238.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-12 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1467.70690522 -24 -3558.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 1787.70690522 -24 -3558.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-13 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 2107.7065393 -24 -3238.2048846 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2427.7065393 -24 -3238.2048846 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-14 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 2107.7065393 -24 -3558.2048846 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2427.7065393 -24 -3558.2048846 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-15 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1787.70650522 -24 -2918.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2107.70650522 -24 -2918.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-16 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1787.70650522 -24 -3238.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2107.70650522 -24 -3238.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @three-track-parking-17 @layout @lego%3Arc-s16 @three-track-parking - - -
-1 72 1787.70650522 -24 -3558.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2107.70650522 -24 -3558.20497094 0 0 1 0 1 0 -1 0 0 53401.dat
 0 FILE bricktrack-lego-rc-r40-right-switch.dat
 0 Name: bricktrack-lego-rc-r40-right-switch.dat
 0 Brick Track Planner schematic LEGO RC/PF right switch R40

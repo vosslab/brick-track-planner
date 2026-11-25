@@ -47,7 +47,6 @@ export type SceneOptions = {
   routes?: readonly SceneRoute[];
   trace?: readonly SceneTrace[];
   grid?: boolean;
-  frame?: "track" | "area";
   sharing?: boolean;
   interaction?: "pieces" | "ports" | "placement";
   /** Open ports available as the next endpoint while extending a track. */
@@ -261,10 +260,8 @@ function drawArea(
   options: SceneOptions,
 ): void {
   const { area } = project;
-  if (options.frame !== "track") {
-    addBounds(bounds, { x: 0, y: 0 });
-    addBounds(bounds, { x: area.width, y: area.depth });
-  }
+  addBounds(bounds, { x: 0, y: 0 });
+  addBounds(bounds, { x: area.width, y: area.depth });
   const group = svg("g", { "data-design-area": "true", "aria-label": "Design area" });
   group.append(
     svg("rect", {
@@ -531,11 +528,15 @@ export function createScene(
       drawing.node.setAttribute("opacity", "0.32");
       drawing.node.style.setProperty("--track-bed", "#d97070");
       drawing.node.style.setProperty("--track-rail", "#923722");
+      drawing.node.style.setProperty("--track-tie", "#c96658");
+      drawing.node.style.setProperty("--track-plastic", "9 52%");
       drawing.node.setAttribute("data-replacement", "true");
     }
     if (options.addition?.has(item.id) || options.preview?.has(item.id)) {
       drawing.node.style.setProperty("--track-bed", "#6ca980");
       drawing.node.style.setProperty("--track-rail", "#176f4f");
+      drawing.node.style.setProperty("--track-tie", "#6ca980");
+      drawing.node.style.setProperty("--track-plastic", "146 49%");
       drawing.node.setAttribute("data-addition", "true");
     }
     includeBounds(bounds, drawing.bounds);
