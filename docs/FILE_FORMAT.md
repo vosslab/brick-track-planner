@@ -1,87 +1,80 @@
-# File formats
+# File format
 
-V1 defines `.btp.json` as the native project format. The current version 1 project shape is modeled
-and validated in [`src/project.ts`](../src/project.ts). The fixture-backed BlueBrick v9 importer is
-in [`src/project_files.ts`](../src/project_files.ts).
+The planner saves editable projects as `.btp.json`. Version 2 stores a whole layout or show;
+version 1 files still open and are migrated in memory by [`src/project.ts`](../src/project.ts).
+Reusable section snapshots use `.btps.json` and the envelope implemented in
+[`src/section_files.ts`](../src/section_files.ts).
 
-## Native projects
+## Whole-show projects
 
-The version 1 project has `name`, `layers`, `tables`, `items`, and `seams` fields. Tables and items
-use `x`, `y`, and `angle` poses. Items can be track, baseplate, or unresolved source objects. Track
-items store `partId` and an integer `heightPlates`; seams store persistent outer and inner port
-pairs.
+The required version 2 project keys are `version`, `name`, `sections`, `members`, `layers`,
+`tables`, `items`, and `seams`. `venue` is optional. Every collection is an array, including an
+empty one. The parser validates unique IDs within their groups, references, finite poses, positive
+dimensions, and whole-plate track heights before replacing the open project. A rejected file
+leaves the current layout open.
 
-The parser requires version `1`, unique IDs within each ID namespace, valid referenced layer and
-table IDs, and finite pose values. Table and item IDs share one unique namespace for editor
-selection; layer IDs and seam IDs have separate namespaces. Project data stays in the browser
-workflow; v1 does not include server-side project storage or accounts.
+Version 1 has `name`, `layers`, `tables`, `items`, and `seams`. Opening one preserves its existing
+tables, items, and seams, then adds a local section for its tables and an empty member list. Existing
+tables are not tagged for NILTC checks; those checks remain opt-in. Version 2 also has optional
+metadata: a venue, a table's `nominal` size and `niltc` mode, track `ballast` style and
+`countBallast`, baseplate name and color, and unresolved-item source altitude. These fields do not
+replace geometry or track height.
 
-Each stored pose origin must be within -100,000 to +100,000 studs on both planar axes. Table and
-unresolved-item width and depth must be positive and at most 100,000 studs. These checks apply to
-stored values individually; they do not cap the combined layout or exported drawing bounds.
+Poses use continuous stud coordinates and degrees. Each table and item has an `id`, `x`, `y`,
+`angle`, and `layerId`; items also have a `kind`. Track items require `partId` and integer
+`heightPlates`; baseplates can store `name` and six-digit hex `color`; unresolved items retain
+their source ID, name, dimensions, and reason. Table and item IDs share a namespace. IDs in other
+groups are unique within their group. Coordinates are bounded to +/-100,000 studs; table and
+unresolved-item width and depth must be positive and no more than 100,000 studs. These checks apply
+to each stored value, not to combined layout or export bounds.
 
-Native project files are parsed and validated before opening replaces the current layout. If parsing
-or validation fails, the current layout remains open and the editor reports the error.
+Track appearance and material counting are separate from placement. `ballast` selects `bare`,
+`gray`, or `pennlug`; `countBallast: true` opts a track item into a published recipe when one is
+available. Recipe gaps remain visible in the inventory and setup packet. `heightPlates` is the
+integer physical height used by fit checks and LDraw placement; appearance and recipes do not
+change it. See [`data/ballast_recipes.json`](../data/ballast_recipes.json).
 
-## BlueBrick import
+## Reusable section bundles
 
-V1 import support is limited to behaviors covered by the BlueBrick v9 fixture
-[`bluebrick-example.bbm`](../examples/bluebrick-example.bbm). The importer accepts plain BlueBrick
-Map v9 XML up to 8 MiB, with at most 1,000 layers, 10,000 source bricks, 1,000 tables, and 10,000
-expanded project items. It rejects document type declarations. Source placeholders map to
-unresolved items, and layer visibility maps to project layers. Unsupported layer types are reported
-as warnings; unsupported pieces remain as unresolved items.
+A `.btps.json` file has this version 1 envelope:
 
-Source `Altitude` values are mapped using each alias's `preferredY` calibration. The fixture's LEGO
-alias `2865.8` has `preferredY` -8 LDraw units: source altitude 0 maps to baseline, -16 maps to +1
-plate, and -12 maps to a fractional 0.5 plate and remains unresolved. A whole plate is 8 LDraw units
-(3.2 mm).
+```json
+{
+  "version": 1,
+  "section": { "name": "Yard", "ownerName": "Optional member name" },
+  "anchorTableId": "yard-table",
+  "project": {
+    "version": 2,
+    "name": "Yard",
+    "sections": [],
+    "members": [],
+    "layers": [],
+    "tables": [],
+    "items": [],
+    "seams": []
+  }
+}
+```
 
-The supported straight aliases include BrickTracks `BT S04.8` and `BT S08.8`, plus TrixBrix `tb
-st8.8` and `tb st32.8`. BlueBrick `SET R104 TURNOUT LEFT` and `SET R104 TURNOUT RIGHT` records
-remain unresolved by design; they are distinct from the supported assembled BrickTracks and TrixBrix
-left/right R104 turnout aliases.
+`ownerName` is optional. The project fragment must contain exactly one section, no venue or
+member records, and only that section's tables, attached items, layers, and internal seams. Its
+anchor table starts at `(0, 0)` with angle `0`. Export positions in the fragment relative to that
+anchor. Import places the anchor at the chosen pose and assigns fresh IDs. Loose layout items are
+left in the source project and reported as a warning; attach them to a table before sharing if they
+belong to the section.
 
-Changing track alignment or repairing seam endpoints clears any open turnout swap preview. Recheck
-the proposed swap after those edits before applying it.
+## Other imports and exports
 
-The swap selector supports same-brand single-body turnouts with at least three regular ports and a
-`common` port. It preserves the position and heading of that common connector. LEGO and BrickTracks
-turnout bodies meet this rule. TrixBrix R104 turnouts are multi-part assemblies of a base, two
-detach pieces, and an S8 straight; place, import, and move them as assemblies. The editor does not
-offer a base-only swap, which would leave a mixed TrixBrix turnout.
+BlueBrick import supports the fixture-backed Map v9 subset described in
+[`src/project_files.ts`](../src/project_files.ts); unsupported pieces remain unresolved and the
+import preview reports warnings. The native opening and export controls are implemented in
+[`src/editor_files.ts`](../src/editor_files.ts).
 
-## Exports
-
-The sharing controls export PNG, WebP, and PDF; LDraw exports track-only models. The LDraw export
-includes visible mapped track only, excludes tables and scenery, and reports visible unsupported or
-unresolved pieces.
-
-The LDraw coordinate transform uses a right-handed CAD top view: planner X maps to LDraw X, and
-planner down-Y maps to negative LDraw Z. The calibrated per-part model Y is then reduced by 8 LDraw
-units for each positive `heightPlates` value. For source aliases, catalog `preferredY` supplies the
-BlueBrick source placement altitude when present.
-
-PNG and WebP include the complete visible scene. Their raster dimensions scale proportionally with
-the scene and cap the longest side at 2,400 pixels. The PDF fits that same complete scene to the
-page and includes the visible inventory. In the setup scene, filled diamonds mark joined seam ends,
-open circles mark open ends, and outlined diamonds mark ambiguous joins. These are pixel and page
-size limits; exports do not impose a separate stud-coordinate cutoff.
-
-The export mapping in [`src/ldraw.ts`](../src/ldraw.ts) covers official LEGO 9V S16 (`74746.dat`),
-R40 (`74747.dat`), right (`75541c01-f1.dat`), and left (`75542c01-f1.dat`) pieces, plus BrickTracks
-R104/R120 (`BrickTracksR104.dat` and `BrickTracksR120.dat`). Use the LDraw Complete Library version
-2025-08 or newer and Michael Gale's
-[BrickTracks curve bundle](https://l-gauge.org/downloads/BricktracksCurvesRev1.0.zip).
-The bundle relies on standard library `stud.dat` and `s/2865s02.dat`, `s/2865s03.dat`, and
-`s/2865s04.dat` assets. The
-[official LDraw 2025-08 update](https://library.ldraw.org/updates/view2508)
-lists the 75541/75542 switch IDs. Confirm mappings against the
-[official LDraw parts library](https://library.ldraw.org/parts/list?tableSearch=74746.dat) and the
-[LDraw file format](https://www.ldraw.org/article/218.html).
-
-Studio is not part of v1 verification; inspect the export with an LDraw reader and the documented
-library assets.
-
-See the [active v1 plan](active_plans/active/BRICK_TRACK_PLANNER_V1.md) for scope and fixture
-requirements.
+PNG and WebP export the complete visible scene. Standard raster export targets a 2,400-pixel long
+side and High targets 4,096 pixels, subject to a 12-megapixel cap. PDF includes the scene and
+inventory, with Color and Grayscale modes. LDraw exports visible mapped track only; it omits
+tables, baseplates, scenery, unresolved objects, and track without a mapping, and reports omitted
+pieces and required custom files. Mappings are limited to official LEGO 9V S16, R40, and right/left
+switch files plus BrickTracks R104/R120. It does not export TrixBrix track, most switch kits,
+tables, or ballast. See [`src/ldraw.ts`](../src/ldraw.ts) and
+[`src/share.ts`](../src/share.ts).

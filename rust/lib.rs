@@ -4,7 +4,9 @@ mod bindings;
 mod coverage;
 mod evaluation;
 mod model;
+mod niltc;
 mod ports;
+mod venue;
 
 pub use bindings::{catalog_json, encode_webp, evaluate_json};
 pub use evaluation::{EvaluationError, evaluate};

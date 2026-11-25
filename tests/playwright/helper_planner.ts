@@ -28,7 +28,7 @@ export function watchErrors(page: Page): string[] {
   return errors;
 }
 
-export async function boot(page: Page): Promise<void> {
+export async function boot(page: Page, { startAdvanced = true } = {}): Promise<void> {
   const [wasm, document] = await Promise.all([
     page.waitForResponse((response) => response.url().endsWith("/wasm/track_geometry_bg.wasm")),
     page.goto("./"),
@@ -37,7 +37,15 @@ export async function boot(page: Page): Promise<void> {
   expect(new URL(page.url()).pathname).toBe("/brick-track-planner/");
   expect(wasm.ok()).toBe(true);
   expect(wasm.headers()["content-type"]).toBe("application/wasm");
-  await expect(page.locator("#tabletop [data-track-scene]")).toBeVisible();
+  const advanced = page.getByRole("button", {
+    name: "Advanced \u2014 I\u2019ll handle it",
+    exact: true,
+  });
+  await expect(advanced).toBeVisible();
+  if (startAdvanced) {
+    await advanced.click();
+    await expect(page.locator("#tabletop [data-track-scene]")).toBeVisible();
+  }
 }
 
 export const test = base.extend<{ planner: Page }>({

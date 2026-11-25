@@ -132,7 +132,8 @@ export class SeamEditor {
     element("selection-panel").hidden = Boolean(draft);
     if (!draft) return;
     const project = analysis.project;
-    const editing = project.seams.some(({ id }) => id === draft.id);
+    const saved = project.seams.find(({ id }) => id === draft.id);
+    const detaching = Boolean(saved?.exitAId || saved?.exitBId);
     const tableOptions = project.tables.map(({ id, name }): [string, string] => [id, name]);
     for (const tableId of [draft.tableA, draft.tableB]) {
       if (!tableOptions.some(([id]) => id === tableId)) {
@@ -173,6 +174,9 @@ export class SeamEditor {
         "Pick the two ends of each lane on the canvas. S8 can extend beyond a table edge.",
       ),
     );
+    if (detaching) {
+      form.append(textNode("p", "Save this seam as a direct connection between its tables."));
+    }
     for (const [end, label] of endpoints) {
       const endpoint = draft.endpoints[end];
       const picked = endpoint ? callbacks.describe(endpoint) : "Pick connector";
@@ -200,15 +204,15 @@ export class SeamEditor {
     save.id = "save-seam";
     save.type = "submit";
     save.className = "primary";
-    save.textContent = "Save seam";
+    save.textContent = detaching ? "Detach exits and save seam" : "Save seam";
     const actions = container("form-actions", save, action("Cancel", callbacks.close));
-    if (editing) actions.append(action("Delete seam", callbacks.remove));
+    if (saved) actions.append(action("Delete seam", callbacks.remove));
     form.append(actions);
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       callbacks.save();
     });
-    panel.replaceChildren(textNode("h3", editing ? "Edit seam" : "Connect tables"), form);
+    panel.replaceChildren(textNode("h3", saved ? "Edit seam" : "Connect tables"), form);
   }
 
   get prompt(): string {

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "pennlug-s16",
+    "name": "PennLUG LEGO 9V S16 straight",
+    "source": "https://l-gauge.org/downloads/Ref001BallastStraightPennLUGRevA.pdf",
+    "revision": "001A",
+    "trackPartIds": ["lego:9v-s16"],
+    "materials": [
+      {"partId": "3070", "name": "Tile 1 x 1", "color": "black", "quantity": 16},
+      {"partId": "3023", "name": "Plate 1 x 2", "color": "dark-bluish-gray", "quantity": 8},
+      {"partId": "2431", "name": "Tile 1 x 4", "color": "black", "quantity": 8},
+      {"partId": "3020", "name": "Plate 2 x 4", "color": "dark-bluish-gray", "quantity": 4},
+      {"partId": "3034", "name": "Plate 2 x 8", "color": "red", "quantity": 4},
+      {"partId": "3034", "name": "Plate 2 x 8", "color": "dark-bluish-gray", "quantity": 4}
+    ]
+  },
+  {
+    "id": "pennlug-r104",
+    "name": "PennLUG R104 curve",
+    "source": "https://l-gauge.org/downloads/Ref022BallastR104CurveRevA.pdf",
+    "revision": "022A",
+    "trackPartIds": ["bricktracks:r104", "trixbrix:r104"],
+    "materials": [
+      {"partId": "3070", "name": "Tile 1 x 1", "color": "black", "quantity": 20},
+      {"partId": "2431", "name": "Tile 1 x 4", "color": "black", "quantity": 10},
+      {"partId": "3024", "name": "Plate 1 x 1", "color": "dark-bluish-gray", "quantity": 15},
+      {"partId": "4510", "name": "Plate 1 x 8 with rail", "color": "dark-bluish-gray", "quantity": 5},
+      {"partId": "3022", "name": "Plate 2 x 2", "color": "dark-bluish-gray", "quantity": 6},
+      {"partId": "2420", "name": "Plate 2 x 2 corner", "color": "dark-bluish-gray", "quantity": 5},
+      {"partId": "3021", "name": "Plate 2 x 3", "color": "dark-bluish-gray", "quantity": 1},
+      {"partId": "3020", "name": "Plate 2 x 4", "color": "dark-bluish-gray", "quantity": 4},
+      {"partId": "3795", "name": "Plate 2 x 6", "color": "dark-bluish-gray", "quantity": 5}
+    ]
+  },
+  {
+    "id": "pennlug-r120",
+    "name": "PennLUG R120 curve",
+    "source": "https://l-gauge.org/downloads/Ref023BallastR120CurveRevB.pdf",
+    "revision": "023B",
+    "trackPartIds": ["bricktracks:r120"],
+    "materials": [
+      {"partId": "30357", "name": "Plate 3 x 3 quarter circle", "color": "black", "quantity": 5},
+      {"partId": "3070", "name": "Tile 1 x 1", "color": "black", "quantity": 24},
+      {"partId": "2431", "name": "Tile 1 x 4", "color": "black", "quantity": 12},
+      {"partId": "6141", "name": "Plate 1 x 1 round", "color": "reddish-brown", "quantity": 12},
+      {"partId": "4032", "name": "Plate 2 x 2 round with axle hole", "color": "light-bluish-gray", "quantity": 2},
+      {"partId": "3024", "name": "Plate 1 x 1", "color": "dark-bluish-gray", "quantity": 18},
+      {"partId": "32028", "name": "Plate 1 x 2 with rail", "color": "dark-bluish-gray", "quantity": 6},
+      {"partId": "3710", "name": "Plate 1 x 4", "color": "dark-bluish-gray", "quantity": 6},
+      {"partId": "3021", "name": "Plate 2 x 3", "color": "dark-bluish-gray", "quantity": 2},
+      {"partId": "3020", "name": "Plate 2 x 4", "color": "dark-bluish-gray", "quantity": 11}
+    ]
+  }
+]

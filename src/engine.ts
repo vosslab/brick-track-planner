@@ -28,6 +28,18 @@ export type Analysis = {
   }[];
   seams: { id: string; outer: EndpointStatus; inner: EndpointStatus }[];
   overhangs: { pieceId: string; rings: Point[][] }[];
+  venueIssues: {
+    kind: "table-overlap" | "outside-venue" | "keepout";
+    entityId: string;
+    otherId?: string;
+  }[];
+  niltcIssues: ({ tableId: string; itemId?: string; exitId?: string } & (
+    | { kind: "table-grid" | "baseplate-grid"; lane?: never }
+    | {
+        kind: "missing-mainline" | "mainline-height" | "exit-off-standard";
+        lane: "outer" | "inner";
+      }
+  ))[];
   noTable: boolean;
   counts: { partId: string; brand: string; name: string; count: number }[];
   unresolved: { id: string; name: string; sourceId: string }[];

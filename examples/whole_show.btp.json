@@ -1,0 +1,2740 @@
+{
+  "version": 2,
+  "name": "Whole Show",
+  "venue": {
+    "width": 576,
+    "depth": 320,
+    "keepouts": [
+      {
+        "id": "access-aisle",
+        "name": "Access aisle",
+        "x": 288,
+        "y": 296,
+        "width": 512,
+        "depth": 16
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "northwest",
+      "name": "Northwest Corner",
+      "memberId": "morgan",
+      "exits": [
+        {
+          "id": "northwest-east",
+          "name": "East exit",
+          "tableId": "northwest",
+          "edge": "east",
+          "outer": {
+            "pieceId": "northwest-r120-8",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "northwest-r104-8",
+            "portId": "b"
+          }
+        },
+        {
+          "id": "northwest-south",
+          "name": "South exit",
+          "tableId": "northwest",
+          "edge": "south",
+          "outer": {
+            "pieceId": "northwest-r120-1",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "northwest-r104-1",
+            "portId": "a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "yard",
+      "name": "Yard",
+      "memberId": "elodie",
+      "exits": [
+        {
+          "id": "yard-west",
+          "name": "West exit",
+          "tableId": "yard",
+          "edge": "west",
+          "outer": {
+            "pieceId": "yard-outer-0",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "yard-inner-0",
+            "portId": "a"
+          }
+        },
+        {
+          "id": "yard-east",
+          "name": "East exit",
+          "tableId": "yard",
+          "edge": "east",
+          "outer": {
+            "pieceId": "yard-outer-96",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "yard-inner-128",
+            "portId": "b"
+          }
+        }
+      ]
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "memberId": "tokyo",
+      "exits": [
+        {
+          "id": "connector-west",
+          "name": "West exit",
+          "tableId": "connector",
+          "edge": "west",
+          "outer": {
+            "pieceId": "connector-outer-0",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "connector-inner-8",
+            "portId": "a"
+          }
+        },
+        {
+          "id": "connector-east",
+          "name": "East exit",
+          "tableId": "connector",
+          "edge": "east",
+          "outer": {
+            "pieceId": "connector-outer-96",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "connector-inner-120",
+            "portId": "b"
+          }
+        }
+      ]
+    },
+    {
+      "id": "northeast",
+      "name": "Northeast Corner",
+      "memberId": "morgan",
+      "exits": [
+        {
+          "id": "northeast-east",
+          "name": "East exit",
+          "tableId": "northeast",
+          "edge": "east",
+          "outer": {
+            "pieceId": "northeast-r120-8",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "northeast-r104-8",
+            "portId": "b"
+          }
+        },
+        {
+          "id": "northeast-south",
+          "name": "South exit",
+          "tableId": "northeast",
+          "edge": "south",
+          "outer": {
+            "pieceId": "northeast-r120-1",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "northeast-r104-1",
+            "portId": "a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "southeast",
+      "name": "Southeast Corner",
+      "memberId": "morgan",
+      "exits": [
+        {
+          "id": "southeast-east",
+          "name": "East exit",
+          "tableId": "southeast",
+          "edge": "east",
+          "outer": {
+            "pieceId": "southeast-r120-8",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "southeast-r104-8",
+            "portId": "b"
+          }
+        },
+        {
+          "id": "southeast-south",
+          "name": "South exit",
+          "tableId": "southeast",
+          "edge": "south",
+          "outer": {
+            "pieceId": "southeast-r120-1",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "southeast-r104-1",
+            "portId": "a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siding",
+      "name": "Siding",
+      "memberId": "elodie",
+      "exits": [
+        {
+          "id": "siding-east-west",
+          "name": "East-side exit",
+          "tableId": "siding-east",
+          "edge": "west",
+          "outer": {
+            "pieceId": "siding-east-outer-0",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "siding-east-inner-0",
+            "portId": "a"
+          }
+        },
+        {
+          "id": "siding-west-east",
+          "name": "West-side exit",
+          "tableId": "siding-west",
+          "edge": "east",
+          "outer": {
+            "pieceId": "siding-west-outer-96",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "siding-west-inner-112",
+            "portId": "b"
+          }
+        }
+      ]
+    },
+    {
+      "id": "southwest",
+      "name": "Southwest Corner",
+      "memberId": "morgan",
+      "exits": [
+        {
+          "id": "southwest-east",
+          "name": "East exit",
+          "tableId": "southwest",
+          "edge": "east",
+          "outer": {
+            "pieceId": "southwest-r120-8",
+            "portId": "b"
+          },
+          "inner": {
+            "pieceId": "southwest-r104-8",
+            "portId": "b"
+          }
+        },
+        {
+          "id": "southwest-south",
+          "name": "South exit",
+          "tableId": "southwest",
+          "edge": "south",
+          "outer": {
+            "pieceId": "southwest-r120-1",
+            "portId": "a"
+          },
+          "inner": {
+            "pieceId": "southwest-r104-1",
+            "portId": "a"
+          }
+        }
+      ]
+    }
+  ],
+  "members": [
+    {
+      "id": "morgan",
+      "name": "Morgan Lee",
+      "bring": {}
+    },
+    {
+      "id": "elodie",
+      "name": "\u00c9lodie Chen",
+      "bring": {
+        "lego:9v-s16": 21,
+        "bricktracks:s08": 1,
+        "trixbrix:s32": 12
+      }
+    },
+    {
+      "id": "tokyo",
+      "name": "Tokyo \u6771\u4eac",
+      "bring": {}
+    }
+  ],
+  "layers": [
+    {
+      "id": "layout",
+      "name": "Layout",
+      "visible": true
+    }
+  ],
+  "tables": [
+    {
+      "id": "northwest",
+      "name": "Northwest",
+      "layerId": "layout",
+      "x": 32,
+      "y": 32,
+      "angle": 0,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north",
+        "west"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "northwest",
+      "niltc": "corner"
+    },
+    {
+      "id": "yard",
+      "name": "Yard \u2013 D\u00e9p\u00f4t",
+      "layerId": "layout",
+      "x": 160,
+      "y": 32,
+      "angle": 0,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "yard",
+      "niltc": "straight"
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "layerId": "layout",
+      "x": 288,
+      "y": 32,
+      "angle": 0,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "connector",
+      "niltc": "straight"
+    },
+    {
+      "id": "northeast",
+      "name": "Northeast",
+      "layerId": "layout",
+      "x": 544,
+      "y": 32,
+      "angle": 90,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north",
+        "west"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "northeast",
+      "niltc": "corner"
+    },
+    {
+      "id": "southeast",
+      "name": "Southeast",
+      "layerId": "layout",
+      "x": 544,
+      "y": 288,
+      "angle": 180,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north",
+        "west"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "southeast",
+      "niltc": "corner"
+    },
+    {
+      "id": "siding-east",
+      "name": "Siding East",
+      "layerId": "layout",
+      "x": 416,
+      "y": 288,
+      "angle": 180,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "siding",
+      "niltc": "straight"
+    },
+    {
+      "id": "siding-west",
+      "name": "Siding West",
+      "layerId": "layout",
+      "x": 288,
+      "y": 288,
+      "angle": 180,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "siding",
+      "niltc": "straight"
+    },
+    {
+      "id": "southwest",
+      "name": "Southwest",
+      "layerId": "layout",
+      "x": 32,
+      "y": 288,
+      "angle": 270,
+      "width": 128,
+      "depth": 128,
+      "fronts": [
+        "north",
+        "west"
+      ],
+      "nominal": "40 x 40 in",
+      "sectionId": "southwest",
+      "niltc": "corner"
+    }
+  ],
+  "items": [
+    {
+      "id": "northwest-r104-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r104",
+      "x": 24.9375,
+      "y": 117.5,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "pennlug",
+      "countBallast": true
+    },
+    {
+      "id": "northwest-r104-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r104",
+      "x": 28.90496634,
+      "y": 97.583065098,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r104",
+      "x": 36.80084172,
+      "y": 78.858953661,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r104",
+      "x": 48.088183678,
+      "y": 61.976388791,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r104",
+      "x": 62.548428566,
+      "y": 47.699186162,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r104",
+      "x": 79.437250649,
+      "y": 36.421208785,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r104",
+      "x": 98.260423843,
+      "y": 28.764489641,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r104-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r104",
+      "x": 118.179555986,
+      "y": 24.808069577,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r120",
+      "x": 9.125,
+      "y": 115.75,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "gray"
+    },
+    {
+      "id": "northwest-r120-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r120",
+      "x": 13.897218107,
+      "y": 92.941002736,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r120",
+      "x": 22.861692619,
+      "y": 71.190982704,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r120",
+      "x": 35.999272614,
+      "y": 51.94446578,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r120",
+      "x": 52.604739456,
+      "y": 35.280623317,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r120",
+      "x": 72.107603878,
+      "y": 22.526694464,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "bricktracks:r120",
+      "x": 93.826031251,
+      "y": 13.485948526,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-r120-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "partId": "trixbrix:r120",
+      "x": 116.725045785,
+      "y": 9.166277798,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-outer-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "trixbrix:s32",
+      "x": 16,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-outer-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "trixbrix:s32",
+      "x": 48,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-outer-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "trixbrix:s32",
+      "x": 80,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-outer-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "trixbrix:s32",
+      "x": 112,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 8,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-16",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 24,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 40,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-48",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 56,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 72,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-80",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 88,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 104,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-112",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "lego:9v-s16",
+      "x": 120,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "yard-inner-128",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "yard",
+      "partId": "bricktracks:s08",
+      "x": 132,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2,
+      "ballast": "pennlug",
+      "countBallast": true
+    },
+    {
+      "id": "connector-outer-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "trixbrix:s32",
+      "x": 16,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-outer-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "trixbrix:s32",
+      "x": 48,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-outer-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "trixbrix:s32",
+      "x": 80,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-outer-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "trixbrix:s32",
+      "x": 112,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 16,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-24",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 32,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-40",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 48,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-56",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 64,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-72",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 80,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-88",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 96,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-104",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "lego:9v-s16",
+      "x": 112,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "connector-inner-120",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "connector",
+      "partId": "bricktracks:s08",
+      "x": 124,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r104",
+      "x": 24.9375,
+      "y": 117.5,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "pennlug",
+      "countBallast": true
+    },
+    {
+      "id": "northeast-r104-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r104",
+      "x": 28.90496634,
+      "y": 97.583065098,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r104",
+      "x": 36.80084172,
+      "y": 78.858953661,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r104",
+      "x": 48.088183678,
+      "y": 61.976388791,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r104",
+      "x": 62.548428566,
+      "y": 47.699186162,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r104",
+      "x": 79.437250649,
+      "y": 36.421208785,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r104",
+      "x": 98.260423843,
+      "y": 28.764489641,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r104-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r104",
+      "x": 118.179555986,
+      "y": 24.808069577,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r120",
+      "x": 9.125,
+      "y": 115.75,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "gray"
+    },
+    {
+      "id": "northeast-r120-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r120",
+      "x": 13.897218107,
+      "y": 92.941002736,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r120",
+      "x": 22.861692619,
+      "y": 71.190982704,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r120",
+      "x": 35.999272614,
+      "y": 51.94446578,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r120",
+      "x": 52.604739456,
+      "y": 35.280623317,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r120",
+      "x": 72.107603878,
+      "y": 22.526694464,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "bricktracks:r120",
+      "x": 93.826031251,
+      "y": 13.485948526,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "northeast-r120-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "partId": "trixbrix:r120",
+      "x": 116.725045785,
+      "y": 9.166277798,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r104",
+      "x": 24.9375,
+      "y": 117.5,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "pennlug",
+      "countBallast": true
+    },
+    {
+      "id": "southeast-r104-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r104",
+      "x": 28.90496634,
+      "y": 97.583065098,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r104",
+      "x": 36.80084172,
+      "y": 78.858953661,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r104",
+      "x": 48.088183678,
+      "y": 61.976388791,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r104",
+      "x": 62.548428566,
+      "y": 47.699186162,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r104",
+      "x": 79.437250649,
+      "y": 36.421208785,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r104",
+      "x": 98.260423843,
+      "y": 28.764489641,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r104-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r104",
+      "x": 118.179555986,
+      "y": 24.808069577,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r120",
+      "x": 9.125,
+      "y": 115.75,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "gray"
+    },
+    {
+      "id": "southeast-r120-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r120",
+      "x": 13.897218107,
+      "y": 92.941002736,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r120",
+      "x": 22.861692619,
+      "y": 71.190982704,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r120",
+      "x": 35.999272614,
+      "y": 51.94446578,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r120",
+      "x": 52.604739456,
+      "y": 35.280623317,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r120",
+      "x": 72.107603878,
+      "y": 22.526694464,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "bricktracks:r120",
+      "x": 93.826031251,
+      "y": 13.485948526,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southeast-r120-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "partId": "trixbrix:r120",
+      "x": 116.725045785,
+      "y": 9.166277798,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-outer-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "trixbrix:s32",
+      "x": 16,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-outer-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "trixbrix:s32",
+      "x": 48,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-outer-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "trixbrix:s32",
+      "x": 80,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-outer-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "trixbrix:s32",
+      "x": 112,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 8,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-16",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 24,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-72",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "bricktracks:s08",
+      "x": 76,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-80",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 88,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 104,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-inner-112",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 120,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-turnout",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "bricktracks:r104-right-body",
+      "x": 52.5,
+      "y": 27.875,
+      "angle": 180,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-stand",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "bricktracks:r104-stand",
+      "x": 36.5,
+      "y": 30.5,
+      "angle": 180,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-branch-curve",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "trixbrix:r104",
+      "x": 81.36588708804905,
+      "y": 36.826570630780814,
+      "angle": 382.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-east-branch-end",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "partId": "lego:9v-s16",
+      "x": 96.63198416681225,
+      "y": 46.055193565930246,
+      "angle": 33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-outer-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "trixbrix:s32",
+      "x": 16,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-outer-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "trixbrix:s32",
+      "x": 48,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-outer-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "trixbrix:s32",
+      "x": 80,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-outer-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "trixbrix:s32",
+      "x": 112,
+      "y": 8,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-0",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 8,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-16",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 24,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-32",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 40,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-48",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 56,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-64",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 72,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-80",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 88,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-96",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 104,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "siding-west-inner-112",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "siding-west",
+      "partId": "lego:9v-s16",
+      "x": 120,
+      "y": 24,
+      "angle": 0,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r104",
+      "x": 24.9375,
+      "y": 117.5,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "pennlug",
+      "countBallast": true
+    },
+    {
+      "id": "southwest-r104-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r104",
+      "x": 28.90496634,
+      "y": 97.583065098,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r104",
+      "x": 36.80084172,
+      "y": 78.858953661,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r104",
+      "x": 48.088183678,
+      "y": 61.976388791,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r104",
+      "x": 62.548428566,
+      "y": 47.699186162,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r104",
+      "x": 79.437250649,
+      "y": 36.421208785,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r104",
+      "x": 98.260423843,
+      "y": 28.764489641,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r104-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r104",
+      "x": 118.179555986,
+      "y": 24.808069577,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-1",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r120",
+      "x": 9.125,
+      "y": 115.75,
+      "angle": -90,
+      "heightPlates": 2,
+      "ballast": "gray"
+    },
+    {
+      "id": "southwest-r120-2",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r120",
+      "x": 13.897218107,
+      "y": 92.941002736,
+      "angle": -78.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-3",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r120",
+      "x": 22.861692619,
+      "y": 71.190982704,
+      "angle": -67.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-4",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r120",
+      "x": 35.999272614,
+      "y": 51.94446578,
+      "angle": -56.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-5",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r120",
+      "x": 52.604739456,
+      "y": 35.280623317,
+      "angle": -45,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-6",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r120",
+      "x": 72.107603878,
+      "y": 22.526694464,
+      "angle": -33.75,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-7",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "bricktracks:r120",
+      "x": 93.826031251,
+      "y": 13.485948526,
+      "angle": -22.5,
+      "heightPlates": 2
+    },
+    {
+      "id": "southwest-r120-8",
+      "kind": "track",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "partId": "trixbrix:r120",
+      "x": 116.725045785,
+      "y": 9.166277798,
+      "angle": -11.25,
+      "heightPlates": 2
+    },
+    {
+      "id": "northwest-baseplate-16-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 16,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-48-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 48,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-80-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 80,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-112-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 112,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-16-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 16,
+      "y": 48,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-48-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 48,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-80-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 80,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-112-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 112,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-16-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 16,
+      "y": 80,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-48-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 48,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-80-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 80,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-112-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 112,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-16-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 16,
+      "y": 112,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northwest-baseplate-48-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 48,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-80-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 80,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northwest-baseplate-112-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northwest",
+      "x": 112,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-16-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 16,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-48-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 48,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-80-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 80,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-112-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 112,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-16-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 16,
+      "y": 48,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-48-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 48,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-80-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 80,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-112-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 112,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-16-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 16,
+      "y": 80,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-48-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 48,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-80-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 80,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-112-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 112,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-16-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 16,
+      "y": 112,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "northeast-baseplate-48-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 48,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-80-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 80,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "northeast-baseplate-112-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "northeast",
+      "x": 112,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-16-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 16,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-48-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 48,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-80-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 80,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-112-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 112,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-16-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 16,
+      "y": 48,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-48-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 48,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-80-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 80,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-112-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 112,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-16-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 16,
+      "y": 80,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-48-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 48,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-80-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 80,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-112-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 112,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-16-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 16,
+      "y": 112,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southeast-baseplate-48-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 48,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-80-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 80,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southeast-baseplate-112-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southeast",
+      "x": 112,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-16-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 16,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "siding-east-baseplate-48-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 48,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "siding-east-baseplate-80-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 80,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "siding-east-baseplate-112-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 112,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "siding-east-baseplate-16-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 16,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-48-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 48,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-80-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 80,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-112-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 112,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-16-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 16,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-48-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 48,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-80-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 80,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-112-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 112,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-16-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 16,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-48-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 48,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-80-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 80,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "siding-east-baseplate-112-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "siding-east",
+      "x": 112,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-16-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 16,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-48-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 48,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-80-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 80,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-112-16",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 112,
+      "y": 16,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-16-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 16,
+      "y": 48,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-48-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 48,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-80-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 80,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-112-48",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 112,
+      "y": 48,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-16-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 16,
+      "y": 80,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-48-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 48,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-80-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 80,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-112-80",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 112,
+      "y": 80,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-16-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 16,
+      "y": 112,
+      "angle": 0,
+      "color": "#c9aa7c"
+    },
+    {
+      "id": "southwest-baseplate-48-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 48,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-80-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 80,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    },
+    {
+      "id": "southwest-baseplate-112-112",
+      "kind": "baseplate",
+      "layerId": "layout",
+      "tableId": "southwest",
+      "x": 112,
+      "y": 112,
+      "angle": 0,
+      "color": "#648754"
+    }
+  ],
+  "seams": [
+    {
+      "id": "northwest-yard",
+      "tableA": "northwest",
+      "edgeA": "east",
+      "tableB": "yard",
+      "edgeB": "west",
+      "outer": {
+        "a": {
+          "pieceId": "northwest-r120-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "yard-outer-0",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "northwest-r104-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "yard-inner-0",
+          "portId": "a"
+        }
+      },
+      "exitAId": "northwest-east",
+      "exitBId": "yard-west"
+    },
+    {
+      "id": "yard-connector",
+      "tableA": "yard",
+      "edgeA": "east",
+      "tableB": "connector",
+      "edgeB": "west",
+      "outer": {
+        "a": {
+          "pieceId": "yard-outer-96",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "connector-outer-0",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "yard-inner-128",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "connector-inner-8",
+          "portId": "a"
+        }
+      },
+      "exitAId": "yard-east",
+      "exitBId": "connector-west"
+    },
+    {
+      "id": "connector-northeast",
+      "tableA": "connector",
+      "edgeA": "east",
+      "tableB": "northeast",
+      "edgeB": "south",
+      "outer": {
+        "a": {
+          "pieceId": "connector-outer-96",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "northeast-r120-1",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "connector-inner-120",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "northeast-r104-1",
+          "portId": "a"
+        }
+      },
+      "exitAId": "connector-east",
+      "exitBId": "northeast-south"
+    },
+    {
+      "id": "northeast-southeast",
+      "tableA": "northeast",
+      "edgeA": "east",
+      "tableB": "southeast",
+      "edgeB": "south",
+      "outer": {
+        "a": {
+          "pieceId": "northeast-r120-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "southeast-r120-1",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "northeast-r104-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "southeast-r104-1",
+          "portId": "a"
+        }
+      },
+      "exitAId": "northeast-east",
+      "exitBId": "southeast-south"
+    },
+    {
+      "id": "southeast-siding",
+      "tableA": "southeast",
+      "edgeA": "east",
+      "tableB": "siding-east",
+      "edgeB": "west",
+      "outer": {
+        "a": {
+          "pieceId": "southeast-r120-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "siding-east-outer-0",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "southeast-r104-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "siding-east-inner-0",
+          "portId": "a"
+        }
+      },
+      "exitAId": "southeast-east",
+      "exitBId": "siding-east-west"
+    },
+    {
+      "id": "siding-middle",
+      "tableA": "siding-east",
+      "edgeA": "east",
+      "tableB": "siding-west",
+      "edgeB": "west",
+      "outer": {
+        "a": {
+          "pieceId": "siding-east-outer-96",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "siding-west-outer-0",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "siding-east-inner-112",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "siding-west-inner-0",
+          "portId": "a"
+        }
+      }
+    },
+    {
+      "id": "siding-southwest",
+      "tableA": "siding-west",
+      "edgeA": "east",
+      "tableB": "southwest",
+      "edgeB": "south",
+      "outer": {
+        "a": {
+          "pieceId": "siding-west-outer-96",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "southwest-r120-1",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "siding-west-inner-112",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "southwest-r104-1",
+          "portId": "a"
+        }
+      },
+      "exitAId": "siding-west-east",
+      "exitBId": "southwest-south"
+    },
+    {
+      "id": "southwest-northwest",
+      "tableA": "southwest",
+      "edgeA": "east",
+      "tableB": "northwest",
+      "edgeB": "south",
+      "outer": {
+        "a": {
+          "pieceId": "southwest-r120-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "northwest-r120-1",
+          "portId": "a"
+        }
+      },
+      "inner": {
+        "a": {
+          "pieceId": "southwest-r104-8",
+          "portId": "b"
+        },
+        "b": {
+          "pieceId": "northwest-r104-1",
+          "portId": "a"
+        }
+      },
+      "exitAId": "southwest-east",
+      "exitBId": "northwest-south"
+    }
+  ]
+}

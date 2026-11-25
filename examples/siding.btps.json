@@ -1,0 +1,567 @@
+{
+  "version": 1,
+  "section": {
+    "name": "Siding",
+    "ownerName": "\u00c9lodie Chen"
+  },
+  "anchorTableId": "siding-east",
+  "project": {
+    "version": 2,
+    "name": "Siding",
+    "sections": [
+      {
+        "id": "siding",
+        "name": "Siding",
+        "exits": [
+          {
+            "id": "siding-east-west",
+            "name": "East-side exit",
+            "edge": "west",
+            "tableId": "siding-east",
+            "outer": {
+              "pieceId": "siding-east-outer-0",
+              "portId": "a"
+            },
+            "inner": {
+              "pieceId": "siding-east-inner-0",
+              "portId": "a"
+            }
+          },
+          {
+            "id": "siding-west-east",
+            "name": "West-side exit",
+            "edge": "east",
+            "tableId": "siding-west",
+            "outer": {
+              "pieceId": "siding-west-outer-96",
+              "portId": "b"
+            },
+            "inner": {
+              "pieceId": "siding-west-inner-112",
+              "portId": "b"
+            }
+          }
+        ]
+      }
+    ],
+    "members": [],
+    "layers": [
+      {
+        "id": "layout",
+        "name": "Layout",
+        "visible": true
+      }
+    ],
+    "tables": [
+      {
+        "id": "siding-east",
+        "name": "Siding East",
+        "layerId": "layout",
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "width": 128,
+        "depth": 128,
+        "fronts": [
+          "north"
+        ],
+        "nominal": "40 x 40 in",
+        "sectionId": "siding",
+        "niltc": "straight"
+      },
+      {
+        "id": "siding-west",
+        "name": "Siding West",
+        "layerId": "layout",
+        "x": 128,
+        "y": 0,
+        "angle": 0,
+        "width": 128,
+        "depth": 128,
+        "fronts": [
+          "north"
+        ],
+        "nominal": "40 x 40 in",
+        "sectionId": "siding",
+        "niltc": "straight"
+      }
+    ],
+    "items": [
+      {
+        "id": "siding-east-outer-0",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "trixbrix:s32",
+        "x": 16,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-outer-32",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "trixbrix:s32",
+        "x": 48,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-outer-64",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "trixbrix:s32",
+        "x": 80,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-outer-96",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "trixbrix:s32",
+        "x": 112,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-0",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 8,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-16",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 24,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-72",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "bricktracks:s08",
+        "x": 76,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-80",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 88,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-96",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 104,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-inner-112",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 120,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-turnout",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "bricktracks:r104-right-body",
+        "x": 52.5,
+        "y": 27.875,
+        "angle": 180,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-stand",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "bricktracks:r104-stand",
+        "x": 36.5,
+        "y": 30.5,
+        "angle": 180,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-branch-curve",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "trixbrix:r104",
+        "x": 81.36588708804905,
+        "y": 36.826570630780814,
+        "angle": 382.5,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-branch-end",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "partId": "lego:9v-s16",
+        "x": 96.63198416681225,
+        "y": 46.055193565930246,
+        "angle": 33.75,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-outer-0",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "trixbrix:s32",
+        "x": 16,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-outer-32",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "trixbrix:s32",
+        "x": 48,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-outer-64",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "trixbrix:s32",
+        "x": 80,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-outer-96",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "trixbrix:s32",
+        "x": 112,
+        "y": 8,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-0",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 8,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-16",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 24,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-32",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 40,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-48",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 56,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-64",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 72,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-80",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 88,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-96",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 104,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-west-inner-112",
+        "kind": "track",
+        "layerId": "layout",
+        "tableId": "siding-west",
+        "partId": "lego:9v-s16",
+        "x": 120,
+        "y": 24,
+        "angle": 0,
+        "heightPlates": 2
+      },
+      {
+        "id": "siding-east-baseplate-16-16",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 16,
+        "y": 16,
+        "angle": 0,
+        "color": "#c9aa7c"
+      },
+      {
+        "id": "siding-east-baseplate-48-16",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 48,
+        "y": 16,
+        "angle": 0,
+        "color": "#c9aa7c"
+      },
+      {
+        "id": "siding-east-baseplate-80-16",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 80,
+        "y": 16,
+        "angle": 0,
+        "color": "#c9aa7c"
+      },
+      {
+        "id": "siding-east-baseplate-112-16",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 112,
+        "y": 16,
+        "angle": 0,
+        "color": "#c9aa7c"
+      },
+      {
+        "id": "siding-east-baseplate-16-48",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 16,
+        "y": 48,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-48-48",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 48,
+        "y": 48,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-80-48",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 80,
+        "y": 48,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-112-48",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 112,
+        "y": 48,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-16-80",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 16,
+        "y": 80,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-48-80",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 48,
+        "y": 80,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-80-80",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 80,
+        "y": 80,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-112-80",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 112,
+        "y": 80,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-16-112",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 16,
+        "y": 112,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-48-112",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 48,
+        "y": 112,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-80-112",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 80,
+        "y": 112,
+        "angle": 0,
+        "color": "#648754"
+      },
+      {
+        "id": "siding-east-baseplate-112-112",
+        "kind": "baseplate",
+        "layerId": "layout",
+        "tableId": "siding-east",
+        "x": 112,
+        "y": 112,
+        "angle": 0,
+        "color": "#648754"
+      }
+    ],
+    "seams": [
+      {
+        "id": "siding-middle",
+        "tableA": "siding-east",
+        "edgeA": "east",
+        "tableB": "siding-west",
+        "edgeB": "west",
+        "outer": {
+          "a": {
+            "pieceId": "siding-east-outer-96",
+            "portId": "b"
+          },
+          "b": {
+            "pieceId": "siding-west-outer-0",
+            "portId": "a"
+          }
+        },
+        "inner": {
+          "a": {
+            "pieceId": "siding-east-inner-112",
+            "portId": "b"
+          },
+          "b": {
+            "pieceId": "siding-west-inner-0",
+            "portId": "a"
+          }
+        }
+      }
+    ]
+  }
+}

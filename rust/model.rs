@@ -109,6 +109,25 @@ pub(crate) struct Project {
     pub tables: Vec<Table>,
     pub items: Vec<Item>,
     pub seams: Vec<Seam>,
+    #[serde(default)]
+    pub sections: Vec<Section>,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct Venue {
+    pub width: f64,
+    pub depth: f64,
+    pub keepouts: Vec<Keepout>,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct Keepout {
+    pub id: String,
+    pub name: String,
+    #[serde(flatten)]
+    pub center: Point,
+    pub width: f64,
+    pub depth: f64,
 }
 
 #[derive(Deserialize)]
@@ -126,6 +145,40 @@ pub(crate) struct Table {
     pub pose: Pose,
     pub width: f64,
     pub depth: f64,
+    #[serde(default)]
+    pub fronts: Vec<Edge>,
+    pub niltc: Option<NiltcKind>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum Edge {
+    North,
+    East,
+    South,
+    West,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum NiltcKind {
+    Straight,
+    Corner,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct Section {
+    pub exits: Vec<SectionExit>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SectionExit {
+    pub id: String,
+    pub table_id: String,
+    pub edge: Edge,
+    pub outer: Endpoint,
+    pub inner: Endpoint,
 }
 
 #[derive(Deserialize)]

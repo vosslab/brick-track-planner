@@ -7,7 +7,9 @@ import type { Project } from "../../src/project";
 import { chooseFile, test } from "./helper_planner";
 import { evaluateWasm } from "./helper_wasm";
 
-// Run with PW_BENCHMARK=1 ./run_playwright_tests.sh benchmark.spec.ts.
+// Run with PW_BENCHMARK=1 ./run_playwright_tests.sh benchmark.spec.ts --workers=1.
+// Selector contract: src/index.html:100,133 exposes the tabletop and parts tally.
+// src/editor_panels.ts:73,87 exposes the pose controls; src/scene.ts:279,766 identifies the track and scene.
 test.skip(process.env["PW_BENCHMARK"] !== "1", "opt-in diagnostic");
 
 function layout(count: number): Project {
@@ -55,15 +57,16 @@ test("reports staged geometry and update-to-draw timing", async ({ planner, isMo
   await expect(planner.locator("#parts-count")).toHaveText(String(count));
 
   const geometry = await evaluateWasm(planner, Array<string>(25).fill(json), false);
-  const anchor = planner.locator('[data-piece-id="bench-12"][data-kind="track"]');
+  const anchorSelector = '[data-piece-id="bench-12"][data-kind="track"]';
+  const anchor = planner.locator(anchorSelector);
   if (isMobile) await anchor.tap();
   else await anchor.click();
   await expect(planner.getByRole("spinbutton", { name: "Y (studs)" })).toHaveValue("8");
-  const update = await planner.evaluate(async () => {
-    const y = document.querySelector<HTMLInputElement>("#pose-y");
-    const apply = document.querySelector<HTMLButtonElement>("#apply-pose");
+  await expect(planner.getByRole("button", { name: "Apply", exact: true })).toBeVisible();
+  const update = await planner.evaluate(async (selector) => {
     const host = document.querySelector<HTMLElement>("#tabletop");
-    if (!y || !apply || !host) throw new Error("The pose inspector is missing");
+    if (!host) throw new Error("The tabletop is missing");
+    let previous = host.querySelector(selector)?.getAttribute("transform");
 
     const elapsed: number[] = [];
     for (let index = 0; index < 25; index++) {
@@ -72,15 +75,17 @@ test("reports staged geometry and update-to-draw timing", async ({ planner, isMo
       const button = document.querySelector<HTMLButtonElement>("#apply-pose");
       if (!field || !button) throw new Error("The pose inspector closed");
       field.value = index % 2 === 0 ? "11" : "8";
-      const before = host.firstElementChild;
       const start = performance.now();
       button.click();
-      if (host.firstElementChild === before) throw new Error("The scene did not draw");
-      host.lastElementChild?.getBoundingClientRect();
+      const scene = host.querySelector("[data-track-scene]");
+      scene?.getBoundingClientRect();
       elapsed.push(performance.now() - start);
+      const current = scene?.querySelector(selector)?.getAttribute("transform");
+      if (!current || current === previous) throw new Error("The selected track did not move");
+      previous = current;
     }
     return elapsed;
-  });
+  }, anchorSelector);
 
   const geometryP95 = p95(geometry.slice(5).map(({ ms }) => ms)).toFixed(2);
   const updateP95 = p95(update.slice(5)).toFixed(2);

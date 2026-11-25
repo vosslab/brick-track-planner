@@ -17,6 +17,8 @@
 
 - The Pages build now locks npm dependencies, builds the Wasm module and TypeScript declarations,
   and stages Wasm and examples in `dist/`.
+- The Pages build requires and stages all four section projects, the assembled Whole Show project,
+  and the three original examples.
 - Added `./devel/verify_release.sh` for local release checks. The canonical Pages workflow verifies
   pull requests, pushes to `main`, and manual runs; deployment runs only on `main` or manual
   dispatch from the default branch.
@@ -32,6 +34,8 @@
 
 ### Developer Tests and Notes
 
+- Recorded the v-final milestone plan and verification ledger for reusable sections, venue fit,
+  member bring lists, vector appearance, and setup packets.
 - The first `./build_github_pages.sh` run generates Wasm TypeScript declarations; run it before
   standalone `./check_codebase.sh` checks.
 - Initial `npm ci`, npm audit, and package policy checks passed; npm audit reported no known

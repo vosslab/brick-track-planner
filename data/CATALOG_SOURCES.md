@@ -3,8 +3,9 @@
 [catalog.json](catalog.json) stores measurements and placement recipes for the browser editor.
 Coordinates are in studs, with positive x to the right and positive y down in plan view. Port
 angles are clockwise from positive x and point out of the part. The part origin is the BlueBrick
-bitmap center where an alias is available. A kit origin is the reference point for its individual
-part placements. Keep catalog IDs stable because project files save them.
+bitmap center where an alias is available. The 4DBrix parts use the midpoint of the centerline.
+A kit origin is the reference point for its individual part placements. Keep catalog IDs stable
+because project files save them.
 
 ## Source archives
 
@@ -38,8 +39,27 @@ omits third-party images and archives. Package credits are on the [BlueBrick dow
   package's complete section alias.
   [TrixBrix straight track listing](https://trixbrix.eu/en/c/track/straight-tracks),
   [TrixBrix R120 full-circle set](https://trixbrix.eu/en/p/track/curved-tracks/curved-tracks-r120/curved-track-r120-comma-32x-comma-full-circle/9969-curved-track-r120-comma-32x-comma-full-circle)
+- 4DBrix publishes the dimensions for the four standard-gauge pieces below. The planner uses
+  the published radii as centerline radii and builds its own paths and eight-stud footprints
+  from those dimensions. The straight product pages describe compatibility with LEGO RC/PF
+  track, and the curve pages specify LEGO grid compatibility. The renderer uses the same
+  geometry for the palette and layout. The vendor offers STL models under a separate agreement.
+  The BlueBrick 4DBrix package covers earlier tracks. Exact BlueBrick aliases and LDraw
+  mappings for these four parts remain unverified.
+  [4DBrix quarter straight compatibility](https://www.4dbrix.com/products/train/quarter-straight/index.php),
+  [4DBrix half straight compatibility](https://www.4dbrix.com/products/train/half-straight/index.php),
+  [BlueBrick 4DBrix package list](https://github.com/Lswbanban/BlueBrickParts/blob/master/parts/4DBrix/_partlist.txt)
 - `regular` means the rail endpoints share a geometry. The geometry permits mixed brands without
   determining whether a layout conducts power for a 9V train.
+
+### 4DBrix part dimensions
+
+| Catalog ID | 4DBrix part | Length or radius | Sweep | Pieces in a 90-degree bend |
+| --- | --- | --- | --- | --- |
+| `4dbrix:s04` | [2.04.005](https://www.4dbrix.com/products/train/2-04-tracks/005/index.php) | 4 studs long | | |
+| `4dbrix:s08` | [2.04.001](https://www.4dbrix.com/products/train/2-04-tracks/001/index.php) | 8 studs long | | |
+| `4dbrix:r104` | [2.04.072](https://www.4dbrix.com/products/train/2-04-tracks/072/index.php) | 104-stud radius | 10 degrees | 9 |
+| `4dbrix:r120` | [2.04.073](https://www.4dbrix.com/products/train/2-04-tracks/073/index.php) | 120-stud radius | 9 degrees | 10 |
 
 ## R104 turnout assemblies
 

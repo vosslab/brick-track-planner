@@ -101,8 +101,8 @@ export function exportLDraw(project: Project, catalog: Catalog): LDrawExport {
   const visibleLayers = new Set(
     project.layers.filter(({ visible }) => visible).map(({ id }) => id),
   );
-  const names = new Map(catalog.parts.map(({ id, name }) => [id, name]));
-  const omitted = new Map<string, number>();
+  const parts = new Map(catalog.parts.map((part) => [part.id, part]));
+  const omitted = new Map<string, { name: string; count: number }>();
   const custom = new Map<string, string>();
   const lines = ["0 Brick Track Planner track layout"];
   for (const item of project.items) {
@@ -112,13 +112,20 @@ export function exportLDraw(project: Project, catalog: Catalog): LDrawExport {
       lines.push(partReference(worldPose(item, project.tables), item.heightPlates, mapping));
       if (mapping.url) custom.set(mapping.filename, mapping.url);
     } else {
-      const name = item.kind === "track" ? (names.get(item.partId) ?? item.partId) : item.name;
-      omitted.set(name, (omitted.get(name) ?? 0) + 1);
+      const part = item.kind === "track" ? parts.get(item.partId) : undefined;
+      const key = item.kind === "track" ? item.partId : item.name;
+      const name = part
+        ? `${part.brand} ${part.name}`
+        : item.kind === "track"
+          ? item.partId
+          : item.name;
+      const previous = omitted.get(key);
+      omitted.set(key, { name, count: (previous?.count ?? 0) + 1 });
     }
   }
   return {
     text: `${lines.join("\r\n")}\r\n`,
-    omitted: [...omitted].map(([name, count]) => ({ name, count })),
+    omitted: [...omitted.values()],
     custom: [...custom].map(([filename, url]) => ({ filename, url })),
   };
 }

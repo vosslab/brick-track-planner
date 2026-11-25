@@ -306,3 +306,115 @@ fn input_errors_leave_no_partial_evaluation() {
         Err(EvaluationError::Validation(_))
     ));
 }
+
+#[test]
+fn venue_reports_only_visible_positive_area_conflicts() {
+    let project = json!({
+        "version": 2,
+        "layers": [{"id": "show", "visible": true}, {"id": "hidden", "visible": false}],
+        "tables": [
+            {"id": "a", "layerId": "show", "x": 0, "y": 0, "angle": 0, "width": 32, "depth": 32},
+            {"id": "b", "layerId": "show", "x": 32, "y": 0, "angle": 0, "width": 32, "depth": 32},
+            {"id": "c", "layerId": "show", "x": 23, "y": 25, "angle": 45, "width": 8, "depth": 8},
+            {"id": "d", "layerId": "show", "x": 64, "y": 0, "angle": 90, "width": 32, "depth": 32},
+            {"id": "hidden", "layerId": "hidden", "x": 0, "y": 0, "angle": 0, "width": 32, "depth": 32}
+        ],
+        "items": [], "seams": [], "sections": [], "members": [],
+        "venue": {"width": 64, "depth": 32, "keepouts": [
+            {"id": "corner", "name": "Club door", "x": 1, "y": 1, "width": 2, "depth": 2},
+            {"id": "touch", "name": "Aisle", "x": -1, "y": 8, "width": 2, "depth": 2}
+        ]}
+    });
+    assert_eq!(
+        analyze(&project, "")["venueIssues"],
+        json!([
+            {"kind": "table-overlap", "entityId": "a", "otherId": "c"},
+            {"kind": "table-overlap", "entityId": "b", "otherId": "d"},
+            {"kind": "outside-venue", "entityId": "c"},
+            {"kind": "keepout", "entityId": "a", "otherId": "corner"}
+        ])
+    );
+
+    let mut project = project;
+    project.as_object_mut().unwrap().remove("venue");
+    assert_eq!(
+        analyze(&project, "")["venueIssues"]
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    project["version"] = json!(1);
+    project["venue"] = json!("legacy extra metadata");
+    let result = analyze(&project, "");
+    assert_eq!(result["project"], project);
+    assert_eq!(result["venueIssues"], json!([]));
+}
+
+#[test]
+fn rotated_tables_sharing_an_edge_are_clear_until_they_overlap() {
+    let angle = 29.0_f64;
+    let (sin, cos) = angle.to_radians().sin_cos();
+    let mut project = json!({
+        "version": 2, "layers": [{"id": "show", "visible": true}],
+        "tables": [
+            {"id": "a", "layerId": "show", "x": 0, "y": 0, "angle": angle, "width": 32, "depth": 32},
+            {"id": "b", "layerId": "show", "x": 32.0 * cos, "y": 32.0 * sin, "angle": angle, "width": 32, "depth": 32}
+        ],
+        "items": [], "seams": []
+    });
+    assert_eq!(analyze(&project, "")["venueIssues"], json!([]));
+    project["tables"][1]["x"] = json!((32.0 - 0.0001) * cos);
+    project["tables"][1]["y"] = json!((32.0 - 0.0001) * sin);
+    assert_eq!(
+        analyze(&project, "")["venueIssues"],
+        json!([
+            {"kind": "table-overlap", "entityId": "a", "otherId": "b"}
+        ])
+    );
+}
+
+#[test]
+fn keepouts_use_all_footprints_independently_of_table_support() {
+    let project = json!({
+        "version": 2,
+        "layers": [{"id": "show", "visible": true}, {"id": "hidden", "visible": false}],
+        "tables": [{
+            "id": "table", "layerId": "hidden", "x": 55, "y": 25, "angle": 90,
+            "width": 32, "depth": 32, "sectionId": "section"
+        }],
+        "items": [
+            {"id": "track", "layerId": "show", "tableId": "table", "x": 0, "y": 5, "angle": 0,
+             "kind": "track", "partId": "lego:9v-s16", "heightPlates": 1, "ballast": "gray", "countBallast": true},
+            {"id": "unmapped", "layerId": "show", "x": 50, "y": 28, "angle": 90,
+             "kind": "unresolved", "sourceId": "ghost", "name": "Imported", "width": 8, "depth": 2},
+            {"id": "plate", "layerId": "show", "x": 65, "y": 25, "angle": 0, "kind": "baseplate", "color": "#ffffff"},
+            {"id": "hidden-plate", "layerId": "hidden", "x": 50, "y": 25, "angle": 0, "kind": "baseplate"}
+        ],
+        "seams": [],
+        "sections": [{"id": "section", "name": "Section", "memberId": "lead", "exits": []}],
+        "members": [{"id": "lead", "name": "Lead", "bring": {"lego:9v-s16": 1}}],
+        "venue": {"width": 100, "depth": 100, "keepouts": [
+            {"id": "door", "name": "Door", "x": 50, "y": 25, "width": 2, "depth": 2}
+        ]}
+    });
+    let result = analyze(&project, "");
+    assert_eq!(result["project"], project);
+    assert_eq!(result["noTable"], true);
+    assert_eq!(result["overhangs"], json!([]));
+    assert_eq!(
+        result["venueIssues"],
+        json!([
+            {"kind": "keepout", "entityId": "track", "otherId": "door"},
+            {"kind": "keepout", "entityId": "unmapped", "otherId": "door"},
+            {"kind": "keepout", "entityId": "plate", "otherId": "door"}
+        ])
+    );
+
+    let mut project = project;
+    project["venue"]["keepouts"][0]["depth"] = json!(-1);
+    assert!(matches!(
+        evaluate(&project.to_string(), ""),
+        Err(EvaluationError::Validation(message)) if message.contains("door")
+    ));
+}

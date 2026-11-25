@@ -1,8 +1,20 @@
+import { baseplateSwatches, defaultBaseplateColor } from "./appearance";
 import type { Analysis } from "./engine";
 import { action, choice, container, control, element, field, textNode } from "./editor_dom";
 import { edges, turnoutCommon } from "./editor_state";
 import { worldPose } from "./project";
-import type { Catalog, Edge, Item, Pose, Project, Table } from "./project";
+import type {
+  BallastStyle,
+  BaseplateItem,
+  Catalog,
+  Edge,
+  Item,
+  Pose,
+  Project,
+  Table,
+  TrackItem,
+} from "./project";
+import { recipeFor } from "./show_inventory";
 
 function round(value: number): number {
   return Number(value.toFixed(8));
@@ -16,6 +28,11 @@ function dimensions(table: Table): string {
 }
 
 type PoseForm = Pose & { heightPlates?: number; tableId?: string; name?: string; fronts?: Edge[] };
+const ballastStyles = [
+  ["bare", "Bare"],
+  ["gray", "Gray"],
+  ["pennlug", "PennLUG-style"],
+] satisfies [BallastStyle, string][];
 
 export function renderSelection(
   project: Project,
@@ -25,11 +42,18 @@ export function renderSelection(
     apply: (values: PoseForm, origin: Pose) => void;
     remove: () => void;
     turnout: (id: string, partId: string) => void;
+    baseplateColor: (color: string) => void;
+    ballastStyle: (style: BallastStyle) => void;
+    countBallast: (counted: boolean) => void;
+    niltc: (standard: Table["niltc"]) => void;
+    rotateQuarter: (origin: Pose) => void;
+    duplicate: () => void;
   },
 ): void {
   const panel = element("selection-panel");
   const table = project.tables.find(({ id }) => ids.has(id));
-  const item = project.items.find(({ id }) => ids.has(id));
+  const selectedItems = project.items.filter((selected) => ids.has(selected.id));
+  const item = selectedItems[0];
   if (!table && !item) {
     panel.replaceChildren(textNode("p", "Select a table or a piece to edit its position."));
     return;
@@ -66,7 +90,20 @@ export function renderSelection(
   apply.className = "primary";
   const remove = action("Delete", callbacks.remove);
   remove.id = "delete-selection";
-  form.append(container("form-actions", apply, remove));
+  const actions = container("form-actions", apply);
+  if (singleTable) {
+    form.append(tableStandard(singleTable, callbacks.niltc));
+    const rotate = action("Rotate table 90\u00b0", () => callbacks.rotateQuarter(pose));
+    rotate.id = "rotate-selected-table";
+    actions.append(rotate);
+  }
+  if (!table && selectedItems.every(({ kind }) => kind !== "unresolved")) {
+    const duplicate = action("Duplicate selected", callbacks.duplicate);
+    duplicate.id = "duplicate-selection";
+    actions.append(duplicate);
+  }
+  actions.append(remove);
+  form.append(actions);
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     callbacks.apply(
@@ -83,6 +120,10 @@ export function renderSelection(
     );
   });
   panel.replaceChildren(textNode("h3", title), form);
+  const baseplates = selectedItems.filter((selected) => selected.kind === "baseplate");
+  const tracks = selectedItems.filter((selected) => selected.kind === "track");
+  if (baseplates.length) panel.append(baseplateColors(baseplates, callbacks.baseplateColor));
+  if (tracks.length) panel.append(trackAppearance(tracks, callbacks));
   if (singleItem?.kind === "track" && part && turnoutCommon(part)) {
     const variants = catalog.parts
       .filter((option) => turnoutCommon(option) && option.brand === part.brand)
@@ -104,8 +145,95 @@ function itemName(item?: Item): string {
 function appendHeight(form: HTMLFormElement, item?: Item): HTMLInputElement | undefined {
   if (item?.kind !== "track") return undefined;
   const height = field("height-plates", item.heightPlates, "1");
-  form.append(control("Height (plates)", height));
+  const guidance = textNode(
+    "p",
+    "For a ballasted build over a baseplate, allow +2 plates of track height.",
+  );
+  guidance.id = "height-plates-guidance";
+  height.setAttribute("aria-describedby", guidance.id);
+  form.append(control("Height (plates)", height), guidance);
   return height;
+}
+
+function colorChip(color: string): HTMLSpanElement {
+  const chip = document.createElement("span");
+  chip.className = "baseplate-chip";
+  chip.style.backgroundColor = color;
+  chip.setAttribute("aria-hidden", "true");
+  return chip;
+}
+
+function baseplateColors(items: BaseplateItem[], change: (color: string) => void): HTMLElement {
+  const colors = new Set(items.map(({ color }) => color?.toLowerCase() ?? defaultBaseplateColor));
+  const group = document.createElement("fieldset");
+  group.id = "baseplate-colors";
+  const legend = document.createElement("legend");
+  legend.textContent = "Baseplate color";
+  const swatches = baseplateSwatches.map(([color, name]) => {
+    const button = action(name, () => change(color));
+    button.id = `baseplate-${color.slice(1)}`;
+    button.dataset["color"] = color;
+    button.prepend(colorChip(color));
+    button.setAttribute("aria-pressed", String(colors.size === 1 && colors.has(color)));
+    return button;
+  });
+  group.append(legend, container("field-grid", ...swatches));
+  const custom = [...colors].find(
+    (color) => !baseplateSwatches.some(([swatch]) => color === swatch),
+  );
+  if (colors.size > 1) group.append(textNode("p", "Mixed colors"));
+  else if (custom) {
+    const note = textNode("p", `Custom (${custom})`);
+    note.prepend(colorChip(custom));
+    group.append(note);
+  }
+  return group;
+}
+
+function trackAppearance(
+  items: TrackItem[],
+  callbacks: {
+    ballastStyle: (style: BallastStyle) => void;
+    countBallast: (counted: boolean) => void;
+  },
+): HTMLElement {
+  const styles = new Set(items.map(({ ballast }) => ballast ?? "bare"));
+  const options: [string, string][] = [["", "Mixed styles"], ...ballastStyles];
+  const current = styles.size === 1 ? styles.values().next().value : "";
+  const style = choice("ballast-style", options, current);
+  const mixed = style.options[0];
+  if (mixed) {
+    mixed.disabled = true;
+    mixed.hidden = styles.size === 1;
+  }
+  style.addEventListener("change", () => {
+    const next = ballastStyles.find(([key]) => key === style.value);
+    if (next) callbacks.ballastStyle(next[0]);
+  });
+
+  const count = document.createElement("input");
+  count.id = "count-ballast";
+  count.type = "checkbox";
+  count.checked = items.every(({ countBallast }) => countBallast === true);
+  count.indeterminate = !count.checked && items.some(({ countBallast }) => countBallast === true);
+  count.addEventListener("change", () => callbacks.countBallast(count.checked));
+  const countLabel = control("Count PennLUG ballast", count);
+  countLabel.className = "check";
+  const group = document.createElement("fieldset");
+  group.id = "track-appearance";
+  const legend = document.createElement("legend");
+  legend.textContent = "Track appearance";
+  group.append(legend, control("Ballast style", style), countLabel);
+  const missing = items.filter(({ partId }) => !recipeFor(partId)).length;
+  if (missing > 0) {
+    const message =
+      items.length === 1 ? "this piece" : `${missing} of ${items.length} selected pieces`;
+    const warning = textNode("p", `No published ballast recipe for ${message}.`);
+    warning.id = "ballast-recipe-warning";
+    count.setAttribute("aria-describedby", warning.id);
+    group.append(warning);
+  }
+  return group;
 }
 
 function appendAttachment(
@@ -145,6 +273,23 @@ function appendTable(
   fieldset.append(legend, container("field-grid", ...rows));
   form.append(control("Table name", name), heading, fieldset);
   return { name, fronts };
+}
+
+function tableStandard(table: Table, change: (standard: Table["niltc"]) => void): HTMLElement {
+  const checks = choice(
+    "niltc-checks",
+    [
+      ["off", "Off"],
+      ["straight", "Straight"],
+      ["corner", "Corner"],
+    ],
+    table.niltc ?? "off",
+  );
+  checks.addEventListener("change", () => {
+    const standard = checks.value;
+    change(standard === "straight" || standard === "corner" ? standard : undefined);
+  });
+  return control("Select NILTC checks:", checks);
 }
 
 export function renderTables(

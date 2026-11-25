@@ -63,6 +63,51 @@ test("eight mixed-brand segments trace each quarter circle", () => {
   }
 });
 
+test("4DBrix straights match the size and regular mating planes of BrickTracks", () => {
+  for (const length of [4, 8]) {
+    const part = parts.get(`4dbrix:s0${length}`);
+    const [a, b] = part.ports;
+    assert.equal(part.brand, "4DBrix");
+    assert.equal(b.x - a.x, length);
+    assert.deepEqual(part.ports, parts.get(`bricktracks:s0${length}`).ports);
+    assert.deepEqual(part.footprint, parts.get(`bricktracks:s0${length}`).footprint);
+  }
+});
+
+test("4DBrix R104 and R120 reach 90 degrees in nine and ten segments", () => {
+  for (const [radius, sweep, count] of [
+    [104, 10, 9],
+    [120, 9, 10],
+  ]) {
+    const part = parts.get(`4dbrix:r${radius}`);
+    const [a, b] = part.ports;
+    assert.equal(part.radius, radius);
+    assert.equal(part.sweep, sweep);
+    assert.equal(a.angle, 180);
+    assert.equal(b.angle, sweep);
+    assert.equal(a.type, "regular");
+    assert.equal(b.type, "regular");
+    const path = part.paths[0];
+    path.forEach((point, index) => {
+      near(Math.hypot(point.x - a.x, point.y - a.y - radius), radius);
+      const outer = part.footprint[index];
+      const inner = part.footprint.at(-index - 1);
+      near(Math.hypot(outer.x - inner.x, outer.y - inner.y), 8);
+      near((outer.x + inner.x) / 2, point.x);
+      near((outer.y + inner.y) / 2, point.y);
+    });
+    const total = { x: 0, y: 0 };
+    for (let index = 0; index < count; index += 1) {
+      const segment = rotate({ x: b.x - a.x, y: b.y - a.y }, index * sweep);
+      total.x += segment.x;
+      total.y += segment.y;
+    }
+    near(total.x, radius);
+    near(total.y, radius);
+    assert.equal(count * b.angle, 90);
+  }
+});
+
 test("the four BrickTracks recipes place one reversible stand and one turnout body", () => {
   const stand = parts.get("bricktracks:r104-stand");
   assert.deepEqual(stand.ports, []);

@@ -5,8 +5,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::coverage::{self, Overhang};
-use crate::model::{Catalog, Draft, ItemKind, Layout, Point, Project};
+use crate::model::{Catalog, Draft, ItemKind, Layout, Point, Project, Venue};
+use crate::niltc::{self, NiltcIssue};
 use crate::ports::{self, EvaluatedSeam, WorldPort};
+use crate::venue::{self, VenueIssue};
 
 const MAX_PLANAR_STUDS: f64 = 100_000.0;
 
@@ -66,6 +68,8 @@ struct Evaluation<'a> {
     no_table: bool,
     counts: Vec<Count<'a>>,
     unresolved: Vec<Unresolved<'a>>,
+    venue_issues: Vec<VenueIssue<'a>>,
+    niltc_issues: Vec<NiltcIssue<'a>>,
 }
 
 fn inventory<'a>(
@@ -145,7 +149,7 @@ fn validate(
     catalog: &Catalog,
     draft: Option<&Draft>,
 ) -> Result<(), EvaluationError> {
-    if project.version != 1 {
+    if !matches!(project.version, 1 | 2) {
         return Err(EvaluationError::Validation(format!(
             "Unsupported project version {}",
             project.version
@@ -227,7 +231,36 @@ fn validate(
     Ok(())
 }
 
-/// Analyze a project and optionally snap the draft items as a rigid group.
+fn project_venue(project: &Project, value: &Value) -> Result<Option<Venue>, EvaluationError> {
+    let Some(venue) = value.get("venue").filter(|_| project.version == 2) else {
+        return Ok(None);
+    };
+    let venue = Venue::deserialize(venue).map_err(EvaluationError::Project)?;
+    validate_dimensions(venue.width, venue.depth, "venue")?;
+    validate_ids(
+        venue.keepouts.iter().map(|keepout| keepout.id.as_str()),
+        "keepout",
+    )?;
+    for keepout in &venue.keepouts {
+        if keepout.id.trim().is_empty() {
+            return Err(EvaluationError::Validation(format!(
+                "Invalid keepout ID: {:?}",
+                keepout.id
+            )));
+        }
+        if keepout.name.trim().is_empty() {
+            return Err(EvaluationError::Validation(format!(
+                "Keepout must have a name: {}",
+                keepout.id
+            )));
+        }
+        validate_position(keepout.center, &keepout.id)?;
+        validate_dimensions(keepout.width, keepout.depth, &keepout.id)?;
+    }
+    Ok(Some(venue))
+}
+
+/// Analyze a project and optionally snap draft items to connectors or a NILTC guide.
 ///
 /// Both arguments borrow JSON strings. An empty or JSON-null draft skips snapping.
 /// The result is a JSON string containing the preserved project and its diagnostics.
@@ -244,8 +277,13 @@ pub fn evaluate(project_json: &str, draft_json: &str) -> Result<String, Evaluati
 
     let layout = Layout::new(&project);
     validate(&project, &layout, catalog, draft.as_ref())?;
+    let venue = project_venue(&project, &project_value)?;
     if let Some(draft) = &draft {
-        for (index, pose) in ports::snap(&project, &layout, catalog, draft) {
+        let mut snapped = ports::snap(&project, &layout, catalog, draft);
+        if snapped.is_empty() {
+            snapped.extend(niltc::snap(&project, &layout, catalog, draft));
+        }
+        for (index, pose) in snapped {
             validate_position(pose.position, &project.items[index].id)?;
             project.items[index].pose = pose;
             project_value["items"][index]["x"] = Value::from(pose.position.x);
@@ -260,6 +298,8 @@ pub fn evaluate(project_json: &str, draft_json: &str) -> Result<String, Evaluati
     let seams = ports::diagnose_seams(&project, &layout, &ports);
     let (no_table, overhangs) = coverage::overhangs(&project, &layout, catalog);
     let (counts, unresolved) = inventory(&project, &layout, catalog);
+    let venue_issues = venue::diagnose(&project, &layout, catalog, venue.as_ref());
+    let niltc_issues = niltc::diagnose(&project, &layout, &ports, venue.is_some());
     let analysis = Evaluation {
         project: &project_value,
         ports,
@@ -268,6 +308,8 @@ pub fn evaluate(project_json: &str, draft_json: &str) -> Result<String, Evaluati
         no_table,
         counts,
         unresolved,
+        venue_issues,
+        niltc_issues,
     };
     serde_json::to_string(&analysis).map_err(EvaluationError::Output)
 }

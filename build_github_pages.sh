@@ -1,25 +1,6 @@
 #!/usr/bin/env bash
-# build_github_pages.sh - canonical production build for GitHub Pages.
-#
-# Run this directly as ./build_github_pages.sh.
-#
-# Contract:
-#   - Wipes dist/ from scratch.
-#   - Builds the locked Rust crate and generates browser Wasm bindings.
-#   - Type-checks via 'tsc --noEmit -p tsconfig.json'.
-#   - Resolves the entry: src/main.ts preferred, src/init.ts legacy fallback.
-#     Aborts with an actionable error if neither exists.
-#   - Verifies src/index.html and src/style.css exist before copying;
-#     aborts with an actionable error if missing.
-#   - Verifies src/index.html references dist/main.js with a module script
-#     tag (warns if missing -- the page will load but main.js is dead).
-#   - Bundles dist/main.js and on-demand chunks with esbuild (ESM,
-#     es2020, browser, minified, with sourcemaps).
-#   - Copies HTML, CSS, examples, and the Wasm binary into dist/.
-#   - Writes dist/.nojekyll so GitHub Pages serves files starting with _.
-#   - Asserts the HTML, JavaScript, and Wasm outputs before exiting.
-#
-# Hard rule: never produces single-file output. ESM only.
+# Canonical GitHub Pages build. Run as ./build_github_pages.sh.
+# Builds locked Wasm and checked TypeScript into ESM dist/; never single-file.
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
@@ -48,10 +29,13 @@ for required in src/index.html src/style.css; do
 		exit 1
 	fi
 done
-if ! compgen -G 'examples/*.btp.json' >/dev/null || ! compgen -G 'examples/*.bbm' >/dev/null; then
-	echo "ERROR: the native and BlueBrick example projects are required under examples/." >&2
-	exit 1
-fi
+required_examples=(examples/double-corner.btp.json examples/two-section.btp.json examples/bluebrick-example.bbm examples/corner.btps.json examples/yard.btps.json examples/connector.btps.json examples/siding.btps.json examples/whole_show.btp.json)
+for example in "${required_examples[@]}"; do
+	if [ ! -s "$example" ]; then
+		echo "ERROR: required release example is missing or empty: $example" >&2
+		exit 1
+	fi
+done
 
 # Soft-warn if index.html does not reference main.js as an ES module.
 if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.html; then
@@ -84,11 +68,14 @@ mkdir -p dist/wasm dist/examples
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
 cp generated/wasm/track_geometry_bg.wasm dist/wasm/
-cp examples/*.btp.json examples/*.bbm dist/examples/
+cp examples/*.btp.json examples/*.btps.json examples/*.bbm dist/examples/
 touch dist/.nojekyll
 
 test -s dist/index.html
 test -s dist/main.js
 test -s dist/wasm/track_geometry_bg.wasm
+for example in "${required_examples[@]}"; do
+	test -s "dist/$example"
+done
 
 echo "Built dist/ (GitHub Pages-ready)."

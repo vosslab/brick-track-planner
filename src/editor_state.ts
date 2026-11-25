@@ -50,13 +50,14 @@ export function addTable(
     id: newId("table"),
     layerId: layerId(project),
     name,
-    x,
+    x: standard && !project.venue ? Math.ceil(x / 32) * 32 : x,
     y: 0,
     angle: 0,
     width: standard?.width ?? width,
     depth: standard?.depth ?? depth,
     fronts: ["south"],
     nominal: standard?.name,
+    niltc: standard ? "straight" : undefined,
   };
   project.tables.push(table);
   return table;
@@ -102,7 +103,8 @@ export function placeTrack(
     placement.kind === "part"
       ? [{ partId: placement.id, x: 0, y: 0, angle: 0 }]
       : (catalog.kits.find(({ id }) => id === placement.id)?.parts ?? []);
-  const layer = project.tables.find(({ id }) => id === tableId)?.layerId ?? layerId(project);
+  const table = project.tables.find(({ id }) => id === tableId);
+  const layer = table?.layerId ?? layerId(project);
   const ids: string[] = [];
   for (const local of localParts) {
     const world = composePose(local, pose);
@@ -112,7 +114,7 @@ export function placeTrack(
       partId: local.partId,
       layerId: layer,
       tableId,
-      heightPlates: 0,
+      heightPlates: table?.niltc ? 2 : 0,
       ...world,
     };
     positionItem(project, track, world);
@@ -133,7 +135,8 @@ export function deleteSelection(project: Project, ids: ReadonlySet<string>): voi
   }
   project.tables = project.tables.filter(({ id }) => !removedTables.has(id));
   project.seams = project.seams.filter(
-    ({ tableA, tableB }) => !removedTables.has(tableA) && !removedTables.has(tableB),
+    ({ tableA, tableB, exitAId, exitBId }) =>
+      exitAId || exitBId || (!removedTables.has(tableA) && !removedTables.has(tableB)),
   );
 }
 

@@ -11,6 +11,7 @@ const examples: [string, string][] = [
   ["two-section.btp.json", "Two-section seam"],
   ["double-corner.btp.json", "Double corner"],
   ["bluebrick-example.bbm", "BlueBrick stock table"],
+  ["whole_show.btp.json", "Whole Show"],
 ];
 
 export function setupFiles(
@@ -75,7 +76,9 @@ export function setupFiles(
     }
   };
 
-  button("open-project").addEventListener("click", () => input("project-file").click());
+  for (const id of ["open-project", "open-existing"]) {
+    button(id).addEventListener("click", () => input("project-file").click());
+  }
   input("project-file").addEventListener("change", () => {
     void processFile(input("project-file"), false);
   });
@@ -117,10 +120,21 @@ export function setupFiles(
     void openExample();
   });
 
+  const exportFormat = select("export-format");
+  const rasterResolution = select("raster-resolution");
+  const pdfMode = select("pdf-mode");
+  const updateExportOptions = (): void => {
+    const format = exportFormat.value;
+    rasterResolution.hidden = format !== "png" && format !== "webp";
+    pdfMode.hidden = format !== "pdf";
+  };
+  exportFormat.addEventListener("change", updateExportOptions);
+  updateExportOptions();
+
   const exportButton = button("export-layout");
   exportButton.addEventListener("click", () => {
     async function downloadLayout(): Promise<void> {
-      const format = select("export-format").value;
+      const format = exportFormat.value;
       const analysis = hooks.analysis();
       const { project } = analysis;
       exportButton.disabled = true;
@@ -130,7 +144,10 @@ export function setupFiles(
           downloadBlob(new Blob([report.text], { type: "text/plain" }), `${filename(project)}.ldr`);
           if (report.omitted.length || report.custom.length) showLDrawReport(report);
         } else if (format === "png" || format === "webp" || format === "pdf") {
-          const blob = await exportSharing(format, project, catalog, analysis);
+          const blob = await exportSharing(format, project, catalog, analysis, {
+            rasterResolution: rasterResolution.value === "high" ? "high" : "standard",
+            pdfMode: pdfMode.value === "color" ? "color" : "grayscale",
+          });
           downloadBlob(blob, `${filename(project)}.${format}`);
         }
         hooks.notice(`${format === "ldraw" ? "LDraw" : format.toUpperCase()} downloaded.`);

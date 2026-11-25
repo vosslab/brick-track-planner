@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f5f0">
+  <meta name="theme-color" content="#153f34">
   <title>Brick Track Planner</title>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./main.js"></script>
@@ -17,18 +17,37 @@
     <div class="file-controls" aria-label="Project files">
       <button type="button" id="open-project">Open</button>
       <button type="button" id="import-project">Import BlueBrick</button>
-      <button type="button" id="save-project">Save project</button>
-      <label class="screen-reader" for="export-format">Export format</label>
-      <select id="export-format">
-        <option value="png">PNG</option><option value="webp">WebP</option>
-        <option value="pdf">PDF</option><option value="ldraw">LDraw</option>
-      </select>
-      <button type="button" id="export-layout" class="primary">Export</button>
+      <div id="project-file-actions" class="project-file-action" hidden>
+        <button type="button" id="save-project">Save project</button>
+        <label class="screen-reader" for="export-format">Export format</label>
+        <select id="export-format">
+          <option value="png">PNG</option><option value="webp">WebP</option>
+          <option value="pdf">PDF</option><option value="ldraw">LDraw</option>
+        </select>
+        <label class="screen-reader" for="raster-resolution">Raster resolution</label>
+        <select id="raster-resolution">
+          <option value="standard">Standard</option>
+          <option value="high">High</option>
+        </select>
+        <label class="screen-reader" for="pdf-mode">PDF mode</label>
+        <select id="pdf-mode" hidden>
+          <option value="grayscale">Grayscale</option>
+          <option value="color">Color</option>
+        </select>
+        <button type="button" id="export-layout" class="primary">Export</button>
+      </div>
       <input id="project-file" type="file" accept=".btp.json,.json" hidden>
       <input id="import-file" type="file" accept=".bbm,.xml" hidden>
     </div>
   </header>
-  <main id="editor" inert>
+  <main id="welcome" class="welcome">
+    <div class="welcome-body">
+      <h1>What are you designing?</h1>
+      <div id="starter-cards" class="starter-cards"></div>
+      <button type="button" id="open-existing" class="welcome-open">Open existing project</button>
+    </div>
+  </main>
+  <main id="editor" hidden>
     <div class="project-bar">
       <div class="project-title">
         <label for="project-name">Layout name</label>
@@ -71,7 +90,7 @@
             <button type="button" id="box-select" aria-pressed="false">Box select</button>
           </div>
           <div class="toolbar-group">
-            <button type="button" id="add-table" class="primary">+ Table</button>
+            <button type="button" id="add-table" class="primary" title="Add blank table">+ Table</button>
             <button type="button" id="add-baseplate" aria-pressed="false">+ Baseplate</button>
             <button type="button" id="seam-mode" aria-pressed="false">Seam</button>
             <label class="check"><input type="checkbox" id="grid-toggle" checked> 32-stud grid</label>
@@ -117,7 +136,20 @@
         <section class="panel-section">
           <div class="panel-head"><h2>Diagnostics</h2></div>
           <div id="diagnostics" class="panel-content"></div>
+          <section id="niltc-issues" class="panel-content" aria-label="NILTC checks" hidden></section>
         </section>
+        <details id="sections-details" class="panel-section layer-panel">
+          <summary>Sections &amp; exits</summary>
+          <section id="sections-panel" class="panel-content" aria-label="Sections and exits"></section>
+        </details>
+        <details class="panel-section layer-panel">
+          <summary>Venue</summary>
+          <section id="venue-panel" class="panel-content" aria-label="Venue"></section>
+        </details>
+        <details class="panel-section layer-panel">
+          <summary>Show inventory</summary>
+          <section id="show-inventory" class="panel-content" aria-label="Show inventory"></section>
+        </details>
         <details class="panel-section layer-panel">
           <summary>Layers</summary>
           <div id="layer-list" class="panel-content"></div>

@@ -1,4 +1,4 @@
-import { composePose, localPose } from "./project";
+import { composePose, localPose, newProject } from "./project";
 import type {
   Catalog,
   Item,
@@ -240,12 +240,9 @@ export function importBlueBrick(
   }
   const warnings: string[] = [];
   const project: Project = {
-    version: 1,
+    ...newProject(),
     name: xmlField(root, "Event") || "BlueBrick layout",
     layers: [],
-    tables: [],
-    items: [],
-    seams: [],
   };
   const bricks: SourceBrick[] = [];
   let brickCount = 0;

@@ -79,7 +79,10 @@ export function renderPalette(
       row.dataset[kind === "part" ? "partId" : "kitId"] = id;
       row.setAttribute("aria-pressed", String(placedId === id));
       const label = document.createElement("span");
-      label.append(name, textNode("small", kind === "kit" ? `${brand} kit` : brand));
+      let detail = brand;
+      if (kind === "kit") detail = `${brand} kit`;
+      else if (part?.sweep !== undefined) detail = `${brand}, ${part.sweep}-degree sweep`;
+      label.append(name, textNode("small", detail));
       row.append(swatch(part), label);
       return row;
     });

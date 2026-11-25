@@ -1,4 +1,5 @@
 import type { Point } from "./project";
+import { setSceneDetail } from "./scene_appearance";
 
 type Bounds = Point & { width: number; height: number };
 type Gesture = {
@@ -20,6 +21,7 @@ export class EditorCamera {
   #pinch: Pinch | undefined;
   #bounds: Bounds | undefined;
   #scene: SVGSVGElement | undefined;
+  #viewport: { width: number; height: number };
 
   constructor(
     host: HTMLElement,
@@ -33,6 +35,12 @@ export class EditorCamera {
     },
   ) {
     this.#host = host;
+    this.#viewport = { width: host.clientWidth, height: host.clientHeight };
+    new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      this.#viewport = entry.contentRect;
+      this.#updateDetail();
+    }).observe(host);
     host.addEventListener(
       "wheel",
       (event) => {
@@ -134,11 +142,13 @@ export class EditorCamera {
   show(scene: SVGSVGElement, fit = false): void {
     this.#scene = scene;
     if (!this.#bounds || fit) {
+      const layout = scene.getAttribute("data-layout-view-box");
+      if (layout) scene.setAttribute("viewBox", layout);
       const bounds = scene.viewBox.baseVal;
       this.#bounds = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height };
     }
+    if (this.#host.firstElementChild !== scene) this.#host.replaceChildren(scene);
     this.#update();
-    this.#host.replaceChildren(scene);
   }
 
   world(x: number, y: number): Point {
@@ -212,6 +222,18 @@ export class EditorCamera {
   #update(): void {
     if (!this.#scene || !this.#bounds) return;
     const { x, y, width, height } = this.#bounds;
-    this.#scene.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
+    const viewBox = `${x} ${y} ${width} ${height}`;
+    if (this.#scene.getAttribute("viewBox") !== viewBox)
+      this.#scene.setAttribute("viewBox", viewBox);
+    this.#updateDetail();
+  }
+
+  #updateDetail(): void {
+    if (!this.#scene || !this.#bounds) return;
+    const { width, height } = this.#bounds;
+    setSceneDetail(
+      this.#scene,
+      Math.min(this.#viewport.width / width, this.#viewport.height / height),
+    );
   }
 }

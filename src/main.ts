@@ -1,10 +1,19 @@
 import { EditorCamera } from "./editor_camera";
 import { action, button, dialog, element, input, select, textNode, toCanvas } from "./editor_dom";
 import { errorMessage, setupFiles } from "./editor_files";
+import { renderInventory } from "./editor_inventory";
+import {
+  duplicateTrackSelection,
+  renderNiltcIssues,
+  renderStarterCards,
+  snapNiltcBaseplatePose,
+  snapNiltcTablePose,
+} from "./editor_niltc";
 import { renderPalette, setupPalette } from "./editor_palette";
 import type { Placement } from "./editor_palette";
 import { renderDiagnostics, renderLayers, renderSelection, renderTables } from "./editor_panels";
 import { SeamEditor } from "./editor_seam";
+import { SectionsEditor } from "./editor_sections";
 import {
   addTable,
   deleteSelection,
@@ -16,11 +25,13 @@ import {
   presets,
   swapTurnout,
 } from "./editor_state";
+import { renderVenue } from "./editor_venue";
 import { evaluate, initEngine } from "./engine";
 import type { Analysis } from "./engine";
 import { localPose, newProject, worldPose } from "./project";
-import type { Catalog, Edge, Endpoint, Point, Pose, Project } from "./project";
+import type { Catalog, Edge, Endpoint, Item, Point, Pose, Project, Table } from "./project";
 import { createScene } from "./scene";
+import { showInventory } from "./show_inventory";
 
 type Tool = Placement | { id: "baseplate"; name: string; kind: "baseplate"; angle: number };
 type Swap = { analysis: Analysis; changes: string[] };
@@ -57,6 +68,7 @@ class Planner {
   readonly #catalog: Catalog;
   readonly #camera: EditorCamera;
   readonly #seam = new SeamEditor();
+  readonly #sections = new SectionsEditor();
   #state = new EditorState(newProject());
   #placement: Tool | undefined;
   #swap: Swap | undefined;
@@ -80,23 +92,31 @@ class Planner {
     });
     setupFiles(catalog, {
       analysis: () => this.#state.analysis,
-      open: (project) => {
-        const next = new EditorState(project);
-        this.#resetTools();
-        this.#state = next;
-        this.#render(true);
-        this.#renderPalette();
-        notice(`Opened ${project.name}.`);
-      },
+      open: (project) => this.#openProject(project, `Opened ${project.name}.`),
       notice,
     });
 
     setupPalette(catalog, () => this.#renderPalette());
     this.#wireControls();
+    renderStarterCards(catalog, (project) => this.#run(() => this.#openProject(project)));
+    notice("");
+  }
+
+  #openProject(project: Project, message = ""): void {
+    const next = new EditorState(project);
+    this.#resetTools();
+    this.#sections.reset();
+    this.#state = next;
+    const editor = element("editor");
+    const entering = editor.hidden;
+    editor.hidden = false;
+    element("welcome").hidden = true;
+    if (entering) element("starter-cards").replaceChildren();
+    element("project-file-actions").hidden = false;
     this.#render(true);
     this.#renderPalette();
-    element("editor").removeAttribute("inert");
-    notice("");
+    if (entering) element("tabletop").focus({ preventScroll: true });
+    notice(message);
   }
 
   #run(change: () => void): void {
@@ -221,6 +241,7 @@ class Planner {
     const table =
       standard && addTable(project, preset, standard.name, standard.width, standard.depth);
     this.#resetTools();
+    this.#sections.reset();
     this.#commit(project, { fit: true, selectIds: table ? [table.id] : [] });
   }
 
@@ -263,6 +284,7 @@ class Planner {
     }
     const table = addTable(project, preset, name, width, depth);
     this.#resetTools();
+    if (this.#newTable) this.#sections.reset();
     this.#commit(project, { fit: true, selectIds: [table.id] });
     dialog("table-dialog").close();
   }
@@ -309,7 +331,7 @@ class Planner {
       const id = newId("baseplate");
       const table = project.tables.find((entry) => entry.id === tableId);
       const world = { ...point, angle: tool.angle };
-      const pose = table ? localPose(world, table) : world;
+      const pose = table ? snapNiltcBaseplatePose(table, localPose(world, table)) : world;
       project.items.push({
         id,
         kind: "baseplate",
@@ -421,6 +443,7 @@ class Planner {
     const project = structuredClone(this.#state.project);
     const ids = this.#state.selection;
     const moved = moveSelection(project, ids, from, to);
+    this.#snapSelectedNiltcPose(project);
     const tableMoved = project.tables.some(({ id }) => ids.has(id));
     const snapIds = tableMoved ? undefined : moved;
     if (phase === "preview") {
@@ -512,7 +535,45 @@ class Planner {
       if (item?.kind === "track" && change.heightPlates !== undefined)
         item.heightPlates = change.heightPlates;
     }
+    if (
+      change.x !== origin.x ||
+      change.y !== origin.y ||
+      change.angle !== origin.angle ||
+      change.tableId !== undefined
+    ) {
+      this.#snapSelectedNiltcPose(project);
+    }
     this.#commit(project);
+  }
+
+  #snapSelectedNiltcPose(project: Project): void {
+    const { selection } = this.#state;
+    if (selection.size !== 1) return;
+    const [id] = selection;
+    const table = project.tables.find((entry) => entry.id === id);
+    if (table) {
+      if (!project.venue) Object.assign(table, snapNiltcTablePose(project, table, table));
+      return;
+    }
+    const item = project.items.find((entry) => entry.id === id);
+    if (item?.kind !== "baseplate") return;
+    const parent = project.tables.find((entry) => entry.id === item.tableId);
+    if (parent) Object.assign(item, snapNiltcBaseplatePose(parent, item));
+  }
+
+  #tagNiltcTable(niltc: Table["niltc"]): void {
+    const project = structuredClone(this.#state.project);
+    const table = project.tables.find(({ id }) => this.#state.selection.has(id));
+    if (!table) return;
+    if (niltc) table.niltc = niltc;
+    else delete table.niltc;
+    this.#commit(project);
+  }
+
+  #duplicateSelection(): void {
+    const project = structuredClone(this.#state.project);
+    const selectIds = duplicateTrackSelection(project, this.#state.selection);
+    if (selectIds.length) this.#commit(project, { selectIds });
   }
 
   #removeSelection(): void {
@@ -520,6 +581,12 @@ class Planner {
     deleteSelection(project, this.#state.selection);
     this.#swap = undefined;
     this.#commit(project, { selectIds: [] });
+  }
+
+  #updateSelectedItems(update: (item: Item) => void): void {
+    const project = structuredClone(this.#state.project);
+    for (const item of project.items) if (this.#state.selection.has(item.id)) update(item);
+    this.#commit(project);
   }
 
   #previewSwap(id: string, partId: string): void {
@@ -570,6 +637,15 @@ class Planner {
 
   #openSeam(id?: string): void {
     this.#resetTools();
+    if (id && this.#sections.focusSeam(id)) {
+      this.#collapse("inspector", true);
+      const details = element("sections-details");
+      if (details instanceof HTMLDetailsElement) details.open = true;
+      this.#render();
+      this.#renderPalette();
+      select("fixed-section-exit").focus();
+      return;
+    }
     if (!this.#seam.open(this.#state.project, id)) {
       notice("Add two tables before creating a seam.", true);
       return;
@@ -628,29 +704,9 @@ class Planner {
     const scene = createScene(analysis.project, this.#catalog, analysis, {
       selection: this.#state.selection,
       grid: input("grid-toggle").checked,
+      interaction: this.#seam.draft ? "ports" : this.#placement ? "placement" : "pieces",
+      reuse: element("tabletop").querySelector<SVGSVGElement>("svg[data-track-scene]") ?? undefined,
     });
-    scene.setAttribute("role", "group");
-    if (this.#seam.draft) {
-      for (const port of scene.querySelectorAll("[data-port-id]")) {
-        port.setAttribute("tabindex", "0");
-        port.setAttribute("role", "button");
-        port.setAttribute(
-          "aria-label",
-          `${port.getAttribute("data-piece-id")} / ${port.getAttribute("data-port-id")}`,
-        );
-        const target = port.querySelector("circle");
-        target?.setAttribute("r", "4");
-      }
-    } else if (!this.#placement) {
-      for (const node of scene.querySelectorAll("g[data-kind][data-piece-id]")) {
-        const id = entity(node);
-        if (!id) continue;
-        node.id = `scene-item-${encodeURIComponent(id)}`;
-        node.setAttribute("tabindex", "0");
-        node.setAttribute("role", "button");
-        node.setAttribute("aria-pressed", String(this.#state.selection.has(id)));
-      }
-    }
     this.#camera.show(scene, fit);
   }
 
@@ -675,6 +731,7 @@ class Planner {
     element("mode-label").textContent = mode;
     element("empty-canvas").hidden =
       Boolean(this.#placement) ||
+      Boolean(this.#state.project.venue) ||
       this.#state.project.tables.length > 0 ||
       this.#state.project.items.length > 0;
     button("rotate-placement").hidden = !this.#placement;
@@ -703,6 +760,28 @@ class Planner {
       apply: (values, origin) => this.#run(() => this.#applyPose(values, origin)),
       remove: () => this.#run(() => this.#removeSelection()),
       turnout: (id, next) => this.#run(() => this.#previewSwap(id, next)),
+      duplicate: () => this.#run(() => this.#duplicateSelection()),
+      niltc: (standard) => this.#run(() => this.#tagNiltcTable(standard)),
+      rotateQuarter: (origin) =>
+        this.#run(() => this.#applyPose({ ...origin, angle: origin.angle + 90 }, origin)),
+      baseplateColor: (color) =>
+        this.#run(() =>
+          this.#updateSelectedItems((item) => {
+            if (item.kind === "baseplate") item.color = color;
+          }),
+        ),
+      ballastStyle: (style) =>
+        this.#run(() =>
+          this.#updateSelectedItems((item) => {
+            if (item.kind === "track") item.ballast = style;
+          }),
+        ),
+      countBallast: (counted) =>
+        this.#run(() =>
+          this.#updateSelectedItems((item) => {
+            if (item.kind === "track") item.countBallast = counted;
+          }),
+        ),
     });
     this.#renderSwap();
     this.#seam.render(analysis, {
@@ -721,6 +800,40 @@ class Planner {
       analysis,
       (id) => this.#select(id),
       (id) => this.#openSeam(id),
+    );
+    renderNiltcIssues(analysis, (id) => this.#select(id));
+    this.#sections.render(element("sections-panel"), {
+      analysis,
+      selectedIds: selection,
+      commit: (draft, selectIds) => this.#commit(draft, { selectIds, fit: Boolean(selectIds) }),
+      describe: (endpoint) => this.#describeConnector(endpoint),
+      notice,
+      select: (ids) => {
+        this.#resetTools();
+        selection.clear();
+        for (const id of ids) selection.add(id);
+        this.#render();
+        this.#renderPalette();
+      },
+    });
+    renderVenue(
+      analysis,
+      (draft) => this.#run(() => this.#commit(draft)),
+      (id) => this.#select(id),
+    );
+    renderInventory(showInventory(project, this.#catalog), (memberId, changes) =>
+      this.#run(() => {
+        const draft = structuredClone(project);
+        const member = draft.members.find(({ id }) => id === memberId);
+        if (!member) return;
+        const commitments = new Map(Object.entries(member.bring));
+        for (const [part, quantity] of changes) {
+          if (quantity === null) commitments.delete(part);
+          else commitments.set(part, quantity);
+        }
+        member.bring = Object.fromEntries(commitments);
+        this.#commit(draft);
+      }),
     );
     renderLayers(
       project,

@@ -137,7 +137,10 @@ test("visible unsupported track and unresolved pieces are reported and scenery s
       reason: "Unknown part",
     },
   ];
-  const catalog = { ...emptyCatalog, parts: [{ id: "trixbrix:r56", name: "TrixBrix R56" }] };
+  const catalog = {
+    ...emptyCatalog,
+    parts: [{ id: "trixbrix:r56", brand: "TrixBrix", name: "R56" }],
+  };
   const result = exportLDraw(project, catalog);
   assert.deepEqual(partLines(result.text), []);
   assert.deepEqual(result.omitted, [
@@ -146,4 +149,21 @@ test("visible unsupported track and unresolved pieces are reported and scenery s
     { name: "Imported item", count: 1 },
   ]);
   assert.deepEqual(result.custom, []);
+});
+
+test("unsupported catalog parts with the same name stay distinct by brand", () => {
+  const project = newProject();
+  project.items = [track("trixbrix:r104"), track("4dbrix:r104"), track("trixbrix:r104", 16)];
+  const catalog = {
+    ...emptyCatalog,
+    parts: [
+      { id: "trixbrix:r104", brand: "TrixBrix", name: "Curve R104" },
+      { id: "4dbrix:r104", brand: "4DBrix", name: "Curve R104" },
+    ],
+  };
+
+  assert.deepEqual(exportLDraw(project, catalog).omitted, [
+    { name: "TrixBrix Curve R104", count: 2 },
+    { name: "4DBrix Curve R104", count: 1 },
+  ]);
 });

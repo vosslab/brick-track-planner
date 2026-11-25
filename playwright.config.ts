@@ -43,7 +43,7 @@ export default defineConfig({
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
-      testMatch: ["**/smoke.spec.ts", "**/sharing.spec.ts"],
+      testMatch: ["**/smoke.spec.ts", "**/sharing.spec.ts", "**/sharing_final.spec.ts"],
     },
   ],
   webServer: {

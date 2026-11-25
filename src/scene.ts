@@ -1,308 +1,80 @@
-import { worldPose } from "./project";
-import type { Catalog, Edge, Item, Point, Pose, Project, Table } from "./project";
+import { composePose } from "./project";
+import type { Catalog, Item, Point, Pose, Project, Table } from "./project";
 import type { Analysis } from "./engine";
+import { defaultBaseplateColor } from "./appearance";
+import {
+  ballastPattern,
+  baseplateDrawing,
+  partDrawing,
+  partInstance,
+  setSceneDetail,
+  studPattern,
+  trackHalfWidth,
+} from "./scene_appearance";
+import {
+  addBounds, addShapeBounds, boundedLabel, emptyBounds, includeBounds, ink, line,
+  paper, path, pathData, poseTransform, rectangle, selectionInk, svg, tableDrawing, tableEdge, unit, warningInk, world,
+} from "./scene_drawing";
+import type { Bounds } from "./scene_drawing";
 
-const svgNamespace = "http://www.w3.org/2000/svg";
-const paper = "#faf6ee";
-const ink = "#2a2721";
-const edgeInk = "#685a48";
-const selectionInk = "#006f71";
-const warningInk = "#923722";
+export { setSceneDetail } from "./scene_appearance";
 
 type SceneOptions = {
   selection?: ReadonlySet<string>;
   grid?: boolean;
   sharing?: boolean;
+  interaction?: "pieces" | "ports" | "placement";
+  sectionId?: string;
+  reuse?: SVGSVGElement;
 };
-type Attributes = Record<string, string | number>;
-type Bounds = { left: number; top: number; right: number; bottom: number };
 type ScenePort = Analysis["ports"][number];
+type Part = Catalog["parts"][number];
+type Drawings = {
+  definitions: SVGDefsElement;
+  prefix: string;
+  parts: Map<Part, string>;
+  studPatterns: Set<string>;
+};
+type Drawn = {
+  key: string;
+  node: SVGGElement;
+  bounds: Bounds;
+  label?: SVGTextElement;
+};
+type SceneLayers = {
+  catalog: Catalog;
+  drawings: Drawings;
+  title: SVGTitleElement;
+  paper: SVGRectElement;
+  grid: SVGRectElement;
+  venue: SVGGElement;
+  tables: SVGGElement;
+  plates: SVGGElement;
+  tracks: SVGGElement;
+  issues: SVGGElement;
+  ports: SVGGElement;
+  labels: SVGGElement;
+  itemLabels: SVGGElement;
+  itemsById: Map<string, Drawn>;
+  portsById: Map<string, Drawn>;
+};
+const sceneLayers = new WeakMap<SVGSVGElement, SceneLayers>();
+let sceneNumber = 0;
 
-function svg<Tag extends keyof SVGElementTagNameMap>(
-  name: Tag,
-  attributes: Attributes = {},
-  content?: string,
-): SVGElementTagNameMap[Tag] {
-  const element = document.createElementNS(svgNamespace, name);
-  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, String(value));
-  if (content !== undefined) element.textContent = content;
-  return element;
-}
-
-function addBounds(bounds: Bounds, point: Point, margin = 0): void {
-  bounds.left = Math.min(bounds.left, point.x - margin);
-  bounds.top = Math.min(bounds.top, point.y - margin);
-  bounds.right = Math.max(bounds.right, point.x + margin);
-  bounds.bottom = Math.max(bounds.bottom, point.y + margin);
-}
-
-function world(point: Point, pose: Pose): Point {
-  const radians = ((pose.angle % 360) * Math.PI) / 180;
-  const cosine = Math.cos(radians);
-  const sine = Math.sin(radians);
-  return {
-    x: pose.x + point.x * cosine - point.y * sine,
-    y: pose.y + point.x * sine + point.y * cosine,
-  };
-}
-
-function poseTransform(pose: Pose): string {
-  return `translate(${pose.x} ${pose.y}) rotate(${pose.angle % 360})`;
-}
-
-function rectangle(x: number, y: number, width: number, height: number): Point[] {
-  return [
-    { x, y },
-    { x: x + width, y },
-    { x: x + width, y: y + height },
-    { x, y: y + height },
-  ];
-}
-
-function pathData(points: readonly Point[], closed = false): string {
-  if (points.length === 0) return "";
-  const coordinates = points.map(({ x, y }) => `${x.toFixed(4)} ${y.toFixed(4)}`).join(" L ");
-  return `M ${coordinates}${closed ? " Z" : ""}`;
-}
-
-function line(start: Point, end: Point, attributes: Attributes): SVGLineElement {
-  return svg("line", { x1: start.x, y1: start.y, x2: end.x, y2: end.y, ...attributes });
-}
-
-function path(points: readonly Point[], attributes: Attributes, closed = false): SVGPathElement {
-  return svg("path", { d: pathData(points, closed), fill: "none", ...attributes });
-}
-
-function label(
-  point: Point,
-  content: string,
-  size: number,
-  attributes: Attributes = {},
-): SVGTextElement {
-  return svg(
-    "text",
-    {
-      x: point.x,
-      y: point.y,
-      "font-size": size,
-      fill: ink,
-      stroke: paper,
-      "stroke-width": 0.8,
-      "stroke-linejoin": "round",
-      "paint-order": "stroke",
-      "pointer-events": "none",
-      ...attributes,
-    },
-    content,
-  );
-}
-
-function boundedLabel(
-  bounds: Bounds,
-  at: Point,
-  content: string,
-  size: number,
-  attributes?: Attributes,
-): SVGTextElement {
-  const halfWidth = Array.from(content).length * size * 0.57;
-  addBounds(bounds, { x: at.x - halfWidth, y: at.y - size });
-  addBounds(bounds, { x: at.x + halfWidth, y: at.y + size * 0.3 });
-  return label(at, content, size, { "text-anchor": "middle", ...attributes });
-}
-
-function tableEdge(table: Table, side: Edge, inset = 0): [Point, Point] {
-  switch (side) {
-    case "north":
-      return [
-        { x: 0, y: inset },
-        { x: table.width, y: inset },
-      ];
-    case "east":
-      return [
-        { x: table.width - inset, y: 0 },
-        { x: table.width - inset, y: table.depth },
-      ];
-    case "south":
-      return [
-        { x: 0, y: table.depth - inset },
-        { x: table.width, y: table.depth - inset },
-      ];
-    case "west":
-      return [
-        { x: inset, y: 0 },
-        { x: inset, y: table.depth },
-      ];
-  }
-}
-
-function tableDrawing(table: Table, selected: boolean, bounds: Bounds): SVGGElement {
-  const points = rectangle(0, 0, table.width, table.depth);
-  for (const point of points) addBounds(bounds, world(point, table));
-  const group = svg("g", {
-    "data-table-id": table.id,
-    "aria-label": table.name,
-    transform: poseTransform(table),
-  });
-  group.append(svg("title", {}, table.name));
-  group.append(
-    path(
-      points,
-      {
-        fill: "#eee4d3",
-        "fill-opacity": 0.62,
-        stroke: selected ? selectionInk : edgeInk,
-        "stroke-width": selected ? 1.1 : 0.65,
-        "data-table-edge": "true",
-      },
-      true,
-    ),
-  );
-  for (const side of table.fronts) {
-    group.append(
-      line(...tableEdge(table, side), {
-        stroke: "#76523b",
-        "stroke-width": 1.35,
-        "data-front": side,
-      }),
-    );
-    for (const offset of [8, 24]) {
-      if (offset >= (side === "north" || side === "south" ? table.depth : table.width)) continue;
-      const [start, end] = tableEdge(table, side, offset);
-      group.append(
-        line(start, end, {
-          stroke: "#76523b",
-          "stroke-width": 0.38,
-          "stroke-dasharray": offset === 8 ? "3 2" : "1 2",
-          "data-front": side,
-          "data-lane-studs": offset,
-        }),
-      );
+function syncLayer(layer: SVGGElement, nodes: readonly SVGElement[]): void {
+  let cursor = layer.firstElementChild;
+  for (const node of nodes) {
+    if (cursor && node === cursor.nextElementSibling) {
+      cursor.remove();
+      cursor = node;
     }
+    if (node === cursor) cursor = cursor.nextElementSibling;
+    else layer.insertBefore(node, cursor);
   }
-  return group;
-}
-
-function unit(start: Point, end: Point): Point {
-  const length = Math.hypot(end.x - start.x, end.y - start.y);
-  return length ? { x: (end.x - start.x) / length, y: (end.y - start.y) / length } : { x: 0, y: 0 };
-}
-
-function offsetRail(
-  route: readonly Point[],
-  offset: number,
-  ports: Catalog["parts"][number]["ports"],
-): Point[] {
-  return route.map((point, index) => {
-    const before = route[index - 1];
-    const after = route[index + 1];
-    if (!before || !after) {
-      const port = ports.find((port) => Math.hypot(port.x - point.x, port.y - point.y) < 0.0001);
-      if (port) {
-        const radians = ((port.angle + (before ? 0 : 180)) * Math.PI) / 180;
-        return { x: point.x - Math.sin(radians) * offset, y: point.y + Math.cos(radians) * offset };
-      }
-    }
-    const incoming = before ? unit(before, point) : undefined;
-    const outgoing = after ? unit(point, after) : undefined;
-    const a = incoming ?? outgoing ?? { x: 1, y: 0 };
-    const b = outgoing ?? a;
-    const scale = offset / Math.max(0.5, 1 + a.x * b.x + a.y * b.y);
-    return { x: point.x - (a.y + b.y) * scale, y: point.y + (a.x + b.x) * scale };
-  });
-}
-
-function sleepers(route: readonly Point[]): string {
-  let result = "";
-  let chainage = 0;
-  let nextTie = 0.85;
-  for (let index = 1; index < route.length; index++) {
-    const start = route[index - 1];
-    const end = route[index];
-    if (!start || !end) continue;
-    const length = Math.hypot(end.x - start.x, end.y - start.y);
-    const tangent = unit(start, end);
-    while (nextTie < chainage + length - 0.15) {
-      const along = nextTie - chainage;
-      const x = start.x + along * tangent.x;
-      const y = start.y + along * tangent.y;
-      result += pathData([
-        { x: x - tangent.y * 3.55, y: y + tangent.x * 3.55 },
-        { x: x + tangent.y * 3.55, y: y - tangent.x * 3.55 },
-      ]);
-      nextTie += 2;
-    }
-    chainage += length;
-  }
-  return result;
-}
-
-function trackDrawing(
-  group: SVGGElement,
-  part: Catalog["parts"][number],
-  height: number,
-  selected: boolean,
-): void {
-  const rail = selected ? selectionInk : "#36312b";
-  const base = selected ? "#b5dfd9" : "#cdbeaa";
-  const hatch = height > 0 ? "url(#track-raised)" : "url(#track-lowered)";
-  if (part.paths.length === 0) {
-    group.append(
-      path(
-        part.footprint,
-        {
-          fill: base,
-          stroke: rail,
-          "stroke-width": 0.45,
-          "data-track-accessory": "true",
-        },
-        true,
-      ),
-    );
-    if (height !== 0) group.append(path(part.footprint, { fill: hatch }, true));
-    return;
-  }
-  for (const route of part.paths) {
-    group.append(
-      path(route, {
-        stroke: base,
-        "stroke-width": 7.5,
-        "stroke-linecap": "butt",
-        "stroke-linejoin": "round",
-      }),
-    );
-  }
-  if (height !== 0) {
-    for (const route of part.paths) {
-      group.append(
-        path(route, {
-          stroke: hatch,
-          "stroke-width": 7.5,
-          "stroke-linejoin": "round",
-          "pointer-events": "none",
-        }),
-      );
-    }
-  }
-  for (const route of part.paths) {
-    group.append(
-      svg("path", {
-        d: sleepers(route),
-        fill: "none",
-        stroke: rail,
-        "stroke-width": 0.55,
-        opacity: 0.6,
-      }),
-    );
-    for (const side of [-2.5, 2.5]) {
-      group.append(
-        path(offsetRail(route, side, part.ports), {
-          stroke: rail,
-          "stroke-width": 0.85,
-          "stroke-linejoin": "round",
-          "data-rail": "true",
-        }),
-      );
-    }
+  while (cursor) {
+    const stale = cursor;
+    cursor = cursor.nextElementSibling;
+    stale.remove();
   }
 }
 
@@ -312,8 +84,9 @@ function itemDrawing(
   part: Catalog["parts"][number] | undefined,
   selected: boolean,
   bounds: Bounds,
-  labels: SVGGElement,
-): SVGGElement {
+  drawings: Drawings,
+  interaction: SceneOptions["interaction"],
+): Pick<Drawn, "node" | "label"> {
   const name =
     item.kind === "track"
       ? (part?.name ?? item.partId)
@@ -328,57 +101,66 @@ function itemDrawing(
     "aria-label": name,
     transform: poseTransform(boxPose),
   });
+  let caption: SVGTextElement | undefined;
+  if (interaction === "pieces") {
+    group.id = `scene-item-${encodeURIComponent(item.id)}`;
+    group.setAttribute("tabindex", "0");
+    group.setAttribute("role", "button");
+    group.setAttribute("aria-pressed", String(selected));
+  }
   group.append(svg("title", {}, name));
   if (item.kind === "track" && part) {
-    for (const point of part.footprint) addBounds(bounds, world(point, pose), 0.5);
-    for (const route of part.paths) {
-      for (const point of route) addBounds(bounds, world(point, pose), 4);
+    let partId = drawings.parts.get(part);
+    if (!partId) {
+      partId = `${drawings.prefix}-part-${drawings.parts.size}`;
+      partDrawing(drawings.definitions, partId, part);
+      drawings.parts.set(part, partId);
     }
-    trackDrawing(group, part, item.heightPlates, selected);
+    const halfWidth = trackHalfWidth(item.ballast ?? "bare");
+    addShapeBounds(bounds, part.footprint, pose, 0.5);
+    for (const route of part.paths) {
+      addShapeBounds(bounds, route, pose, halfWidth + 0.25);
+    }
+    partInstance(group, partId, drawings.prefix, item, part, selected);
     const captions = [];
     if (part.radius !== undefined) captions.push(`R${part.radius}`);
+    if (part.sweep !== undefined) captions.push(`${part.sweep}\u00b0`);
     if (item.heightPlates !== 0)
       captions.push(`${item.heightPlates > 0 ? "+" : ""}${item.heightPlates} pl`);
-    const route = part.paths.find((route) => route.length > 2) ?? part.paths[0];
-    const mid = route?.[Math.floor((route.length - 1) / 2)];
     if (captions.length) {
+      const route = part.paths.find((route) => route.length > 2) ?? part.paths[0];
+      const mid = route?.[Math.floor((route.length - 1) / 2)];
       const midpoint = mid ?? { x: 0, y: 0 };
       const next = route?.[Math.floor((route.length - 1) / 2) + 1];
       const half = next ? { x: (midpoint.x + next.x) / 2, y: (midpoint.y + next.y) / 2 } : midpoint;
       const tangent = next ? unit(midpoint, next) : { x: 1, y: 0 };
-      const at = world({ x: half.x + tangent.y * 6.5, y: half.y - tangent.x * 6.5 }, pose);
-      labels.append(
-        boundedLabel(bounds, { x: at.x, y: at.y + 1 }, captions.join(" / "), 2.5, {
-          "data-track-caption": item.id,
-          "font-weight": 600,
-        }),
-      );
+      const offset = Math.max(6.5, halfWidth + 2);
+      const at = world({ x: half.x + tangent.y * offset, y: half.y - tangent.x * offset }, pose);
+      caption = boundedLabel(bounds, { x: at.x, y: at.y + 1 }, captions.join(" / "), 2.5, {
+        "data-track-caption": item.id,
+        "font-weight": 600,
+      });
     }
   } else {
     const width = item.kind === "unresolved" ? item.width : 32;
     const depth = item.kind === "unresolved" ? item.depth : 32;
     const points = rectangle(-width / 2, -depth / 2, width, depth);
-    for (const point of points) addBounds(bounds, world(point, boxPose));
+    addShapeBounds(bounds, points, boxPose);
     if (item.kind === "baseplate") {
-      group.append(
-        path(
-          points,
-          {
-            fill: item.color ?? "#dce1c8",
-            "fill-opacity": 0.72,
-            stroke: selected ? selectionInk : "#74805e",
-            "stroke-width": selected ? 0.95 : 0.5,
-          },
-          true,
-        ),
-      );
-      if (item.name) labels.append(boundedLabel(bounds, pose, item.name, 2.5));
+      const color = (item.color ?? defaultBaseplateColor).toLowerCase();
+      const id = `${drawings.prefix}-studs-${color.slice(1)}`;
+      if (!drawings.studPatterns.has(id)) {
+        drawings.studPatterns.add(id);
+        drawings.definitions.append(studPattern(id, color));
+      }
+      baseplateDrawing(group, color, id, selected);
+      if (item.name) caption = boundedLabel(bounds, pose, item.name, 2.5);
     } else {
       group.append(
         path(
           points,
           {
-            fill: "url(#track-unknown)",
+            fill: `url(#${drawings.prefix}-unknown)`,
             stroke: selected ? selectionInk : warningInk,
             "stroke-width": 0.6,
             "stroke-dasharray": "2 1",
@@ -386,16 +168,38 @@ function itemDrawing(
           true,
         ),
       );
-      labels.append(boundedLabel(bounds, pose, `? ${name}`, 2.7, { "font-weight": 650 }));
+      caption = boundedLabel(bounds, pose, `? ${name}`, 2.7, { "font-weight": 650 });
     }
   }
-  return group;
+  return { node: group, label: caption };
 }
 
-function appendPatterns(scene: SVGSVGElement): void {
-  const definitions = svg("defs");
+function itemKey(
+  item: Item,
+  pose: Pose,
+  selected: boolean,
+  interaction: SceneOptions["interaction"],
+): string {
+  const appearance =
+    item.kind === "track"
+      ? [item.partId, item.heightPlates, item.ballast]
+      : item.kind === "baseplate"
+        ? [item.name, item.color]
+        : [item.name, item.width, item.depth];
+  return JSON.stringify([
+    item.kind,
+    pose.x,
+    pose.y,
+    pose.angle,
+    selected,
+    interaction,
+    ...appearance,
+  ]);
+}
+
+function appendPatterns(definitions: SVGDefsElement, prefix: string): void {
   const grid = svg("pattern", {
-    id: "track-grid",
+    id: `${prefix}-grid`,
     width: 32,
     height: 32,
     patternUnits: "userSpaceOnUse",
@@ -410,12 +214,18 @@ function appendPatterns(scene: SVGSVGElement): void {
   );
   definitions.append(grid);
   for (const [id, inkColor, downward, width] of [
-    ["track-raised", "#286e67", false, 0.46],
-    ["track-lowered", "#754b71", true, 0.46],
-    ["track-overhang", warningInk, true, 0.45],
-    ["track-unknown", "#9c6356", false, 0.3],
+    ["raised", "#286e67", false, 0.46],
+    ["lowered", "#754b71", true, 0.46],
+    ["overhang", warningInk, true, 0.45],
+    ["unknown", "#9c6356", false, 0.3],
+    ["keepout", "#725633", false, 0.24],
   ] as const) {
-    const pattern = svg("pattern", { id, width: 2, height: 2, patternUnits: "userSpaceOnUse" });
+    const pattern = svg("pattern", {
+      id: `${prefix}-${id}`,
+      width: 2,
+      height: 2,
+      patternUnits: "userSpaceOnUse",
+    });
     const strokes = downward
       ? "M -2 -2 L 4 4 M -2 0 L 2 4 M 0 -2 L 4 2"
       : "M -2 4 L 4 -2 M -2 2 L 2 -2 M 0 4 L 4 0";
@@ -424,17 +234,15 @@ function appendPatterns(scene: SVGSVGElement): void {
     );
     definitions.append(pattern);
   }
-  scene.append(definitions);
+  definitions.append(ballastPattern(prefix));
 }
 
-function appendPort(
-  overlay: SVGGElement,
+function portDrawing(
   port: ScenePort,
-  sharing: boolean,
+  options: SceneOptions,
   selected: boolean,
   bounds: Bounds,
-): void {
-  if (sharing && port.joined) return;
+): SVGGElement {
   const color = selected ? selectionInk : warningInk;
   const radius = port.ambiguous ? 1.5 : port.joined ? 0.65 : 1.05;
   const status = port.ambiguous ? "Ambiguous join at" : port.joined ? "Joined" : "Open";
@@ -445,11 +253,22 @@ function appendPort(
     "data-port-id": port.portId,
     "data-open": String(!port.joined),
     "data-ambiguous": String(port.ambiguous ?? false),
-    "aria-label": title,
+    "aria-label": options.interaction === "ports" ? `${port.pieceId} / ${port.portId}` : title,
   });
+  if (options.interaction === "ports") {
+    group.setAttribute("role", "button");
+    group.setAttribute("tabindex", "0");
+  }
   group.append(svg("title", {}, title));
-  if (!sharing) {
-    group.append(svg("circle", { cx: port.x, cy: port.y, r: 2.8, fill: "transparent" }));
+  if (!options.sharing) {
+    group.append(
+      svg("circle", {
+        cx: port.x,
+        cy: port.y,
+        r: options.interaction === "ports" ? 4 : 2.8,
+        fill: "transparent",
+      }),
+    );
   }
   if (port.ambiguous) {
     group.append(
@@ -476,7 +295,7 @@ function appendPort(
       }),
     );
   }
-  overlay.append(group);
+  return group;
 }
 
 function seamLane(
@@ -560,7 +379,9 @@ function seamDrawing(
   analysis: Analysis,
   bounds: Bounds,
   overlay: SVGGElement,
+  sectionTables: ReadonlySet<string> | undefined,
 ): void {
+  if (!project.seams.length) return;
   const ports = new Map(
     analysis.ports.map((port) => [JSON.stringify([port.pieceId, port.portId]), port]),
   );
@@ -569,19 +390,26 @@ function seamDrawing(
   const items = new Map(project.items.map((item) => [item.id, item]));
 
   for (const seam of project.seams) {
+    const firstTableShown = sectionTables?.has(seam.tableA) ?? true;
+    const secondTableShown = sectionTables?.has(seam.tableB) ?? true;
+    if (!firstTableShown && !secondTableShown) continue;
     const status = statuses.get(seam.id);
-    const table = tables.get(seam.tableA);
+    const table = tables.get(firstTableShown ? seam.tableA : seam.tableB);
     if (!status || !table || (status.outer.status === "hidden" && status.inner.status === "hidden"))
       continue;
-    const [start, end] = tableEdge(table, seam.edgeA);
+    const [start, end] = tableEdge(table, firstTableShown ? seam.edgeA : seam.edgeB);
     const at = world({ x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, table);
     const group = svg("g", { "data-seam-id": seam.id, "pointer-events": "none" });
     const supplierNames = new Set<string>();
     for (const [index, lane] of (["outer", "inner"] as const).entries()) {
       if (status[lane].status === "hidden") continue;
       const pair = seam[lane];
-      const first = ports.get(JSON.stringify([pair.a.pieceId, pair.a.portId]));
-      const second = ports.get(JSON.stringify([pair.b.pieceId, pair.b.portId]));
+      const first = firstTableShown
+        ? ports.get(JSON.stringify([pair.a.pieceId, pair.a.portId]))
+        : undefined;
+      const second = secondTableShown
+        ? ports.get(JSON.stringify([pair.b.pieceId, pair.b.portId]))
+        : undefined;
       seamLane(group, bounds, seam.id, lane, status[lane], first, second, {
         x: at.x,
         y: at.y + index * 4,
@@ -608,60 +436,307 @@ function seamDrawing(
   }
 }
 
+function sectionDrawing(
+  project: Project,
+  analysis: Analysis,
+  visibleTables: ReadonlyMap<string, Table>,
+  labels: SVGGElement,
+  bounds: Bounds,
+  sectionId: string | undefined,
+): void {
+  if (!project.sections?.length) return;
+  const firstTables = new Map<string, Table>();
+  for (const table of visibleTables.values()) {
+    if (table.sectionId && !firstTables.has(table.sectionId))
+      firstTables.set(table.sectionId, table);
+  }
+  const connectedExits = new Set(project.seams.flatMap((seam) => [seam.exitAId, seam.exitBId]));
+  const activePorts = new Map(
+    analysis.ports.map((port) => [JSON.stringify([port.pieceId, port.portId]), port]),
+  );
+  for (const section of project.sections) {
+    if (sectionId && sectionId !== section.id) continue;
+    const table = firstTables.get(section.id);
+    if (table) {
+      labels.append(
+        boundedLabel(bounds, world({ x: table.width / 2, y: 9 }, table), section.name, 2.75, {
+          "data-section-label": section.id,
+          "font-weight": 650,
+        }),
+      );
+    }
+    for (const exit of section.exits) {
+      const owner = visibleTables.get(exit.tableId);
+      if (!owner) continue;
+      const [start, end] = tableEdge(owner, exit.edge, 10);
+      const anchor = world(start, owner);
+      const across = world(end, owner);
+      const tangent = unit(anchor, across);
+      const ports = [exit.outer, exit.inner]
+        .map(({ pieceId, portId }) => activePorts.get(JSON.stringify([pieceId, portId])))
+        .filter((port) => port !== undefined);
+      const average = ports.length
+        ? ports.reduce(
+            (sum, port) => sum + (port.x - anchor.x) * tangent.x + (port.y - anchor.y) * tangent.y,
+            0,
+          ) / ports.length
+        : Math.hypot(end.x - start.x, end.y - start.y) / 2;
+      const distance = Math.max(0, Math.min(average, Math.hypot(end.x - start.x, end.y - start.y)));
+      const at = { x: anchor.x + tangent.x * distance, y: anchor.y + tangent.y * distance };
+      const connected = connectedExits.has(exit.id);
+      labels.append(
+        boundedLabel(bounds, at, exit.name, 2.5, {
+          "data-exit-label": exit.id,
+          fill: connected ? selectionInk : ink,
+          "font-weight": 650,
+        }),
+      );
+    }
+  }
+}
+
+function venueDrawing(
+  project: Project,
+  analysis: Analysis,
+  tables: ReadonlyMap<string, Table>,
+  background: SVGGElement,
+  overlay: SVGGElement,
+  labels: SVGGElement,
+  bounds: Bounds,
+  prefix: string,
+  sectionView: boolean,
+): void {
+  const venue = project.venue;
+  if (venue && !sectionView) {
+    addBounds(bounds, { x: 0, y: 0 });
+    addBounds(bounds, { x: venue.width, y: venue.depth });
+    background.append(
+      svg("rect", {
+        width: venue.width,
+        height: venue.depth,
+        fill: "#eeeae0",
+        "fill-opacity": 0.28,
+        stroke: "#6d6350",
+        "stroke-width": 0.65,
+        "stroke-dasharray": "3 2.2",
+        "pointer-events": "none",
+        "data-venue-boundary": "true",
+      }),
+    );
+    const keepoutHits = new Set(
+      analysis.venueIssues?.filter(({ kind }) => kind === "keepout").map(({ otherId }) => otherId),
+    );
+    for (const keepout of venue.keepouts) {
+      const { id, x, y, width, depth, name } = keepout;
+      const left = x - width / 2;
+      const top = y - depth / 2;
+      addBounds(bounds, { x: left, y: top });
+      addBounds(bounds, { x: left + width, y: top + depth });
+      overlay.append(
+        svg("rect", {
+          x: left,
+          y: top,
+          width,
+          height: depth,
+          fill: `url(#${prefix}-${keepoutHits.has(id) ? "overhang" : "keepout"})`,
+          stroke: keepoutHits.has(id) ? warningInk : "#725633",
+          "stroke-width": 0.6,
+          "stroke-dasharray": "2 1.5",
+          "pointer-events": "none",
+          "data-keepout-id": id,
+        }),
+      );
+      labels.append(
+        boundedLabel(bounds, { x, y: top + Math.min(4, depth / 2 + 1) }, name, 2.6, {
+          "data-keepout-label": id,
+          "font-weight": 650,
+        }),
+      );
+    }
+  }
+  const marked = new Set<string>();
+  for (const issue of analysis.venueIssues ?? []) {
+    const ids = issue.kind === "table-overlap" ? [issue.entityId, issue.otherId] : [issue.entityId];
+    for (const id of ids) {
+      if (id === undefined || marked.has(id)) continue;
+      const table = tables.get(id);
+      if (!table) continue;
+      marked.add(id);
+      overlay.append(
+        svg("rect", {
+          width: table.width,
+          height: table.depth,
+          transform: poseTransform(table),
+          fill: "none",
+          stroke: warningInk,
+          "stroke-width": 1.1,
+          "stroke-dasharray": "1.6 1",
+          "pointer-events": "none",
+          "data-venue-issue": issue.kind,
+          "data-venue-issue-for": id,
+        }),
+      );
+    }
+  }
+}
+
+function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, SceneLayers] {
+  const scene = svg("svg", {
+    role: options.interaction ? "group" : "img",
+    "data-track-scene": "true",
+    "font-family": "system-ui, sans-serif",
+    style: `background: ${paper}`,
+  });
+  const definitions = svg("defs");
+  const prefix = `track-scene-${++sceneNumber}`;
+  appendPatterns(definitions, prefix);
+  const layers: SceneLayers = {
+    catalog,
+    drawings: { definitions, prefix, parts: new Map(), studPatterns: new Set() },
+    title: svg("title"),
+    paper: svg("rect", { fill: paper, "pointer-events": "none" }),
+    grid: svg("rect", { fill: `url(#${prefix}-grid)`, "pointer-events": "none" }),
+    venue: svg("g"),
+    tables: svg("g"),
+    plates: svg("g"),
+    tracks: svg("g"),
+    issues: svg("g"),
+    ports: svg("g"),
+    labels: svg("g", { "pointer-events": "none" }),
+    itemLabels: svg("g", { "pointer-events": "none" }),
+    itemsById: new Map(),
+    portsById: new Map(),
+  };
+  scene.append(
+    layers.title,
+    definitions,
+    layers.paper,
+    layers.grid,
+    layers.venue,
+    layers.tables,
+    layers.plates,
+    layers.tracks,
+    layers.issues,
+    layers.ports,
+    layers.itemLabels,
+    layers.labels,
+  );
+  setSceneDetail(scene, 0);
+  sceneLayers.set(scene, layers);
+  return [scene, layers];
+}
+
 export function createScene(
   project: Project,
   catalog: Catalog,
   analysis: Analysis,
   options: SceneOptions = {},
 ): SVGSVGElement {
-  const scene = svg("svg", {
-    role: "img",
-    "aria-label": `Top-down layout of ${project.name}`,
-    "data-track-scene": "true",
-    "font-family": "system-ui, sans-serif",
-    style: `background: ${paper}`,
-  });
-  scene.append(svg("title", {}, `Top-down layout of ${project.name}`));
-  appendPatterns(scene);
-  const bounds: Bounds = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+  const reuse = options.reuse;
+  const previous = reuse ? sceneLayers.get(reuse) : undefined;
+  const [scene, layers] =
+    reuse && previous?.catalog === catalog ? [reuse, previous] : newScene(catalog, options);
+  const { drawings } = layers;
+  const title = `Top-down layout of ${project.name}`;
+  if (layers.title.textContent !== title) {
+    layers.title.textContent = title;
+    scene.setAttribute("aria-label", title);
+  }
+  const role = options.interaction ? "group" : "img";
+  if (scene.getAttribute("role") !== role) scene.setAttribute("role", role);
+  const last = scene.lastElementChild;
+  if (last?.hasAttribute("data-box-selection")) last.remove();
+  const bounds = emptyBounds();
   const visible = new Set(project.layers.filter((layer) => layer.visible).map((layer) => layer.id));
   const parts = new Map(catalog.parts.map((part) => [part.id, part]));
-  const base = svg("g");
-  const tracks = svg("g");
-  const labels = svg("g", { "pointer-events": "none" });
-  const overlay = svg("g");
+  const tables = new Map(project.tables.map((table) => [table.id, table]));
+  const visibleTables = new Map<string, Table>();
+  const sectionTables = options.sectionId
+    ? new Set(
+        project.tables
+          .filter((table) => table.sectionId === options.sectionId)
+          .map((table) => table.id),
+      )
+    : undefined;
+  const sectionItems = sectionTables ? new Set<string>() : undefined;
+  const tableNodes: SVGGElement[] = [];
+  layers.venue.replaceChildren();
+  layers.labels.replaceChildren();
+  layers.issues.replaceChildren();
   for (const table of project.tables) {
-    if (!visible.has(table.layerId)) continue;
+    if (!visible.has(table.layerId) || (sectionTables && !sectionTables.has(table.id))) continue;
+    visibleTables.set(table.id, table);
     const selected = options.selection?.has(table.id) ?? false;
-    base.append(tableDrawing(table, selected, bounds));
+    tableNodes.push(tableDrawing(table, selected, bounds));
     const at = world({ x: table.width / 2, y: 5 }, table);
-    labels.append(
+    layers.labels.append(
       boundedLabel(bounds, at, table.name, 3.4, {
         "font-weight": 700,
         "data-table-label": table.id,
       }),
     );
   }
+  layers.tables.replaceChildren(...tableNodes);
+
+  const itemsById = new Map<string, Drawn>();
+  const plates: SVGElement[] = [];
+  const tracks: SVGElement[] = [];
+  const captions: SVGElement[] = [];
   for (const item of project.items) {
-    if (!visible.has(item.layerId)) continue;
-    const destination = item.kind === "baseplate" ? base : tracks;
-    const part = item.kind === "track" ? parts.get(item.partId) : undefined;
+    if (
+      !visible.has(item.layerId) ||
+      (sectionTables && (!item.tableId || !sectionTables.has(item.tableId)))
+    )
+      continue;
+    sectionItems?.add(item.id);
     const selected = options.selection?.has(item.id) ?? false;
-    destination.append(
-      itemDrawing(item, worldPose(item, project.tables), part, selected, bounds, labels),
-    );
+    const table = item.tableId ? tables.get(item.tableId) : undefined;
+    const pose = table ? composePose(item, table) : item;
+    const key = itemKey(item, pose, selected, options.interaction);
+    let drawing = layers.itemsById.get(item.id);
+    if (!drawing || drawing.key !== key) {
+      const part = item.kind === "track" ? parts.get(item.partId) : undefined;
+      const itemBounds = emptyBounds();
+      drawing = {
+        key,
+        bounds: itemBounds,
+        ...itemDrawing(item, pose, part, selected, itemBounds, drawings, options.interaction),
+      };
+    }
+    itemsById.set(item.id, drawing);
+    includeBounds(bounds, drawing.bounds);
+    (item.kind === "baseplate" ? plates : tracks).push(drawing.node);
+    if (drawing.label) captions.push(drawing.label);
   }
+  syncLayer(layers.plates, plates);
+  syncLayer(layers.tracks, tracks);
+  syncLayer(layers.itemLabels, captions);
+  layers.itemsById = itemsById;
+
+  sectionDrawing(project, analysis, visibleTables, layers.labels, bounds, options.sectionId);
+  venueDrawing(
+    project,
+    analysis,
+    visibleTables,
+    layers.venue,
+    layers.issues,
+    layers.labels,
+    bounds,
+    drawings.prefix,
+    Boolean(sectionTables),
+  );
   for (const overhang of analysis.overhangs) {
+    if (sectionItems && !sectionItems.has(overhang.pieceId)) continue;
     for (const ring of overhang.rings) {
       for (const point of ring) addBounds(bounds, point);
     }
     const pattern = overhang.rings.map((ring) => pathData(ring, true)).join(" ");
-    overlay.append(
+    layers.issues.append(
       svg("path", {
         d: pattern,
         "data-overhang-for": overhang.pieceId,
         "pointer-events": "none",
-        fill: "url(#track-overhang)",
+        fill: `url(#${drawings.prefix}-overhang)`,
         "fill-rule": "evenodd",
         stroke: warningInk,
         "stroke-width": 0.42,
@@ -669,16 +744,36 @@ export function createScene(
       }),
     );
   }
-  seamDrawing(project, analysis, bounds, labels);
+  seamDrawing(project, analysis, bounds, layers.labels, sectionTables);
+
+  const portsById = new Map<string, Drawn>();
+  const ports: SVGElement[] = [];
   for (const port of analysis.ports) {
-    appendPort(
-      overlay,
-      port,
-      options.sharing ?? false,
-      options.selection?.has(port.pieceId) ?? false,
-      bounds,
-    );
+    if ((sectionItems && !sectionItems.has(port.pieceId)) || (options.sharing && port.joined))
+      continue;
+    const selected = options.selection?.has(port.pieceId) ?? false;
+    const id = JSON.stringify([port.pieceId, port.portId]);
+    const key = JSON.stringify([
+      port.x,
+      port.y,
+      port.joined,
+      port.ambiguous,
+      selected,
+      options.interaction,
+      options.sharing,
+    ]);
+    let drawing = layers.portsById.get(id);
+    if (!drawing || drawing.key !== key) {
+      const portBounds = emptyBounds();
+      drawing = { key, bounds: portBounds, node: portDrawing(port, options, selected, portBounds) };
+    }
+    portsById.set(id, drawing);
+    includeBounds(bounds, drawing.bounds);
+    ports.push(drawing.node);
   }
+  syncLayer(layers.ports, ports);
+  layers.portsById = portsById;
+
   if (!Number.isFinite(bounds.left)) {
     addBounds(bounds, { x: 0, y: 0 });
     addBounds(bounds, { x: 96, y: 64 });
@@ -688,14 +783,17 @@ export function createScene(
   const width = bounds.right - x + 8;
   const height = bounds.bottom - y + 8;
   const viewBox = `${x} ${y} ${width} ${height}`;
-  scene.setAttribute("viewBox", viewBox);
-  scene.setAttribute("data-layout-view-box", viewBox);
-  scene.append(svg("rect", { x, y, width, height, fill: paper, "pointer-events": "none" }));
-  if (options.grid !== false) {
-    scene.append(
-      svg("rect", { x, y, width, height, fill: "url(#track-grid)", "pointer-events": "none" }),
-    );
+  if (scene.getAttribute("data-layout-view-box") !== viewBox) {
+    scene.setAttribute("data-layout-view-box", viewBox);
+    if (scene !== reuse) scene.setAttribute("viewBox", viewBox);
+    for (const backdrop of [layers.paper, layers.grid]) {
+      backdrop.setAttribute("x", String(x));
+      backdrop.setAttribute("y", String(y));
+      backdrop.setAttribute("width", String(width));
+      backdrop.setAttribute("height", String(height));
+    }
   }
-  scene.append(base, tracks, overlay, labels);
+  const grid = options.grid === false ? "none" : "inline";
+  if (layers.grid.getAttribute("display") !== grid) layers.grid.setAttribute("display", grid);
   return scene;
 }
