@@ -4,6 +4,11 @@
 
 ### Behavior or Interface Changes
 
+- Start straight designs along the top plexiglass edge and offer top-left
+  and top-right curves at the entered width and depth. Rotate the view in
+  quarter turns without changing the track plan.
+- Add the TrixBrix R40 right pass-through crossover, R40 T-junction, and
+  R40-R56 T-junction to the arrangement picker with measured fit requirements.
 - Add five editable 40 by 40 inch straight examples. Lead with the 60 by
   40 inch collection and use that size in the setup and siding walkthrough.
 - Center Delete selected track over the drawing. Keep the Add track mode
@@ -34,6 +39,8 @@
 
 ### Fixes and Maintenance
 
+- Refresh the layout screenshots and capture the two curve options in the
+  Playwright alignment checks.
 - Capture full editor screenshots for every bundled layout, show the blank
   and mainline starters, and demonstrate single-piece placement in a short
   animated WebP.

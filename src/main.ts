@@ -129,6 +129,7 @@ class Planner {
     button("fit-view").onclick = (): void => this.#draw(true);
     button("zoom-in").onclick = (): void => this.#camera.zoom(0.8);
     button("zoom-out").onclick = (): void => this.#camera.zoom(1.25);
+    button("rotate-view").onclick = (): void => this.#camera.rotateView();
     input("project-name").onchange = (): void => {
       const name = input("project-name").value.trim() || "My track plan";
       this.#commit({ ...this.#requireState().project, name });
@@ -176,6 +177,7 @@ class Planner {
     document.body.dataset["projectOpen"] = "";
     this.#arrangements.useDefaults();
     this.#tracks.useDefaultTool();
+    this.#camera.reset();
     this.#reset(true);
     element("library-title").focus();
   }

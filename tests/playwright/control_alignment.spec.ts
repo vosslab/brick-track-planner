@@ -133,6 +133,10 @@ for (const viewport of viewports) {
       await shot("01_startup", ".start-card");
       await rows("Startup actions", ".start-alternatives > div", 3);
       await rows("Assigned dimensions", "#area-form .area-measurements", 2);
+      await page.getByRole("radio", { name: /^Curve/ }).check();
+      await shot("01b_curve_options", ".start-card");
+      await rows("Curve options", "#area-curve .curve-options", 2, "label");
+      await page.getByRole("radio", { name: /^Straight/ }).check();
 
       await page.getByRole("button", { name: "Browse straight examples" }).click();
       await expect(page.locator(".template-card svg")).toHaveCount(straightExamples.length);
@@ -193,9 +197,9 @@ for (const viewport of viewports) {
         close(remove.left - bounds.left, bounds.right - remove.right, "Delete button centering");
       }
       await rows("Undo and Redo", ".toolbar-group", 2);
-      await rows("Zoom controls", ".zoom-controls", 3);
+      await rows("Zoom controls", ".zoom-controls", 4);
       const zoom = evidence["Zoom controls"]!.controls;
-      if (zoom.length === 3) close(zoom[0]!.width, zoom[2]!.width, "Zoom in/out width");
+      if (zoom.length === 4) close(zoom[0]!.width, zoom[2]!.width, "Zoom in/out width");
 
       await page.getByRole("button", { name: "Design area", exact: true }).click();
       await shot("07_design_area_dialog", "#area-dialog");

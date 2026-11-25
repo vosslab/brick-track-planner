@@ -469,10 +469,9 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     parts: new Map(),
     drawn: new Map(),
   };
-  scene.append(
-    layers.title,
-    definitions,
-    layers.paper,
+  scene.append(layers.title, definitions, layers.paper);
+  const drawing = svg("g", { "data-scene-drawing": "true" });
+  drawing.append(
     layers.grid,
     layers.area,
     layers.guides,
@@ -482,6 +481,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     layers.itemLabels,
     layers.labels,
   );
+  scene.append(drawing);
   setSceneDetail(scene, 0);
   sceneLayers.set(scene, layers);
   return [scene, layers];

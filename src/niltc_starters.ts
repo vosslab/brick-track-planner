@@ -11,19 +11,19 @@ export type NiltcStarterOptions = {
 };
 export type DesignAreaResize = { width: number; depth: number; name?: string };
 
-/** Converts signup dimensions to x/y drawing dimensions. Signup width always follows the track. */
+/** A straight signup follows its public edge. Corner dimensions follow the drawing axes. */
 export function signupToAreaDimensions(
   signup: SignupDimensions,
   fronts: readonly Edge[],
 ): SignupDimensions {
   const front = fronts[0];
-  if (!front) return { ...signup };
+  if (fronts.length !== 1) return { ...signup };
   return front === "east" || front === "west"
     ? { width: signup.depth, depth: signup.width }
     : { ...signup };
 }
 
-/** Converts x/y drawing dimensions to the member's width-along-track signup dimensions. */
+/** Converts drawing dimensions back to the dimensions shown on the setup form. */
 export function areaToSignupDimensions(
   area: SignupDimensions,
   fronts: readonly Edge[],

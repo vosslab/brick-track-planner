@@ -65,6 +65,18 @@ source source_me.sh && python3 devel/render_track_artwork.py /path/to/ldraw
 
 ## Track geometry
 
+- The [right pass-through single crossover R40](https://trixbrix.eu/en/p/track/curved-tracks/right-pass-through-single-crossover-r40/10035-right-pass-through-single-crossover-r40)
+  uses the crossing and adapter records from the BlueBrick pass-through set.
+  Adapter ends are aligned to nominal 16-stud lane spacing. The set drawing
+  includes six approach straights outside the product.
+- The [T-junction R40](https://trixbrix.eu/en/p/track/curved-tracks/t-junction-r40/11125-t-junction-r40)
+  follows the vendor's exploded drawing with measured R40 switches, wye,
+  half curves, and straights. The
+  [T-junction R40-R56](https://trixbrix.eu/en/p/track/switches-and-crossovers/t-junction-r40-r56/10740-t-junction-r40-r56)
+  uses the BlueBrick `tb t-junction r40 r56.set` geometry. Its two yard
+  switches use their assembled catalog parts. The inner through line follows
+  the measured core, within 0.032 studs of the nominal 16-stud lane spacing.
+  The R56 turnouts use their source hulls and circular branch centerlines.
 - LEGO RC/PF S16 is straight. The compatible R40 curve sweeps 22.5 degrees.
 - BrickTracks and TrixBrix R104/R120 standard curves sweep 11.25 degrees. Their centerlines and
   eight-stud-wide footprints sample circular arcs. Eight parts from each brand form a 90-degree

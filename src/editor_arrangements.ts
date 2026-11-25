@@ -19,6 +19,9 @@ type PreviewHooks = {
 
 const PRODUCTS = new Set([
   "trixbrix:r40-double-crossover-kit",
+  "trixbrix:r40-right-pass-through",
+  "trixbrix:r40-t-junction",
+  "trixbrix:r40-r56-t-junction",
   "trixbrix:r40-triple",
   "trixbrix:r40-triple-parallel",
   "trixbrix:r40-right-yard-4",

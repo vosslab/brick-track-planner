@@ -167,28 +167,53 @@ test("member creates a straight 60 by 40 NILTC design with automatic coverage", 
   expect(errors).toEqual([]);
 });
 
-test("member creates a 40 by 60 corner with both standard curve radii", async ({ page }) => {
-  const errors = watchErrors(page);
+test("80 by 40 curves have two mirrored orientations and a separate rotated view", async ({
+  page,
+  hasTouch,
+}) => {
   await boot(page, { startProject: false });
-  await createProject(page, {
-    assignment: "corner",
-    width: "128",
-    depth: "192",
-    name: "corner member plan",
-  });
+  const form = page.locator("#area-form");
+  const corners = form.getByRole("group", { name: "Public corner" });
+  await expect(corners).toBeHidden();
 
-  const saved = await saveProject(page);
-  expect(saved.project.area).toMatchObject({
-    width: 128,
-    depth: 192,
-    niltc: "corner",
-    fronts: ["north", "east"],
-  });
-  const radii = saved.project.items.flatMap((item) => (item.kind === "track" ? [item.partId] : []));
-  expect(radii.filter((partId) => partId === "bricktracks:r104")).toHaveLength(8);
-  expect(radii.filter((partId) => partId === "bricktracks:r120")).toHaveLength(8);
-  await expect(page.locator('#tabletop [data-port-id][data-open="true"]')).toHaveCount(4);
-  expect(errors).toEqual([]);
+  for (const [label, side, opposite] of [
+    ["Top-right corner", "east", "west"],
+    ["Top-left corner", "west", "east"],
+  ] as const) {
+    await form.locator('input[name="assignment"][value="corner"]').check();
+    await expect(corners.getByRole("radio")).toHaveCount(2);
+    await corners.getByRole("radio", { name: label }).check();
+    await form.getByLabel("Width on the drawing").selectOption("256");
+    await form.getByLabel("Depth on the drawing").selectOption("128");
+    await form.getByRole("button", { name: "Create track plan" }).click();
+    const { project } = await saveProject(page);
+    expect(project.area).toMatchObject({
+      width: 256,
+      depth: 128,
+      niltc: "corner",
+      fronts: ["north", side],
+    });
+    expect(project.area.exits.map(({ edge }) => edge).sort()).toEqual([opposite, "south"].sort());
+    for (const id of ["bricktracks:r104", "bricktracks:r120"]) {
+      expect(
+        project.items.filter((item) => item.kind === "track" && item.partId === id),
+      ).toHaveLength(8);
+    }
+    const scene = page.locator("#tabletop [data-track-scene]");
+    await expect(scene.locator("[data-scene-drawing]")).toHaveAttribute("transform", "rotate(0)");
+    await page.getByRole("button", { name: "Rotate view clockwise" }).click();
+    await page.getByRole("button", { name: "Fit view", exact: true }).click();
+    await expect(scene.locator("[data-scene-drawing]")).toHaveAttribute("transform", "rotate(90)");
+    const frame = (await scene.getAttribute("viewBox"))!.split(" ").map(Number);
+    expect(frame[3]).toBeGreaterThan(frame[2]!);
+    const straight = scene.getByRole("button", { name: "RC/PF straight S16" }).first();
+    if (hasTouch) await straight.tap();
+    else await straight.click();
+    await expect(straight).toHaveAttribute("aria-pressed", "true");
+    expect((await saveProject(page)).project).toEqual(project);
+    if (side === "east")
+      await page.getByRole("button", { name: "New design", exact: true }).click();
+  }
 });
 
 test("a 40 by 60 member adds a fitted siding and extends its open end", async ({ page }) => {
@@ -269,6 +294,33 @@ test("a 40 by 60 corner uses the compact siding and refuses an oversized choice"
   expect(errors).toEqual([]);
 });
 
+test("the arrangement picker fits both T-junctions and explains the third lane", async ({
+  planner,
+}) => {
+  const choice = planner.locator("#arrangement");
+  const preview = planner.getByRole("button", { name: "Preview on track", exact: true });
+  const add = planner.getByRole("button", { name: "Add to layout", exact: true });
+  await choice.selectOption("trixbrix:r40-right-pass-through");
+  await preview.click();
+  await expect(planner.locator("#arrangement-info")).toContainText("3 aligned parallel tracks");
+  await expect(add).toBeHidden();
+  await choice.selectOption("trixbrix:r40-t-junction");
+  await preview.click();
+  await expect(add).toBeEnabled();
+  await choice.selectOption("trixbrix:r40-r56-t-junction");
+  await preview.click();
+  await expect(add).toBeEnabled();
+  await add.click();
+  const { project } = await saveProject(planner);
+  expect(project.items).toContainEqual(
+    expect.objectContaining({
+      kind: "track",
+      partId: "trixbrix:r40-r56-t-junction-core",
+      arrangementId: "trixbrix:r40-r56-t-junction",
+    }),
+  );
+});
+
 test("a general plan starts with a single piece and names its first action", async ({ page }) => {
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "general", width: "128", depth: "192" });
@@ -293,6 +345,7 @@ test("members can move, delete and undo edits to a selected piece", async ({ pag
   if (hasTouch) await piece.tap();
   else await piece.click();
   await expect(remove).toBeEnabled();
+  await page.getByRole("button", { name: "Rotate view clockwise" }).click();
 
   const [from, to] = await piece.evaluate((element) => {
     const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
@@ -507,7 +560,6 @@ test("undersized design areas reject large arrangements and keep controls access
   await form.locator("#area-depth").selectOption("other");
   await form.locator("#area-other-width").fill("10");
   await form.locator("#area-other-depth").fill("10");
-  await form.locator('input[name="front"][value="north"]').check();
   await form.getByRole("button", { name: "Create track plan", exact: true }).click();
   await expect(page.locator("#tabletop [data-track-scene]")).toBeVisible();
   const before = await saveProject(page);

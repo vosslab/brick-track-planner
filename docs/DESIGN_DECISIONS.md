@@ -20,6 +20,15 @@ venue placement, members, and movable baseplates are absent from version 3.
 
 **Owner.** [FILE_FORMAT.md](FILE_FORMAT.md)
 
+### Keep the top edge public in new member designs
+
+Start straight assignments along the top and offer two mirrored corners at
+the entered dimensions. Quarter turns affect the editor camera. The files
+keep the orientation and coordinates they have on opening.
+
+**Owner.** [area_form.ts](../src/area_form.ts),
+[editor_camera.ts](../src/editor_camera.ts)
+
 ### Draw track from available part models
 
 **Decision.** Project verified LDraw parts into vector artwork and draw other

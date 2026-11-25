@@ -110,12 +110,20 @@ test("straight mainlines follow every public edge", () => {
   }
 });
 
-test("signup dimensions follow the first public edge", () => {
+test("signup dimensions rotate with a straight public edge and stay fixed for corners", () => {
   const signup = { width: 192, depth: 128 };
   assert.deepEqual(signupToAreaDimensions(signup, ["north"]), signup);
   assert.deepEqual(signupToAreaDimensions(signup, ["east"]), { width: 128, depth: 192 });
   assert.deepEqual(areaToSignupDimensions({ width: 128, depth: 192 }, ["east"]), signup);
-  assert.deepEqual(signupToAreaDimensions(signup, ["east", "south"]), { width: 128, depth: 192 });
+  for (const fronts of [
+    ["north", "east"],
+    ["east", "south"],
+    ["south", "west"],
+    ["west", "north"],
+  ]) {
+    assert.deepEqual(signupToAreaDimensions(signup, fronts), signup);
+    assert.deepEqual(areaToSignupDimensions(signup, fronts), signup);
+  }
   assert.deepEqual(signupToAreaDimensions(signup, []), signup);
   assert.deepEqual(areaToSignupDimensions(signup, []), signup);
 });

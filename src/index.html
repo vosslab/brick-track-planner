@@ -172,13 +172,21 @@
               aria-describedby="camera-hint"
             ></div>
             <p id="camera-hint" class="screen-reader">
-              Drag a selected piece to move it, or use Move track in the inspector. Drag open
-              space to pan. Pinch or use plus and minus to zoom.
+              Drag a selected piece to move it, or use Move track in the inspector. Drag open space
+              to pan. Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise.
             </p>
-            <div class="zoom-controls" aria-label="Canvas zoom">
+            <div class="zoom-controls" aria-label="Canvas view">
               <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
               <button type="button" id="fit-view">Fit view</button>
               <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+              <button
+                type="button"
+                id="rotate-view"
+                aria-label="Rotate view clockwise"
+                title="Rotate view clockwise"
+              >
+                ⟳
+              </button>
             </div>
           </div>
           <div class="canvas-footer">
@@ -307,7 +315,8 @@
         <input id="area-name" required maxlength="120" value="My NILTC layout" />
         <div class="field-grid area-measurements">
           <label
-            >Width along the track<select id="area-width">
+            ><span id="area-width-label">Width along the track</span
+            ><select id="area-width">
               <option value="128">40 in (4 baseplates)</option>
               <option value="192" selected>60 in (6 baseplates)</option>
               <option value="256">80 in (8 baseplates)</option>
@@ -316,7 +325,8 @@
             </select></label
           >
           <label
-            >Depth from plexiglass<select id="area-depth">
+            ><span id="area-depth-label">Depth from plexiglass</span
+            ><select id="area-depth">
               <option value="96">30 in (3 baseplates)</option>
               <option value="128" selected>40 in (4 baseplates)</option>
               <option value="192">60 in (6 baseplates)</option>
@@ -368,36 +378,12 @@
             >
           </div>
         </fieldset>
-        <fieldset id="area-fronts" class="assignment-fieldset">
-          <legend id="area-fronts-label">Public edge</legend>
-          <div class="edge-options" role="radiogroup" aria-label="Public side">
+        <fieldset id="area-curve" class="assignment-fieldset" hidden>
+          <legend>Public corner</legend>
+          <div class="curve-options">
+            <label><input type="radio" name="curve-side" value="west" /> Top-left corner</label>
             <label
-              ><input type="radio" name="front" value="north" checked /><span
-                data-straight="Top edge"
-                data-corner="Top-right corner"
-                >Top edge</span
-              ></label
-            >
-            <label
-              ><input type="radio" name="front" value="east" /><span
-                data-straight="Right edge"
-                data-corner="Bottom-right corner"
-                >Right edge</span
-              ></label
-            >
-            <label
-              ><input type="radio" name="front" value="south" /><span
-                data-straight="Bottom edge"
-                data-corner="Bottom-left corner"
-                >Bottom edge</span
-              ></label
-            >
-            <label
-              ><input type="radio" name="front" value="west" /><span
-                data-straight="Left edge"
-                data-corner="Top-left corner"
-                >Left edge</span
-              ></label
+              ><input type="radio" name="curve-side" value="east" checked /> Top-right corner</label
             >
           </div>
         </fieldset>

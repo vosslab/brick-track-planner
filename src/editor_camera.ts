@@ -17,6 +17,8 @@ export class EditorCamera {
   #pinch: Pinch | undefined;
   #bounds: Bounds | undefined;
   #scene: SVGSVGElement | undefined;
+  #drawing: SVGGElement | undefined;
+  #angle = 0;
   #viewport: { width: number; height: number };
 
   constructor(
@@ -99,7 +101,6 @@ export class EditorCamera {
       this.#pointers.set(event.pointerId, point);
       host.setPointerCapture(event.pointerId);
       if (this.#pointers.size === 1) {
-        const world = this.world(point.x, point.y);
         this.#gesture = {
           first: point,
           target,
@@ -107,7 +108,7 @@ export class EditorCamera {
           dragging:
             event.button === 0 &&
             !host.hasAttribute("data-space-pan") &&
-            (hooks.beginDrag?.(world, target) ?? false),
+            (hooks.beginDrag?.(this.world(point.x, point.y), target) ?? false),
         };
       } else if (this.#pointers.size === 2) {
         const initial = this.#pair();
@@ -117,7 +118,7 @@ export class EditorCamera {
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
-          anchor: this.world(initial.mid.x, initial.mid.y),
+          anchor: this.#view(initial.mid.x, initial.mid.y),
           bounds: this.#bounds,
         };
       }
@@ -137,13 +138,13 @@ export class EditorCamera {
         if (Math.hypot(point.x - gesture.first.x, point.y - gesture.first.y) < 5) return;
         gesture.moved = true;
       }
-      const world = this.world(point.x, point.y);
       if (gesture.dragging) {
-        hooks.drag?.(world);
+        hooks.drag?.(this.world(point.x, point.y));
         return;
       }
-      const old = this.world(before.x, before.y);
-      this.#pan(old.x - world.x, old.y - world.y);
+      const old = this.#view(before.x, before.y);
+      const next = this.#view(point.x, point.y);
+      this.#pan(old.x - next.x, old.y - next.y);
     });
     const finish = (event: PointerEvent): void => {
       if (!this.#pointers.delete(event.pointerId)) return;
@@ -161,11 +162,11 @@ export class EditorCamera {
     // Keyboard-generated clicks have no pointer sequence.
     host.addEventListener("click", (event) => {
       if (event.detail !== 0 || !(event.target instanceof SVGElement)) return;
-      hooks.tap(this.center, event.target);
+      hooks.tap(this.#turn(this.#center, -this.#angle), event.target);
     });
   }
 
-  get center(): Point {
+  get #center(): Point {
     if (!this.#bounds) return { x: 0, y: 0 };
     const { x, y, width, height } = this.#bounds;
     return { x: x + width / 2, y: y + height / 2 };
@@ -173,19 +174,36 @@ export class EditorCamera {
 
   show(scene: SVGSVGElement, fit = false): void {
     this.#scene = scene;
+    const drawing = scene.querySelector<SVGGElement>("[data-scene-drawing]");
+    if (!drawing) throw new Error("Missing canvas drawing.");
+    this.#drawing = drawing;
     if (!this.#bounds || fit) {
       const layout = scene.getAttribute("data-layout-view-box");
       if (layout) scene.setAttribute("viewBox", layout);
       const bounds = scene.viewBox.baseVal;
-      this.#bounds = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height };
+      const start = this.#turn(bounds, this.#angle);
+      const end = this.#turn(
+        { x: bounds.x + bounds.width, y: bounds.y + bounds.height },
+        this.#angle,
+      );
+      this.#bounds = {
+        x: Math.min(start.x, end.x),
+        y: Math.min(start.y, end.y),
+        width: Math.abs(end.x - start.x),
+        height: Math.abs(end.y - start.y),
+      };
     }
     if (this.#host.firstElementChild !== scene) this.#host.replaceChildren(scene);
     this.#update();
   }
 
   world(x: number, y: number): Point {
+    return this.#turn(this.#view(x, y), -this.#angle);
+  }
+
+  #view(x: number, y: number): Point {
     const matrix = this.#scene?.getScreenCTM();
-    if (!matrix) return this.center;
+    if (!matrix) return this.#center;
     const point = new DOMPoint(x, y).matrixTransform(matrix.inverse());
     return { x: point.x, y: point.y };
   }
@@ -197,15 +215,16 @@ export class EditorCamera {
   }
 
   hit(point: Point): Element[] {
-    const matrix = this.#scene?.getScreenCTM();
+    const matrix = this.#drawing?.getScreenCTM();
     if (!matrix) return [];
     const pixel = new DOMPoint(point.x, point.y).matrixTransform(matrix);
     return document.elementsFromPoint(pixel.x, pixel.y);
   }
 
-  zoom(factor: number, anchor = this.center): void {
+  zoom(factor: number, worldAnchor?: Point): void {
     const bounds = this.#bounds;
     if (!bounds) return;
+    const anchor = worldAnchor ? this.#turn(worldAnchor, this.#angle) : this.#center;
     const scale = this.#limitScale(factor, bounds);
     this.#bounds = {
       x: anchor.x - (anchor.x - bounds.x) * scale,
@@ -214,6 +233,29 @@ export class EditorCamera {
       height: bounds.height * scale,
     };
     this.#update();
+  }
+
+  rotateView(): void {
+    const bounds = this.#bounds;
+    if (!bounds || this.#pointers.size) return;
+    const center = this.#turn(this.#center, 90);
+    this.#angle = (this.#angle + 90) % 360;
+    this.#bounds = {
+      x: center.x - bounds.height / 2,
+      y: center.y - bounds.width / 2,
+      width: bounds.height,
+      height: bounds.width,
+    };
+    this.#update();
+  }
+
+  reset(): void {
+    this.#angle = 0;
+    this.#bounds = undefined;
+  }
+
+  #turn(point: Point, angle: number): Point {
+    return new DOMMatrix().rotate(angle).transformPoint(point);
   }
 
   #limitScale(scale: number, bounds: Bounds): number {
@@ -247,7 +289,7 @@ export class EditorCamera {
       height: pinch.bounds.height * scale,
     };
     this.#update();
-    const center = this.world(next.mid.x, next.mid.y);
+    const center = this.#view(next.mid.x, next.mid.y);
     this.#pan(pinch.anchor.x - center.x, pinch.anchor.y - center.y);
   }
 
@@ -257,6 +299,9 @@ export class EditorCamera {
     const viewBox = `${x} ${y} ${width} ${height}`;
     if (this.#scene.getAttribute("viewBox") !== viewBox)
       this.#scene.setAttribute("viewBox", viewBox);
+    const rotation = `rotate(${this.#angle})`;
+    if (this.#drawing?.getAttribute("transform") !== rotation)
+      this.#drawing?.setAttribute("transform", rotation);
     this.#updateDetail();
   }
 

@@ -12,9 +12,9 @@ opens with both mainlines and the automatic baseplate grid already in place.
 
 Choose the assigned mainline shape.
 
-- **Straight** puts both NILTC mainlines along the selected public edge.
-- **Curve** puts both mainlines around the selected public corner using an
-  R120 outer line and an R104 inner line.
+- **Straight** puts both NILTC mainlines along the top plexiglass edge.
+- **Curve** puts an R120 outer line and an R104 inner line around the top-left
+  or top-right public corner. The width and depth stay on the same drawing axes.
 - **General layout** creates a fully covered design area without a NILTC
   mainline.
 
@@ -82,6 +82,12 @@ placement options or the drawing and preview again.
 - **Parking siding** creates a back-out or drive-through place behind the
   mainline.
 - **Double crossover** changes between two parallel tracks.
+- **Right pass-through single crossover R40** changes between the two outer
+  tracks across a separate middle route. It fits three 32-stud straight runs
+  at 16-stud spacing.
+- **T-junction R40** branches from an 80-stud straight run to a perpendicular
+  track. **T-junction R40-R56** branches from two 96-stud straight runs at
+  16-stud spacing to two perpendicular tracks.
 - **Triple switch** opens three routes from one entrance. Choose it on an open
   track or a free area, choose **Preview on track**, then use **Fit location**
   to choose between available placements before **Add to layout**.
@@ -127,7 +133,9 @@ choose **Apply position**. X increases to the right and Y increases down.
 Use **Delete selected track** in the toolbar to remove the selection. A piece
 that carries a named mainline handoff must stay in place. Undo and Redo apply
 one design operation at a time. Drag empty space or scroll with two fingers
-to pan. Pinch or Control-scroll to zoom.
+to pan. Pinch or Control-scroll to zoom. Use the rotate button beside **Fit
+view** to turn the view 90 degrees clockwise. The saved plan keeps its original
+orientation and coordinates.
 
 The parts panel totals physical pieces in the current design. The findings
 panel reports track outside the design area, protected NILTC mainline findings,

@@ -5,8 +5,10 @@ import test from "node:test";
 
 import catalog from "../data/catalog.json" with { type: "json" };
 import straightExamples from "../data/straight_examples.json" with { type: "json" };
-import { commitItems } from "../src/arrangements.ts";
+import { findArrangementAnchors } from "../src/arrangement_anchors.ts";
+import { commitItems, previewArrangement } from "../src/arrangements.ts";
 import { openTrackPlan } from "../src/ldraw.ts";
+import { newProject } from "../src/project.ts";
 import { showInventory } from "../src/show_inventory.ts";
 
 const template = (name) =>
@@ -319,3 +321,77 @@ function reachableEndpoints(routes, start) {
 function reaches(routes, start, target) {
   return reachableEndpoints(routes, start).has(endpointKey(target));
 }
+
+test("the TrixBrix T-junctions and pass-through fit their mainlines and preserve separate routes", () => {
+  const mainline = template("member-straight");
+  const thirdLane = mainline.items
+    .filter(({ id }) => id.startsWith("inner-"))
+    .map((item) => ({ ...item, id: `third-${item.id}`, y: item.y + 16 }));
+  const triple = { ...mainline, items: [...mainline.items, ...thirdLane] };
+  /** @type {[string, [number, number][], string[]][]} */
+  const products = [
+    [
+      "r40-right-pass-through",
+      [
+        [-32, -16],
+        [0, -16],
+        [-16, 0],
+        [16, 0],
+        [0, 16],
+        [32, 16],
+      ],
+      ["0-1", "0-5", "2-3", "4-5"],
+    ],
+    [
+      "r40-t-junction",
+      [
+        [0, 0],
+        [80, 0],
+        [40, 40],
+      ],
+      ["0-1", "0-2", "1-2"],
+    ],
+    [
+      "r40-r56-t-junction",
+      [
+        [0, 0],
+        [96, 0],
+        [0, 16],
+        [96, 16],
+        [40, 56],
+        [56, 56],
+      ],
+      ["0-1", "0-5", "1-4", "2-3", "2-4", "3-5"],
+    ],
+  ];
+  for (const [id, ends, expected] of products) {
+    const kitId = `trixbrix:${id}`;
+    const pose = { x: 48, y: 48, angle: 0 };
+    const placement = previewArrangement(newProject(), catalog, { kitId, pose });
+    assert.ok(placement.ok, JSON.stringify(placement.issues));
+    const { ports, routes } = evaluate(placement.project);
+    const open = ports.filter(({ type, joined }) => type === "regular" && !joined);
+    assert.equal(open.length, ends.length, id);
+    const endpoints = ends.map(([x, y]) => {
+      const port = open.find((port) => Math.hypot(port.x - pose.x - x, port.y - pose.y - y) < 0.05);
+      assert.ok(port, `${id} has an exit at ${x}, ${y}`);
+      return port;
+    });
+    const actual = endpoints.flatMap((start, a) =>
+      endpoints.flatMap((end, b) => (a < b && reaches(routes, start, end) ? [`${a}-${b}`] : [])),
+    );
+    assert.deepEqual(actual, expected, id);
+    const passThrough = id === "r40-right-pass-through";
+    if (passThrough) {
+      assert.match(
+        findArrangementAnchors(mainline, catalog, kitId, 2).reason,
+        /3 aligned parallel tracks/,
+      );
+    }
+    const fit = findArrangementAnchors(passThrough ? triple : mainline, catalog, kitId, 2);
+    assert.ok(
+      fit.anchors.some(({ replaceIds }) => replaceIds.length >= (passThrough ? 6 : 5)),
+      id,
+    );
+  }
+});

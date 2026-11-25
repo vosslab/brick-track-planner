@@ -16,6 +16,10 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   display, and yards that store and dispatch trains.
 - Roger chooses whether a member gets a straight or curve assignment. The
   software needs to design a complete buildable track plan for either one.
+- Start with the plexiglass at the top. Straight needs one orientation and
+  Curve needs two mirrored choices. Let members rotate the view.
+- Include the TrixBrix right pass-through single crossover R40 and both
+  T-junctions, R40 and R40-R56.
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.

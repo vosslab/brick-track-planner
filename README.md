@@ -40,8 +40,9 @@ For a shorter siding, open **Placement options** before previewing and
 choose 32 or 0 studs of added straight storage.
 
 Choose **Open track plan** to continue a saved LDraw file. For a corner assignment, choose
-**Curve** and select the public corner. The starter uses R120 on the outside
-and R104 on the inside. Choose **General** to lay your own track on a covered area.
+**Curve** and choose the top-left or top-right corner. The starter uses R120 on
+the outside and R104 on the inside. Use the rotate button beside **Fit view** to
+turn the drawing. Choose **General** to lay your own track on a covered area.
 
 ## Plan a larger yard
 

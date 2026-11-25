@@ -91,7 +91,7 @@
 }
 .build-modes input[type="radio"],
 .assignment-options input[type="radio"],
-.edge-options input[type="radio"] {
+.curve-options input[type="radio"] {
   inline-size: 1rem;
   block-size: 1rem;
   flex: 0 0 1rem;
