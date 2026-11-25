@@ -147,6 +147,12 @@ to pan. Pinch or Control-scroll to zoom. Use the rotate button beside **Fit
 view** to turn the view 90 degrees clockwise. The saved plan keeps its original
 orientation and coordinates.
 
+To duplicate a piece, select it and press **Command+C** on macOS or **Ctrl+C**
+elsewhere. Press **Command+V** or **Ctrl+V**, then click where the copy should
+go. Press **Enter** to place it at the center of the current view, or **Esc**
+to cancel. The copy keeps its angle and rail height. You can paste into
+another plan opened in the same tab.
+
 The parts panel totals physical pieces in the current design. The findings
 panel reports track outside the design area, protected NILTC mainline findings,
 and imported parts without usable geometry. Open rail ends remain visible as

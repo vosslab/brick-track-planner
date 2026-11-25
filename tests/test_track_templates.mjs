@@ -126,14 +126,16 @@ test("every straight example fits and connects the intended routes", () => {
       showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
     );
     const privateJunction = code === "TJ56";
+    const privateYard = code === "8TRY";
+    const general = privateJunction || privateYard;
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
-      [frontage * 3.2, 128, privateJunction ? undefined : "straight"],
+      [frontage * 3.2, 128, general ? undefined : "straight"],
       `${name} uses its intended frontage and depth`,
     );
     assert.deepEqual(
       result.project.area.fronts,
-      privateJunction ? [] : ["north"],
+      general ? [] : ["north"],
       `${name} uses the intended public edge`,
     );
     assert.deepEqual(result.niltcIssues, [], `${name} preserves the required mainline geometry`);
@@ -150,6 +152,23 @@ test("every straight example fits and connects the intended routes", () => {
       .sort()
       .join("|");
     fingerprints.add(fingerprint);
+
+    if (privateYard) {
+      const open = result.ports
+        .filter(({ type, joined }) => type === "regular" && !joined)
+        .sort((a, b) => a.y - b.y);
+      assert.equal(open.length, 8);
+      for (const [row, port] of open.entries()) {
+        assert.ok(Math.hypot(port.x - 192, port.y - (8 + 16 * row)) < 0.05);
+        assert.ok(Math.min(port.angle, 360 - port.angle) < 0.05);
+      }
+      for (const rear of open.slice(4)) {
+        for (const front of open.slice(0, 4)) {
+          assert.ok(reaches(result.routes, rear, front), "each rear row reaches every front row");
+        }
+      }
+      continue;
+    }
 
     if (privateJunction) {
       const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);

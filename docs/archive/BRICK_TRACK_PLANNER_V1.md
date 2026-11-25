@@ -140,7 +140,7 @@ sections, venue planning, member bring lists, 4DBrix expansion, BlueBrick export
 - Rust owns deterministic geometry and analysis in one root Cargo library. Use a thin
   `wasm-bindgen` adapter, generated TypeScript declarations, and
   `wasm-pack --target web --release` for `wasm32-unknown-unknown`.
-  [Rust browser target](https://doc.rust-lang.org/rustc/platform-support/wasm32-unknown-unknown)
+  [Rust browser target](https://doc.rust-lang.org/rustc/platform-support/wasm32-unknown-unknown.html)
   [Browser packaging](https://wasm-bindgen.github.io/wasm-bindgen/examples/without-a-bundler.html)
 - Fix the shared contract in M3. Attached items have a `tableId` and local pose. Loose items
   have a world pose. Track heights are independent of table transforms. A seam stores two table
@@ -199,7 +199,7 @@ Use 8 ms geometry and 16.7 ms update-to-draw p95 as diagnostic targets for visib
 
 - Provide one verification command and CI job that build and stage `dist/`, exercise the demos,
   and retain the PDF, image, and CAD evidence.
-- Use the root [deploy-pages.yml](../../../deploy-pages.yml) as the canonical workflow source.
+- Use the root [deploy-pages.yml](../../deploy-pages.yml) as the canonical workflow source.
   To activate Pages, copy it to `.github/workflows/deploy-pages.yml` and select GitHub Actions
   as the Pages source. Artifact verification runs independently of publication.
 - Close on a verified Pages-ready artifact using published references, authored fixtures, and

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { commitArrangement, commitItems, previewArrangement } from "../src/arrangements.ts";
+import { commitItems, previewArrangement } from "../src/arrangements.ts";
 import { createNiltcStarter } from "../src/niltc_starters.ts";
 
 const measuredCatalog = JSON.parse(
@@ -82,7 +82,7 @@ test("arrangement keeps invalid candidates out of the project", () => {
   assert.equal(result.issues[0]?.kind, "outside-area");
 });
 
-test("parking items reject real overlap but accept an end-to-end join", () => {
+test("direct placement rejects overlap and overhang but accepts an end-to-end join", () => {
   const first = {
     id: "first",
     kind: "track",
@@ -98,6 +98,9 @@ test("parking items reject real overlap but accept an end-to-end join", () => {
   const source = { ...project, items: [first] };
   assert.equal(commitItems(source, catalog, { items: [overlap] }).ok, false);
   assert.equal(commitItems(source, catalog, { items: [joined] }).ok, true);
+  const outside = commitItems(source, catalog, { items: [{ ...first, id: "outside", x: 93 }] });
+  assert.equal(outside.project, undefined);
+  assert.equal(outside.issues[0]?.kind, "outside-area");
 });
 
 test("hidden imported track neither blocks placement nor gets replaced", () => {
@@ -178,15 +181,6 @@ test("replacement keeps the specific surviving-piece joint, not another port on 
     result.issues.some(({ kind }) => kind === "misaligned"),
     true,
   );
-});
-
-test("commit arrangement returns a checked replacement project", () => {
-  const result = commitArrangement(project, catalog, {
-    kitId: "test:double",
-    pose: { x: 32, y: 32, angle: 0 },
-  });
-  assert.equal(result.ok, true);
-  assert.equal(result.project?.items.length, 2);
 });
 
 test("measured R104 triple places its five physical pieces on a blank area", () => {

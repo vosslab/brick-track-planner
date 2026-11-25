@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 
-const { traceRoute } = await import("../dist/route_trace.js").catch(
-  async () => import("../src/route_trace.ts"),
-);
+import { traceRoute } from "../src/route_trace.ts";
 
 const endpoint = (pieceId, portId) => ({ pieceId, portId });
 const mainline = endpoint("main", "west");

@@ -163,7 +163,29 @@ test("R104 double crossover joins fourteen physical parts into four selectable r
   ]);
 });
 
-test("R56 complete pass-through has six real exits and leaves its center isolated", () => {
+test("the R104 triple connects its common end to all three branches", () => {
+  verifyKit(
+    "trixbrix:r104-triple-kit",
+    5,
+    4,
+    [
+      { piece: 2, portId: "through" },
+      { piece: 3, portId: "branch" },
+      { piece: 4, portId: "branch" },
+    ].map((exit) => [{ piece: 0, portId: "a" }, exit]),
+  );
+});
+
+test("R56 pass-through has three independent crossing paths and six installed exits", () => {
+  const body = parts.get("trixbrix:r56-double-pass-through");
+  assert.deepEqual(
+    body.routes.map(({ from, to }) => [from, to]),
+    [
+      ["center-west", "center-east"],
+      ["west-north", "east-south"],
+      ["west-south", "east-north"],
+    ],
+  );
   verifyKit("trixbrix:r56-double-pass-through-complete", 11, 6, [
     [
       { piece: 4, portId: "a" },
@@ -179,12 +201,9 @@ test("R56 complete pass-through has six real exits and leaves its center isolate
     ],
   ]);
   const kit = kits.get("trixbrix:r56-double-pass-through-complete");
+  const links = installedLinks(kit, installedPorts(kit));
   assert.equal(
-    reaches(
-      installedLinks(kit, installedPorts(kit)),
-      { piece: 4, portId: "a" },
-      { piece: 0, portId: "common" },
-    ),
+    reaches(links, { piece: 4, portId: "a" }, { piece: 0, portId: "common" }),
     false,
     "the center route does not enter a crossover route",
   );

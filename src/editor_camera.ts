@@ -15,6 +15,7 @@ export class EditorCamera {
   readonly #pointers = new Map<number, Point>();
   #gesture: Gesture | undefined;
   #pinch: Pinch | undefined;
+  // Bounds follow the rotated view. Track edits stay in unrotated design coordinates.
   #bounds: Bounds | undefined;
   #scene: SVGSVGElement | undefined;
   #drawing: SVGGElement | undefined;
@@ -212,13 +213,6 @@ export class EditorCamera {
     const matrix = this.#scene?.getScreenCTM();
     const radius = matrix ? 12 / Math.hypot(matrix.a, matrix.b) : 3;
     return Math.max(1, Math.min(6, radius));
-  }
-
-  hit(point: Point): Element[] {
-    const matrix = this.#drawing?.getScreenCTM();
-    if (!matrix) return [];
-    const pixel = new DOMPoint(point.x, point.y).matrixTransform(matrix);
-    return document.elementsFromPoint(pixel.x, pixel.y);
   }
 
   zoom(factor: number, worldAnchor?: Point): void {

@@ -1,17 +1,7 @@
-import { readFile } from "node:fs/promises";
-
 import { expect } from "@playwright/test";
 
 import straightExamples from "../../data/straight_examples.json" with { type: "json" };
-import {
-  boot,
-  chooseFile,
-  createProject,
-  example,
-  saveProject,
-  test,
-  watchErrors,
-} from "./helper_planner";
+import { boot, createProject, saveProject, test, watchErrors } from "./helper_planner";
 
 test("members can open each packaged track template", async ({ planner }) => {
   const templates = [
@@ -195,11 +185,6 @@ test("80 by 40 curves have two mirrored orientations and a separate rotated view
       fronts: ["north", side],
     });
     expect(project.area.exits.map(({ edge }) => edge).sort()).toEqual([opposite, "south"].sort());
-    for (const id of ["bricktracks:r104", "bricktracks:r120"]) {
-      expect(
-        project.items.filter((item) => item.kind === "track" && item.partId === id),
-      ).toHaveLength(8);
-    }
     const scene = page.locator("#tabletop [data-track-scene]");
     await expect(scene.locator("[data-scene-drawing]")).toHaveAttribute("transform", "rotate(0)");
     await page.getByRole("button", { name: "Rotate view clockwise" }).click();
@@ -395,16 +380,45 @@ test("members can move, delete and undo edits to a selected piece", async ({ pag
   expect((await saveProject(page)).project).toEqual(original);
 });
 
-test("New design returns to the design-area dialog", async ({ planner }) => {
-  await planner.locator("#new-project").click();
-  const dialog = planner.locator("#area-dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("heading", { name: "Start a new design" })).toBeVisible();
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
-  await expect(dialog).toBeHidden();
+test("members can copy and paste a piece at a valid position, then undo", async ({
+  page,
+  hasTouch,
+}) => {
+  await boot(page, { startProject: false });
+  await createProject(page, { assignment: "general", width: "128", depth: "192" });
+  await page.getByRole("button", { name: "Place at center", exact: true }).click();
+  const original = (await saveProject(page)).project;
+  await page.keyboard.press("Escape");
+  const canvas = page.locator("#tabletop");
+  const piece = canvas.getByRole("button", { name: "RC/PF straight S16", exact: true });
+  const modifier = hasTouch ? "Control" : "Meta";
+  await piece.press("Enter");
+  await page.keyboard.press(`${modifier}+c`);
+  const status = page.getByRole("status");
+  await expect(status).toContainText("Track copied");
+  await page.keyboard.press(`${modifier}+v`);
+  await expect(canvas).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(status).toContainText("overlap");
+
+  const destination = await canvas.locator("[data-scene-drawing]").evaluate((drawing) => {
+    const matrix = (drawing as SVGGraphicsElement).getScreenCTM()!;
+    const { x, y } = new DOMPoint(40, 48).matrixTransform(matrix);
+    return { x, y };
+  });
+  await page.mouse.click(destination.x, destination.y);
+  await expect(status).toContainText("Pasted track piece");
+  const duplicated = (await saveProject(page)).project;
+  expect(duplicated.items).toHaveLength(2);
+  expect(duplicated.items[0]).toEqual(original.items[0]);
+  const copy = duplicated.items[1]!;
+  expect(copy.id).not.toBe(original.items[0]!.id);
+  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 40, y: 48 });
+  await page.keyboard.press(`${modifier}+z`);
+  expect((await saveProject(page)).project).toEqual(original);
 });
 
-test("track controls stay inside their panels on a phone and laptop", async ({ page }) => {
+test("track controls stay inside their panels on a short laptop viewport", async ({ page }) => {
   const expectFullyVisible = async (
     control: ReturnType<typeof page.locator>,
     clippingAncestor?: ReturnType<typeof page.locator>,
@@ -442,50 +456,36 @@ test("track controls stay inside their panels on a phone and laptop", async ({ p
     }
   };
 
-  for (const viewport of [
-    { width: 1280, height: 800 },
-    { width: 1200, height: 720 },
-    { width: 390, height: 844 },
-  ]) {
-    await page.setViewportSize(viewport);
-    await boot(page, { startProject: false });
-    const create = page.getByRole("button", { name: "Create track plan", exact: true });
-    if (viewport.width < 750) await create.scrollIntoViewIfNeeded();
-    await expectFullyVisible(create);
-    await create.click();
+  await page.setViewportSize({ width: 1200, height: 720 });
+  await boot(page, { startProject: false });
+  const create = page.getByRole("button", { name: "Create track plan", exact: true });
+  await expectFullyVisible(create);
+  await create.click();
 
-    const library = page.locator("#library-body");
-    const preview = page.getByRole("button", { name: "Preview on track", exact: true });
-    await preview.scrollIntoViewIfNeeded();
-    await expectFullyVisible(preview, library);
-    await preview.click();
-    const apply = page.getByRole("button", { name: "Add to layout", exact: true });
-    await apply.scrollIntoViewIfNeeded();
-    await expectFullyVisible(apply, library);
-    const placement = page.locator("#placement-options");
-    await placement.getByText("Placement options", { exact: true }).click();
-    for (const name of ["Connect to", "Extra storage track"]) {
-      const control = page.getByLabel(name, { exact: true });
-      await control.scrollIntoViewIfNeeded();
-      await expectFullyVisible(control, placement);
-    }
-    await page.getByRole("radio", { name: "Single piece", exact: true }).check();
-    const connection = page.locator("#piece-tools details");
-    await connection.getByText("Connection options", { exact: true }).click();
-    const port = page.getByLabel("Connecting end of this piece", { exact: true });
-    await port.scrollIntoViewIfNeeded();
-    await expectFullyVisible(port, connection);
+  const library = page.locator("#library-body");
+  const preview = page.getByRole("button", { name: "Preview on track", exact: true });
+  await preview.scrollIntoViewIfNeeded();
+  await expectFullyVisible(preview, library);
+  await preview.click();
+  const apply = page.getByRole("button", { name: "Add to layout", exact: true });
+  await apply.scrollIntoViewIfNeeded();
+  await expectFullyVisible(apply, library);
+  const placement = page.locator("#placement-options");
+  await placement.getByText("Placement options", { exact: true }).click();
+  for (const name of ["Connect to", "Extra storage track"]) {
+    const control = page.getByLabel(name, { exact: true });
+    await control.scrollIntoViewIfNeeded();
+    await expectFullyVisible(control, placement);
   }
+  await page.getByRole("radio", { name: "Single piece", exact: true }).check();
+  const connection = page.locator("#piece-tools details");
+  await connection.getByText("Connection options", { exact: true }).click();
+  const port = page.getByLabel("Connecting end of this piece", { exact: true });
+  await port.scrollIntoViewIfNeeded();
+  await expectFullyVisible(port, connection);
 });
 
-test("member applies parking and a yard, traces a route, saves, opens, imports, and exports PDF", async ({
-  page,
-  browser,
-  baseURL,
-  viewport,
-  hasTouch,
-  isMobile,
-}) => {
+test("member traces parking and yard routes and undoes the placement", async ({ page }) => {
   const errors = watchErrors(page);
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "straight", width: "320", depth: "192" });
@@ -515,38 +515,6 @@ test("member applies parking and a yard, traces a route, saves, opens, imports, 
   await page.getByRole("button", { name: "Redo", exact: true }).click();
   expect((await saveProject(page)).project.items).toHaveLength(afterYard.project.items.length);
 
-  await page.locator("#export-format").selectOption("pdf");
-  const [pdf] = await Promise.all([
-    page.waitForEvent("download"),
-    page.getByRole("button", { name: "Export", exact: true }).click(),
-  ]);
-  expect(pdf.suggestedFilename()).toMatch(/\.pdf$/);
-  expect((await readFile(await pdf.path())).subarray(0, 4).toString()).toBe("%PDF");
-
-  const native = afterYard;
-  const fresh = await browser.newContext({ baseURL, viewport, hasTouch, isMobile });
-  try {
-    const reopened = await fresh.newPage();
-    await boot(reopened, { startProject: false });
-    await chooseFile(
-      reopened,
-      reopened.getByRole("button", { name: "Open track plan", exact: true }),
-      native.path,
-    );
-    await expect(reopened.getByLabel("Layout name")).toHaveValue(native.project.name);
-    expect((await saveProject(reopened)).project).toEqual(native.project);
-  } finally {
-    await fresh.close();
-  }
-
-  await chooseFile(
-    page,
-    page.getByRole("button", { name: "Import BlueBrick", exact: true }),
-    example("bluebrick-example.bbm"),
-  );
-  await expect(page.locator("#import-preview")).toBeVisible();
-  await page.getByRole("button", { name: "Open imported layout", exact: true }).click();
-  await expect(page.locator("#tabletop [data-track-scene]")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

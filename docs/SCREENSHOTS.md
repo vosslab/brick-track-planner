@@ -84,10 +84,21 @@ Open these plans with **Browse straight examples**. Both collections use
 ![A four-track yard with three storage tracks ending at the right edge and access from both mainlines](screenshots/example_4try.webp)
 <!-- screenshots:end -->
 
-#### TJ56 - R40–R56 T-junction
+#### TJ56 - R40&ndash;R56 T-junction
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![The R40–R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
+![The R40&ndash;R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
+<!-- screenshots:end -->
+
+#### 8TRY - Eight-track ladder yard
+
+Two mirrored R40 switch ladders share a turnback along the left edge. All
+eight rows end flush on the right, with 48 to 112 studs of straight track.
+In **Diagnostics**, select the open end at (192, 120) in the route dropdown.
+Choose **Trace route**, then click the right end of the frontmost row.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Eight parallel yard tracks with two switch ladders and a shared left-edge return](screenshots/example_8try.webp)
 <!-- screenshots:end -->
 
 ### 40 by 40 inches

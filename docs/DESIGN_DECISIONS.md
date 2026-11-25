@@ -22,9 +22,14 @@ venue placement, members, and movable baseplates are absent from version 3.
 
 ### Keep the top edge public in new member designs
 
-Start straight assignments along the top and offer two mirrored corners at
-the entered dimensions. Quarter turns affect the editor camera. The files
-keep the orientation and coordinates they have on opening.
+**Decision.** Start straight assignments along the top and offer two mirrored
+corners at the entered dimensions.
+
+**Why.** A common plexiglass edge gives members the same frame of reference
+when comparing display plans.
+
+**Consequence.** Quarter turns affect the editor view. Saved files keep their
+original track positions and orientations.
 
 **Owner.** [area_form.ts](../src/area_form.ts),
 [editor_camera.ts](../src/editor_camera.ts)
@@ -75,7 +80,7 @@ it requires.
 **Consequence.** Keep the list in track count order when editing the plans.
 PFS, 4TRY, and PFS40 use a west crossover to serve every storage track
 from both mainlines while keeping both through routes.
-TJ56 uses a General plan because the R40–R56 assembly has less than the
+TJ56 uses a General plan because the R40&ndash;R56 assembly has less than the
 NILTC-required spacing between the inner switches and the crossing.
 
 **Owner.** [straight_examples.json](../data/straight_examples.json)

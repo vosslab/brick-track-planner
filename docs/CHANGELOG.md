@@ -4,6 +4,10 @@
 
 ### Behavior or Interface Changes
 
+- Copy and paste selected track with Command+C and Command+V on macOS or Ctrl+C
+  and Ctrl+V elsewhere. Place each copy in the drawing as an undoable edit.
+- Add 8TRY, a 60 by 40 inch yard with two four-track ladders and a shared
+  return from the rear tracks to the front tracks.
 - Name the two turnaround templates R104 semicircle return and R120 corner return.
 - Replace U-shaped staging with two editable turnarounds based on the
   Downers Grove and Aurora show plans.
@@ -46,6 +50,14 @@
 
 ### Fixes and Maintenance
 
+- Match the R40 left turnout footprint to its mirrored right counterpart
+  so the measured left ladder fits.
+- Refresh the README around the first siding build and current examples.
+- Archive the completed v1 and v-final plans, progress notes, and fixture.
+- Fix the rotate control's HTML encoding, remove an unused camera helper,
+  and complete the top-edge decision record.
+- Remove duplicate geometry, template, and browser checks while keeping route,
+  layout fit, and screenshot alignment coverage.
 - Refresh the layout screenshots and capture the two curve options in the
   Playwright alignment checks.
 - Capture full editor screenshots for every bundled layout, show the blank
@@ -190,7 +202,7 @@
   coordinate tests. Kept the native-to-browser Wasm comparison and end-to-end editing and export
   coverage.
 - Recorded local release evidence in
-  [BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md](active_plans/active/BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md).
+  [BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md](archive/BRICK_TRACK_PLANNER_VFINAL_PROGRESS.md).
 - Run `./build_github_pages.sh` before the first standalone `./check_codebase.sh` to generate Wasm
   TypeScript declarations.
 - Moved the Playwright Pages server into a Python helper invoked through `source_me.sh`. Its

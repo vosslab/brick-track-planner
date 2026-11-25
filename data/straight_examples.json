@@ -59,8 +59,15 @@
     "code": "TJ56",
     "frontage": 60,
     "file": "r40_r56_t_junction.ldr",
-    "name": "R40–R56 T-junction",
+    "name": "R40\u2013R56 T-junction",
     "purpose": "Use two perpendicular spurs on a private double-track line."
+  },
+  {
+    "code": "8TRY",
+    "frontage": 60,
+    "file": "eight_track_ladder_yard.ldr",
+    "name": "Eight-track ladder yard",
+    "purpose": "Push from the rearmost row to the front row through a left-edge turnback. Eight parallel tracks end flush on the right."
   },
   {
     "code": "ML40",

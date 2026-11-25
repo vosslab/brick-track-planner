@@ -55,7 +55,8 @@ class Planner {
 
   constructor(catalog: Catalog) {
     this.#catalog = catalog;
-    this.#camera = new EditorCamera(element("tabletop"), {
+    const tabletop = element("tabletop");
+    this.#camera = new EditorCamera(tabletop, {
       tap: (point, target): void => {
         if (!this.#arrangements.pick(point))
           this.#tracks.pick(point, target, this.#camera.snapRadius);
@@ -136,26 +137,42 @@ class Planner {
     };
     document.addEventListener("keydown", (event) => {
       if (
+        event.defaultPrevented ||
         document.querySelector("dialog[open]") ||
         event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLSelectElement
+        event.target instanceof HTMLSelectElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
       )
         return;
       if (!this.#state) return;
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      const shortcut = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+      if (shortcut && key === "z") {
         event.preventDefault();
         this.#history(event.shiftKey ? "redo" : "undo");
+      } else if (shortcut && !event.altKey && !event.shiftKey && key === "c") {
+        if (window.getSelection()?.isCollapsed !== false && this.#tracks.copy())
+          event.preventDefault();
+      } else if (shortcut && !event.altKey && !event.shiftKey && key === "v") {
+        if (this.#tracks.startPaste()) event.preventDefault();
       } else if (event.key === "Escape") {
         this.#reset();
       } else if (["Backspace", "Delete"].includes(event.key) && this.#tracks.selection.size) {
         event.preventDefault();
         this.#tracks.remove();
-      } else if (event.key === "Enter" && event.target instanceof SVGElement) {
-        const port = event.target.closest<SVGElement>("[data-piece-id]");
-        if (port) {
-          const rect = port.getBoundingClientRect();
+      } else if (event.key === "Enter") {
+        const target = event.target;
+        const placement =
+          target === tabletop && this.#tracks.pasting
+            ? tabletop
+            : target instanceof SVGElement
+              ? target.closest<SVGElement>("[data-piece-id]")
+              : null;
+        if (placement) {
+          const rect = placement.getBoundingClientRect();
           const point = this.#camera.world(rect.x + rect.width / 2, rect.y + rect.height / 2);
-          this.#tracks.pick(point, port, this.#camera.snapRadius);
+          this.#tracks.pick(point, placement, this.#camera.snapRadius);
         }
       }
     });

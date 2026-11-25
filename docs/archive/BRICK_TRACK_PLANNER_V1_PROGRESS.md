@@ -23,7 +23,7 @@ GitHub Pages artifact.
 
 The retired release examples have been replaced with editable LDraw templates.
 The retained BlueBrick example is
-[bluebrick-example.bbm](../../../examples/bluebrick-example.bbm).
+[bluebrick-example.bbm](../../examples/bluebrick-example.bbm).
 
 The full gate passed 15 Rust tests, 13 TypeScript tests, and 19 Playwright checks. The repository's
 separate Python suite passed 1,004 checks. The four intentional Playwright skips cover two

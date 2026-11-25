@@ -1,7 +1,7 @@
 # Brick Track Planner v-final
 
 This historical plan describes the retired section-bundle design. The current
-planner uses [editable LDraw track templates](../../FILE_FORMAT.md).
+planner uses [editable LDraw track templates](../FILE_FORMAT.md).
 
 ## Finish line
 
@@ -13,7 +13,7 @@ members where their tables go and what to bring.
 
 TypeScript owns editing, undo, and documents. Stateless Rust/Wasm evaluates connector geometry,
 snapping, tabletop support, and venue fit. The view stays top-down with whole-plate height offsets.
-The root [deploy-pages.yml](../../../deploy-pages.yml) stays the canonical workflow for manual
+The root [deploy-pages.yml](../../deploy-pages.yml) stays the canonical workflow for manual
 GitHub entry. Completion means a verified local Pages artifact at `/brick-track-planner/`.
 Hosted publishing is independent of implementation and acceptance.
 

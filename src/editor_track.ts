@@ -30,11 +30,14 @@ function key(endpoint: Endpoint): string {
   return JSON.stringify([endpoint.pieceId, endpoint.portId]);
 }
 
+const pasteHint = "Click to place the copy, or press Enter for the view center. Esc cancels.";
+
 export class TrackTools {
   readonly #catalog: Catalog;
   readonly #hooks: Hooks;
-  #mode: "extend" | "trace" | undefined;
+  #mode: "extend" | "trace" | "paste" | undefined;
   #selected: string | undefined;
+  #copied: TrackItem | undefined;
   #moving: Move | undefined;
   #route: RouteLink[] = [];
   #openEnds = new Map<string, Analysis["ports"][number]>();
@@ -126,23 +129,46 @@ export class TrackTools {
     return this.#route;
   }
   get pickingPort(): boolean {
-    return Boolean(this.#mode);
+    return this.#mode === "extend" || this.#mode === "trace";
+  }
+  get pasting(): boolean {
+    return this.#mode === "paste";
   }
   get extendablePorts(): Pick<ReadonlySet<string>, "has"> | undefined {
     return this.#mode === "extend" ? this.#openEnds : undefined;
   }
 
   stopPicking(): void {
+    const wasPasting = this.pasting;
     this.#mode = undefined;
     this.#route = [];
     element("route-info").textContent = "";
     element("piece-info").textContent = "";
+    if (wasPasting) this.#selectionInfo();
   }
 
   selectPiece(id: string): void {
     this.#selected = id;
     this.#selectionInfo();
     this.#hooks.render();
+  }
+
+  copy(): boolean {
+    const item = this.#hooks.analysis().project.items.find(({ id }) => id === this.#selected);
+    if (item?.kind !== "track") return false;
+    this.#copied = { ...item };
+    this.#hooks.notice("Track copied. Paste to place a duplicate.");
+    return true;
+  }
+
+  startPaste(): boolean {
+    if (!this.#copied) return false;
+    this.#hooks.cancelArrangement();
+    this.#mode = "paste";
+    this.#selectionInfo();
+    element("tabletop").focus({ preventScroll: true });
+    this.#hooks.notice(pasteHint);
+    return true;
   }
 
   #piecePorts(): void {
@@ -216,6 +242,10 @@ export class TrackTools {
   }
 
   pick(point: Point, target: Element, radius: number): void {
+    if (this.pasting) {
+      this.#placeCopy(point);
+      return;
+    }
     const hit = target.closest<SVGElement>("[data-piece-id]");
     const id = hit?.dataset["pieceId"];
     const analysis = this.#hooks.analysis();
@@ -323,6 +353,26 @@ export class TrackTools {
     this.#moving = undefined;
   }
 
+  #placeCopy(point: Point): void {
+    if (!this.#copied) return;
+    const item: TrackItem = {
+      ...this.#copied,
+      id: projectId("track"),
+      x: Math.round(point.x),
+      y: Math.round(point.y),
+      groupId: undefined,
+      arrangementId: undefined,
+    };
+    const result = commitItems(this.#hooks.analysis().project, this.#catalog, { items: [item] });
+    if (!result.project) {
+      this.#hooks.notice(result.issues[0]?.message ?? "This copy does not fit here.", true);
+      return;
+    }
+    this.#hooks.commit(result.project);
+    this.selectPiece(item.id);
+    this.#hooks.notice("Pasted track piece.");
+  }
+
   #extend(point: Point, target?: Analysis["ports"][number], centered = false): void {
     const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
     const incoming = part?.ports.find((p) => p.id === select("piece-port").value);
@@ -414,11 +464,13 @@ export class TrackTools {
     button("remove-piece").disabled = !item || protectedExit;
     const movable = item?.kind === "track" && !protectedExit;
     element("track-position").hidden = !movable;
-    element("track-edit-hint").textContent = protectedExit
-      ? "This track carries a named mainline exit and cannot be moved or deleted."
-      : movable
-        ? "Drag the selected track, or use Move track in the inspector."
-        : "Select a piece to move or delete it.";
+    element("track-edit-hint").textContent = this.pasting
+      ? pasteHint
+      : protectedExit
+        ? "This track carries a named mainline exit and cannot be moved or deleted."
+        : movable
+          ? "Drag the selected track, or use Move track in the inspector."
+          : "Select a piece to move or delete it.";
     if (movable && item.kind === "track") {
       input("track-x").value = String(item.x);
       input("track-y").value = String(item.y);

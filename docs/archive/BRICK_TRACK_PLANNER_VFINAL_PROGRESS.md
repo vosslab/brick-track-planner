@@ -8,21 +8,21 @@ in 5.5 seconds.
 
 ## Rules and source receipt
 
-Applied full Ponytail mode and the repo-rules reader. Read [AGENTS.md](../../../AGENTS.md) and the
-2026-11-24 entry in [CHANGELOG.md](../../CHANGELOG.md), including the requirement to stage the
+Applied full Ponytail mode and the repo-rules reader. Read [AGENTS.md](../../AGENTS.md) and the
+2026-11-24 entry in [CHANGELOG.md](../CHANGELOG.md), including the requirement to stage the
 four section bundles and Whole Show alongside the three original examples. Run Python with
 `source source_me.sh && python3`. A fragile pytest depends on transient context or incidental
 structure, such as dates, changing inventories, timing, or unseeded randomness.
 
 Read the 12 repository style files:
 
-- [FUN_VIBES_DESIGN_STYLE.md](../../FUN_VIBES_DESIGN_STYLE.md),
-  [GITHUB_PAGES_STYLE.md](../../GITHUB_PAGES_STYLE.md), [MARKDOWN_STYLE.md](../../MARKDOWN_STYLE.md),
-  [PLAYFUL_TRAINING_GAME_STYLE.md](../../PLAYFUL_TRAINING_GAME_STYLE.md),
-  [PLAYWRIGHT_TEST_STYLE.md](../../PLAYWRIGHT_TEST_STYLE.md), and [PYTEST_STYLE.md](../../PYTEST_STYLE.md).
-- [PYTHON_STYLE.md](../../PYTHON_STYLE.md), [REPO_STYLE.md](../../REPO_STYLE.md),
-  [RUST_PYO3_STYLE.md](../../RUST_PYO3_STYLE.md), [RUST_STYLE.md](../../RUST_STYLE.md),
-  [RUST_WASM_STYLE.md](../../RUST_WASM_STYLE.md), and [TYPESCRIPT_STYLE.md](../../TYPESCRIPT_STYLE.md).
+- [FUN_VIBES_DESIGN_STYLE.md](../FUN_VIBES_DESIGN_STYLE.md),
+  [GITHUB_PAGES_STYLE.md](../GITHUB_PAGES_STYLE.md), [MARKDOWN_STYLE.md](../MARKDOWN_STYLE.md),
+  [PLAYFUL_TRAINING_GAME_STYLE.md](../PLAYFUL_TRAINING_GAME_STYLE.md),
+  [PLAYWRIGHT_TEST_STYLE.md](../PLAYWRIGHT_TEST_STYLE.md), and [PYTEST_STYLE.md](../PYTEST_STYLE.md).
+- [PYTHON_STYLE.md](../PYTHON_STYLE.md), [REPO_STYLE.md](../REPO_STYLE.md),
+  [RUST_PYO3_STYLE.md](../RUST_PYO3_STYLE.md), [RUST_STYLE.md](../RUST_STYLE.md),
+  [RUST_WASM_STYLE.md](../RUST_WASM_STYLE.md), and [TYPESCRIPT_STYLE.md](../TYPESCRIPT_STYLE.md).
 
 ## Onboarding and standards
 
@@ -30,29 +30,29 @@ Read the 12 repository style files:
   Straight, 60x40 Curve, Advanced blank, and a separate Open existing action. Starter tests verify
   editable 32-stud plates, connected mainlines, and named exits. The straight starter footprints
   are 128x128 and 192x128 studs. The curve footprint is 192x128 studs, with two fronts.
-  [test_niltc_starters.mjs](../../../tests/test_niltc_starters.mjs)
+  [test_niltc_starters.mjs](../../tests/test_niltc_starters.mjs)
 - **Connector guidance (`vn_snap`).** The native check verifies that a real rail connector wins over
   a nearby lane guide. Visible placement on a rotated table lands the two S16s at local y=8 and
   y=24 and the baseplate at (16, 16). Siding placement and duplication preserve both mainlines.
-  [niltc.rs](../../../rust/niltc.rs), `niltc.spec.ts`
+  [niltc.rs](../../rust/niltc.rs), `niltc.spec.ts`
 - **Table standards (`vn_standards`).** New starters and nominal presets carry explicit NILTC
   tags. V1 and BlueBrick imports preserve geometry and free editing with no automatic tag.
   Applying checks to imported geometry preserves its pose and reports the off-grid plate.
   NILTC table, lane, and exit findings remain separate from connector joins. The staged NILTC
   browser matrix passed 10 checks across desktop and touch Chromium.
-  [test_project.mjs](../../../tests/test_project.mjs), `niltc.spec.ts`
+  [test_project.mjs](../../tests/test_project.mjs), `niltc.spec.ts`
 
 ## Geometry, appearance, and materials
 
 - **Project and geometry.** V1 migration creates one local section and preserves geometry and
   repairable seam references. V2 round-trips tables, sections, venue, members, and appearance.
   Native and staged Wasm compare results against the same fixture. The native engine remains
-  stateless. [test_project.mjs](../../../tests/test_project.mjs), `parity.spec.ts`
+  stateless. [test_project.mjs](../../tests/test_project.mjs), `parity.spec.ts`
 - **Catalog.** 4DBrix S4 and S8 match the regular mating planes. R104 takes nine 10-degree
   segments and R120 takes ten 9-degree segments to form their respective quarter circles.
   The vendor dimensions and STL files established their geometry. The source search turned up no
   verified BlueBrick aliases or calibrated LDraw mappings for those four parts.
-  [CATALOG_SOURCES.md](../../../data/CATALOG_SOURCES.md)
+  [CATALOG_SOURCES.md](../../data/CATALOG_SOURCES.md)
 - **Vector scene and appearance.** Desktop and phone captures in Chromium and WebKit show the
   chooser, overview, and close track. The shared SVG renders molded baseplates, track-mounted
   ballast, and rail, tie, and stud detail at close zoom. Track colors and ballast look edit
@@ -70,19 +70,19 @@ Read the 12 repository style files:
   against the illustrated source sheets, including color and exact compatible track. The 001A,
   022A, and 023B recipes contain 44, 71, and 98 ballast pieces per track section respectively.
   Both colors of the straight's 2 x 8 plate stay distinct. The inventory retains recipe gaps.
-  [BALLAST_SOURCES.md](../../../data/BALLAST_SOURCES.md),
-  [test_ballast_recipes.mjs](../../../tests/test_ballast_recipes.mjs)
+  [BALLAST_SOURCES.md](../../data/BALLAST_SOURCES.md),
+  [test_ballast_recipes.mjs](../../tests/test_ballast_recipes.mjs)
 
 ## Sections and whole-show proof
 
 - **Section transforms (`vn_sections`).** Member table controls use the 32-stud grid and quarter
   turns. The arbitrary-angle venue transform moves the section rigidly and preserves local plates,
-  poses, and references. [test_sections.mjs](../../../tests/test_sections.mjs)
+  poses, and references (historical `test_sections.mjs`).
 - **Section files (`vn_section_files`).** All four staged bundles open at their anchors. The
   repeated Corner imports have fresh independent IDs. Section export preserves attached pieces,
   used layers, internal seams, and named exits. Invalid data is rejected before insertion.
-  [test_sections.mjs](../../../tests/test_sections.mjs),
-  [test_track_templates.mjs](../../../tests/test_track_templates.mjs)
+  The historical check used `test_sections.mjs`. For current template coverage, see
+  [test_track_templates.mjs](../../tests/test_track_templates.mjs)
 - **Alignment and assembly (`vn_alignment`, `vn_assembly`).** The M7-M11 integrated fixture has
   seven independent section instances, eight tagged 128x128-stud tables, eight seams, and 16
   joined lanes within 0.000001 stud. The independent connector walk proves disjoint closed
@@ -94,7 +94,7 @@ Read the 12 repository style files:
   The editor and PDF show a 22-piece LEGO S16 requirement and a one-piece shortfall when 21 are
   committed. The supplying Yard owns the spanning S8. The inventory preserves unconfirmed versus
   deliberate zero commitments, verified materials, recipe gaps, and unresolved imports.
-  [test_show_inventory.mjs](../../../tests/test_show_inventory.mjs)
+  [test_show_inventory.mjs](../../tests/test_show_inventory.mjs)
 - **M16 / integrated acceptance.** The native oracle passed the full fixture, shifted Connector
   and last-corner scenarios. Three targeted browser checks against the staged artifact exercise
   reconstruction through visible controls, repair, member commitments, save and fresh reopen,
@@ -105,7 +105,7 @@ Read the 12 repository style files:
   sizes, the area cap, and PDF output in color and grayscale. Independent rendering and text
   extraction of the 11-page grayscale packet confirmed the fronts, Yard S8 supplier, shortfall,
   and the visible and searchable Japanese member name.
-  [sharing.spec.ts](../../../tests/playwright/sharing.spec.ts), `sharing_final.spec.ts`
+  [sharing.spec.ts](../../tests/playwright/sharing.spec.ts), `sharing_final.spec.ts`
 
 ## Performance
 

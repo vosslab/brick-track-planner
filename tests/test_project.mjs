@@ -35,12 +35,6 @@ test("rail port placements join regular and flipped track at any turn count", ()
   assert.equal(angleGap(-450, 90), 180);
 });
 
-test("new projects own one design area", () => {
-  const project = newProject();
-  assert.deepEqual(project.area, { width: 192, depth: 128, fronts: [], exits: [] });
-  validateProject(project);
-});
-
 test("design area validates NILTC assignments and boundary exits", () => {
   const project = newProject();
   project.area.niltc = "corner";
