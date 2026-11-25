@@ -34,8 +34,10 @@ examples by their type codes, such as **4TRY** for Four-track right yard.
 Mainline only and Back-out siding come first. The other cards are ordered by
 physical track piece count.
 
-The perpendicular freight spur leaves room to extend its right-side run.
-The four-track right yard extends all three storage tracks to the right edge.
+Use **PFS** for two perpendicular freight spurs on the right. Each has 32
+straight studs with room to extend. Use **4TRY** for three storage tracks
+ending flush at the right edge. Trains entering from the west on either
+mainline can reach every storage track in both examples without reversing.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,
@@ -43,7 +45,7 @@ choose **Save track plan** to download your copy.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Six straight track examples with drawings, type codes, and piece counts](screenshots/straight_examples.webp)
+![Six straight track examples, including paired perpendicular spurs and a yard with access from both mainlines](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ## Add track that solves a layout job

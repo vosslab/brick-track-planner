@@ -4,6 +4,10 @@
 
 ### Behavior or Interface Changes
 
+- Center Delete selected track over the drawing. Keep the Add track mode
+  buttons evenly inset when the sidebar scrolls, and refresh the editor screenshots.
+- Connect both west mainlines to the paired perpendicular freight spurs
+  and the three storage tracks in the four-track right yard. Refresh the gallery image.
 - Give the six straight gallery examples type codes such as `4TRY`. Use the
   short right-side spur to demonstrate perpendicular storage and retire the
   long spur, rear parking, and two-track arrival gallery examples.

@@ -31,11 +31,14 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Give examples two-to-five-character alphanumeric codes based on their types.
   Keep layouts distinct, show a short perpendicular spur, and use the right
   edge for perpendicular tracks and the four-track right yard's storage.
+- Show layouts that can pull from both mainlines, including a pair of
+  perpendicular spurs.
 - Make track look like the actual parts and preserve small details on
   high-density displays.
 - Offer shorter examples where the length of straight storage can vary.
 - Use automated screenshots and fine-grained measurements to catch even
-  small misalignments between controls.
+  small misalignments between controls. Measure button centering and insets
+  against the visible column edges.
 - Tell members what space and track an arrangement needs and why a preview
   cannot fit. Make moving and deleting selected track obvious on desktop
   and mobile.

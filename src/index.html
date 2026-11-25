@@ -71,24 +71,18 @@
           <div class="panel-head">
             <h2 id="library-title" tabindex="-1">Add track</h2>
           </div>
+          <fieldset class="build-modes">
+            <legend class="screen-reader">How to add track</legend>
+            <label
+              ><input type="radio" name="build-tool" id="build-arrangement" value="arrangement" checked />
+              Arrangement</label
+            >
+            <label
+              ><input type="radio" name="build-tool" id="build-piece" value="piece" /> Single
+              piece</label
+            >
+          </fieldset>
           <div id="library-body">
-            <fieldset class="build-modes">
-              <legend class="screen-reader">How to add track</legend>
-              <label
-                ><input
-                  type="radio"
-                  name="build-tool"
-                  id="build-arrangement"
-                  value="arrangement"
-                  checked
-                />
-                Arrangement</label
-              >
-              <label
-                ><input type="radio" name="build-tool" id="build-piece" value="piece" /> Single
-                piece</label
-              >
-            </fieldset>
             <p id="build-hint" class="library-help"></p>
             <section
               id="arrangement-tools"
@@ -163,10 +157,10 @@
               <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">
                 Redo
               </button>
-              <button type="button" id="remove-piece" class="danger" disabled>
-                Delete selected track
-              </button>
             </div>
+            <button type="button" id="remove-piece" class="danger" disabled>
+              Delete selected track
+            </button>
             <p id="track-edit-hint" class="edit-hint">Select a piece to move or delete it.</p>
           </div>
           <div class="viewport">

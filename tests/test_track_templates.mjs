@@ -101,7 +101,7 @@ test("every straight example is a clean connected NILTC assignment", () => {
   );
   const fingerprints = new Set();
   const parts = [];
-  for (const { file, name } of straightExamples) {
+  for (const { code, file, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
     parts.push(
@@ -152,14 +152,26 @@ test("every straight example is a clean connected NILTC assignment", () => {
     const storageEnds = result.ports.filter(
       (port) => port.type === "regular" && !port.joined && !/^(inner|outer)-/.test(port.pieceId),
     );
-    if (id === "12-perpendicular-freight-spur-short") {
+    if (code === "PFS") {
+      assert.equal(storageEnds.length, 2, "two perpendicular freight spurs");
+      assert.ok(storageEnds.every(({ x, angle }) => x > 128 && Math.abs(angle - 90) < 0.001));
       const rightEdgeClearance =
         result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
       assert.ok(rightEdgeClearance >= 0 && rightEdgeClearance < 3, `${name} uses the right edge`);
     }
-    if (id === "04-r40-right-yard") {
+    if (code === "4TRY") {
       assert.equal(storageEnds.length, 3);
       assert.ok(storageEnds.every(({ x }) => Math.abs(x - result.project.area.width) < 0.001));
+    }
+    if (code === "PFS" || code === "4TRY") {
+      for (const end of storageEnds) {
+        for (const lane of ["outer", "inner"]) {
+          assert.ok(
+            reaches(result.routes, west[lane], end),
+            `${name} reaches ${end.pieceId} from the west ${lane} mainline without reversal`,
+          );
+        }
+      }
     }
 
     const fingerprint = result.project.items

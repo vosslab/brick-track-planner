@@ -46,6 +46,8 @@ total physical track count. Describe their shared 60 by 40 inch size once.
 it requires.
 
 **Consequence.** Keep the list in track count order when editing the plans.
+PFS and 4TRY use a west crossover to serve every storage track from both
+mainlines while keeping both through routes.
 
 **Owner.** [straight_examples.json](../data/straight_examples.json)
 

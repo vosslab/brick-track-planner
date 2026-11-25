@@ -69,11 +69,13 @@ test("the gallery previews and opens editable straight examples with type codes"
   await expect(page.locator("#design-size")).toContainText("60 × 40");
 
   await browse.click();
-  await gallery.getByRole("button", { name: "Open PFS · Perpendicular freight spur" }).click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("Perpendicular freight spur");
+  await gallery
+    .getByRole("button", { name: "Open PFS · Dual perpendicular freight spurs" })
+    .click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Dual perpendicular freight spurs");
   expect(
     (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("freight-straight-")),
-  ).toHaveLength(2);
+  ).toHaveLength(4);
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {

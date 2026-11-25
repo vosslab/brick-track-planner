@@ -151,6 +151,15 @@ for (const viewport of viewports) {
       );
       expect.soft(horizontalOverflow, "The editor fits the viewport width").toBe(0);
       await rows("Add track modes", ".build-modes", 2, "label");
+      const modes = await inspect("Add track panel", ".library", ".build-modes label", 2);
+      if (modes.length === 2) {
+        const { bounds } = evidence["Add track panel"]!;
+        const left = Math.min(...modes.map((mode) => mode.left)) - bounds.left;
+        const right = bounds.right - Math.max(...modes.map((mode) => mode.right));
+        close(left, right, "Add track mode insets against the panel edges");
+        close(modes[0]!.width, modes[1]!.width, "Add track mode widths");
+        expect.soft(left, "Add track modes have room inside the panel border").toBeGreaterThan(10);
+      }
       const modeLines = await page.locator(".build-modes label").evaluateAll((labels) =>
         labels.map((label) => {
           const text = Array.from(label.childNodes).find(
@@ -175,7 +184,13 @@ for (const viewport of viewports) {
       await rows("Project actions", ".project-actions", 4);
       await page.getByRole("button", { name: "Fit view", exact: true }).click();
       await shot("06_canvas_controls", ".workbench");
-      await rows("Canvas toolbar", ".canvas-toolbar", 3);
+      const toolbar = await inspect("Canvas toolbar", ".workbench", ".canvas-toolbar button", 3);
+      const remove = toolbar.find(({ name }) => name === "remove-piece");
+      if (remove) {
+        const { bounds } = evidence["Canvas toolbar"]!;
+        close(remove.left - bounds.left, bounds.right - remove.right, "Delete button centering");
+      }
+      await rows("Undo and Redo", ".toolbar-group", 2);
       await rows("Zoom controls", ".zoom-controls", 3);
       const zoom = evidence["Zoom controls"]!.controls;
       if (zoom.length === 3) close(zoom[0]!.width, zoom[2]!.width, "Zoom in/out width");

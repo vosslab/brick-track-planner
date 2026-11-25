@@ -26,13 +26,13 @@
   {
     "code": "PFS",
     "file": "12-perpendicular-freight-spur-short.ldr",
-    "name": "Perpendicular freight spur",
-    "purpose": "Turn down the right side with 32 straight studs and room to extend."
+    "name": "Dual perpendicular freight spurs",
+    "purpose": "From the west, either mainline serves both right-side spurs. Each has 32 straight studs."
   },
   {
     "code": "4TRY",
     "file": "04-r40-right-yard.ldr",
     "name": "Four-track right yard",
-    "purpose": "Keep the inner mainline open. Three storage tracks end flush at the right edge."
+    "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
   }
 ]

@@ -74,6 +74,7 @@
   display: flex;
   flex: 1 1 6.875rem;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   min-width: 0;
   min-height: var(--control-height);
