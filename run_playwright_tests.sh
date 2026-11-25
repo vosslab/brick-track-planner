@@ -52,8 +52,8 @@ fi
 if [ "$FORCE_BUILD" -eq 1 ]; then
 	echo "==> --build flag set: rebuilding dist/..."
 	bash build_github_pages.sh
-elif [ ! -f dist/index.html ] || [ ! -f dist/main.js ]; then
-	echo "==> dist/index.html or dist/main.js missing: running build_github_pages.sh..."
+elif [ ! -s dist/index.html ] || [ ! -s dist/main.js ] || [ ! -s dist/wasm/track_geometry_bg.wasm ]; then
+	echo "==> Release artifact missing: running build_github_pages.sh..."
 	bash build_github_pages.sh
 fi
 

@@ -1,0 +1,23 @@
+[package]
+name = "track_geometry"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "AGPL-3.0-only"
+publish = false
+description = "Track and table geometry for Brick Track Planner"
+
+[lib]
+path = "rust/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[[example]]
+name = "oracle"
+path = "rust/oracle.rs"
+
+[dependencies]
+geo = { version = "*", default-features = false }
+image-webp = "*"
+serde = { version = "*", features = ["derive"] }
+serde_json = { version = "*", features = ["float_roundtrip"] }
+wasm-bindgen = "*"

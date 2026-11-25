@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # build_github_pages.sh - canonical production build for GitHub Pages.
 #
-# Front door: run this directly as ./build_github_pages.sh. It is the
-# interface for everyone, no npm knowledge required. The npm run build
-# alias is an optional mirror that points right back at this script.
+# Run this directly as ./build_github_pages.sh.
 #
 # Contract:
 #   - Wipes dist/ from scratch.
+#   - Builds the locked Rust crate and generates browser Wasm bindings.
 #   - Type-checks via 'tsc --noEmit -p tsconfig.json'.
 #   - Resolves the entry: src/main.ts preferred, src/init.ts legacy fallback.
 #     Aborts with an actionable error if neither exists.
@@ -14,11 +13,11 @@
 #     aborts with an actionable error if missing.
 #   - Verifies src/index.html references dist/main.js with a module script
 #     tag (warns if missing -- the page will load but main.js is dead).
-#   - Bundles the entry into dist/main.js with esbuild (ESM, es2020,
-#     browser, minified, with sourcemap).
-#   - Copies src/index.html and src/style.css into dist/.
+#   - Bundles dist/main.js and on-demand chunks with esbuild (ESM,
+#     es2020, browser, minified, with sourcemaps).
+#   - Copies HTML, CSS, examples, and the Wasm binary into dist/.
 #   - Writes dist/.nojekyll so GitHub Pages serves files starting with _.
-#   - Asserts dist/index.html and dist/main.js exist before exiting.
+#   - Asserts the HTML, JavaScript, and Wasm outputs before exiting.
 #
 # Hard rule: never produces single-file output. ESM only.
 
@@ -49,6 +48,10 @@ for required in src/index.html src/style.css; do
 		exit 1
 	fi
 done
+if ! compgen -G 'examples/*.btp.json' >/dev/null || ! compgen -G 'examples/*.bbm' >/dev/null; then
+	echo "ERROR: the native and BlueBrick example projects are required under examples/." >&2
+	exit 1
+fi
 
 # Soft-warn if index.html does not reference main.js as an ES module.
 if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.html; then
@@ -57,25 +60,35 @@ if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.htm
 	echo "  Build will proceed; the page may render but main.js will not run." >&2
 fi
 
-rm -rf dist
-mkdir -p dist
+if ! command -v wasm-pack >/dev/null 2>&1; then
+	echo "ERROR: wasm-pack not found on PATH. Install wasm-pack before building." >&2
+	exit 1
+fi
+wasm-pack build . --target web --release --out-dir generated/wasm --out-name track_geometry -- --locked
 
 ./node_modules/.bin/tsc --noEmit -p tsconfig.json
 
-./node_modules/.bin/esbuild "$ENTRY" \
+rm -rf dist
+mkdir -p dist/wasm dist/examples
+
+./node_modules/.bin/esbuild "main=$ENTRY" \
 	--bundle \
 	--format=esm \
+	--splitting \
 	--target=es2020 \
 	--platform=browser \
 	--minify \
 	--sourcemap \
-	--outfile=dist/main.js
+	--outdir=dist
 
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
+cp generated/wasm/track_geometry_bg.wasm dist/wasm/
+cp examples/*.btp.json examples/*.bbm dist/examples/
 touch dist/.nojekyll
 
-test -f dist/index.html
-test -f dist/main.js
+test -s dist/index.html
+test -s dist/main.js
+test -s dist/wasm/track_geometry_bg.wasm
 
 echo "Built dist/ (GitHub Pages-ready)."

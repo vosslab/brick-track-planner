@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f0">
+  <title>Brick Track Planner</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./main.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="Brick Track Planner home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+      <span>Brick Track <strong>Planner</strong></span>
+    </a>
+    <div class="file-controls" aria-label="Project files">
+      <button type="button" id="open-project">Open</button>
+      <button type="button" id="import-project">Import BlueBrick</button>
+      <button type="button" id="save-project">Save project</button>
+      <label class="screen-reader" for="export-format">Export format</label>
+      <select id="export-format">
+        <option value="png">PNG</option><option value="webp">WebP</option>
+        <option value="pdf">PDF</option><option value="ldraw">LDraw</option>
+      </select>
+      <button type="button" id="export-layout" class="primary">Export</button>
+      <input id="project-file" type="file" accept=".btp.json,.json" hidden>
+      <input id="import-file" type="file" accept=".bbm,.xml" hidden>
+    </div>
+  </header>
+  <main id="editor" inert>
+    <div class="project-bar">
+      <div class="project-title">
+        <label for="project-name">Layout name</label>
+        <input id="project-name" maxlength="160" autocomplete="off" spellcheck="false" value="Untitled layout">
+      </div>
+      <div class="project-actions">
+        <label class="screen-reader" for="preset">New project preset</label>
+        <select id="preset">
+          <option value="blank">Blank layout</option>
+          <option value="30x40">NILTC 30 &times; 40 in</option>
+          <option value="40x40">NILTC 40 &times; 40 in</option>
+          <option value="40x60">NILTC 40 &times; 60 in</option>
+          <option value="custom">Custom table</option>
+        </select>
+        <button type="button" id="new-project">New layout</button>
+        <label class="screen-reader" for="examples">Example layouts</label>
+        <select id="examples"><option value="">Open an example&hellip;</option></select>
+      </div>
+    </div>
+    <div class="workspace">
+      <aside class="panel library" aria-labelledby="library-title">
+        <div class="panel-head"><h2 id="library-title">Track library</h2>
+          <button type="button" class="panel-toggle" id="toggle-library" aria-expanded="true" aria-controls="library-body">Hide library</button>
+        </div>
+        <div id="library-body">
+        <div class="library-controls">
+          <label class="screen-reader" for="part-search">Search track and kits</label>
+          <input type="search" id="part-search" placeholder="Search track and kits">
+          <label class="screen-reader" for="brand-filter">Track brand</label>
+          <select id="brand-filter"><option value="">All brands</option></select>
+        </div>
+        </div>
+        <div id="parts-list" class="parts-list"></div>
+      </aside>
+      <section class="workbench" aria-label="Tabletop workspace">
+        <div class="canvas-toolbar">
+          <div class="toolbar-group">
+            <button type="button" id="undo" disabled title="Undo (Ctrl/Command+Z)">Undo</button>
+            <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">Redo</button>
+            <button type="button" id="box-select" aria-pressed="false">Box select</button>
+          </div>
+          <div class="toolbar-group">
+            <button type="button" id="add-table" class="primary">+ Table</button>
+            <button type="button" id="add-baseplate" aria-pressed="false">+ Baseplate</button>
+            <button type="button" id="seam-mode" aria-pressed="false">Seam</button>
+            <label class="check"><input type="checkbox" id="grid-toggle" checked> 32-stud grid</label>
+          </div>
+        </div>
+        <div class="viewport">
+          <div id="tabletop" role="group" aria-label="Tabletop canvas" tabindex="0" aria-describedby="camera-hint"></div>
+          <p id="camera-hint" class="screen-reader">Drag empty space to pan. Use plus and minus to zoom. Press Enter to place at the center.</p>
+          <div id="empty-canvas" class="empty-canvas">
+            <div class="empty-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <h2>Start your layout</h2>
+            <p>Add a table or pick track from the library.</p>
+          </div>
+          <div class="zoom-controls" aria-label="Canvas zoom">
+            <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+            <button type="button" id="fit-view">Fit view</button>
+            <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+          </div>
+        </div>
+        <div class="canvas-footer">
+          <span id="mode-label">Select or drag a piece</span>
+          <button type="button" id="rotate-placement" hidden>Rotate 90&deg;</button>
+          <button type="button" id="seam-controls" hidden>Seam controls</button>
+          <span id="fit-status" aria-live="polite"></span>
+        </div>
+      </section>
+      <aside class="panel inspector" aria-label="Layout inspector">
+        <button type="button" class="panel-toggle" id="toggle-inspector" aria-expanded="true" aria-controls="inspector-body">Hide inspector</button>
+        <div id="inspector-body">
+        <section class="panel-section inspector-edit">
+          <div class="panel-head"><h2>Inspector</h2><label class="check"><input id="multi-select" type="checkbox"> Multi-select</label></div>
+          <div id="selection-panel" class="panel-content"></div>
+          <div id="seam-panel" class="panel-content" hidden></div>
+        </section>
+        <section class="panel-section">
+          <div class="panel-head"><h2>Tables</h2><span id="table-count" class="number-tag"></span></div>
+          <div id="table-list" class="panel-content"></div>
+        </section>
+        <section class="panel-section">
+          <div class="panel-head"><h2>Parts tally</h2><span id="parts-count" class="number-tag"></span></div>
+          <div id="parts-summary" class="panel-content"></div>
+        </section>
+        <section class="panel-section">
+          <div class="panel-head"><h2>Diagnostics</h2></div>
+          <div id="diagnostics" class="panel-content"></div>
+        </section>
+        <details class="panel-section layer-panel">
+          <summary>Layers</summary>
+          <div id="layer-list" class="panel-content"></div>
+        </details>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <p id="status" role="status" class="status">Loading track geometry&hellip;</p>
+  <dialog id="table-dialog" aria-labelledby="table-form-title">
+    <form id="table-form">
+      <h2 id="table-form-title">Add a table</h2>
+      <label for="table-preset">Size preset</label>
+      <select id="table-preset">
+        <option value="30x40">NILTC 30 &times; 40 in &middot; 96 &times; 128 studs</option>
+        <option value="40x40">NILTC 40 &times; 40 in &middot; 128 &times; 128 studs</option>
+        <option value="40x60">NILTC 40 &times; 60 in &middot; 128 &times; 192 studs</option>
+        <option value="custom">Custom size</option>
+      </select>
+      <label for="table-name">Table name</label>
+      <input id="table-name" required maxlength="120" value="Table 1">
+      <div id="custom-dimensions" hidden>
+        <label>Unit<select id="table-unit"><option value="stud">Studs</option><option value="in">Inches</option><option value="cm">Centimeters</option></select></label>
+        <div class="field-grid">
+        <label>Width<input id="table-width" type="number" min="0" required step="any" value="96"></label>
+        <label>Depth<input id="table-depth" type="number" min="0" required step="any" value="128"></label>
+        </div>
+      </div>
+      <p id="table-error" data-dialog-error role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" id="cancel-table">Cancel</button>
+        <button type="submit" id="create-table" class="primary">Add table</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="import-preview" aria-labelledby="preview-title">
+    <h2 id="preview-title">Review BlueBrick import</h2>
+    <p id="preview-name"></p>
+    <ul id="import-warnings" class="warning-list"></ul>
+    <p id="import-error" data-dialog-error role="alert"></p>
+    <div class="dialog-actions">
+      <button type="button" id="cancel-import">Cancel</button>
+      <button type="button" id="confirm-import" class="primary">Open imported layout</button>
+    </div>
+  </dialog>
+  <dialog id="export-report" aria-labelledby="report-title">
+    <h2 id="report-title">LDraw export details</h2>
+    <div id="export-notes"></div>
+    <form class="dialog-actions" method="dialog"><button class="primary">Done</button></form>
+  </dialog>
+</body>
+</html>

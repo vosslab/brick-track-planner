@@ -21,4 +21,6 @@ _temp*.?*
 # -------------------- LOCAL REPOSITORY RULES --------------------
 # ADD YOUR CUSTOM IGNORES BELOW
 # Propagation preserves this section.
-# Template-only ignores.
+/dist/
+/playwright-report/
+/test-results/
