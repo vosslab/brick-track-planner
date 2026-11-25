@@ -1590,6 +1590,24 @@
       "routes": []
     },
     {
+      "id": "trixbrix:s04",
+      "brand": "TrixBrix",
+      "name": "Straight S4",
+      "ports": [
+        { "id": "a", "x": -2, "y": 0, "angle": 180, "type": "regular" },
+        { "id": "b", "x": 2, "y": 0, "angle": 0, "type": "regular" }
+      ],
+      "paths": [[{ "x": -2, "y": 0 }, { "x": 2, "y": 0 }]],
+      "footprint": [
+        { "x": -2, "y": -4 },
+        { "x": 2, "y": -4 },
+        { "x": 2, "y": 4 },
+        { "x": -2, "y": 4 }
+      ],
+      "aliases": [{ "key": "tb st4.8" }],
+      "routes": [{ "from": "a", "to": "b", "path": 0 }]
+    },
+    {
       "id": "trixbrix:s08",
       "brand": "TrixBrix",
       "name": "Straight S8",

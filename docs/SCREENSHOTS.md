@@ -90,15 +90,16 @@ Open these plans with **Browse straight examples**. Both collections use
 ![The R40&ndash;R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
 <!-- screenshots:end -->
 
-#### 8TRY - Eight-track ladder yard
+#### 8TRY - Eight-track pass-through
 
-Two mirrored R40 switch ladders share a turnback along the left edge. All
-eight rows end flush on the right, with 48 to 112 studs of straight track.
+Eight parallel rows run between the left and right edges. Two R40 turnouts
+and six 45-degree crossings carry a train from row 8 to row 1. The middle
+rows keep their own straight routes.
 In **Diagnostics**, select the open end at (192, 120) in the route dropdown.
-Choose **Trace route**, then click the right end of the frontmost row.
+Choose **Trace route**, then click the left end of the frontmost row.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Eight parallel yard tracks with two switch ladders and a shared left-edge return](screenshots/example_8try.webp)
+![Eight full-width tracks with a diagonal route from the rear right to the front left](screenshots/example_8try.webp)
 <!-- screenshots:end -->
 
 ### 40 by 40 inches

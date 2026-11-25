@@ -8,6 +8,8 @@
   and Ctrl+V elsewhere. Place each copy in the drawing as an undoable edit.
 - Add 8TRY, a 60 by 40 inch yard with two four-track ladders and a shared
   return from the rear tracks to the front tracks.
+- Rework 8TRY as eight full-width tracks. Six 45-degree crossings carry
+  the row 8 to row 1 transfer between two R40 turnouts.
 - Name the two turnaround templates R104 semicircle return and R120 corner return.
 - Replace U-shaped staging with two editable turnarounds based on the
   Downers Grove and Aurora show plans.

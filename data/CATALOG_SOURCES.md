@@ -68,7 +68,10 @@ source source_me.sh && python3 devel/render_track_artwork.py /path/to/ldraw
 - The [right pass-through single crossover R40](https://trixbrix.eu/en/p/track/curved-tracks/right-pass-through-single-crossover-r40/10035-right-pass-through-single-crossover-r40)
   uses the crossing and adapter records from the BlueBrick pass-through set.
   Adapter ends are aligned to nominal 16-stud lane spacing. The set drawing
-  includes six approach straights outside the product.
+  includes six approach straights outside the product. 8TRY extends the
+  diagonal with S4 sections measured from BlueBrick's `tb st4.8` record.
+  TrixBrix shows the same S4 joint between two consecutive crossings.
+  [TrixBrix crossing assembly](https://trixbrix.eu/en/p/track/crossings/crossing-45-deg-dot-right/9899-crossing-45-deg-dot-right)
 - The [T-junction R40](https://trixbrix.eu/en/p/track/curved-tracks/t-junction-r40/11125-t-junction-r40)
   follows the vendor's exploded drawing with measured R40 switches, wye,
   half curves, and straights. The
