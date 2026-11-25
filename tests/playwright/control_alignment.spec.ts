@@ -150,6 +150,19 @@ for (const viewport of viewports) {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect.soft(horizontalOverflow, "The editor fits the viewport width").toBe(0);
+      await rows("Add track modes", ".build-modes", 2, "label");
+      const modeLines = await page.locator(".build-modes label").evaluateAll((labels) =>
+        labels.map((label) => {
+          const text = Array.from(label.childNodes).find(
+            (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim(),
+          );
+          if (!text) return 0;
+          const range = new Range();
+          range.selectNodeContents(text);
+          return new Set(Array.from(range.getClientRects(), ({ top }) => top)).size;
+        }),
+      );
+      expect.soft(modeLines, "Each Add track mode label fits on one line").toEqual([1, 1]);
       await shot("03_raster_controls", ".app-header");
       await rows("File controls", ".file-controls", 6);
 
@@ -199,7 +212,7 @@ for (const viewport of viewports) {
       await preview.click();
       await expect(page.locator("#arrangement-info")).not.toBeEmpty();
       await expect(page.getByRole("button", { name: "Add to layout" })).toBeHidden();
-      await shot("10_arrangement_no_fit", "#arrangement-tools");
+      await shot("10_arrangement_no_fit", ".library");
 
       await page.getByRole("radio", { name: "Single piece", exact: true }).check();
       await page.getByText("Connection options", { exact: true }).click();

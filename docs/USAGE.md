@@ -29,14 +29,13 @@ track instead of moving baseplates.
 ## Compare the straight examples
 
 Choose **Browse straight examples** on the start screen or in the editor.
-Most plans use 60 inches along the track and 40 inches of depth. The long
-freight spur and two-track arrival siding use 60 inches of depth for extra
-storage. Mainline only and Back-out siding come first. The other cards are
-ordered by physical track piece count.
+The six plans use 60 inches along the track and 40 inches of depth. Refer to
+examples by their type codes, such as **4TRY** for Four-track right yard.
+Mainline only and Back-out siding come first. The other cards are ordered by
+physical track piece count.
 
-The short and long perpendicular freight spurs share the same right-side
-approach. The four-track right yard extends all three storage tracks to the
-right edge.
+The perpendicular freight spur leaves room to extend its right-side run.
+The four-track right yard extends all three storage tracks to the right edge.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,
@@ -44,7 +43,7 @@ choose **Save track plan** to download your copy.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Straight track examples with drawings, dimensions, and piece counts](screenshots/straight_examples.webp)
+![Six straight track examples with drawings, type codes, and piece counts](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ## Add track that solves a layout job

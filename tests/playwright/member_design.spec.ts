@@ -26,7 +26,7 @@ test("members can open each packaged track template", async ({ planner }) => {
   }
 });
 
-test("the gallery previews and opens editable straight examples in both orientations", async ({
+test("the gallery previews and opens editable straight examples with type codes", async ({
   page,
 }) => {
   await boot(page, { startProject: false });
@@ -49,38 +49,31 @@ test("the gallery previews and opens editable straight examples in both orientat
   );
   expect(clipped).toEqual([]);
   await expect(gallery.locator(".template-card strong")).toHaveText(
-    straightExamples.map(({ name }) => name),
+    straightExamples.map(({ code, name }) => `${code} · ${name}`),
   );
-  await gallery.getByText("Mainline only", { exact: true }).click();
+  await gallery.getByText("ML · Mainline only", { exact: true }).click();
   await expect(gallery).toBeVisible();
   await expect(
-    gallery.getByRole("button", { name: "Open Double crossover" }),
-  ).toHaveAccessibleDescription(/^60 × 40 in · 23 track pieces/);
+    gallery.getByRole("button", { name: "Open DCX · Double crossover" }),
+  ).toHaveAccessibleDescription(/^23 track pieces/);
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#start-screen")).toBeVisible();
   await expect(page.locator("#editor")).toBeHidden();
 
   await browse.click();
-  await gallery.getByRole("button", { name: "Open Mainline only" }).click();
+  await gallery.getByRole("button", { name: "Open ML · Mainline only" }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#editor")).toBeVisible();
   await expect(page.getByLabel("Layout name")).toHaveValue("Mainline only");
   await expect(page.locator("#design-size")).toContainText("60 × 40");
 
   await browse.click();
-  await gallery.getByRole("button", { name: "Open Short perpendicular freight spur" }).click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("Short perpendicular freight spur");
+  await gallery.getByRole("button", { name: "Open PFS · Perpendicular freight spur" }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Perpendicular freight spur");
   expect(
     (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("freight-straight-")),
   ).toHaveLength(2);
-
-  await browse.click();
-  const longSpur = gallery.getByRole("button", { name: "Open Perpendicular freight spur" });
-  await expect(longSpur).toHaveAccessibleDescription(/^40 × 60 in/);
-  await longSpur.click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("Perpendicular freight spur");
-  await expect(page.locator("#design-size")).toContainText("40 × 60");
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {

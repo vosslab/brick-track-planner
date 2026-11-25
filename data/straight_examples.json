@@ -1,45 +1,36 @@
 [
   {
+    "code": "ML",
     "file": "01-mainline-only.ldr",
     "name": "Mainline only",
     "purpose": "Keep both club lines clear and leave the full space behind them for your display."
   },
   {
+    "code": "BOS",
     "file": "06-long-back-out.ldr",
     "name": "Back-out siding",
     "purpose": "Park on 64 straight studs along the front. Reverse to return to the inner mainline."
   },
   {
+    "code": "DCX",
     "file": "07-double-crossover.ldr",
     "name": "Double crossover",
     "purpose": "Transfer between the two club lines within the mainline corridor."
   },
   {
+    "code": "DTS",
     "file": "08-drive-through-siding.ldr",
     "name": "Drive-through siding",
     "purpose": "Enter at one turnout and rejoin the inner mainline at the other."
   },
   {
-    "file": "12-perpendicular-freight-spur.ldr",
-    "name": "Perpendicular freight spur",
-    "purpose": "Follow the same right-side approach as the short spur, with 112 straight studs toward the rear."
-  },
-  {
+    "code": "PFS",
     "file": "12-perpendicular-freight-spur-short.ldr",
-    "name": "Short perpendicular freight spur",
-    "purpose": "Use 32 straight studs along the right side and keep the rear open."
+    "name": "Perpendicular freight spur",
+    "purpose": "Turn down the right side with 32 straight studs and room to extend."
   },
   {
-    "file": "10-two-track-arrival.ldr",
-    "name": "Two-track arrival siding",
-    "purpose": "Hold two trains along the right side on 80 and 64 studs of straight storage."
-  },
-  {
-    "file": "09-rear-parking.ldr",
-    "name": "Rear parking siding",
-    "purpose": "Turn back behind the display and park on 32 straight studs facing left."
-  },
-  {
+    "code": "4TRY",
     "file": "04-r40-right-yard.ldr",
     "name": "Four-track right yard",
     "purpose": "Keep the inner mainline open. Three storage tracks end flush at the right edge."

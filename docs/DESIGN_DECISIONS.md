@@ -38,10 +38,9 @@ checks.
 
 ### Lead with the mainline and back-out siding examples
 
-**Decision.** Identify examples by name and frame the track in each preview.
+**Decision.** Identify examples by type code and name. Frame the track in each preview.
 Keep Mainline only and Back-out siding first. Order the remaining cards by
-total physical track count. Show the width along the track and depth on each
-card.
+total physical track count. Describe their shared 60 by 40 inch size once.
 
 **Why.** Members can identify a plan in conversation and compare the track
 it requires.

@@ -63,8 +63,8 @@
   font-size: 0.78rem;
 }
 .build-modes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   margin: 0 var(--panel-inset);
   padding: 0;
@@ -72,17 +72,21 @@
 }
 .build-modes label {
   display: flex;
+  flex: 1 1 6.875rem;
   align-items: center;
-  gap: 0.38rem;
+  gap: 0.25rem;
   min-width: 0;
   min-height: var(--control-height);
-  padding: 0.35rem 0.45rem;
+  padding: 0.35rem 0.3rem;
   border: 1px solid var(--control-line);
   border-radius: 6px;
   color: var(--ink);
   cursor: pointer;
   font-size: 0.8rem;
   overflow-wrap: anywhere;
+}
+.build-modes input[type="radio"] {
+  min-block-size: 0;
 }
 .build-modes input[type="radio"],
 .assignment-options input[type="radio"],
@@ -167,6 +171,7 @@
   width: 100%;
   height: clamp(7rem, 13vh, 9rem);
   padding: 0;
+  overflow: hidden;
   border-radius: 4px;
   background: var(--board);
 }

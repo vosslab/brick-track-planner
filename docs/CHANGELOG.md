@@ -4,6 +4,11 @@
 
 ### Behavior or Interface Changes
 
+- Give the six straight gallery examples type codes such as `4TRY`. Use the
+  short right-side spur to demonstrate perpendicular storage and retire the
+  long spur, rear parking, and two-track arrival gallery examples.
+- Refresh all five documentation screenshots. Balance the Add track panel
+  insets and keep Arrangement and Single piece labels on one line.
 - Set seven straight examples to 60 inches along the track by 40 inches deep
   and show dimensions on each card. Keep the long freight spur and two-track
   arrival siding deeper. Retire the diagonal spur and three-track parking yard.

@@ -3,7 +3,7 @@
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
-0 !BRICKTRACK PROJECT @Short%20perpendicular%20freight%20spur
+0 !BRICKTRACK PROJECT @Perpendicular%20freight%20spur
 0 !BRICKTRACK AREA 192 128 @straight
 0 !BRICKTRACK FRONT @north
 0 !BRICKTRACK EXIT @west @West%20mainline @west @outer-1 @a @inner-1 @a
@@ -56,7 +56,7 @@
 0 !BRICKTRACK TRACK @arrangement-1a871420-6768-4a7f-b213-835c5939339c-0 @layout @lego%3Arc-r40-right-switch @arrangement-5c3d1534-9d48-4644-a58d-6feb6c6c8b29--1 @example%3Afreight-spur - -
 1 72 2898.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
 0 !BRICKTRACK TRACK @freight-curve-1 @layout @lego%3Arc-r40 - - - -
-1 72 3352.163441028845 -24 -813.031536124903 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 53400.dat
+1 72 3352.163441028846 -24 -813.031536124903 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 53400.dat
 0 !BRICKTRACK TRACK @freight-curve-2 @layout @lego%3Arc-r40 - - - -
 1 72 3572.882398440155 -24 -1033.750408779896 0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 0.55557023302 53400.dat
 0 !BRICKTRACK TRACK @freight-curve-3 @layout @lego%3Arc-r40 - - - -

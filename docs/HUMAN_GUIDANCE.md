@@ -28,9 +28,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   can use them in another program. We only need to reopen our own track files.
 - Use 60 inches along the track and 40 inches of depth for most straight
   examples. Use the deeper footprint for longer perpendicular storage.
-- Use example names for discussion and compare plans by part count. Keep
-  layouts distinct, show a short perpendicular option, and use the right edge
-  for perpendicular tracks and the four-track right yard's storage.
+- Give examples two-to-five-character alphanumeric codes based on their types.
+  Keep layouts distinct, show a short perpendicular spur, and use the right
+  edge for perpendicular tracks and the four-track right yard's storage.
 - Make track look like the actual parts and preserve small details on
   high-density displays.
 - Offer shorter examples where the length of straight storage can vary.

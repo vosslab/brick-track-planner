@@ -92,6 +92,9 @@ test("every straight example is a clean connected NILTC assignment", () => {
     straightExamples.length,
     "each gallery example has its own track plan",
   );
+  const codes = straightExamples.map(({ code }) => code);
+  assert.equal(new Set(codes).size, codes.length);
+  assert.ok(codes.every((code) => /^[A-Z0-9]{2,5}$/.test(code)));
   assert.deepEqual(
     straightExamples.slice(0, 2).map(({ name }) => name),
     ["Mainline only", "Back-out siding"],
@@ -101,13 +104,12 @@ test("every straight example is a clean connected NILTC assignment", () => {
   for (const { file, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
-    const deep = id === "12-perpendicular-freight-spur" || id === "10-two-track-arrival";
     parts.push(
       showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
     );
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
-      deep ? [128, 192, "straight"] : [192, 128, "straight"],
+      [192, 128, "straight"],
       `${name} uses its intended frontage and depth`,
     );
     assert.deepEqual(
@@ -150,12 +152,7 @@ test("every straight example is a clean connected NILTC assignment", () => {
     const storageEnds = result.ports.filter(
       (port) => port.type === "regular" && !port.joined && !/^(inner|outer)-/.test(port.pieceId),
     );
-    if (deep)
-      assert.ok(
-        storageEnds.some(({ y }) => y > 128),
-        `${name} needs the extra depth`,
-      );
-    if (/^(10|12)-/.test(file)) {
+    if (id === "12-perpendicular-freight-spur-short") {
       const rightEdgeClearance =
         result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
       assert.ok(rightEdgeClearance >= 0 && rightEdgeClearance < 3, `${name} uses the right edge`);
@@ -177,25 +174,6 @@ test("every straight example is a clean connected NILTC assignment", () => {
     ranked,
     [...ranked].sort((a, b) => a - b),
     "examples after the two starters are ordered by physical track count",
-  );
-});
-
-test("the short freight spur keeps the same approach and trims only perpendicular straights", () => {
-  const full = template("12-perpendicular-freight-spur");
-  const short = template("12-perpendicular-freight-spur-short");
-  const relativeBranch = ({ items, area }) =>
-    items
-      .filter(({ id }) => !/^(inner|outer)-/.test(id))
-      .map(({ x, ...item }) => ({ ...item, x: (x - area.width).toFixed(6) }));
-  const shortBranch = relativeBranch(short);
-  const fullBranch = relativeBranch(full);
-  const retained = new Set(shortBranch.map(({ id }) => id));
-  const removed = fullBranch.filter(({ id }) => !retained.has(id));
-  assert.equal(removed.length, 5);
-  assert.ok(removed.every(({ partId, angle }) => partId === "lego:rc-s16" && angle === 90));
-  assert.deepEqual(
-    shortBranch,
-    fullBranch.filter(({ id }) => retained.has(id)),
   );
 });
 
