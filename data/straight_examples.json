@@ -25,9 +25,19 @@
     "purpose": "Spot freight cars on a 48-stud diagonal spur behind the inner track."
   },
   {
+    "file": "05-diagonal-loading-spur-short.ldr",
+    "name": "Short diagonal loading spur",
+    "purpose": "Use 16 studs of straight track at the same angle."
+  },
+  {
     "file": "06-long-back-out.ldr",
     "name": "Long back-out siding",
     "purpose": "Park along 64 studs of straight track, parallel to the display front."
+  },
+  {
+    "file": "06-long-back-out-short.ldr",
+    "name": "32-stud back-out siding",
+    "purpose": "Fit the same turnout and return curve with two S16 storage straights."
   },
   {
     "file": "07-double-crossover.ldr",
@@ -50,13 +60,28 @@
     "purpose": "Hold two trains behind the display on 80- and 64-stud storage tracks."
   },
   {
+    "file": "10-two-track-arrival-short.ldr",
+    "name": "Short two-track arrival siding",
+    "purpose": "Keep both arrival tracks with 48 and 32 studs of straight storage."
+  },
+  {
     "file": "11-three-track-parking.ldr",
     "name": "Three-track parking yard",
     "purpose": "Choose among three storage tracks with 64, 48 and 32 straight studs."
   },
   {
+    "file": "11-three-track-parking-short.ldr",
+    "name": "Short three-track parking yard",
+    "purpose": "Use the same ladder with 48, 32 and 16 studs of straight storage."
+  },
+  {
     "file": "12-perpendicular-freight-spur.ldr",
     "name": "Perpendicular freight spur",
     "purpose": "Turn away from the public edge and run 80 straight studs into the display."
+  },
+  {
+    "file": "12-perpendicular-freight-spur-short.ldr",
+    "name": "Short perpendicular freight spur",
+    "purpose": "Keep the turn away from the public edge with 32 studs of straight track."
   }
 ]

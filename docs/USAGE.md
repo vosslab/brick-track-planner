@@ -32,6 +32,8 @@ Choose **Browse 40 &times; 60 examples** on the start screen or in the editor.
 Every drawing uses the same four-baseplate frontage and six-baseplate depth,
 with the plexiglass along the top. Look at where a train can leave the inner
 mainline, where it can park, and whether it must back out to leave.
+The shorter variants sit beside their originals. They use fewer straight
+pieces while keeping the same switches, routes, and display area.
 
 Choose a drawing to open it and edit the track. **Close** returns to the
 current plan. If you want to keep edits before opening another example,
@@ -39,7 +41,7 @@ choose **Save track plan** to download your copy.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Gallery comparing straight 40 by 60 inch track plans on the same frontage](screenshots/straight_examples.webp)
+![Gallery comparing 40 by 60 inch plans with full and short sidings and yards](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ## Add track that solves a layout job

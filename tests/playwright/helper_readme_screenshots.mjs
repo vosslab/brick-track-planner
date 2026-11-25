@@ -11,6 +11,8 @@ import { resolve } from "node:path";
 import { expect } from "@playwright/test";
 import { chromium } from "playwright";
 
+import straightExamples from "../../data/straight_examples.json" with { type: "json" };
+
 const [baseUrl, outputDirectory] = process.argv.slice(2);
 if (!baseUrl || !outputDirectory) {
   throw new Error("Usage: helper_readme_screenshots.mjs <base-url> <output-directory>");
@@ -31,10 +33,10 @@ try {
   await page.locator("#area-depth").selectOption("192");
   await page.screenshot({ path: `${output}/member_design_start.png` });
 
+  await page.setViewportSize({ width: 1920, height: 1720 });
   await page.locator("#start-browse-examples").click();
   const gallery = page.getByRole("dialog", { name: "40 × 60 straight examples" });
-  await expect(gallery.getByRole("button").locator("svg")).toHaveCount(12);
-  await page.setViewportSize({ width: 1920, height: 1200 });
+  await expect(gallery.getByRole("button").locator("svg")).toHaveCount(straightExamples.length);
   const cardGrid = gallery.locator("#template-gallery-cards");
   await expect
     .poll(() => cardGrid.evaluate((grid) => grid.scrollHeight - grid.clientHeight))

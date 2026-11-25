@@ -57,6 +57,13 @@ test("the 40 by 60 gallery previews and opens editable straight examples", async
   await expect(page.locator("#editor")).toBeVisible();
   await expect(page.getByLabel("Layout name")).toHaveValue("40 x 60 straight: mainline only");
   await expect(page.locator("#design-size")).toContainText("40 × 60");
+
+  await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
+  await gallery.getByRole("button", { name: /^Short diagonal loading spur\./ }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Short diagonal loading spur");
+  expect(
+    (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("diagonal-loading-")),
+  ).toHaveLength(1);
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {

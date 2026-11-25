@@ -97,7 +97,6 @@ test("the U-shaped staging template is a fitting connected general-area plan", (
 });
 
 test("every 40 by 60 straight example is a clean connected NILTC assignment", () => {
-  assert.equal(straightExamples.length, 12, "the gallery contains a dozen examples");
   assert.equal(
     new Set(straightExamples.map(({ file }) => file)).size,
     straightExamples.length,
@@ -156,6 +155,27 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
     fingerprints.add(fingerprint);
   }
   assert.equal(fingerprints.size, straightExamples.length);
+});
+
+test("short gallery variants trim storage straights from the original plans", () => {
+  const shortExamples = straightExamples.filter(({ file }) => file.endsWith("-short.ldr"));
+  assert.ok(shortExamples.length > 0);
+  for (const { file, name } of shortExamples) {
+    const original = template(file.replace(/-short\.ldr$/, ""));
+    const short = template(file.replace(/\.ldr$/, ""));
+    const retained = new Set(short.items.map(({ id }) => id));
+    const removed = original.items.filter(({ id }) => !retained.has(id));
+    assert.ok(removed.length > 0, `${name} shortens the original`);
+    assert.ok(
+      removed.every(({ id, partId }) => partId === "lego:rc-s16" && !/^(outer|inner)-/.test(id)),
+      `${name} removes only private straights`,
+    );
+    assert.deepEqual(
+      short.items,
+      original.items.filter(({ id }) => retained.has(id)),
+    );
+    assert.deepEqual(short.area, original.area);
+  }
 });
 
 test("the double crossover example transfers trains between the mainlines", () => {

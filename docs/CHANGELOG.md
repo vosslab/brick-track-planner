@@ -4,6 +4,8 @@
 
 ### Behavior or Interface Changes
 
+- Add shorter gallery versions of the diagonal and perpendicular spurs,
+  back-out siding, two-track arrival siding, and three-track parking yard.
 - Show each arrangement's track footprint and connection requirements. When a
   preview cannot fit, explain what blocked it and where to adjust the plan.
 - Drag selected track or enter its position in the inspector. Delete selected

@@ -7,9 +7,10 @@ This project is in pre-production.
 
 ## From assigned area to siding
 
-Choose **Browse 40 &times; 60 examples** on the start screen to compare twelve
-ways to use a straight assignment. Pick a drawing to open it as an editable
-track plan. Both club mainlines are already connected.
+Choose **Browse 40 &times; 60 examples** on the start screen to compare ways to
+use a straight assignment. Several sidings and yards come in shorter lengths.
+Pick a drawing to open it as an editable track plan with both club mainlines
+already connected.
 
 Start with the space you signed up for. For example, choose 40 inches along
 the track and 60 inches from the plexiglass, then choose **Create track plan**.
