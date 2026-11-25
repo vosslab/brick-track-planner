@@ -10,10 +10,10 @@ pub fn catalog_json() -> String {
     CATALOG_JSON.into()
 }
 
-/// Evaluate a project and optionally snap a draft, returning JSON or a browser error.
+/// Evaluate a project, returning JSON or a browser error.
 #[wasm_bindgen]
-pub fn evaluate_json(project_json: &str, draft_json: &str) -> Result<String, JsValue> {
-    evaluate(project_json, draft_json).map_err(|error| JsValue::from_str(&error.to_string()))
+pub fn evaluate_json(project_json: &str) -> Result<String, JsValue> {
+    evaluate(project_json).map_err(|error| JsValue::from_str(&error.to_string()))
 }
 
 /// Encode row-major 8-bit RGBA pixels as lossless WebP.

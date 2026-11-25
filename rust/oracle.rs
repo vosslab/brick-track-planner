@@ -6,9 +6,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = env::args().skip(1);
     let path = args
         .next()
-        .ok_or("Usage: cargo run --example oracle -- PROJECT [DRAFT_JSON]")?;
+        .ok_or("Usage: cargo run --example oracle -- PROJECT")?;
     let project = fs::read_to_string(path)?;
-    let draft = args.next().unwrap_or_default();
-    println!("{}", track_geometry::evaluate(&project, &draft)?);
+    if args.next().is_some() {
+        return Err("Usage: cargo run --example oracle -- PROJECT".into());
+    }
+    println!("{}", track_geometry::evaluate(&project)?);
     Ok(())
 }

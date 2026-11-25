@@ -1,75 +1,83 @@
 # Usage
 
-## Start the planner
+## Start a member design
 
-Build and serve the app locally with the repository's setup instructions in the
-[README](../README.md). The planner saves files to your computer. After the local build is served,
-project editing, the packaged examples, and exports run in the browser. Follow the BrickTracks
-LDraw bundle link when opening those custom part models in an LDraw viewer.
+The planner designs one member's assigned display area. Enter the width along
+the track and the depth from the plexiglass. Common values are expressed in
+inches and baseplates, and **Other** accepts a specific size.
 
-## Start a layout
+Choose the assigned mainline shape.
 
-Choose **40 x 40**, **60 x 40 Straight**, **60 x 40 Curve**, or **Advanced** on the welcome screen.
-On either straight starter, choose **Add a siding** to place a turnout and a connected parallel
-track in the marked space behind the inner mainline. Both mainline exits stay in place. Extend the
-siding from its open end, or choose **Undo** to remove the whole siding.
+- **Straight** puts both NILTC mainlines along the selected public edge.
+- **Curve** puts both mainlines around the selected public corner using an
+  R120 outer line and an R104 inner line.
+- **General layout** creates a fully covered design area without a NILTC
+  mainline.
 
-Advanced starts with an empty layout. Use **Open existing project** to load a saved `.btp.json`.
-While editing, use **Open** in the header. The preset menu offers a blank layout, NILTC table sizes,
-and a custom table.
+The area is the member's usable display space. It is not a physical table map.
+The planner draws the 32-stud baseplate grid automatically, so members plan
+track instead of moving baseplates.
 
-Select track in the library and click or tap the table. Use **Rotate 90 degrees** to rotate the
-active placement or selection. A compatible connector takes priority.
-On a marked NILTC table, a first straight near a lane guide can snap to the exact lane. The
-32-stud grid guides member table and baseplate placement, with rotations in quarter turns.
-Use the section controls to move all tables and attached items in a section together.
-For custom or imported tables, use **Select NILTC checks** in the table inspector to check the
-guide alignment and height of named exits without changing their current geometry.
+## Add track that solves a layout job
 
-## Move around the tabletop
+Use the arrangement tools for a complete set of pieces. The preview highlights
+the changed track and reports an overhang or collision before applying it.
 
-- Scroll with two fingers over the tabletop to pan in any direction.
-- Pinch over the tabletop to zoom around the pointer. With a mouse, use Control and the scroll
-  wheel to zoom.
-- Focus the tabletop and hold **Space** while dragging to pan over track or baseplates. You can
-  also drag empty space to pan. Use **Fit view** to see the full layout again.
+- **Parking siding** creates a back-out or drive-through place behind the
+  mainline.
+- **Double crossover** changes between two parallel tracks.
+- **Triple switch** opens three routes from one entrance. Choose it on an open
+  track or a free area, select **Preview**, then use **Fit location** or
+  **Next fit** to choose an offered aligned placement before **Apply**.
+- **Four-track drive-through yard** uses opposite-handed R40 yard ladders and
+  joins all four storage tracks at both ends. Its selected storage length is
+  measured from the shortest track. It needs 192 studs plus the selected
+  storage length; use at least a 100 by 60 inch straight area for the default
+  64-stud choice.
+- **Two-way R104 turnback wye** is a measured R104 wye with mirrored turnouts,
+  R104Y adapters, a tail lead, and a two-direction mainline closure.
+  Its 32-stud tail fits in a 100 by 60 inch area; use 100 by 70 inches for a
+  64-stud tail.
 
-## Try the whole-show fixture
+TrixBrix product sets can include required specialty connectors and separately
+sold entrance switches. The inventory lists each placed physical part, rather
+than treating a product photo as one imaginary piece.
 
-1. In **Open an example...**, choose **Whole Show**. The fixture contains eight nominal
-   tables and seven section instances built from four templates (Corner, Yard, Connector, and
-   Siding). It includes venue bounds, keepouts, and member assignments.
-2. Open **Sections & exits** in the panel. Inspect the Yard, Connector, Corner, and Siding
-   sections. The **Import section** control accepts the packaged `.btps.json` bundles; choose an
-   anchor placement in the preview before importing a copy. Section copies receive new IDs. Use
-   **Export section** to save a selected section as a portable bundle.
-3. Open **Venue** to inspect the room rectangle and named keepouts. Venue coordinates start at the
-   northwest corner. Keepout coordinates describe each rectangle's center. Review the fit findings
-   in the diagnostics panel.
-4. Open **Show inventory** to review visible track totals, recipe-derived ballast materials, and
-   unassigned items. Assign a section to a member in **Sections & exits** to group its requirements
-   under that member. Enter quantities and choose **Apply commitments** to compare them with the
-   required amounts. The report lists missing recipes and unresolved imports as unknowns.
-5. In **Sections & exits**, select **Connector**, change **X (studs)** from 288 to 290, and choose
-   **Move section**. Both lanes open at Yard / Connector and Connector / Northeast, exposing an
-   unsupported strip under the Yard S8. Choose **Undo** to restore the fixture.
-6. Choose **PDF**, select **Grayscale** or **Color**, and export the setup packet. For PNG or WebP,
-   choose **Standard** (2,400-pixel long side) or **High** (4,096-pixel long side); either is capped
-   at 12 megapixels. Save the project and reopen it to continue later.
+Choose a start connector in **Trace from**, then choose **Trace route** and
+click a storage track or another connector. The route follows real port pairs
+inside switches and across joined track ends. It does not treat a crossing as a
+turn where no rail joins.
 
-The fixture's expected coordinates, joins, and intentional open siding end are in
-[`active_plans/active/VFINAL_FIXTURE.md`](active_plans/active/VFINAL_FIXTURE.md). The section file
-contract is in [`FILE_FORMAT.md`](FILE_FORMAT.md).
+## Build to the club mainline
 
-## Import and share
+NILTC starters use the club's 8- and 24-stud lane positions and +2-plate rail
+height. Mainline checks cover the assigned exits, R104/R120 curve requirement,
+and required straight track between curves, switches, and bridges. Yard checks
+remain advisory because the member is free to choose a compact private design.
 
-Use **Import BlueBrick** for a local BlueBrick Map v9 file. Review its import preview and warnings
-before accepting. Unsupported source pieces stay as unresolved items so the project retains a
-record of them.
+The mainline assignment comes from Roger. The planner designs a buildable
+version of that assignment inside the member's display area.
 
-PNG and WebP show the complete visible layout. PDF includes an overview, section details, and
-paginated member bring lists. LDraw preserves the pose and height of mapped visible track. Its
-report lists unmapped track by supplier and part, lists unresolved items, and links to required
-custom models. Tables, scenery, baseplates, and ballast are outside the track model. Current
-mappings cover LEGO 9V S16, R40, and right/left switches plus BrickTracks R104/R120. See
-[`FILE_FORMAT.md`](FILE_FORMAT.md) for file and export details.
+## Edit and inspect
+
+Click or tap a track piece to select it. Use the arrangement tools or
+**Place connected track** to add rail, and use **Remove selected track** to
+remove a selected piece. Undo and Redo apply one design operation at a time.
+Pinch or Control-scroll zooms. Two-finger scroll and drag pan.
+
+The parts panel totals physical pieces in the current design. The findings
+panel reports track outside the design area, protected NILTC mainline findings,
+and imported parts without usable geometry. Open rail ends remain visible as
+connection points while placing or tracing track. A highlighted line or part in
+the route panel explains the selected path.
+
+## Save and export
+
+**Save** downloads the editable `.btp.json` project. **Open** validates a
+saved file before replacing the current design. **Import BlueBrick** creates a
+reviewable track plan in the current design-area model and identifies any part
+the catalog cannot place.
+
+Choose PNG, WebP, PDF, or LDraw from Export. The PDF is the member handoff:
+design area dimensions, public edge, assigned mainline, named exits, drawing,
+route information, and parts list. LDraw includes mapped track only.

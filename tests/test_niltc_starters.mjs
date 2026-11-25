@@ -2,104 +2,215 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { STARTER_CARDS, createStarter } from "../src/niltc_starters.ts";
-import { composePose, newProject, parseProject, worldPose } from "../src/project.ts";
-import { exportSection } from "../src/section_files.ts";
+import {
+  areaToSignupDimensions,
+  createNiltcStarter,
+  resizeDesignArea,
+  signupToAreaDimensions,
+} from "../src/niltc_starters.ts";
+import { composePose, newProject, parseProject } from "../src/project.ts";
 
 const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8"));
 const tolerance = 1e-6;
 
-for (const [kind, width, mode, endEdge] of [
-  ["40x40", 128, "straight", "west"],
-  ["60x40-straight", 192, "straight", "west"],
-  ["60x40-curve", 192, "corner", "south"],
-]) {
-  test(`${kind} fills its table and has two connected mainlines with named exits`, () => {
-    const starter = createStarter(kind, catalog);
-    const project = parseProject(JSON.stringify(starter));
-    assert.deepEqual(project, starter);
-    const [table] = project.tables;
-    const [section] = project.sections;
-    assert.equal(project.tables.length, 1);
-    assert.equal(project.sections.length, 1);
-    assert.deepEqual([table.width, table.depth, table.niltc], [width, 128, mode]);
-    assert.deepEqual(table.fronts, mode === "corner" ? ["north", "west"] : ["north"]);
-    assert.equal(table.sectionId, section.id);
-    assert.equal(section.name, STARTER_CARDS.find((card) => card.kind === kind).title);
-
-    const plates = project.items.filter(({ kind }) => kind === "baseplate");
-    const centers = new Set(plates.map(({ x, y }) => `${x},${y}`));
-    assert.equal(plates.length, (width / 32) * 4);
-    for (let y = 16; y < 128; y += 32) {
-      for (let x = 16; x < width; x += 32) assert.ok(centers.has(`${x},${y}`));
-    }
-    assert.ok(project.items.every(({ tableId }) => tableId === table.id));
-
-    const track = project.items.filter(({ kind }) => kind === "track");
-    assert.ok(track.every(({ heightPlates }) => heightPlates === 2));
-    const ports = track.flatMap((item) => {
-      const part = catalog.parts.find(({ id }) => id === item.partId);
-      return part.ports.map((port) => {
-        const pose = composePose(port, worldPose(item, project.tables));
-        if (part.radius) {
-          assert.ok(Math.abs(Math.hypot(pose.x - 128, pose.y - 128) - part.radius) < tolerance);
-        }
-        return { ...pose, pieceId: item.id, portId: port.id };
-      });
-    });
-    for (const [partId, count] of [
-      ["lego:9v-s16", mode === "corner" ? 8 : width / 8],
-      ["bricktracks:r104", mode === "corner" ? 8 : 0],
-      ["bricktracks:r120", mode === "corner" ? 8 : 0],
-    ]) {
-      assert.equal(track.filter((item) => item.partId === partId).length, count, partId);
-    }
-
-    assert.deepEqual(
-      section.exits.map(({ edge, name }) => [edge, name]),
-      [
-        ["east", "East exit"],
-        [endEdge, endEdge === "south" ? "South exit" : "West exit"],
-      ],
-    );
-    const exitPorts = new Set();
-    for (const exit of section.exits) {
-      for (const [lane, offset] of [
-        ["outer", 8],
-        ["inner", 24],
-      ]) {
-        const endpoint = exit[lane];
-        const port = ports.find(
-          ({ pieceId, portId }) => pieceId === endpoint.pieceId && portId === endpoint.portId,
-        );
-        assert.ok(port);
-        const [x, y, angle] =
-          exit.edge === "east"
-            ? [width, offset, 0]
-            : exit.edge === "south"
-              ? [offset, 128, 90]
-              : [0, offset, 180];
-        assert.ok(Math.hypot(port.x - x, port.y - y) < tolerance);
-        assert.equal(port.angle % 360, angle);
-        exitPorts.add(port);
-      }
-    }
-
-    for (const port of ports) {
-      const matches = ports.filter(
-        (candidate) =>
-          candidate.pieceId !== port.pieceId &&
-          Math.hypot(candidate.x - port.x, candidate.y - port.y) < tolerance &&
-          Math.abs((candidate.angle - port.angle) % 360) === 180,
-      );
-      assert.equal(matches.length, exitPorts.has(port) ? 0 : 1, `${port.pieceId}/${port.portId}`);
-    }
-    const { bundle, warnings } = exportSection(project, section.id, table.id);
-    assert.deepEqual(bundle.project, project);
-    assert.deepEqual(warnings, []);
-  });
+function worldPort(item, portId) {
+  const part = catalog.parts.find(({ id }) => id === item.partId);
+  return composePose(
+    part.ports.find(({ id }) => id === portId),
+    item,
+  );
 }
 
-test("Advanced starts with an empty version 2 project", () => {
-  assert.deepEqual(createStarter("advanced", { parts: [], kits: [] }), newProject());
+function assertJoinedMainlines(project) {
+  const tracks = project.items.filter(({ kind }) => kind === "track");
+  for (const lane of ["outer", "inner"]) {
+    const laneTracks = tracks.filter(({ id }) => id.startsWith(`${lane}-`));
+    for (let index = 1; index < laneTracks.length; index += 1) {
+      const previous = worldPort(laneTracks[index - 1], "b");
+      const current = worldPort(laneTracks[index], "a");
+      assert.ok(Math.hypot(previous.x - current.x, previous.y - current.y) < tolerance);
+      assert.equal((previous.angle - current.angle + 360) % 360, 180);
+    }
+  }
+}
+
+test("NILTC starters create a one-area project with RC/PF mainlines", () => {
+  for (const [width, depth, mode, fronts] of [
+    [128, 128, "straight", ["north"]],
+    [192, 128, "straight", ["north"]],
+    [192, 128, "corner", ["north", "west"]],
+  ]) {
+    const project = createNiltcStarter(catalog, { width, depth, mode, fronts });
+    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    assert.equal(project.version, 3);
+    assert.deepEqual(
+      [project.area.width, project.area.depth, project.area.niltc],
+      [width, 128, mode],
+    );
+    assert.equal(project.area.exits.length, 2);
+    assert.ok(
+      project.items.every(
+        ({ kind, partId, heightPlates }) =>
+          kind !== "track" || (partId !== "lego:9v-s16" && heightPlates === 2),
+      ),
+    );
+    assertJoinedMainlines(project);
+  }
+});
+
+test("a curve fits 40 by 60 and names its rotated exits", () => {
+  for (const [fronts, exits] of [
+    [
+      ["north", "west"],
+      ["south", "east"],
+    ],
+    [
+      ["north", "east"],
+      ["west", "south"],
+    ],
+    [
+      ["south", "east"],
+      ["north", "west"],
+    ],
+    [
+      ["south", "west"],
+      ["east", "north"],
+    ],
+  ]) {
+    const project = createNiltcStarter(catalog, { width: 128, depth: 192, mode: "corner", fronts });
+    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    assert.equal(project.items.filter(({ partId }) => partId === "bricktracks:r104").length, 8);
+    assert.equal(project.items.filter(({ partId }) => partId === "bricktracks:r120").length, 8);
+    assertJoinedMainlines(project);
+    assert.deepEqual(
+      project.area.exits.map(({ edge }) => edge),
+      exits,
+    );
+    assert.ok(
+      project.area.exits.every(
+        ({ id, name, edge }) =>
+          id === `exit-${edge}` && name === `${edge[0].toUpperCase()}${edge.slice(1)} exit`,
+      ),
+    );
+  }
+});
+
+test("straight mainlines follow every public edge", () => {
+  for (const front of ["north", "east", "south", "west"]) {
+    const project = createNiltcStarter(catalog, {
+      width: 192,
+      depth: 128,
+      mode: "straight",
+      fronts: [front],
+    });
+    assert.deepEqual(parseProject(JSON.stringify(project)), project);
+    assertJoinedMainlines(project);
+    assert.equal(project.area.exits.length, 2);
+  }
+});
+
+test("signup dimensions follow the first public edge", () => {
+  const signup = { width: 192, depth: 128 };
+  assert.deepEqual(signupToAreaDimensions(signup, ["north"]), signup);
+  assert.deepEqual(signupToAreaDimensions(signup, ["east"]), { width: 128, depth: 192 });
+  assert.deepEqual(areaToSignupDimensions({ width: 128, depth: 192 }, ["east"]), signup);
+  assert.deepEqual(signupToAreaDimensions(signup, ["east", "south"]), { width: 128, depth: 192 });
+  assert.deepEqual(signupToAreaDimensions(signup, []), signup);
+  assert.deepEqual(areaToSignupDimensions(signup, []), signup);
+});
+
+test("custom-length track and invalid curve areas", () => {
+  const custom = createNiltcStarter(catalog, {
+    width: 197,
+    depth: 32,
+    mode: "straight",
+    fronts: ["north"],
+  });
+  assertJoinedMainlines(custom);
+  assert.ok(custom.items.some(({ partId }) => partId === "trixbrix:s01"));
+  assert.throws(() =>
+    createNiltcStarter(catalog, {
+      width: 96,
+      depth: 128,
+      mode: "corner",
+      fronts: ["north", "west"],
+    }),
+  );
+  assert.throws(() =>
+    createNiltcStarter(catalog, { width: 4097, depth: 32, mode: "straight", fronts: ["north"] }),
+  );
+});
+
+test("resizing an untouched starter rebuilds mainline legs and exits", () => {
+  const starter = createNiltcStarter(catalog, {
+    width: 192,
+    depth: 128,
+    mode: "corner",
+    fronts: ["north", "west"],
+  });
+  const resized = resizeDesignArea(starter, catalog, {
+    width: 128,
+    depth: 192,
+    name: "Tall corner",
+  });
+  assert.equal(resized.name, "Tall corner");
+  assert.deepEqual([resized.area.width, resized.area.depth], [128, 192]);
+  assert.deepEqual(parseProject(JSON.stringify(resized)), resized);
+  assertJoinedMainlines(resized);
+  assert.equal(resized.items.filter(({ partId }) => partId === "lego:rc-s16").length, 8);
+});
+
+test("resizing protects an edited NILTC mainline and keeps general track", () => {
+  const starter = createNiltcStarter(catalog, {
+    width: 192,
+    depth: 128,
+    mode: "straight",
+    fronts: ["north"],
+  });
+  starter.items.push({
+    kind: "track",
+    id: "yard-track",
+    partId: "lego:rc-s16",
+    layerId: "layout",
+    heightPlates: 0,
+    x: 40,
+    y: 64,
+    angle: 0,
+  });
+  assert.throws(
+    () => resizeDesignArea(starter, catalog, { width: 256, depth: 128 }),
+    /edited track/,
+  );
+
+  const general = newProject();
+  general.items.push({ ...starter.items.at(-1), id: "general-track" });
+  const resized = resizeDesignArea(general, catalog, {
+    width: 13,
+    depth: 17,
+    name: "Small sketch",
+  });
+  assert.equal(resized.name, "Small sketch");
+  assert.deepEqual([resized.area.width, resized.area.depth, resized.items.length], [13, 17, 1]);
+});
+
+test("edited straight areas may extend away from the plexiglass", () => {
+  const project = createNiltcStarter(catalog, {
+    width: 192,
+    depth: 128,
+    mode: "straight",
+    fronts: ["east"],
+  });
+  project.items.push({
+    kind: "track",
+    id: "yard-track",
+    partId: "lego:rc-s16",
+    layerId: "layout",
+    heightPlates: 0,
+    x: 20,
+    y: 50,
+    angle: 0,
+  });
+  const extended = resizeDesignArea(project, catalog, { width: 224, depth: 128 });
+  assert.equal(extended.area.width, 224);
+  assert.ok(extended.items.every((item) => item.x >= 32));
 });

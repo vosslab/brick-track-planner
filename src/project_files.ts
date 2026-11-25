@@ -1,54 +1,9 @@
-import { composePose, localPose, newProject } from "./project";
-import type {
-  Catalog,
-  Item,
-  Kit,
-  Layer,
-  Part,
-  Point,
-  Pose,
-  Project,
-  Table,
-  TrackItem,
-} from "./project";
+import { composePose, newProject } from "./project";
+import type { Catalog, Item, Kit, Layer, Part, Point, Pose, Project, TrackItem } from "./project";
 
 export const MAX_BLUEBRICK_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_LAYERS = 1_000;
 const MAX_BRICKS = 10_000;
-const MAX_TABLES = 1_000;
-
-// Width and depth from the stock BlueBrick 1.9.2 images at eight pixels per stud.
-const STOCK_TABLES = new Map<string, readonly [number, number]>([
-  ["TABLE125X75", [125, 75]],
-  ["TABLE150X75", [150, 75]],
-  ["TABLE187X93", [187.5, 93.75]],
-  ["TABLE204X102", [200, 100]],
-  ["TABLE204X128", [200, 125]],
-  ["TABLE230X102", [225, 100]],
-  ["TABLE230X128", [225, 125]],
-  ["TABLE256X128", [250, 125]],
-  ["TABLE64X64", [64, 64]],
-  ["TABLE96X152", [152.375, 95.25]],
-  ["TABLE96X190", [190.5, 95.25]],
-  ["TABLE96X192", [192, 96]],
-  ["TABLE96X228", [228.625, 95.25]],
-  ["TABLE96X304", [304.75, 95.25]],
-  ["TABLE96X32", [96, 32]],
-  ["TABLE96X64", [96, 64]],
-  ["TABLE96X96", [96, 96]],
-]);
-
-const BASEPLATE_COLORS = new Map([
-  ["3811.1", "#0055BF"],
-  ["3811.2", "#237841"],
-  ["3811.4", "#C91A09"],
-  ["3811.6", "#583927"],
-  ["3811.7", "#9BA19D"],
-  ["3811.10", "#4B9F4A"],
-  ["3811.15", "#FFFFFF"],
-  ["3811.19", "#E4CD9E"],
-  ["3811.70", "#582A12"],
-]);
 
 type SourceBrick = {
   id: string;
@@ -127,38 +82,6 @@ function readBrick(element: Element, id: string, layerId: string): SourceBrick {
   return { id, layerId, sourceId, center, width, depth, altitude };
 }
 
-function makeTable(brick: SourceBrick, width: number, depth: number): Table {
-  const { id, layerId, sourceId, center } = brick;
-  return {
-    id,
-    layerId,
-    name: sourceId,
-    ...composePose({ x: -width / 2, y: -depth / 2, angle: 0 }, center),
-    width,
-    depth,
-    fronts: [],
-  };
-}
-
-function assignTable(item: Item, center: Pose, tables: readonly Table[]): Item {
-  const tolerance = 1e-8;
-  let owner: Table | undefined;
-  for (const table of tables) {
-    const local = localPose(center, table);
-    if (
-      local.x > tolerance &&
-      local.x < table.width - tolerance &&
-      local.y > tolerance &&
-      local.y < table.depth - tolerance
-    ) {
-      if (owner) return item;
-      owner = table;
-    }
-  }
-  if (!owner) return item;
-  return { ...item, ...localPose(item, owner), tableId: owner.id };
-}
-
 function aliases(catalog: Catalog): Map<string, AliasTarget> {
   const targets = new Map<string, AliasTarget>();
   for (const part of catalog.parts) {
@@ -193,6 +116,30 @@ function unresolved(brick: SourceBrick, reason: string): Item {
     altitude,
     reason,
   };
+}
+
+/** BlueBrick part IDs for the retired electrically-powered 9V track family. */
+function isNineVoltTrack(sourceId: string): boolean {
+  return /^(?:2861|2865|2866|2867|2868|5306|5307|5308)(?:\.\d+)?$/i.test(sourceId);
+}
+
+function transformedHull(pose: Pose, hull: readonly Point[]): Point[] {
+  return hull.map((point) => {
+    const offset = rotate(point, pose.angle);
+    return { x: pose.x + offset.x, y: pose.y + offset.y };
+  });
+}
+
+function unresolvedHull(item: Extract<Item, { kind: "unresolved" }>): Point[] {
+  const halfWidth = item.width / 2;
+  const halfDepth = item.depth / 2;
+  // BlueBrick's saved DisplayArea already encloses the rotated source part.
+  return transformedHull({ ...item, angle: 0 }, [
+    { x: -halfWidth, y: -halfDepth },
+    { x: halfWidth, y: -halfDepth },
+    { x: halfWidth, y: halfDepth },
+    { x: -halfWidth, y: halfDepth },
+  ]);
 }
 
 function readMap(xml: string): Element {
@@ -270,15 +217,7 @@ export function importBlueBrick(
       if (brickCount > MAX_BRICKS)
         throw new Error(`BlueBrick maps can contain up to ${MAX_BRICKS} bricks.`);
       const brick = readBrick(source, `brick-${brickCount}`, layer.id);
-      const dimensions = STOCK_TABLES.get(asciiUpper(brick.sourceId));
-      if (dimensions && !brick.altitude) {
-        if (project.tables.length === MAX_TABLES) {
-          throw new Error(`BlueBrick maps can contain up to ${MAX_TABLES} tables.`);
-        }
-        project.tables.push(makeTable(brick, ...dimensions));
-      } else {
-        bricks.push(brick);
-      }
+      bricks.push(brick);
     }
   }
 
@@ -286,12 +225,12 @@ export function importBlueBrick(
     project.layers.push({ id: "layer-1", name: "Layout", visible: true });
   }
   const targets = aliases(catalog);
-  const parts = new Map(catalog.parts.map((part) => [part.id, part]));
   for (const brick of bricks) {
     const key = asciiUpper(brick.sourceId);
-    const color = BASEPLATE_COLORS.get(key);
-    const target = targets.get(key);
-    const baseplate = color !== undefined || key === "3811";
+    const nineVolt = isNineVoltTrack(key);
+    const target = nineVolt ? undefined : targets.get(key);
+    const baseplate = key === "3811" || key.startsWith("3811.");
+    const displayArea = key.startsWith("TABLE");
     const preferredY = target && "part" in target ? target.alias.preferredY : undefined;
     const heightPlates = heightInPlates(brick.altitude, preferredY);
     const { id, layerId, center } = brick;
@@ -310,11 +249,12 @@ export function importBlueBrick(
           ...pose,
           heightPlates,
         };
-        project.items.push(assignTable(item, center, project.tables));
+        project.items.push(item);
       } else {
         const source = sourcePivot(center, target.kit.sourceHull);
         const offset = target.kit.sourceOffset;
         const pivot = offset ? composePose({ ...offset, angle: 0 }, source) : source;
+        const groupId = `import-${id}`;
         for (const [index, child] of target.kit.parts.entries()) {
           const pose = composePose(child, pivot);
           const item: TrackItem = {
@@ -324,29 +264,24 @@ export function importBlueBrick(
             partId: child.partId,
             ...pose,
             heightPlates,
+            groupId,
+            arrangementId: target.kit.id,
           };
-          const offset = rotatedBoundsCenter(parts.get(child.partId)?.footprint ?? [], pose.angle);
-          const childCenter = { x: pose.x + offset.x, y: pose.y + offset.y, angle: pose.angle };
-          project.items.push(assignTable(item, childCenter, project.tables));
+          project.items.push(item);
         }
       }
-    } else if (baseplate && !brick.altitude) {
-      const item: Item = {
-        id,
-        layerId,
-        kind: "baseplate",
-        name: "32 x 32 baseplate",
-        ...center,
-        color,
-      };
-      project.items.push(assignTable(item, center, project.tables));
+    } else if (baseplate || displayArea) {
+      warnings.push(
+        `${brick.sourceId} on "${project.layers.find((layer) => layer.id === layerId)?.name}": skipped non-track layout item.`,
+      );
     } else {
-      const reason =
-        target || baseplate || STOCK_TABLES.has(key)
+      const reason = nineVolt
+        ? "Unsupported 9V track"
+        : target
           ? `Unsupported altitude ${brick.altitude} LDU`
           : "Unknown BlueBrick part";
       const item = unresolved(brick, reason);
-      project.items.push(assignTable(item, center, project.tables));
+      project.items.push(item);
       warnings.push(
         `${brick.sourceId} on "${project.layers.find((layer) => layer.id === layerId)?.name}": ${reason}.`,
       );
@@ -355,7 +290,46 @@ export function importBlueBrick(
       throw new Error(`Expanded BlueBrick maps can contain up to ${MAX_BRICKS} items.`);
     }
   }
+  fitImportArea(project, catalog);
   return { project, warnings };
+}
+
+function fitImportArea(project: Project, catalog: Catalog): void {
+  if (!project.items.length) return;
+  const parts = new Map(catalog.parts.map((part) => [part.id, part]));
+  let left = Infinity;
+  let right = -Infinity;
+  let top = Infinity;
+  let bottom = -Infinity;
+  for (const item of project.items) {
+    let hull: Point[];
+    if (item.kind === "unresolved") {
+      hull = unresolvedHull(item);
+    } else {
+      const part = parts.get(item.partId);
+      if (!part?.footprint.length) {
+        throw new Error(`Catalog track part ${item.partId} has no footprint.`);
+      }
+      hull = transformedHull(item, part.footprint);
+    }
+    for (const point of hull) {
+      left = Math.min(left, point.x);
+      right = Math.max(right, point.x);
+      top = Math.min(top, point.y);
+      bottom = Math.max(bottom, point.y);
+    }
+  }
+  const padding = 16;
+  const origin = { x: left - padding, y: top - padding };
+  for (const item of project.items) {
+    item.x -= origin.x;
+    item.y -= origin.y;
+  }
+  project.area = {
+    ...project.area,
+    width: Math.max(32, right - left + 2 * padding),
+    depth: Math.max(32, bottom - top + 2 * padding),
+  };
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {

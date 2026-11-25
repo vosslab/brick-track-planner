@@ -241,47 +241,6 @@ export function studPattern(id: string, color: string): SVGPatternElement {
   return pattern;
 }
 
-export function baseplateDrawing(
-  group: SVGGElement,
-  color: string,
-  patternId: string,
-  selected: boolean,
-): void {
-  const plate = { x: -16, y: -16, width: 32, height: 32, rx: 0.18 };
-  group.append(
-    svg("rect", {
-      ...plate,
-      fill: color,
-      stroke: selected ? "#006f71" : "#313b32",
-      "stroke-width": selected ? 0.9 : 0.42,
-      "data-baseplate-face": "true",
-    }),
-    svg("path", {
-      d: "M -15.72 15.73 H 15.73 V -15.73",
-      fill: "none",
-      stroke: "#1a231a",
-      "stroke-width": 0.38,
-      opacity: 0.38,
-      "pointer-events": "none",
-    }),
-    svg("path", {
-      d: "M -15.72 15.73 V -15.73 H 15.73",
-      fill: "none",
-      stroke: "#fff",
-      "stroke-width": 0.35,
-      opacity: 0.4,
-      "pointer-events": "none",
-    }),
-    svg("rect", {
-      ...plate,
-      fill: `url(#${patternId})`,
-      "pointer-events": "none",
-      "data-baseplate-studs": "true",
-      style: detailStyle,
-    }),
-  );
-}
-
 export function setSceneDetail(scene: SVGSVGElement, pixelsPerStud: number): void {
   const value = pixelsPerStud >= 3 ? "close" : "overview";
   if (scene.getAttribute("data-scene-detail") === value) return;

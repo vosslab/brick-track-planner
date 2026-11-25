@@ -44,10 +44,9 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
       testMatch: [
-        "**/camera.spec.ts",
-        "**/smoke.spec.ts",
+        "**/member_design.spec.ts",
         "**/sharing.spec.ts",
-        "**/sharing_final.spec.ts",
+        "**/bluebrick_geometry.spec.ts",
       ],
     },
   ],

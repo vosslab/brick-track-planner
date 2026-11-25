@@ -29,13 +29,18 @@ for required in src/index.html src/style.css; do
 		exit 1
 	fi
 done
-required_examples=(examples/double-corner.btp.json examples/two-section.btp.json examples/bluebrick-example.bbm examples/corner.btps.json examples/yard.btps.json examples/connector.btps.json examples/siding.btps.json examples/whole_show.btp.json)
+required_examples=(examples/member-straight.btp.json examples/member-corner.btp.json examples/member-yard.btp.json examples/u-shaped-staging.btp.json examples/bluebrick-example.bbm)
 for example in "${required_examples[@]}"; do
 	if [ ! -s "$example" ]; then
 		echo "ERROR: required release example is missing or empty: $example" >&2
 		exit 1
 	fi
 done
+required_reference="docs/references/niltc-track-specifications/index.html"
+if [ ! -s "$required_reference" ]; then
+	echo "ERROR: required offline NILTC reference is missing or empty: $required_reference" >&2
+	exit 1
+fi
 
 # Soft-warn if index.html does not reference main.js as an ES module.
 if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.html; then
@@ -53,7 +58,7 @@ wasm-pack build . --target web --release --out-dir generated/wasm --out-name tra
 ./node_modules/.bin/tsc --noEmit -p tsconfig.json
 
 rm -rf dist
-mkdir -p dist/wasm dist/examples
+mkdir -p dist/wasm dist/examples dist/references
 
 ./node_modules/.bin/esbuild "main=$ENTRY" \
 	--bundle \
@@ -68,7 +73,8 @@ mkdir -p dist/wasm dist/examples
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
 cp generated/wasm/track_geometry_bg.wasm dist/wasm/
-cp examples/*.btp.json examples/*.btps.json examples/*.bbm dist/examples/
+cp examples/*.btp.json examples/*.bbm dist/examples/
+cp -R docs/references/niltc-track-specifications dist/references/
 touch dist/.nojekyll
 
 test -s dist/index.html
@@ -77,5 +83,6 @@ test -s dist/wasm/track_geometry_bg.wasm
 for example in "${required_examples[@]}"; do
 	test -s "dist/$example"
 done
+test -s dist/references/niltc-track-specifications/index.html
 
 echo "Built dist/ (GitHub Pages-ready)."

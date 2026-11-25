@@ -8,10 +8,11 @@ import { exportSharing } from "./share";
 
 type ImportReview = ReturnType<typeof importBlueBrick>;
 const examples: [string, string][] = [
-  ["two-section.btp.json", "Two-section seam"],
-  ["double-corner.btp.json", "Double corner"],
-  ["bluebrick-example.bbm", "BlueBrick stock table"],
-  ["whole_show.btp.json", "Whole Show"],
+  ["member-straight.btp.json", "Member straight"],
+  ["member-corner.btp.json", "Member corner"],
+  ["member-yard.btp.json", "Member yard"],
+  ["u-shaped-staging.btp.json", "U-shaped staging layout"],
+  ["bluebrick-example.bbm", "BlueBrick track"],
 ];
 
 export function setupFiles(
@@ -27,13 +28,12 @@ export function setupFiles(
   const preview = dialog("import-preview");
   const previewImport = (result: ImportReview): void => {
     importReview = result;
-    const { tables, items } = result.project;
+    const { area, items } = result.project;
     const track = items.filter(({ kind }) => kind === "track").length;
-    const baseplates = items.filter(({ kind }) => kind === "baseplate").length;
-    const unresolved = items.length - track - baseplates;
+    const unresolved = items.length - track;
     element("preview-name").textContent =
-      `${result.project.name}: ${tables.length} tables, ${baseplates} baseplates, ` +
-      `${track} track pieces, and ${unresolved} unresolved items.`;
+      `${result.project.name}: ${area.width} × ${area.depth} studs, ` +
+      `${track} track pieces, and ${unresolved} unresolved imported items.`;
     const warnings = result.warnings.map((warning) => textNode("li", warning));
     if (!warnings.length) warnings.push(textNode("li", "No import warnings."));
     element("import-warnings").replaceChildren(...warnings);
@@ -76,9 +76,7 @@ export function setupFiles(
     }
   };
 
-  for (const id of ["open-project", "open-existing"]) {
-    button(id).addEventListener("click", () => input("project-file").click());
-  }
+  button("open-project").addEventListener("click", () => input("project-file").click());
   input("project-file").addEventListener("change", () => {
     void processFile(input("project-file"), false);
   });

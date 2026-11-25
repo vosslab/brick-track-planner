@@ -37,13 +37,11 @@ export async function boot(page: Page, { startAdvanced = true } = {}): Promise<v
   expect(new URL(page.url()).pathname).toBe("/brick-track-planner/");
   expect(wasm.ok()).toBe(true);
   expect(wasm.headers()["content-type"]).toBe("application/wasm");
-  const advanced = page.getByRole("button", {
-    name: "Advanced \u2014 I\u2019ll handle it",
-    exact: true,
-  });
-  await expect(advanced).toBeVisible();
+  const start = page.getByRole("button", { name: "New design", exact: true });
+  await expect(start).toBeVisible();
   if (startAdvanced) {
-    await advanced.click();
+    await start.click();
+    await page.getByRole("button", { name: "Create track plan", exact: true }).click();
     await expect(page.locator("#tabletop [data-track-scene]")).toBeVisible();
   }
 }

@@ -1,149 +1,121 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { composePose, parseProject, worldPose } from "../src/project.ts";
-import { parseSectionBundle } from "../src/section_files.ts";
+import { parseProject } from "../src/project.ts";
 
 const read = (file) => readFileSync(new URL(file, import.meta.url), "utf8");
-const { parts } = JSON.parse(read("../data/catalog.json"));
-const show = parseProject(read("../examples/whole_show.btp.json"));
 
-function portLayout(project) {
-  const pieces = project.items.filter(({ kind }) => kind === "track");
-  const portsByPiece = new Map(
-    pieces.map((piece) => {
-      const part = parts.find(({ id }) => id === piece.partId);
-      assert.ok(part, piece.partId);
-      const pose = worldPose(piece, project.tables);
-      const ports = part.ports.map((port) => ({
-        ...composePose(port, pose),
-        portId: port.id,
-        pieceId: piece.id,
-        type: port.type,
-        heightPlates: piece.heightPlates,
-      }));
-      return [piece.id, ports];
+test("packaged member examples use one design area", () => {
+  for (const name of ["member-straight", "member-corner", "member-yard"]) {
+    const project = parseProject(read(`../examples/${name}.btp.json`));
+    assert.equal(project.version, 3);
+    assert.ok(project.area.width > 0);
+    assert.ok(project.area.depth > 0);
+    assert.ok(project.items.length > 0);
+    assert.equal("tables" in project, false);
+  }
+});
+
+test("the straight example has two named NILTC handoffs", () => {
+  const project = parseProject(read("../examples/member-straight.btp.json"));
+  assert.equal(project.area.niltc, "straight");
+  assert.equal(project.area.exits.length, 2);
+  assert.deepEqual(
+    project.area.exits.map(({ edge }) => edge),
+    ["west", "east"],
+  );
+});
+
+test("the yard example has a full-height R104 yard on the inner mainline", () => {
+  const project = parseProject(read("../examples/member-yard.btp.json"));
+  const yard = project.items.filter(
+    ({ kind, groupId }) => kind === "track" && groupId === "r104-right-yard",
+  );
+  assert.equal(project.area.niltc, "straight");
+  assert.equal(project.area.exits.length, 2);
+  assert.equal(yard.length, 35);
+  assert.ok(yard.some(({ partId }) => partId === "trixbrix:r104-right-base"));
+  assert.ok(yard.some(({ partId }) => partId === "trixbrix:rc1"));
+  assert.ok(yard.every(({ heightPlates }) => heightPlates === 2));
+  assert.ok(yard.every(({ arrangementId }) => arrangementId === "trixbrix:r104-right-yard-4"));
+});
+
+test("the Rust route graph reaches all four yard outputs", () => {
+  const fixture = new URL("../examples/member-yard.btp.json", import.meta.url).pathname;
+  const result = JSON.parse(
+    execFileSync("cargo", ["run", "--quiet", "--example", "oracle", fixture], {
+      cwd: new URL("..", import.meta.url),
+      encoding: "utf8",
     }),
   );
-  const ports = [...portsByPiece.values()].flat();
+  assert.deepEqual(result.niltcIssues, []);
+  const yardIds = new Set(
+    result.project.items.filter(({ groupId }) => groupId === "r104-right-yard").map(({ id }) => id),
+  );
+  const outputs = result.ports.filter(
+    ({ pieceId, type, joined }) => yardIds.has(pieceId) && type === "regular" && !joined,
+  );
+  const start = result.project.area.exits[0].inner;
+  const targets = [result.project.area.exits[1].inner, ...outputs];
+  assert.equal(targets.length, 4, "three storage outputs plus the inner through mainline");
+  for (const target of targets) assert.ok(reaches(result.routes, start, target));
+});
 
-  function get({ pieceId, portId }) {
-    const port = portsByPiece.get(pieceId)?.find((port) => port.portId === portId);
-    assert.ok(port, `${pieceId}/${portId}`);
-    return port;
-  }
+test("the U-shaped staging example is a fitting connected general-area plan", () => {
+  const fixture = new URL("../examples/u-shaped-staging.btp.json", import.meta.url).pathname;
+  const project = parseProject(read("../examples/u-shaped-staging.btp.json"));
+  assert.equal(project.name, "U-shaped staging layout");
+  assert.equal(project.area.niltc, undefined);
+  assert.equal(project.area.exits.length, 0);
+  assert.ok(project.items.some(({ groupId }) => groupId === "staging-siding"));
 
-  function matches(source) {
-    return ports.filter(
-      (candidate) =>
-        candidate.pieceId !== source.pieceId &&
-        candidate.type === source.type &&
-        candidate.heightPlates === source.heightPlates &&
-        Math.hypot(candidate.x - source.x, candidate.y - source.y) < 1e-6 &&
-        Math.abs(Math.abs(candidate.angle - source.angle) - 180) < 1e-6,
-    );
-  }
+  const result = JSON.parse(
+    execFileSync("cargo", ["run", "--quiet", "--example", "oracle", fixture], {
+      cwd: new URL("..", import.meta.url),
+      encoding: "utf8",
+    }),
+  );
+  assert.deepEqual(result.overhangs, []);
+  const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+  assert.equal(open.length, 3, "two U-run ends plus the staging-siding end");
+  assert.ok(reaches(result.routes, open[0], open[1]));
+  assert.ok(reaches(result.routes, open[0], open[2]));
+});
 
-  function followMainline(start) {
-    const visited = new Set();
-    let current = start;
-    do {
-      assert.ok(!visited.has(current.pieceId), `Loop revisits ${current.pieceId} too early`);
-      visited.add(current.pieceId);
-      const onward = portsByPiece
-        .get(current.pieceId)
-        .filter((port) => port !== current && port.portId !== "branch");
-      assert.equal(onward.length, 1, current.pieceId);
-      const next = matches(onward[0]);
-      assert.equal(next.length, 1, `${onward[0].pieceId}/${onward[0].portId}`);
-      [current] = next;
-    } while (current !== start);
-    return visited;
-  }
+test("the U-shaped staging layout is a selectable packaged example", () => {
+  const picker = read("../src/editor_files.ts");
+  assert.match(picker, /u-shaped-staging\.btp\.json/);
+  assert.match(picker, /U-shaped staging layout/);
+});
 
-  return { ports, get, matches, followMainline };
-}
-
-test("every shipped bundle opens at its anchor with two named external exits", () => {
-  for (const [file, name, tableCount] of [
-    ["corner", "Corner", 1],
-    ["yard", "Yard", 1],
-    ["connector", "Connector", 1],
-    ["siding", "Siding", 2],
-  ]) {
-    const { section, anchorTableId, project } = parseSectionBundle(
-      read(`../examples/${file}.btps.json`),
-    );
-    const [definition] = project.sections;
-    const anchor = project.tables.find(({ id }) => id === anchorTableId);
-    assert.deepEqual([anchor.x, anchor.y, anchor.angle], [0, 0, 0]);
-    assert.equal(section.name, name);
-    assert.equal(project.tables.length, tableCount);
-    assert.equal(project.seams.length, tableCount - 1);
-    assert.equal(definition.exits.length, 2);
-    const { get } = portLayout(project);
-    for (const exit of definition.exits) {
-      assert.ok(exit.name);
-      for (const lane of ["outer", "inner"]) assert.equal(get(exit[lane]).type, "regular");
+function reaches(routes, start, target) {
+  const key = ({ pieceId, portId }) => `${pieceId}\u0000${portId}`;
+  const neighbours = new Map();
+  for (const route of routes) {
+    for (const [from, to] of [
+      [route.from, route.to],
+      [route.to, route.from],
+    ]) {
+      const links = neighbours.get(key(from)) ?? [];
+      links.push({ endpoint: key(to), kind: route.kind });
+      neighbours.set(key(from), links);
     }
   }
-});
-
-test("the show has two disjoint closed mainlines and one open siding end", () => {
-  assert.equal(show.sections.length, 7);
-  assert.equal(show.tables.length, 8);
-  assert.deepEqual([show.venue.width, show.venue.depth], [576, 320]);
-  for (const table of show.tables) assert.deepEqual([table.width, table.depth], [128, 128]);
-
-  const { ports, get, matches, followMainline } = portLayout(show);
-  const start = show.sections
-    .find(({ id }) => id === "northwest")
-    .exits.find(({ edge }) => edge === "south");
-  const outer = followMainline(get(start.outer));
-  const inner = followMainline(get(start.inner));
-  assert.equal(outer.size, 48);
-  assert.equal(inner.size, 64);
-  assert.ok([...outer].every((id) => !inner.has(id)));
-  for (const route of [outer, inner]) {
-    const tables = new Set(
-      show.items.filter(({ id }) => route.has(id)).map(({ tableId }) => tableId),
-    );
-    assert.equal(tables.size, 8);
+  const pending = [{ endpoint: key(start), prior: undefined }];
+  const seen = new Set([`${key(start)}\u0000`]);
+  while (pending.length) {
+    const current = pending.shift();
+    if (current.endpoint === key(target)) return true;
+    for (const link of neighbours.get(current.endpoint) ?? []) {
+      if (link.kind === current.prior) continue;
+      const state = `${link.endpoint}\u0000${link.kind}`;
+      if (!seen.has(state)) {
+        seen.add(state);
+        pending.push({ endpoint: link.endpoint, prior: link.kind });
+      }
+    }
   }
-
-  assert.deepEqual(
-    ports
-      .filter((port) => matches(port).length !== 1)
-      .map(({ pieceId, portId }) => [pieceId, portId]),
-    [["siding-east-branch-end", "b"]],
-  );
-  assert.equal(show.seams.length, 8);
-  for (const { outer, inner } of show.seams) {
-    for (const { a, b } of [outer, inner]) assert.deepEqual(matches(get(a)), [get(b)]);
-  }
-
-  const seam = show.seams.find(({ id }) => id === "yard-connector");
-  assert.deepEqual([get(seam.outer.a).x, get(seam.outer.a).y], [288, 40]);
-  assert.deepEqual([get(seam.inner.a).x, get(seam.inner.a).y], [296, 56]);
-  const supply = show.items.find(({ id }) => id === seam.inner.a.pieceId);
-  assert.deepEqual([supply.partId, supply.tableId], ["bricktracks:s08", "yard"]);
-});
-
-test("Yard and Siding share a member with combined piece requirements", () => {
-  const owner = show.members.find(({ id }) => id === "elodie");
-  const sections = show.sections.filter(({ memberId }) => memberId === owner.id);
-  assert.deepEqual(
-    sections.map(({ id }) => id),
-    ["yard", "siding"],
-  );
-  const tableIds = show.tables
-    .filter(({ sectionId }) => sections.some(({ id }) => id === sectionId))
-    .map(({ id }) => id);
-  const items = show.items.filter(({ tableId }) => tableIds.includes(tableId));
-  const trackTotal = (partId) => items.filter((item) => item.partId === partId).length;
-  assert.equal(trackTotal("lego:9v-s16"), 22);
-  assert.equal(trackTotal("bricktracks:s08"), 2);
-  assert.equal(owner.bring["lego:9v-s16"], 21);
-  assert.equal(owner.bring["bricktracks:s08"], 1);
-});
+  return false;
+}

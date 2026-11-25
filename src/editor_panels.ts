@@ -1,412 +1,154 @@
-import { baseplateSwatches, defaultBaseplateColor } from "./appearance";
+import { choice, container, control, element, textNode } from "./editor_dom";
 import type { Analysis } from "./engine";
-import { action, choice, container, control, element, field, textNode } from "./editor_dom";
-import { edges, turnoutCommon } from "./editor_state";
-import { worldPose } from "./project";
-import type {
-  BallastStyle,
-  BaseplateItem,
-  Catalog,
-  Edge,
-  Item,
-  Pose,
-  Project,
-  Table,
-  TrackItem,
-} from "./project";
+import type { BallastStyle, Catalog, Project, TrackItem } from "./project";
 import { recipeFor } from "./show_inventory";
 
-function round(value: number): number {
-  return Number(value.toFixed(8));
-}
-
-function dimensions(table: Table): string {
-  const measured = `${table.width} x ${table.depth} studs`;
-  return table.nominal
-    ? `Nominal module: ${table.nominal} (${measured})`
-    : `Measured dimensions: ${measured}`;
-}
-
-type PoseForm = Pose & { heightPlates?: number; tableId?: string; name?: string; fronts?: Edge[] };
 const ballastStyles = [
   ["bare", "Bare"],
   ["gray", "Gray"],
   ["pennlug", "PennLUG-style"],
 ] satisfies [BallastStyle, string][];
 
-export function renderSelection(
+export type Diagnostic = { message: string; targetId?: string };
+
+function exitFor(
+  analysis: Analysis,
+  id: string | undefined,
+): Project["area"]["exits"][number] | undefined {
+  return analysis.project.area.exits.find((exit) => exit.id === id);
+}
+
+function laneName(lane: "outer" | "inner"): string {
+  return lane === "outer" ? "outside" : "inside";
+}
+
+function mainlineRule(analysis: Analysis): string {
+  const curve =
+    analysis.project.area.niltc === "corner"
+      ? " For a curve section, use R120 outside and R104 inside."
+      : "";
+  return ` Its endpoint must face out at the design-area boundary, 8 studs from the public edge outside or 24 studs inside, at 2 plates high.${curve}`;
+}
+
+/** Member-readable checks. Protected NILTC handoffs are errors; private routes are not inferred here. */
+export function diagnosticsFor(analysis: Analysis): Diagnostic[] {
+  const checks: Diagnostic[] = [];
+  for (const { pieceId } of analysis.overhangs) {
+    checks.push({
+      message:
+        "This track extends outside the assigned design area. Move it inside or choose a layout that fits.",
+      targetId: pieceId,
+    });
+  }
+  for (const issue of analysis.niltcIssues) {
+    const lane = laneName(issue.lane);
+    if (issue.kind === "missing-mainline") {
+      const names = analysis.project.area.exits.map(({ name }) => name).join(" and ");
+      checks.push({
+        message: `The ${lane} protected NILTC lane has no continuous route between ${names || "its two named handoffs"}. Check joints, switches, and both handoff endpoints.${mainlineRule(analysis)}`,
+      });
+      continue;
+    }
+    if (issue.kind === "mainline-height") {
+      const item = analysis.project.items.find(({ id }) => id === issue.itemId);
+      const height = item?.kind === "track" ? item.heightPlates : undefined;
+      checks.push({
+        message: `Raise this ${lane} protected NILTC track from ${height ?? "its current"} plates to 2 plates high.${mainlineRule(analysis)}`,
+        targetId: issue.itemId,
+      });
+      continue;
+    }
+    if (issue.kind === "mainline-radius") {
+      const requirement = issue.minimumRadius
+        ? `at least R${issue.expectedRadius}`
+        : `R${issue.expectedRadius}`;
+      checks.push({
+        message: `This ${lane} protected NILTC curve is R${issue.actualRadius}; use ${requirement} here.${mainlineRule(analysis)}`,
+        targetId: issue.itemId,
+      });
+      continue;
+    }
+    if (issue.kind === "mainline-curve-sweep") {
+      checks.push({
+        message: `The ${lane} protected NILTC curve turns ${issue.actualDegrees}°. It must make a 90° corner before the named handoff.${mainlineRule(analysis)}`,
+      });
+      continue;
+    }
+    if (issue.kind === "mainline-event-spacing") {
+      checks.push({
+        message: `Leave ${issue.requiredStuds} studs between track events on the ${lane} protected NILTC lane; this layout has ${issue.actualStuds} studs. This rule does not constrain private yard routes.`,
+        targetId: issue.itemId,
+      });
+      continue;
+    }
+    const exit = exitFor(analysis, issue.exitId);
+    const endpoint = exit?.[issue.lane];
+    checks.push({
+      message: `The ${lane} endpoint for named handoff "${exit?.name ?? issue.exitId ?? "unknown"}" is not on the NILTC standard.${mainlineRule(analysis)}`,
+      targetId: endpoint?.pieceId,
+    });
+  }
+  for (const issue of analysis.unresolved) {
+    checks.push({
+      message: `"${issue.name}" was imported without usable track geometry (${issue.sourceId}). Replace it with a catalog track part before relying on its connections.`,
+      targetId: issue.id,
+    });
+  }
+  return checks;
+}
+
+export function renderDiagnostics(analysis: Analysis, pick: (id: string) => void): void {
+  const rows = diagnosticsFor(analysis).map(({ message, targetId }) => {
+    if (!targetId || !analysis.project.items.some(({ id }) => id === targetId))
+      return container("list-row", textNode("small", message));
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "list-row";
+    row.textContent = message;
+    row.addEventListener("click", () => pick(targetId));
+    return row;
+  });
+  element("diagnostics").replaceChildren(
+    ...(rows.length ? rows : [textNode("p", "No fit or route issues.")]),
+  );
+  const fit = element("fit-status");
+  fit.textContent = analysis.overhangs.length
+    ? `${analysis.overhangs.length} outside the design area`
+    : "Fits design area";
+  fit.classList.toggle("bad-status", analysis.overhangs.length > 0);
+}
+
+/** Shows the build finish controls for the selected track. */
+export function renderBallast(
   project: Project,
   catalog: Catalog,
-  ids: ReadonlySet<string>,
-  callbacks: {
-    apply: (values: PoseForm, origin: Pose) => void;
-    remove: () => void;
-    turnout: (id: string, partId: string) => void;
-    baseplateColor: (color: string) => void;
-    ballastStyle: (style: BallastStyle) => void;
-    countBallast: (counted: boolean) => void;
-    niltc: (standard: Table["niltc"]) => void;
-    rotateQuarter: (origin: Pose) => void;
-    duplicate: () => void;
-  },
+  selectedId: string | undefined,
+  apply: (changes: Pick<TrackItem, "ballast" | "countBallast">) => void,
 ): void {
-  const panel = element("selection-panel");
-  const table = project.tables.find(({ id }) => ids.has(id));
-  const selectedItems = project.items.filter((selected) => ids.has(selected.id));
-  const item = selectedItems[0];
-  if (!table && !item) {
-    panel.replaceChildren(textNode("p", "Select a table or a piece to edit its position."));
+  const panel = document.getElementById("ballast-panel");
+  if (!panel) return;
+  const item = project.items.find(({ id }) => id === selectedId);
+  if (!item || item.kind !== "track") {
+    panel.replaceChildren(textNode("p", "Select track to set ballast."));
     return;
   }
-  const part =
-    item?.kind === "track" ? catalog.parts.find(({ id }) => id === item.partId) : undefined;
-  const group = ids.size > 1;
-  const singleTable = group ? undefined : table;
-  const singleItem = group || table ? undefined : item;
-  const title = group ? `${ids.size} selected` : (table?.name ?? part?.name ?? itemName(item));
-  const pose = table ?? (item && worldPose(item, project.tables));
-  if (!pose) return;
-
-  const form = document.createElement("form");
-  form.id = "pose-form";
-  const x = field("pose-x", round(pose.x), "any");
-  const y = field("pose-y", round(pose.y), "any");
-  const angle = field("pose-angle", round(pose.angle), "any");
-  form.append(
-    container(
-      "field-grid",
-      control("X (studs)", x),
-      control("Y (studs)", y),
-      control("Rotation (degrees)", angle),
-    ),
+  const part = catalog.parts.find(({ id }) => id === item.partId);
+  const style = choice("ballast-style", ballastStyles, item.ballast ?? "bare");
+  style.addEventListener("change", () =>
+    apply({ ballast: style.value as BallastStyle, countBallast: item.countBallast }),
   );
-  const height = appendHeight(form, singleItem);
-  const attachment = appendAttachment(form, project.tables, singleItem);
-  const tableFields = appendTable(form, singleTable);
-  const apply = document.createElement("button");
-  apply.id = "apply-pose";
-  apply.type = "submit";
-  apply.textContent = "Apply";
-  apply.className = "primary";
-  const remove = action("Delete", callbacks.remove);
-  remove.id = "delete-selection";
-  const actions = container("form-actions", apply);
-  if (singleTable) {
-    form.append(tableStandard(singleTable, callbacks.niltc));
-    const rotate = action("Rotate table 90\u00b0", () => callbacks.rotateQuarter(pose));
-    rotate.id = "rotate-selected-table";
-    actions.append(rotate);
-  }
-  if (!table && selectedItems.every(({ kind }) => kind !== "unresolved")) {
-    const duplicate = action("Duplicate selected", callbacks.duplicate);
-    duplicate.id = "duplicate-selection";
-    actions.append(duplicate);
-  }
-  actions.append(remove);
-  form.append(actions);
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    callbacks.apply(
-      {
-        x: x.valueAsNumber,
-        y: y.valueAsNumber,
-        angle: angle.valueAsNumber,
-        heightPlates: height?.valueAsNumber,
-        tableId: attachment?.value,
-        name: tableFields?.name.value,
-        fronts: tableFields?.fronts.filter((entry) => entry.input.checked).map(({ edge }) => edge),
-      },
-      pose,
-    );
-  });
-  panel.replaceChildren(textNode("h3", title), form);
-  const baseplates = selectedItems.filter((selected) => selected.kind === "baseplate");
-  const tracks = selectedItems.filter((selected) => selected.kind === "track");
-  if (baseplates.length) panel.append(baseplateColors(baseplates, callbacks.baseplateColor));
-  if (tracks.length) panel.append(trackAppearance(tracks, callbacks));
-  if (singleItem?.kind === "track" && part && turnoutCommon(part)) {
-    const variants = catalog.parts
-      .filter((option) => turnoutCommon(option) && option.brand === part.brand)
-      .map(({ id, name }): [string, string] => [id, name]);
-    if (variants.length > 1) {
-      const swap = choice("turnout-variant", variants, part.id);
-      panel.append(control("Swap turnout (keep common port)", swap));
-      swap.addEventListener("change", () => callbacks.turnout(singleItem.id, swap.value));
-    }
-  }
-}
-
-function itemName(item?: Item): string {
-  if (item?.kind === "unresolved") return item.name;
-  if (item?.kind === "baseplate") return item.name ?? "Baseplate";
-  return "Track";
-}
-
-function appendHeight(form: HTMLFormElement, item?: Item): HTMLInputElement | undefined {
-  if (item?.kind !== "track") return undefined;
-  const height = field("height-plates", item.heightPlates, "1");
-  const guidance = textNode(
-    "p",
-    "For a ballasted build over a baseplate, allow +2 plates of track height.",
-  );
-  guidance.id = "height-plates-guidance";
-  height.setAttribute("aria-describedby", guidance.id);
-  form.append(control("Height (plates)", height), guidance);
-  return height;
-}
-
-function colorChip(color: string): HTMLSpanElement {
-  const chip = document.createElement("span");
-  chip.className = "baseplate-chip";
-  chip.style.backgroundColor = color;
-  chip.setAttribute("aria-hidden", "true");
-  return chip;
-}
-
-function baseplateColors(items: BaseplateItem[], change: (color: string) => void): HTMLElement {
-  const colors = new Set(items.map(({ color }) => color?.toLowerCase() ?? defaultBaseplateColor));
-  const group = document.createElement("fieldset");
-  group.id = "baseplate-colors";
-  const legend = document.createElement("legend");
-  legend.textContent = "Baseplate color";
-  const swatches = baseplateSwatches.map(([color, name]) => {
-    const button = action(name, () => change(color));
-    button.id = `baseplate-${color.slice(1)}`;
-    button.dataset["color"] = color;
-    button.prepend(colorChip(color));
-    button.setAttribute("aria-pressed", String(colors.size === 1 && colors.has(color)));
-    return button;
-  });
-  group.append(legend, container("field-grid", ...swatches));
-  const custom = [...colors].find(
-    (color) => !baseplateSwatches.some(([swatch]) => color === swatch),
-  );
-  if (colors.size > 1) group.append(textNode("p", "Mixed colors"));
-  else if (custom) {
-    const note = textNode("p", `Custom (${custom})`);
-    note.prepend(colorChip(custom));
-    group.append(note);
-  }
-  return group;
-}
-
-function trackAppearance(
-  items: TrackItem[],
-  callbacks: {
-    ballastStyle: (style: BallastStyle) => void;
-    countBallast: (counted: boolean) => void;
-  },
-): HTMLElement {
-  const styles = new Set(items.map(({ ballast }) => ballast ?? "bare"));
-  const options: [string, string][] = [["", "Mixed styles"], ...ballastStyles];
-  const current = styles.size === 1 ? styles.values().next().value : "";
-  const style = choice("ballast-style", options, current);
-  const mixed = style.options[0];
-  if (mixed) {
-    mixed.disabled = true;
-    mixed.hidden = styles.size === 1;
-  }
-  style.addEventListener("change", () => {
-    const next = ballastStyles.find(([key]) => key === style.value);
-    if (next) callbacks.ballastStyle(next[0]);
-  });
-
   const count = document.createElement("input");
   count.id = "count-ballast";
   count.type = "checkbox";
-  count.checked = items.every(({ countBallast }) => countBallast === true);
-  count.indeterminate = !count.checked && items.some(({ countBallast }) => countBallast === true);
-  count.addEventListener("change", () => callbacks.countBallast(count.checked));
-  const countLabel = control("Count PennLUG ballast", count);
-  countLabel.className = "check";
-  const group = document.createElement("fieldset");
-  group.id = "track-appearance";
-  const legend = document.createElement("legend");
-  legend.textContent = "Track appearance";
-  group.append(legend, control("Ballast style", style), countLabel);
-  const missing = items.filter(({ partId }) => !recipeFor(partId)).length;
-  if (missing > 0) {
-    const message =
-      items.length === 1 ? "this piece" : `${missing} of ${items.length} selected pieces`;
-    const warning = textNode("p", `No published ballast recipe for ${message}.`);
-    warning.id = "ballast-recipe-warning";
-    count.setAttribute("aria-describedby", warning.id);
-    group.append(warning);
-  }
-  return group;
-}
-
-function appendAttachment(
-  form: HTMLFormElement,
-  tables: Table[],
-  item?: Item,
-): HTMLSelectElement | undefined {
-  if (!item) return undefined;
-  const options = tables.map(({ id, name }): [string, string] => [id, name]);
-  const attachment = choice("attached-table", [["", "World"], ...options], item.tableId ?? "");
-  form.append(control("Attached to", attachment));
-  return attachment;
-}
-
-function appendTable(
-  form: HTMLFormElement,
-  table?: Table,
-): { name: HTMLInputElement; fronts: { input: HTMLInputElement; edge: Edge }[] } | undefined {
-  if (!table) return undefined;
-  const name = field("edit-table-name", table.name);
-  name.maxLength = 120;
-  const rows: HTMLElement[] = [];
-  const fronts = edges.map((edge) => {
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = table.fronts.includes(edge);
-    input.value = edge;
-    const label = control(edge[0]?.toUpperCase() + edge.slice(1), input);
-    label.className = "check";
-    rows.push(label);
-    return { input, edge };
-  });
-  const heading = textNode("p", dimensions(table));
-  const fieldset = document.createElement("fieldset");
-  const legend = document.createElement("legend");
-  legend.textContent = "Front lane guides";
-  fieldset.append(legend, container("field-grid", ...rows));
-  form.append(control("Table name", name), heading, fieldset);
-  return { name, fronts };
-}
-
-function tableStandard(table: Table, change: (standard: Table["niltc"]) => void): HTMLElement {
-  const checks = choice(
-    "niltc-checks",
-    [
-      ["off", "Off"],
-      ["straight", "Straight"],
-      ["corner", "Corner"],
-    ],
-    table.niltc ?? "off",
+  count.checked = item.countBallast === true;
+  count.addEventListener("change", () =>
+    apply({ ballast: item.ballast, countBallast: count.checked }),
   );
-  checks.addEventListener("change", () => {
-    const standard = checks.value;
-    change(standard === "straight" || standard === "corner" ? standard : undefined);
-  });
-  return control("Select NILTC checks:", checks);
-}
-
-export function renderTables(
-  project: Project,
-  ids: ReadonlySet<string>,
-  pick: (id: string) => void,
-): void {
-  element("table-count").textContent = String(project.tables.length);
-  const panel = element("table-list");
-  const rows = project.tables.map((table) => {
-    const row = action(table.name, () => pick(table.id));
-    row.className = "list-row";
-    row.dataset["selectTable"] = table.id;
-    row.setAttribute("aria-pressed", String(ids.has(table.id)));
-    row.append(textNode("small", dimensions(table)));
-    return row;
-  });
-  panel.replaceChildren(...(rows.length ? rows : [textNode("p", "No tables added.")]));
-}
-
-export function renderLayers(
-  project: Project,
-  toggle: (id: string, visible: boolean) => void,
-  pick: (id: string) => void,
-): void {
-  const rows = project.layers.map(({ id, name, visible }) => {
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = visible;
-    checkbox.addEventListener("change", () => toggle(id, checkbox.checked));
-    const label = control(name, checkbox);
-    label.className = "check";
-    if (visible) return label;
-    const tables = project.tables.filter(({ layerId }) => layerId === id);
-    const items = project.items.filter(({ layerId }) => layerId === id);
-    const hidden = [...tables, ...items].map((entry) => {
-      const name =
-        "kind" in entry ? (entry.kind === "track" ? entry.partId : itemName(entry)) : entry.name;
-      const row = action(name, () => pick(entry.id));
-      row.className = "list-row";
-      return row;
-    });
-    return container("hidden-layer", label, ...hidden);
-  });
-  element("layer-list").replaceChildren(...rows);
-}
-
-export function renderDiagnostics(
-  analysis: Analysis,
-  pick: (id: string) => void,
-  editSeam: (id: string) => void,
-): void {
-  const { counts, overhangs, noTable, unresolved, seams } = analysis;
-  const total = counts.reduce((sum, { count }) => sum + count, 0);
-  element("parts-count").textContent = String(total);
-  const tally = counts.map(({ brand, name, count }) => {
-    const row = container("list-row", textNode("small", `${brand} ${name}`));
-    row.append(String(count));
-    return row;
-  });
-  element("parts-summary").replaceChildren(
-    ...(tally.length ? tally : [textNode("p", "No visible track.")]),
+  panel.replaceChildren(
+    control("Ballast style", style),
+    control("Count published PennLUG materials", count),
+    !recipeFor(item.partId)
+      ? textNode("p", `No published ballast recipe for ${part?.name ?? item.partId}.`)
+      : textNode("p", "Published recipe included in the member parts list."),
   );
-
-  const status = element("fit-status");
-  status.textContent = noTable
-    ? "No visible tabletop"
-    : overhangs.length
-      ? `${overhangs.length} overhanging`
-      : "Fits tabletop";
-  status.classList.toggle("bad-status", !noTable && overhangs.length > 0);
-
-  const diagnostics: HTMLElement[] = [];
-  for (const { pieceId } of overhangs) {
-    const item = analysis.project.items.find(({ id }) => id === pieceId);
-    const part =
-      item?.kind === "track" ? counts.find(({ partId }) => partId === item.partId) : undefined;
-    const row = action(`Overhang: ${part?.name ?? pieceId}`, () => pick(pieceId));
-    row.dataset["overhangId"] = pieceId;
-    diagnostics.push(row);
-  }
-  for (const port of analysis.ports.filter(({ ambiguous }) => ambiguous)) {
-    diagnostics.push(
-      action(`Ambiguous connector: ${port.pieceId} / ${port.portId}`, () => pick(port.pieceId)),
-    );
-  }
-  for (const { id, sourceId, name } of unresolved) {
-    diagnostics.push(action(`Unresolved: ${name} (${sourceId})`, () => pick(id)));
-  }
-  for (const { id, outer, inner } of seams) {
-    const tableSeam = analysis.project.seams.find((seam) => seam.id === id);
-    const a = analysis.project.tables.find((table) => table.id === tableSeam?.tableA);
-    const b = analysis.project.tables.find((table) => table.id === tableSeam?.tableB);
-    const label = a && b ? `${a.name} / ${b.name}` : id;
-    const row = action(label, () => editSeam(id));
-    row.dataset["seamId"] = id;
-    row.append(
-      textNode("small", `Outer: ${seamStatus(outer)}`),
-      textNode("small", `Inner: ${seamStatus(inner)}`),
-    );
-    diagnostics.push(row);
-  }
-  for (const row of diagnostics) row.classList.add("list-row");
-  element("diagnostics").replaceChildren(
-    ...(diagnostics.length ? diagnostics : [textNode("p", "No issues or seams.")]),
-  );
-}
-
-function seamStatus(endpoint: Analysis["seams"][number]["outer"]): string {
-  const status = endpoint.status === "height" ? "rail heights differ" : endpoint.status;
-  const details: string[] = [];
-  if (endpoint.ambiguous) details.push("ambiguous connector");
-  if (endpoint.gap !== undefined && endpoint.gap > 0.0001)
-    details.push(`${Number(endpoint.gap.toFixed(2))} studs`);
-  if (endpoint.angle !== undefined && Math.abs(endpoint.angle) > 0.0001)
-    details.push(`${Number(endpoint.angle.toFixed(1))} degrees`);
-  if (endpoint.height)
-    details.push(`${endpoint.height} ${endpoint.height === 1 ? "plate" : "plates"}`);
-  return details.length ? `${status} (${details.join(", ")})` : status;
 }

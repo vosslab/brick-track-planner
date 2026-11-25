@@ -1,4 +1,4 @@
-import { composePose, worldPose } from "./project";
+import { composePose } from "./project";
 import type { Catalog, Pose, Project } from "./project";
 
 type Mapping = {
@@ -15,30 +15,12 @@ const brickTracksZip = "https://l-gauge.org/downloads/BricktracksCurvesRev1.0.zi
 // LEGO anchors: official 2865a, 2867a, 2859, and 2861 end sleepers (LDraw.org).
 // BrickTracks anchors: s/2865s04.dat connector references in Gale's L-Gauge DATs.
 const mappings = new Map<string, Mapping>([
-  ["lego:9v-s16", { filename: "74746.dat", origin: { x: 0, y: 0, angle: 0 }, baseY: -8, color: 8 }],
+  ["lego:rc-s16", { filename: "74746.dat", origin: { x: 0, y: 0, angle: 0 }, baseY: -8, color: 8 }],
   [
-    "lego:9v-r40",
+    "lego:rc-r40",
     {
       filename: "74747.dat",
       origin: { x: -0.383887097, y: -0.606411228, angle: 11.25 },
-      baseY: -8,
-      color: 8,
-    },
-  ],
-  [
-    "lego:9v-r40-left",
-    {
-      filename: "75542c01-f1.dat",
-      origin: { x: -0.9375, y: 6.375, angle: 0 },
-      baseY: -8,
-      color: 8,
-    },
-  ],
-  [
-    "lego:9v-r40-right",
-    {
-      filename: "75541c01-f1.dat",
-      origin: { x: -0.9375, y: -6.375, angle: 0 },
       baseY: -8,
       color: 8,
     },
@@ -106,10 +88,10 @@ export function exportLDraw(project: Project, catalog: Catalog): LDrawExport {
   const custom = new Map<string, string>();
   const lines = ["0 Brick Track Planner track layout"];
   for (const item of project.items) {
-    if (!visibleLayers.has(item.layerId) || item.kind === "baseplate") continue;
+    if (!visibleLayers.has(item.layerId)) continue;
     const mapping = item.kind === "track" ? mappings.get(item.partId) : undefined;
     if (item.kind === "track" && mapping) {
-      lines.push(partReference(worldPose(item, project.tables), item.heightPlates, mapping));
+      lines.push(partReference(item, item.heightPlates, mapping));
       if (mapping.url) custom.set(mapping.filename, mapping.url);
     } else {
       const part = item.kind === "track" ? parts.get(item.partId) : undefined;

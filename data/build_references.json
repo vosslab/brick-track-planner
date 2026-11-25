@@ -1,0 +1,16 @@
+[
+  {
+    "id": "l-gauge-ballasted-right-switch",
+    "title": "L-Gauge Ballasted Right Switch",
+    "source": "https://l-gauge.org/downloads/Ref016BallastSwitchRightEvenRevA.pdf",
+    "arrangementIds": ["lego:rc-r40-right-switch-return"],
+    "description": "Build the substrate and ballast for the genuine LEGO RC/PF right switch in this arrangement."
+  },
+  {
+    "id": "l-gauge-ballasted-right-return-curve",
+    "title": "L-Gauge Ballasted Right Switch Return Curve",
+    "source": "https://l-gauge.org/downloads/Ref017BallastRightReturnCurveRevA.pdf",
+    "arrangementIds": ["lego:rc-r40-right-switch-return"],
+    "description": "Build the companion substrate below the return curve in this genuine LEGO RC/PF arrangement."
+  }
+]

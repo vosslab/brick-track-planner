@@ -4,8 +4,41 @@
 
 ### Additions and new features
 
+- Rebuilt the planner around one member design area with derived baseplate
+  coverage, named NILTC boundary exits, and direct area-local track positions.
+- Rendered that coverage as a scalable tiled baseplate surface instead of
+  individually editable baseplate items.
+- Removed the final per-baseplate drawing and color-choice infrastructure and
+  the table-era identity pose helpers.
+- Added [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md) and
+  [FILE_STRUCTURE.md](FILE_STRUCTURE.md) for the current single-area design.
+- Simplified camera interaction to pan, zoom, fit view, and tap selection;
+  canvas drags no longer move layout surfaces or track accidentally.
+- Added practical measured track arrangements for parking, double crossovers,
+  triple switches, wyes, and three- and four-track yards. The catalog records
+  physical parts and valid rail routes for each arrangement.
+- Added a double-ended four-track drive-through yard: opposite-handed R40
+  ladders join every storage track at both ends. Added a measured two-way R104
+  turnback wye with mirrored turnouts, R104Y adapters, tail lead, and a
+  two-direction mainline closure.
+- Added candidate-location previews for triple switches and other arrangements,
+  so a member can apply an aligned fit instead of placing geometry by hand.
+- Added route tracing from a selected yard or siding track to the mainline and
+  mainline checks for R104/R120 curves, height, exits, and event spacing.
+- Corrected NILTC event spacing to the source dimensions: 16 studs between
+  events and 64 studs after an S-curve.
+- Replaced the pre-production version 2 show format with version 3. The planner
+  no longer stores whole-show sections, tables, venue setup, seams, member
+  commitments, or movable baseplates.
+- Saved an offline NILTC track-specifications snapshot and both standard diagrams under
+  `docs/references/niltc-track-specifications/`. Added L-Gauge right-switch and return-curve
+  substrate references for RC builds.
+- Added the genuine LEGO RC/PF R40 right-switch return arrangement and bound L-Gauge 016A and
+  017A only to that arrangement; third-party switch arrangements do not receive those instructions.
 - Added a welcome chooser with 40 x 40, 60 x 40 Straight, 60 x 40 Curve, and Advanced starters.
   NILTC starters have editable 32-stud baseplates, two connected mainlines, and named exits.
+- Added a selectable general U-shaped staging example with plastic-track curves,
+  two open mainline ends, and a connected staging siding.
 - Added version 2 show projects, reusable `.btps.json` section bundles, named dual-lane alignment,
   measured venue and keepout checks, and member bring lists with commitments and shortfalls.
 - Added explicit NILTC table adoption with separate table, lane, and exit findings. Legacy and
@@ -31,9 +64,12 @@
   screenshots of the current checkout's starter chooser and assembled show.
 - Added a first-action siding on the two straight starters. It adds a LEGO turnout and curve
   and a TrixBrix straight in one undoable edit, preserving both mainline exits.
+- Added a LEGO R40 rear parking siding: seven successive return curves lead behind a 60 x 40
+  display to a terminal storage track while leaving the mainline direct.
 
 ### Behavior or interface changes
 
+- Removed the 9V-only PennLUG straight ballast recipe.
 - Two-finger scrolling pans the tabletop, pinch zoom follows the pointer, and Space-drag pans
   across pieces without moving them.
 - Updated the welcome cards with plain-language starter choices and made Rotate available in
@@ -55,6 +91,11 @@
 
 ### Developer tests and notes
 
+- Corrected the R40 triple-switch inventory to its six published elements while
+  retaining BlueBrick's measured body geometry and three selectable routes.
+- Calibrated the TrixBrix R104 four-track right yard from its measured source
+  assembly. Its regression now verifies the entrance reaches each of the four
+  16-stud-spaced parking exits through actual rail joints.
 - Removed the release timing probe, SVG node identity checks, and redundant export downloads and
   coordinate tests. Kept the native-to-browser Wasm comparison and end-to-end editing and export
   coverage.

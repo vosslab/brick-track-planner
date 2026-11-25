@@ -1,84 +1,69 @@
 # File format
 
-The planner saves editable projects as `.btp.json`. Version 2 stores a whole layout or show;
-version 1 files still open and are migrated in memory by [`src/project.ts`](../src/project.ts).
-Reusable section snapshots use `.btps.json` and the envelope implemented in
-[`src/section_files.ts`](../src/section_files.ts).
+The planner saves editable member designs as `.btp.json`. Version 3 stores one
+design area and its track. The format is validated before a project opens.
 
-## Whole-show projects
+## Project shape
 
-The required version 2 project keys are `version`, `name`, `sections`, `members`, `layers`,
-`tables`, `items`, and `seams`. `venue` is optional. Every collection is an array, including an
-empty one. The parser validates unique IDs within their groups, references, finite poses, positive
-dimensions, and whole-plate track heights before replacing the open project. A rejected file
-leaves the current layout open.
-
-Version 1 has `name`, `layers`, `tables`, `items`, and `seams`. Opening one preserves its existing
-tables, items, and seams, then adds a local section for its tables and an empty member list. Existing
-tables are not tagged for NILTC checks; those checks remain opt-in. Version 2 also has optional
-metadata: a venue, a table's `nominal` size and `niltc` mode, track `ballast` style and
-`countBallast`, baseplate name and color, and unresolved-item source altitude. These fields do not
-replace geometry or track height.
-
-Poses use continuous stud coordinates and degrees. Each table and item has an `id`, `x`, `y`,
-`angle`, and `layerId`; items also have a `kind`. Track items require `partId` and integer
-`heightPlates`; baseplates can store `name` and six-digit hex `color`; unresolved items retain
-their source ID, name, dimensions, and reason. Table and item IDs share a namespace. IDs in other
-groups are unique within their group. Coordinates are bounded to +/-100,000 studs; table and
-unresolved-item width and depth must be positive and no more than 100,000 studs. These checks apply
-to each stored value, not to combined layout or export bounds.
-
-Track appearance and material counting are separate from placement. `ballast` selects `bare`,
-`gray`, or `pennlug`; `countBallast: true` opts a track item into a published recipe when one is
-available. Recipe gaps remain visible in the inventory and setup packet. `heightPlates` is the
-integer physical height used by fit checks and LDraw placement; appearance and recipes do not
-change it. See [`data/ballast_recipes.json`](../data/ballast_recipes.json).
-
-## Reusable section bundles
-
-A `.btps.json` file has this version 1 envelope:
+Required root keys are `version`, `name`, `area`, `layers`, and `items`.
 
 ```json
 {
-  "version": 1,
-  "section": { "name": "Yard", "ownerName": "Member name" },
-  "anchorTableId": "yard-table",
-  "project": {
-    "version": 2,
-    "name": "Yard",
-    "sections": [{ "id": "yard", "name": "Yard", "exits": [] }],
-    "members": [],
-    "layers": [{ "id": "layout", "name": "Layout", "visible": true }],
-    "tables": [{
-      "id": "yard-table", "name": "Yard table", "layerId": "layout",
-      "sectionId": "yard", "x": 0, "y": 0, "angle": 0,
-      "width": 128, "depth": 128, "fronts": []
-    }],
-    "items": [],
-    "seams": []
-  }
+  "version": 3,
+  "name": "Example yard",
+  "area": {
+    "width": 192,
+    "depth": 128,
+    "fronts": ["north"],
+    "niltc": "straight",
+    "exits": []
+  },
+  "layers": [{ "id": "layout", "name": "Layout", "visible": true }],
+  "items": []
 }
 ```
 
-`ownerName` is optional. The project fragment must contain exactly one section, no venue or
-member records, and only that section's tables, attached items, layers, and internal seams. Its
-anchor table starts at `(0, 0)` with angle `0`. Export positions in the fragment relative to that
-anchor. Import places the anchor at the chosen pose and assigns fresh IDs. Loose layout items are
-left in the source project and reported as a warning; attach them to a table before sharing if they
-belong to the section.
+Coordinates are studs, with X increasing right and Y increasing down. Angles
+are degrees. Every item pose is measured directly in the design area. Width and
+depth must be positive and coordinates must be between -100,000 and 100,000
+studs.
 
-## Other imports and exports
+`area.fronts` contains one public edge for a straight assignment or two
+adjacent public edges for a curve. `area.niltc` is `straight` or `corner` when
+the design uses club mainlines. `area.exits` names the outer and inner rail
+endpoints that connect to the neighboring club display.
 
-BlueBrick import supports the fixture-backed Map v9 subset described in
-[`src/project_files.ts`](../src/project_files.ts); unsupported pieces remain unresolved and the
-import preview reports warnings. The native opening and export controls are implemented in
-[`src/editor_files.ts`](../src/editor_files.ts).
+Track items have `kind: "track"`, `partId`, `heightPlates`, `layerId`, and a
+pose. `groupId` optionally identifies the arrangement that placed related
+physical pieces. Unresolved import items retain their `sourceId`, source name,
+and orientation. Their width and depth are the axis-aligned bounds BlueBrick
+recorded after rotation.
 
-PNG and WebP export the complete visible scene. Standard raster export targets a 2,400-pixel long
-side and High targets 4,096 pixels, subject to a 12-megapixel cap. PDF includes the scene and
-inventory, with Color and Grayscale modes. LDraw exports visible mapped track only; it omits
-tables, baseplates, scenery, unresolved objects, and track without a mapping, and reports omitted
-pieces and required custom files. Mappings are limited to official LEGO 9V S16, R40, and right/left
-switch files plus BrickTracks R104/R120. It does not export TrixBrix track, most switch kits,
-tables, or ballast. See [`src/ldraw.ts`](../src/ldraw.ts) and
-[`src/share.ts`](../src/share.ts).
+The baseplate grid is derived from the area. It is not saved as movable items.
+
+## Catalog contract
+
+`data/catalog.json` contains individual physical parts and optional kits.
+Parts declare connector ports, centerline paths, a footprint, and internal
+`routes`. A route has `from`, `to`, and `path`, and may identify a curve radius
+or a `switch`, `curve`, or `crossing` event. This separates a route a train can
+take from the visual outline of the part.
+
+Kits expand into physical pieces when placed. Inventory, route tracing, export,
+and collision checks therefore see the same track. A kit may note parts sold
+separately when a manufacturer's product needs an entrance switch or extension.
+Some BlueBrick records measure an assembled unit. Its catalog `inventory`
+lists the build components and their quantities. The drawing uses the measured
+rail geometry, and the on-screen tally and PDF use the component quantities.
+
+## Imports and exports
+
+BlueBrick Map v9 import supports the documented XML subset in
+[`src/project_files.ts`](../src/project_files.ts). The importer transfers track
+geometry into one design area. It never creates physical table records. Imported
+9V parts remain unresolved because the planner does not substitute a different
+electrical track system.
+
+PNG, WebP, and PDF export the visible design. LDraw exports only visible mapped
+track and reports omitted parts and custom model requirements. It does not
+export the derived baseplate grid, ballast, or unresolved objects.

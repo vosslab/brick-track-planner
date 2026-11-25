@@ -14,13 +14,6 @@ pub(crate) struct Point {
 impl Point {
     pub const ORIGIN: Self = Self { x: 0.0, y: 0.0 };
 
-    pub fn relative_to(self, origin: Self) -> Self {
-        Self {
-            x: self.x - origin.x,
-            y: self.y - origin.y,
-        }
-    }
-
     pub fn distance_to(self, other: Self) -> f64 {
         (self.x - other.x).hypot(self.y - other.y)
     }
@@ -50,18 +43,7 @@ impl Pose {
     pub fn to_world(self, local: Self) -> Self {
         Self {
             position: self.transform(local.position),
-            angle: (local.angle.rem_euclid(360.0) + self.angle.rem_euclid(360.0)).rem_euclid(360.0),
-        }
-    }
-
-    pub fn to_local(self, world: Self) -> Self {
-        let inverse_rotation = Self {
-            angle: -self.angle,
-            ..Self::IDENTITY
-        };
-        Self {
-            position: inverse_rotation.transform(world.position.relative_to(self.position)),
-            angle: (world.angle.rem_euclid(360.0) - self.angle.rem_euclid(360.0)).rem_euclid(360.0),
+            angle: (self.angle + local.angle).rem_euclid(360.0),
         }
     }
 }
@@ -87,10 +69,16 @@ impl Catalog {
 #[derive(Deserialize)]
 pub(crate) struct Part {
     pub id: String,
-    pub brand: String,
-    pub name: String,
+    #[serde(rename = "brand")]
+    pub _brand: String,
+    #[serde(rename = "name")]
+    pub _name: String,
     pub ports: Vec<Port>,
+    #[serde(default)]
+    pub paths: Vec<Vec<Point>>,
     pub footprint: Vec<Point>,
+    #[serde(default)]
+    pub routes: Vec<Route>,
 }
 
 #[derive(Deserialize)]
@@ -103,51 +91,42 @@ pub(crate) struct Port {
 }
 
 #[derive(Deserialize)]
+pub(crate) struct Route {
+    pub from: String,
+    pub to: String,
+    pub path: usize,
+    #[serde(default)]
+    pub radius: Option<f64>,
+    #[serde(default)]
+    pub event: Option<String>,
+}
+
+#[derive(Deserialize)]
 pub(crate) struct Project {
     pub version: u32,
+    #[serde(rename = "name")]
+    pub _name: String,
+    pub area: DesignArea,
     pub layers: Vec<Layer>,
-    pub tables: Vec<Table>,
     pub items: Vec<Item>,
-    pub seams: Vec<Seam>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct DesignArea {
+    pub width: f64,
+    pub depth: f64,
     #[serde(default)]
-    pub sections: Vec<Section>,
-}
-
-#[derive(Deserialize)]
-pub(crate) struct Venue {
-    pub width: f64,
-    pub depth: f64,
-    pub keepouts: Vec<Keepout>,
-}
-
-#[derive(Deserialize)]
-pub(crate) struct Keepout {
-    pub id: String,
-    pub name: String,
-    #[serde(flatten)]
-    pub center: Point,
-    pub width: f64,
-    pub depth: f64,
+    pub fronts: Vec<Edge>,
+    pub niltc: Option<NiltcKind>,
+    #[serde(default)]
+    pub exits: Vec<SectionExit>,
 }
 
 #[derive(Deserialize)]
 pub(crate) struct Layer {
     pub id: String,
     pub visible: bool,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Table {
-    pub id: String,
-    pub layer_id: String,
-    #[serde(flatten)]
-    pub pose: Pose,
-    pub width: f64,
-    pub depth: f64,
-    #[serde(default)]
-    pub fronts: Vec<Edge>,
-    pub niltc: Option<NiltcKind>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
@@ -167,15 +146,9 @@ pub(crate) enum NiltcKind {
 }
 
 #[derive(Deserialize)]
-pub(crate) struct Section {
-    pub exits: Vec<SectionExit>,
-}
-
-#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SectionExit {
     pub id: String,
-    pub table_id: String,
     pub edge: Edge,
     pub outer: Endpoint,
     pub inner: Endpoint,
@@ -183,10 +156,16 @@ pub(crate) struct SectionExit {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct Endpoint {
+    pub piece_id: String,
+    pub port_id: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct Item {
     pub id: String,
     pub layer_id: String,
-    pub table_id: Option<String>,
     #[serde(flatten)]
     pub pose: Pose,
     #[serde(flatten)]
@@ -203,8 +182,9 @@ pub(crate) enum ItemKind {
     Track {
         part_id: String,
         height_plates: i64,
+        #[serde(default, rename = "groupId")]
+        _group_id: Option<String>,
     },
-    Baseplate,
     Unresolved {
         source_id: String,
         name: String,
@@ -213,39 +193,8 @@ pub(crate) enum ItemKind {
     },
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Seam {
-    pub id: String,
-    pub table_a: String,
-    pub table_b: String,
-    pub outer: Pair,
-    pub inner: Pair,
-}
-
-#[derive(Deserialize)]
-pub(crate) struct Pair {
-    pub a: Endpoint,
-    pub b: Endpoint,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Endpoint {
-    pub piece_id: String,
-    pub port_id: String,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Draft {
-    pub piece_ids: Vec<String>,
-    pub radius: f64,
-}
-
 pub(crate) struct Layout<'a> {
     layers: HashMap<&'a str, bool>,
-    tables: HashMap<&'a str, &'a Table>,
 }
 
 impl<'a> Layout<'a> {
@@ -256,30 +205,13 @@ impl<'a> Layout<'a> {
                 .iter()
                 .map(|layer| (layer.id.as_str(), layer.visible))
                 .collect(),
-            tables: project
-                .tables
-                .iter()
-                .map(|table| (table.id.as_str(), table))
-                .collect(),
         }
-    }
-
-    pub fn table(&self, id: &str) -> Option<&'a Table> {
-        self.tables.get(id).copied()
     }
 
     pub fn layer_visibility(&self, id: &str) -> Option<bool> {
         self.layers.get(id).copied()
     }
-
     pub fn visible(&self, layer_id: &str) -> bool {
         self.layer_visibility(layer_id).unwrap_or(false)
-    }
-
-    pub fn parent_pose(&self, item: &Item) -> Pose {
-        item.table_id
-            .as_deref()
-            .and_then(|id| self.table(id))
-            .map_or(Pose::IDENTITY, |table| table.pose)
     }
 }

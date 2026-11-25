@@ -1,201 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Map>
   <Version>9</Version>
-  <nbItems>9</nbItems>
+  <nbItems>4</nbItems>
   <BackgroundColor><IsKnownColor>true</IsKnownColor><Name>White</Name></BackgroundColor>
   <Author />
   <LUG />
-  <Event>BlueBrick Import Example</Event>
+  <Event>Track-only BlueBrick import example</Event>
   <Date><Day>24</Day><Month>11</Month><Year>2026</Year></Date>
-  <Comment>A hand-authored import sample with a rotated table, layers and track altitudes.</Comment>
-  <ExportInfo>
-    <ExportPath />
-    <ExportFileType>0</ExportFileType>
-    <ExportArea><X>0</X><Y>0</Y><Width>74</Width><Height>96</Height></ExportArea>
-    <ExportScale>1</ExportScale>
-    <ExportWatermark>false</ExportWatermark>
-    <ExportElectricCircuit>false</ExportElectricCircuit>
-    <ExportConnectionPoints>false</ExportConnectionPoints>
-  </ExportInfo>
-  <SelectedLayerIndex>1</SelectedLayerIndex>
+  <Comment>Four RC/PF track pieces. The planner supplies the design area.</Comment>
+  <ExportInfo><ExportPath /><ExportFileType>0</ExportFileType><ExportArea><X>0</X><Y>0</Y><Width>96</Width><Height>40</Height></ExportArea><ExportScale>1</ExportScale><ExportWatermark>false</ExportWatermark><ExportElectricCircuit>false</ExportElectricCircuit><ExportConnectionPoints>false</ExportConnectionPoints></ExportInfo>
+  <SelectedLayerIndex>0</SelectedLayerIndex>
   <Layers>
     <Layer type="brick" id="1">
-      <Name>Tables</Name>
+      <Name>Track</Name>
       <Visible>true</Visible>
       <Transparency>100</Transparency>
-      <HullProperties isVisible="false">
-        <hullColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></hullColor>
-        <hullThickness>1</hullThickness>
-      </HullProperties>
+      <HullProperties isVisible="false"><hullColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></hullColor><hullThickness>1</hullThickness></HullProperties>
       <DisplayBrickElevation>false</DisplayBrickElevation>
       <Bricks>
-        <Brick id="11">
-          <DisplayArea>
-            <X>0</X>
-            <Y>0</Y>
-            <Width>64</Width>
-            <Height>96</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>TABLE96X64</PartNumber>
-          <Orientation>90</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
+        <Brick id="1"><DisplayArea><X>0</X><Y>8</Y><Width>17</Width><Height>8</Height></DisplayArea><MyGroup /><PartNumber>tb 2865.8</PartNumber><Orientation>0</Orientation><ActiveConnectionPointIndex>0</ActiveConnectionPointIndex><Altitude>0</Altitude><Connexions count="0" /></Brick>
+        <Brick id="2"><DisplayArea><X>16</X><Y>8</Y><Width>17</Width><Height>8</Height></DisplayArea><MyGroup /><PartNumber>tb 2865.8</PartNumber><Orientation>0</Orientation><ActiveConnectionPointIndex>0</ActiveConnectionPointIndex><Altitude>0</Altitude><Connexions count="0" /></Brick>
+        <Brick id="3"><DisplayArea><X>32</X><Y>8</Y><Width>17</Width><Height>8</Height></DisplayArea><MyGroup /><PartNumber>tb 2865.8</PartNumber><Orientation>0</Orientation><ActiveConnectionPointIndex>0</ActiveConnectionPointIndex><Altitude>0</Altitude><Connexions count="0" /></Brick>
+        <Brick id="4"><DisplayArea><X>48</X><Y>8</Y><Width>17</Width><Height>8</Height></DisplayArea><MyGroup /><PartNumber>tb 2865.8</PartNumber><Orientation>0</Orientation><ActiveConnectionPointIndex>0</ActiveConnectionPointIndex><Altitude>0</Altitude><Connexions count="0" /></Brick>
       </Bricks>
-      <Groups />
-    </Layer>
-    <Layer type="brick" id="2">
-      <Name>Track and baseplates</Name>
-      <Visible>true</Visible>
-      <Transparency>100</Transparency>
-      <HullProperties isVisible="false">
-        <hullColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></hullColor>
-        <hullThickness>1</hullThickness>
-      </HullProperties>
-      <DisplayBrickElevation>false</DisplayBrickElevation>
-      <Bricks>
-        <Brick id="21">
-          <DisplayArea>
-            <X>3</X>
-            <Y>2</Y>
-            <Width>32</Width>
-            <Height>32</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>3811.2</PartNumber>
-          <Orientation>0</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
-        <Brick id="22">
-          <DisplayArea>
-            <X>38</X>
-            <Y>12</Y>
-            <Width>15.875</Width>
-            <Height>42.125</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>bt switch r104 right.8</PartNumber>
-          <Orientation>90</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
-        <Brick id="23">
-          <DisplayArea>
-            <X>8</X>
-            <Y>48</Y>
-            <Width>17</Width>
-            <Height>8</Height>
-          </DisplayArea>
-          <MyGroup>200</MyGroup>
-          <PartNumber>2865.8</PartNumber>
-          <Orientation>0</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
-        <Brick id="24">
-          <DisplayArea>
-            <X>8</X>
-            <Y>48</Y>
-            <Width>17</Width>
-            <Height>8</Height>
-          </DisplayArea>
-          <MyGroup>200</MyGroup>
-          <PartNumber>2865.8</PartNumber>
-          <Orientation>0</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>-16</Altitude>
-          <Connexions count="0" />
-        </Brick>
-        <Brick id="25">
-          <DisplayArea>
-            <X>65</X>
-            <Y>21</Y>
-            <Width>6</Width>
-            <Height>4</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>UNSUPPORTED-DEMO.8</PartNumber>
-          <Orientation>30</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
-        <Brick id="26">
-          <DisplayArea>
-            <X>8</X>
-            <Y>59</Y>
-            <Width>17</Width>
-            <Height>8</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>2865.8</PartNumber>
-          <Orientation>0</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>-12</Altitude>
-          <Connexions count="0" />
-        </Brick>
-      </Bricks>
-      <Groups>
-        <Group id="200"><PartNumber /><MyGroup /></Group>
-      </Groups>
-    </Layer>
-    <Layer type="brick" id="3">
-      <Name>Hidden track</Name>
-      <Visible>false</Visible>
-      <Transparency>100</Transparency>
-      <HullProperties isVisible="false">
-        <hullColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></hullColor>
-        <hullThickness>1</hullThickness>
-      </HullProperties>
-      <DisplayBrickElevation>false</DisplayBrickElevation>
-      <Bricks>
-        <Brick id="31">
-          <DisplayArea>
-            <X>8</X>
-            <Y>74</Y>
-            <Width>17</Width>
-            <Height>8</Height>
-          </DisplayArea>
-          <MyGroup />
-          <PartNumber>2865.8</PartNumber>
-          <Orientation>0</Orientation>
-          <ActiveConnectionPointIndex>0</ActiveConnectionPointIndex>
-          <Altitude>0</Altitude>
-          <Connexions count="0" />
-        </Brick>
-      </Bricks>
-      <Groups />
-    </Layer>
-    <Layer type="text" id="4">
-      <Name>Notes</Name>
-      <Visible>true</Visible>
-      <Transparency>100</Transparency>
-      <HullProperties isVisible="false">
-        <hullColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></hullColor>
-        <hullThickness>1</hullThickness>
-      </HullProperties>
-      <TextCells>
-        <TextCell>
-          <DisplayArea>
-            <X>2</X>
-            <Y>4</Y>
-            <Width>18</Width>
-            <Height>4</Height>
-          </DisplayArea>
-          <MyGroup />
-          <Text>Annotation skipped on import</Text>
-          <Orientation>0</Orientation>
-          <FontColor><IsKnownColor>true</IsKnownColor><Name>Black</Name></FontColor>
-          <Font><FontFamily>Arial</FontFamily><Size>12</Size><Style>Regular</Style></Font>
-          <TextAlignment>Center</TextAlignment>
-        </TextCell>
-      </TextCells>
       <Groups />
     </Layer>
   </Layers>

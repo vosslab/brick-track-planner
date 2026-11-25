@@ -1,128 +1,170 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { parseProject } from "../src/project.ts";
+import catalog from "../data/catalog.json" with { type: "json" };
+import { newProject, parseProject } from "../src/project.ts";
+import { diagnosticsFor } from "../src/editor_panels.ts";
 import { recipeFor, showInventory } from "../src/show_inventory.ts";
 
-const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8"));
-
-function show() {
-  const source = readFileSync(new URL("../examples/two-section.btp.json", import.meta.url), "utf8");
-  const project = { ...JSON.parse(source), version: 2 };
-  project.members = [
-    { id: "casey", name: "Casey", bring: { "bricktracks:s08": 0 } },
-    { id: "robin", name: "Robin", bring: { "lego:9v-s16": 2 } },
-  ];
-  project.sections = [
-    { id: "west", name: "West", memberId: "casey", exits: [] },
-    { id: "east", name: "East", memberId: "robin", exits: [] },
-  ];
-  project.tables[0].sectionId = "west";
-  project.tables[1].sectionId = "east";
-  return project;
+function track(id, partId, groupId) {
+  return {
+    kind: "track",
+    id,
+    partId,
+    layerId: "layout",
+    x: 0,
+    y: 0,
+    angle: 0,
+    heightPlates: 0,
+    groupId,
+  };
 }
 
-function quantity(rows, key) {
-  return rows.find((row) => row.key === key);
-}
-
-test("member counts follow attached sections and keep zero distinct from unconfirmed", () => {
-  const project = show();
-  project.layers.push({ id: "hidden", name: "Hidden", visible: false });
-  project.tables[0].layerId = "hidden";
-  const s8 = project.items.find(({ id }) => id === "inner-span");
-  project.items.push({ ...s8, id: "hidden-s8", layerId: "hidden" });
-  project.items.push({ ...s8, id: "loose-s8", tableId: undefined });
-  s8.heightPlates = -4;
-
-  const { members, unassigned, track } = showInventory(project, catalog);
-  assert.equal(quantity(members[0].rows, "bricktracks:s08").required, 2);
-  assert.equal(quantity(members[1].rows, "bricktracks:s08"), undefined);
-  assert.equal(quantity(unassigned[0].rows, "bricktracks:s08").required, 1);
-  assert.equal(unassigned[0].label, "Loose pieces");
-  assert.equal(quantity(track, "bricktracks:s08").required, 3);
-  assert.equal(quantity(members[1].rows, "lego:9v-s16").delta, 0);
-
-  project.sections[1].memberId = "casey";
-  const combined = showInventory(parseProject(JSON.stringify(project)), catalog);
-  assert.deepEqual(
-    combined.members[0].rows.map(({ key, required, committed, delta }) => [
-      key,
-      required,
-      committed,
-      delta,
-    ]),
-    [
-      ["bricktracks:r104-right-body", 1, null, null],
-      ["bricktracks:r104-stand", 1, null, null],
-      ["bricktracks:s08", 2, 0, -2],
-      ["lego:9v-s16", 7, null, null],
-    ],
+function addKit(project, kitId) {
+  const kit = catalog.kits.find(({ id }) => id === kitId);
+  assert.ok(kit, kitId);
+  project.items.push(
+    ...kit.parts.map(({ partId }, index) => track(`${kitId}-${index}`, partId, kitId)),
   );
-  assert.equal(quantity(combined.members[1].rows, "lego:9v-s16").delta, 2);
+}
 
-  delete project.sections[1].memberId;
-  const missing = showInventory(project, catalog);
-  const east = missing.unassigned.find(({ label }) => label === "East");
-  assert.equal(quantity(east.rows, "lego:9v-s16").required, 2);
+test("member inventory counts only visible physical track and keeps an arrangement together", () => {
+  const project = newProject();
+  const straight = catalog.parts.find((part) => part.ports.length === 2);
+  assert.ok(straight);
+  project.items.push(track("one", straight.id, "yard"), track("two", straight.id, "yard"));
+  project.layers.push({ id: "hidden", name: "Hidden", visible: false });
+  project.items.push({ ...track("hidden", straight.id), layerId: "hidden" });
+  const report = showInventory(project, catalog);
+  assert.deepEqual(report.track, [
+    { key: straight.id, label: `${straight.brand} ${straight.name}`, required: 2 },
+  ]);
+  assert.equal(report.groups.length, 1);
+  assert.equal(report.groups[0].rows[0].required, 2);
+  assert.deepEqual(report.buildReferences, []);
 });
 
-test("published materials require opt-in and different track pieces report recipe gaps", () => {
-  const project = show();
-  const track = project.items[0];
-  const { x, y, angle, layerId, tableId } = track;
-  const tile = "ballast:3070:black";
-  project.members[0].bring[tile] = 42;
-  project.items = [
-    { ...track, id: "bare", partId: "bricktracks:r104", countBallast: true, ballast: "bare" },
-    { ...track, id: "gray", partId: "trixbrix:r104", countBallast: true, ballast: "gray" },
-    { ...track, id: "display-only", partId: "bricktracks:r104", ballast: "pennlug" },
-    { ...track, id: "no-recipe", partId: "4dbrix:r104", countBallast: true },
-    { ...track, id: "unknown-track", partId: "unknown:track" },
+test("assembled R40 triple reports its six physical elements", () => {
+  const project = newProject();
+  addKit(project, "trixbrix:r40-triple");
+  const report = showInventory(project, catalog);
+  assert.deepEqual(report.track.map(({ key, required }) => [key, required]).sort(), [
+    ["trixbrix:r40-half", 2],
+    ["trixbrix:r40-left-connector", 1],
+    ["trixbrix:r40-right-connector", 1],
+    ["trixbrix:r40-triple-base", 1],
+    ["trixbrix:r40-triple-detach", 1],
+  ]);
+  const parallel = newProject();
+  addKit(parallel, "trixbrix:r40-triple-parallel");
+  const parallelRows = showInventory(parallel, catalog).track;
+  assert.equal(
+    parallelRows.reduce((total, row) => total + row.required, 0),
+    9,
+  );
+  assert.deepEqual(parallelRows.map(({ key, required }) => [key, required]).sort(), [
+    ["trixbrix:r40", 2],
+    ["trixbrix:r40-half", 2],
+    ["trixbrix:r40-left-connector", 1],
+    ["trixbrix:r40-right-connector", 1],
+    ["trixbrix:r40-triple-base", 1],
+    ["trixbrix:r40-triple-detach", 1],
+    ["trixbrix:s16", 1],
+  ]);
+});
+
+test("unknown imports and missing ballast recipes remain visible in the member handoff", () => {
+  const project = newProject();
+  const straight = catalog.parts.find((part) => part.ports.length === 2);
+  assert.ok(straight);
+  project.items.push({ ...track("recipe", straight.id), countBallast: true });
+  project.items.push({
+    kind: "unresolved",
+    id: "imported",
+    layerId: "layout",
+    x: 0,
+    y: 0,
+    angle: 0,
+    sourceId: "vendor:unknown",
+    name: "Unknown switch",
+    width: 8,
+    depth: 16,
+    reason: "No catalog geometry",
+  });
+  const report = showInventory(project, catalog);
+  assert.ok(report.unknown.some((row) => row.key.startsWith("unresolved:")));
+  if (!recipeFor(straight.id))
+    assert.ok(report.unknown.some((row) => row.key.startsWith("recipe:")));
+});
+
+test("v3 inventory survives save and reopen", () => {
+  const project = newProject();
+  const straight = catalog.parts.find((part) => part.ports.length === 2);
+  assert.ok(straight);
+  project.items.push(track("one", straight.id, "yard"));
+  assert.deepEqual(
+    showInventory(parseProject(JSON.stringify(project)), catalog),
+    showInventory(project, catalog),
+  );
+});
+
+test("L-Gauge right switch references attach only to the genuine LEGO return arrangement", () => {
+  const project = newProject();
+  const straight = catalog.parts.find((part) => part.ports.length === 2);
+  assert.ok(straight);
+  project.items.push({
+    ...track("switch-return", straight.id, "return"),
+    arrangementId: "lego:rc-r40-right-switch-return",
+  });
+  const report = showInventory(project, catalog);
+  assert.deepEqual(
+    report.buildReferences.map(({ title }) => title),
+    ["L-Gauge Ballasted Right Switch", "L-Gauge Ballasted Right Switch Return Curve"],
+  );
+  project.items[0].arrangementId = "trixbrix:r104-right-yard-4";
+  assert.deepEqual(showInventory(project, catalog).buildReferences, []);
+});
+
+test("member diagnostics explain protected handoffs without raw issue codes", () => {
+  const project = newProject();
+  project.area.niltc = "corner";
+  project.area.fronts = ["north", "west"];
+  project.area.exits = [
     {
-      x,
-      y,
-      angle,
-      layerId,
-      tableId,
-      id: "unresolved-import",
-      kind: "unresolved",
-      sourceId: "missing-track",
-      name: "Missing track",
-      width: 8,
-      depth: 8,
-      reason: "No exact catalog match",
+      id: "east",
+      name: "East handoff",
+      edge: "east",
+      outer: { pieceId: "missing", portId: "a" },
+      inner: { pieceId: "missing", portId: "b" },
     },
   ];
-  const report = showInventory(parseProject(JSON.stringify(project)), catalog);
-  const recipe = recipeFor("bricktracks:r104");
-  assert.ok(recipe);
-  assert.equal(recipeFor("trixbrix:r104"), recipe);
-  assert.equal(recipeFor("4dbrix:r104"), undefined);
-  assert.deepEqual(
-    Object.fromEntries(report.ballast.map(({ key, required }) => [key, required])),
-    Object.fromEntries(
-      recipe.materials.map(({ partId, color, quantity }) => [
-        `ballast:${partId}:${color}`,
-        quantity * 2,
-      ]),
-    ),
-  );
-  assert.equal(quantity(report.ballast, tile).required, 40);
-  assert.equal(quantity(report.members[0].rows, tile).delta, 2);
-  assert.deepEqual(
-    report.unknown.map(({ key, required }) => [key, required]),
-    [
-      ["recipe:4dbrix:r104", 1],
-      ["unknown:unknown:track", 1],
-      ['unresolved:["missing-track","Missing track"]', 1],
+  const messages = diagnosticsFor({
+    project,
+    ports: [],
+    routes: [],
+    overhangs: [],
+    unresolved: [],
+    niltcIssues: [
+      { kind: "missing-mainline", lane: "outer" },
+      { kind: "exit-off-standard", lane: "inner", exitId: "east" },
+      {
+        kind: "mainline-event-spacing",
+        lane: "outer",
+        previousItemId: "first",
+        itemId: "second",
+        requiredStuds: 16,
+        actualStuds: 16,
+      },
     ],
+  });
+  assert.match(messages[0].message, /continuous route/);
+  assert.match(messages[0].message, /R120 outside and R104 inside/);
+  assert.match(messages[1].message, /East handoff/);
+  assert.match(messages[2].message, /16 studs/);
+  assert.match(messages[2].message, /private yard routes/);
+  assert.doesNotMatch(
+    messages.map(({ message }) => message).join("\n"),
+    /missing-mainline|exit-off-standard/,
   );
-  assert.deepEqual(report.members[0].unknown, report.unknown);
-  for (const { key, required } of report.ballast) {
-    assert.equal(quantity(report.members[0].rows, key).required, required);
-  }
-  project.items.reverse();
-  assert.deepEqual(showInventory(project, catalog), report);
+  assert.equal(messages[1].targetId, "missing");
 });

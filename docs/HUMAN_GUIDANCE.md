@@ -8,18 +8,19 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 [PROPAGATED HEADER - ENTRIES BELOW ARE YOURS]
 <!-- VENDORED HEADER: END -->
 
-- &ldquo;The project will create small test layouts to check BlueBrick import, mixed-brand track
-  connections, table fit, parts counts, and save/reopen. Steve&rsquo;s yard and Mark&rsquo;s siding
-  are optional club pilot layouts if they become available.&rdquo;
-- &ldquo;Keep `deploy-pages.yml` at the repository root as my canonical workflow copy. I enter its
-  contents into `.github/workflows/deploy-pages.yml` through the GitHub browser and set the
-  repository Pages source to GitHub Actions.&rdquo;
-- Build on the two-table demo with whole-show section exchange, table placement, joins, and bring
-  lists.
-- Keep the layout top-down with plate offsets, crisp LEGO-style graphics, selectable ballast, and
-  verified material quantities.
-- Ask &ldquo;What are you designing?&rdquo; with 40x40, 60x40 Straight, 60x40 Curve, and Advanced.
-  Keep Open existing separate.
-- Use editable 32-grid baseplates, NILTC lanes at offsets 8 and 24, and 192x128 curve starters.
-- Preserve v1 and BlueBrick geometry and free editing. Let me apply NILTC checks to imported tables
-  without moving them.
+- Build a member tool around the display area they signed up for. Physical
+  tables, room layout, and deciding who gets a curve are outside its scope.
+- Baseplates always cover NILTC and general train layout areas. They are the
+  surface for track planning, not editable LEGO building pieces.
+- Prioritize connecting track: NILTC dual mainline handoffs, parking behind a
+  display, and yards that store and dispatch trains.
+- Roger chooses whether a member gets a straight or curve assignment. The
+  software needs to design a complete buildable track plan for either one.
+- Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
+- Begin from common display sizes while accepting independent custom width and
+  depth. A member may enter the size they were assigned.
+- Use complete, practical arrangements such as a double crossover, aligned
+  triple switch, double-ended four-track yard, and genuine R104 wye access.
+  Do not make members solve the geometry from individual pieces first.
+- This is pre-production. Improve schemas and ownership boundaries directly;
+  old layouts do not need compatibility behavior.

@@ -1,54 +1,39 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::coverage::{self, Overhang};
-use crate::model::{Catalog, Draft, ItemKind, Layout, Point, Project, Venue};
+use crate::model::{Catalog, Edge, ItemKind, Layout, Point, Project};
 use crate::niltc::{self, NiltcIssue};
-use crate::ports::{self, EvaluatedSeam, WorldPort};
-use crate::venue::{self, VenueIssue};
+use crate::ports::{self, WorldPort};
+use crate::routes::{self, RoutePath};
 
+/// Mirrors the file contract and keeps pairwise geometry work bounded.
 const MAX_PLANAR_STUDS: f64 = 100_000.0;
+const MAX_DESIGN_AREA_STUDS: f64 = 4_096.0;
+const MAX_LAYERS: usize = 1_000;
+const MAX_ITEMS: usize = 10_000;
 
-/// A project, draft, or bundled catalog could not be evaluated.
 #[derive(Debug)]
 pub enum EvaluationError {
-    /// The bundled catalog could not be read.
     Catalog(&'static serde_json::Error),
-    /// The project did not match the JSON wire contract.
     Project(serde_json::Error),
-    /// The draft did not match the JSON wire contract.
-    Draft(serde_json::Error),
-    /// Input violates a geometry invariant.
     Validation(String),
-    /// The evaluated result could not be serialized.
     Output(serde_json::Error),
 }
-
 impl fmt::Display for EvaluationError {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Catalog(error) => write!(formatter, "Read bundled catalog: {error}"),
-            Self::Project(error) => write!(formatter, "Read project: {error}"),
-            Self::Draft(error) => write!(formatter, "Read snap draft: {error}"),
-            Self::Validation(message) => formatter.write_str(message),
-            Self::Output(error) => write!(formatter, "Write evaluation: {error}"),
+            Self::Catalog(e) => write!(f, "Read bundled catalog: {e}"),
+            Self::Project(e) => write!(f, "Read project: {e}"),
+            Self::Validation(e) => f.write_str(e),
+            Self::Output(e) => write!(f, "Write evaluation: {e}"),
         }
     }
 }
-
 impl std::error::Error for EvaluationError {}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct Count<'a> {
-    part_id: &'a str,
-    brand: &'a str,
-    name: &'a str,
-    count: usize,
-}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -57,27 +42,18 @@ struct Unresolved<'a> {
     name: &'a str,
     source_id: &'a str,
 }
-
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Evaluation<'a> {
     project: &'a Value,
     ports: Vec<WorldPort<'a>>,
-    seams: Vec<EvaluatedSeam<'a>>,
+    routes: Vec<RoutePath<'a>>,
     overhangs: Vec<Overhang<'a>>,
-    no_table: bool,
-    counts: Vec<Count<'a>>,
     unresolved: Vec<Unresolved<'a>>,
-    venue_issues: Vec<VenueIssue<'a>>,
     niltc_issues: Vec<NiltcIssue<'a>>,
 }
 
-fn inventory<'a>(
-    project: &'a Project,
-    layout: &Layout<'_>,
-    catalog: &'a Catalog,
-) -> (Vec<Count<'a>>, Vec<Unresolved<'a>>) {
-    let mut counts = BTreeMap::new();
+fn unresolved<'a>(project: &'a Project, layout: &Layout<'_>) -> Vec<Unresolved<'a>> {
     let mut unresolved = Vec::new();
     for item in project
         .items
@@ -85,32 +61,17 @@ fn inventory<'a>(
         .filter(|item| layout.visible(&item.layer_id))
     {
         match &item.kind {
-            ItemKind::Track { part_id, .. } => {
-                if let Some(part) = catalog.part(part_id) {
-                    counts
-                        .entry(&part.id)
-                        .or_insert_with(|| Count {
-                            part_id: &part.id,
-                            brand: &part.brand,
-                            name: &part.name,
-                            count: 0,
-                        })
-                        .count += 1;
-                }
-            }
+            ItemKind::Track { .. } => {}
             ItemKind::Unresolved {
                 source_id, name, ..
-            } => {
-                unresolved.push(Unresolved {
-                    id: &item.id,
-                    name,
-                    source_id,
-                });
-            }
-            ItemKind::Baseplate => {}
+            } => unresolved.push(Unresolved {
+                id: &item.id,
+                name,
+                source_id,
+            }),
         }
     }
-    (counts.into_values().collect(), unresolved)
+    unresolved
 }
 
 fn validate_ids<'a>(ids: impl Iterator<Item = &'a str>, kind: &str) -> Result<(), EvaluationError> {
@@ -124,69 +85,114 @@ fn validate_ids<'a>(ids: impl Iterator<Item = &'a str>, kind: &str) -> Result<()
     }
     Ok(())
 }
-
 fn validate_position(position: Point, id: &str) -> Result<(), EvaluationError> {
-    if position.x.abs() <= MAX_PLANAR_STUDS && position.y.abs() <= MAX_PLANAR_STUDS {
-        return Ok(());
-    }
-    Err(EvaluationError::Validation(format!(
-        "Position must be between -{MAX_PLANAR_STUDS} and {MAX_PLANAR_STUDS} studs on both axes: {id}"
-    )))
+    (position.x.abs() <= MAX_PLANAR_STUDS && position.y.abs() <= MAX_PLANAR_STUDS)
+        .then_some(())
+        .ok_or_else(|| {
+            EvaluationError::Validation(format!(
+                "Position must be within {MAX_PLANAR_STUDS} studs: {id}"
+            ))
+        })
 }
-
-fn validate_dimensions(width: f64, depth: f64, id: &str) -> Result<(), EvaluationError> {
-    if width > 0.0 && width <= MAX_PLANAR_STUDS && depth > 0.0 && depth <= MAX_PLANAR_STUDS {
-        return Ok(());
-    }
-    Err(EvaluationError::Validation(format!(
-        "Width and depth must be positive and at most {MAX_PLANAR_STUDS} studs: {id}"
-    )))
+fn validate_dimensions(
+    width: f64,
+    depth: f64,
+    maximum: f64,
+    id: &str,
+) -> Result<(), EvaluationError> {
+    (width > 0.0 && width <= maximum && depth > 0.0 && depth <= maximum)
+        .then_some(())
+        .ok_or_else(|| {
+            EvaluationError::Validation(format!(
+                "Width and depth must be positive and within {maximum} studs: {id}"
+            ))
+        })
 }
-
+fn perpendicular(first: Edge, second: Edge) -> bool {
+    matches!(
+        (first, second),
+        (Edge::North | Edge::South, Edge::East | Edge::West)
+            | (Edge::East | Edge::West, Edge::North | Edge::South)
+    )
+}
+fn validate_area(project: &Project) -> Result<(), EvaluationError> {
+    let area = &project.area;
+    validate_dimensions(area.width, area.depth, MAX_DESIGN_AREA_STUDS, "design area")?;
+    for (index, front) in area.fronts.iter().enumerate() {
+        if area.fronts[..index].contains(front) {
+            return Err(EvaluationError::Validation(
+                "A public edge may be declared only once".into(),
+            ));
+        }
+    }
+    if let Some(kind) = area.niltc {
+        let expected_fronts = match kind {
+            crate::model::NiltcKind::Straight => 1,
+            crate::model::NiltcKind::Corner => 2,
+        };
+        if area.fronts.len() != expected_fronts
+            || (expected_fronts == 2 && !perpendicular(area.fronts[0], area.fronts[1]))
+        {
+            return Err(EvaluationError::Validation(format!(
+                "A NILTC {kind:?} area needs {expected_fronts} public edge{}",
+                if expected_fronts == 1 { "" } else { "s" }
+            )));
+        }
+    }
+    for (index, exit) in area.exits.iter().enumerate() {
+        if area.exits[..index]
+            .iter()
+            .any(|other| other.edge == exit.edge)
+        {
+            return Err(EvaluationError::Validation(
+                "Only one named mainline exit may use each area edge".into(),
+            ));
+        }
+        if area.niltc.is_some()
+            && (!area
+                .fronts
+                .iter()
+                .any(|front| perpendicular(*front, exit.edge))
+                || area.fronts.contains(&exit.edge))
+        {
+            return Err(EvaluationError::Validation(format!(
+                "Exit {} is not on a non-public NILTC handoff edge",
+                exit.id
+            )));
+        }
+    }
+    Ok(())
+}
 fn validate(
     project: &Project,
     layout: &Layout<'_>,
     catalog: &Catalog,
-    draft: Option<&Draft>,
 ) -> Result<(), EvaluationError> {
-    if !matches!(project.version, 1 | 2) {
+    if project.version != 3 {
         return Err(EvaluationError::Validation(format!(
             "Unsupported project version {}",
             project.version
+        )));
+    }
+    if project.layers.len() > MAX_LAYERS || project.items.len() > MAX_ITEMS {
+        return Err(EvaluationError::Validation(format!(
+            "Projects may contain at most {MAX_LAYERS} layers and {MAX_ITEMS} items"
         )));
     }
     validate_ids(
         project.layers.iter().map(|layer| layer.id.as_str()),
         "layer",
     )?;
+    validate_ids(project.items.iter().map(|item| item.id.as_str()), "item")?;
     validate_ids(
-        project
-            .tables
-            .iter()
-            .map(|table| table.id.as_str())
-            .chain(project.items.iter().map(|item| item.id.as_str())),
-        "table or item",
+        project.area.exits.iter().map(|exit| exit.id.as_str()),
+        "exit",
     )?;
-    validate_ids(project.seams.iter().map(|seam| seam.id.as_str()), "seam")?;
-    for table in &project.tables {
-        if layout.layer_visibility(&table.layer_id).is_none() {
-            return Err(EvaluationError::Validation(format!(
-                "Invalid table layer: {}",
-                table.id
-            )));
-        }
-        validate_position(table.pose.position, &table.id)?;
-        validate_dimensions(table.width, table.depth, &table.id)?;
-    }
+    validate_area(project)?;
     for item in &project.items {
-        if layout.layer_visibility(&item.layer_id).is_none()
-            || item
-                .table_id
-                .as_deref()
-                .is_some_and(|table| layout.table(table).is_none())
-        {
+        if layout.layer_visibility(&item.layer_id).is_none() {
             return Err(EvaluationError::Validation(format!(
-                "Invalid item layer or table: {}",
+                "Invalid item layer: {}",
                 item.id
             )));
         }
@@ -195,6 +201,7 @@ fn validate(
             ItemKind::Track {
                 part_id,
                 height_plates,
+                ..
             } => {
                 if catalog.part(part_id).is_none() {
                     return Err(EvaluationError::Validation(format!(
@@ -209,21 +216,41 @@ fn validate(
                 }
             }
             ItemKind::Unresolved { width, depth, .. } => {
-                validate_dimensions(*width, *depth, &item.id)?;
+                validate_dimensions(*width, *depth, MAX_PLANAR_STUDS, &item.id)?
             }
-            ItemKind::Baseplate => {}
         }
     }
-    if let Some(draft) = draft {
-        if draft.radius < 0.0 {
-            return Err(EvaluationError::Validation(
-                "Snap radius must be nonnegative".into(),
-            ));
-        }
-        for id in &draft.piece_ids {
-            if !project.items.iter().any(|item| &item.id == id) {
+    for exit in &project.area.exits {
+        for endpoint in [&exit.outer, &exit.inner] {
+            let Some(item) = project
+                .items
+                .iter()
+                .find(|item| item.id == endpoint.piece_id)
+            else {
                 return Err(EvaluationError::Validation(format!(
-                    "Unknown item in snap draft: {id}"
+                    "Exit {} references missing item",
+                    exit.id
+                )));
+            };
+            let ItemKind::Track { part_id, .. } = &item.kind else {
+                return Err(EvaluationError::Validation(format!(
+                    "Exit {} must reference track",
+                    exit.id
+                )));
+            };
+            let part = catalog
+                .part(part_id)
+                .expect("catalog track validated above");
+            let Some(port) = part.ports.iter().find(|port| port.id == endpoint.port_id) else {
+                return Err(EvaluationError::Validation(format!(
+                    "Exit {} references a missing track port",
+                    exit.id
+                )));
+            };
+            if port.connector_type != "regular" {
+                return Err(EvaluationError::Validation(format!(
+                    "Exit {} must reference a regular rail port",
+                    exit.id
                 )));
             }
         }
@@ -231,88 +258,63 @@ fn validate(
     Ok(())
 }
 
-fn project_venue(project: &Project, value: &Value) -> Result<Option<Venue>, EvaluationError> {
-    let Some(venue) = value.get("venue").filter(|_| project.version == 2) else {
-        return Ok(None);
-    };
-    let venue = Venue::deserialize(venue).map_err(EvaluationError::Project)?;
-    validate_dimensions(venue.width, venue.depth, "venue")?;
-    validate_ids(
-        venue.keepouts.iter().map(|keepout| keepout.id.as_str()),
-        "keepout",
-    )?;
-    for keepout in &venue.keepouts {
-        if keepout.id.trim().is_empty() {
-            return Err(EvaluationError::Validation(format!(
-                "Invalid keepout ID: {:?}",
-                keepout.id
-            )));
-        }
-        if keepout.name.trim().is_empty() {
-            return Err(EvaluationError::Validation(format!(
-                "Keepout must have a name: {}",
-                keepout.id
-            )));
-        }
-        validate_position(keepout.center, &keepout.id)?;
-        validate_dimensions(keepout.width, keepout.depth, &keepout.id)?;
-    }
-    Ok(Some(venue))
-}
-
-/// Analyze a project and optionally snap draft items to connectors or a NILTC guide.
-///
-/// Both arguments borrow JSON strings. An empty or JSON-null draft skips snapping.
-/// The result is a JSON string containing the preserved project and its diagnostics.
-pub fn evaluate(project_json: &str, draft_json: &str) -> Result<String, EvaluationError> {
+pub fn evaluate(project_json: &str) -> Result<String, EvaluationError> {
     let catalog = Catalog::load().map_err(EvaluationError::Catalog)?;
-    let mut project_value: Value =
+    let project_value: Value =
         serde_json::from_str(project_json).map_err(EvaluationError::Project)?;
-    let mut project = Project::deserialize(&project_value).map_err(EvaluationError::Project)?;
-    let draft: Option<Draft> = if draft_json.trim().is_empty() {
-        None
-    } else {
-        serde_json::from_str(draft_json).map_err(EvaluationError::Draft)?
-    };
-
+    let project = Project::deserialize(&project_value).map_err(EvaluationError::Project)?;
     let layout = Layout::new(&project);
-    validate(&project, &layout, catalog, draft.as_ref())?;
-    let venue = project_venue(&project, &project_value)?;
-    if let Some(draft) = &draft {
-        let mut snapped = ports::snap(&project, &layout, catalog, draft);
-        if snapped.is_empty() {
-            snapped.extend(niltc::snap(&project, &layout, catalog, draft));
-        }
-        for (index, pose) in snapped {
-            validate_position(pose.position, &project.items[index].id)?;
-            project.items[index].pose = pose;
-            project_value["items"][index]["x"] = Value::from(pose.position.x);
-            project_value["items"][index]["y"] = Value::from(pose.position.y);
-            project_value["items"][index]["angle"] = Value::from(pose.angle);
-        }
-    }
-
-    let layout = Layout::new(&project);
+    validate(&project, &layout, catalog)?;
     let mut ports = ports::world_ports(&project, &layout, catalog);
     ports::recognize_joins(&mut ports, |_| false);
-    let seams = ports::diagnose_seams(&project, &layout, &ports);
-    let (no_table, overhangs) = coverage::overhangs(&project, &layout, catalog);
-    let (counts, unresolved) = inventory(&project, &layout, catalog);
-    let venue_issues = venue::diagnose(&project, &layout, catalog, venue.as_ref());
-    let niltc_issues = niltc::diagnose(&project, &layout, &ports, venue.is_some());
+    let routes = routes::trace(&project, &layout, catalog, &ports);
+    let unresolved = unresolved(&project, &layout);
     let analysis = Evaluation {
         project: &project_value,
-        ports,
-        seams,
-        overhangs,
-        no_table,
-        counts,
+        overhangs: coverage::overhangs(&project, &layout, catalog),
         unresolved,
-        venue_issues,
-        niltc_issues,
+        niltc_issues: niltc::diagnose(&project, &ports, &routes),
+        routes,
+        ports,
     };
     serde_json::to_string(&analysis).map_err(EvaluationError::Output)
 }
 
 #[cfg(test)]
-mod tests;
+mod tests {
+    use serde_json::json;
+
+    use super::evaluate;
+
+    fn project() -> serde_json::Value {
+        json!({
+            "version": 3,
+            "name": "bounds",
+            "area": {"width": 4096, "depth": 4096, "fronts": [], "exits": []},
+            "layers": [{"id": "layout", "visible": true}],
+            "items": []
+        })
+    }
+
+    #[test]
+    fn keeps_design_area_and_item_coordinate_limits_separate() {
+        let mut value = project();
+        assert!(evaluate(&value.to_string()).is_ok());
+        value["area"]["width"] = json!(4096.001);
+        assert!(evaluate(&value.to_string()).is_err());
+
+        let mut value = project();
+        value["items"] = json!([{
+            "id": "far-track", "kind": "track", "partId": "lego:rc-s16",
+            "layerId": "layout", "x": 100000, "y": -100000,
+            "angle": 0, "heightPlates": 0
+        }, {
+            "id": "large-placeholder", "kind": "unresolved", "sourceId": "legacy",
+            "name": "Large imported area", "reason": "unmapped", "layerId": "layout",
+            "x": 0, "y": 0, "angle": 0, "width": 100000, "depth": 100000
+        }]);
+        assert!(evaluate(&value.to_string()).is_ok());
+        value["items"][1]["width"] = json!(100000.001);
+        assert!(evaluate(&value.to_string()).is_err());
+    }
+}

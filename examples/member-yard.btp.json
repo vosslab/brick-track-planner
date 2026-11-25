@@ -1,0 +1,769 @@
+{
+  "version": 3,
+  "name": "Member R104 right yard",
+  "area": {
+    "width": 320,
+    "depth": 192,
+    "fronts": [
+      "north"
+    ],
+    "niltc": "straight",
+    "exits": [
+      {
+        "id": "exit-west",
+        "name": "west exit",
+        "edge": "west",
+        "outer": {
+          "pieceId": "outer-1",
+          "portId": "a"
+        },
+        "inner": {
+          "pieceId": "inner-1",
+          "portId": "a"
+        }
+      },
+      {
+        "id": "exit-east",
+        "name": "east exit",
+        "edge": "east",
+        "outer": {
+          "pieceId": "outer-20",
+          "portId": "b"
+        },
+        "inner": {
+          "pieceId": "inner-20",
+          "portId": "b"
+        }
+      }
+    ]
+  },
+  "layers": [
+    {
+      "id": "layout",
+      "name": "Layout",
+      "visible": true
+    }
+  ],
+  "items": [
+    {
+      "kind": "track",
+      "id": "outer-1",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 8,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-2",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 24,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-3",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 40,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-4",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 56,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-5",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 72,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-6",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 88,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-7",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 104,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-8",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 120,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-9",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 136,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-10",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 152,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-11",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 168,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-12",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 184,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-13",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 200,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-14",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 216,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-15",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 232,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-16",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 248,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-17",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 264,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-18",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 280,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-19",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 296,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "outer-20",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 312,
+      "y": 8,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-1",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 8,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-12",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 184,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-13",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 200,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-14",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 216,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-15",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 232,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-16",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 248,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-17",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 264,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-18",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 280,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-19",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 296,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "kind": "track",
+      "id": "inner-20",
+      "partId": "lego:rc-s16",
+      "layerId": "layout",
+      "heightPlates": 2,
+      "x": 312,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-1",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-right-base",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 24,
+      "y": 26,
+      "angle": 90
+    },
+    {
+      "id": "r104-yard-2",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-right-detach-1",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 38,
+      "y": 25.875,
+      "angle": 90
+    },
+    {
+      "id": "r104-yard-3",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-right-detach-2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 50.25,
+      "y": 29.75,
+      "angle": 90
+    },
+    {
+      "id": "r104-yard-4",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s08",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 52,
+      "y": 23.999999999999996,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-5",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-base",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 64.15640312482047,
+      "y": 33.213708393898145,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-6",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-detach-1",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 77.04288115093286,
+      "y": 38.68676138857331,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-7",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-detach-2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 89.84330372461085,
+      "y": 39.79460024656443,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-8",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s08",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 89.25966317040633,
+      "y": 45.77660356514323,
+      "angle": 22.5
+    },
+    {
+      "id": "r104-yard-9",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-base",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 102.78382012274929,
+      "y": 49.213708393881284,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-10",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-detach-1",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 115.67029814886168,
+      "y": 54.68676138855645,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-11",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-left-detach-2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 128.47072072253965,
+      "y": 55.79460024654756,
+      "angle": 112.5
+    },
+    {
+      "id": "r104-yard-12",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s08",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 127.88708016833515,
+      "y": 61.77660356512637,
+      "angle": 22.5
+    },
+    {
+      "id": "r104-yard-13",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 142.6369760600088,
+      "y": 67.01156227920639,
+      "angle": 191.25
+    },
+    {
+      "id": "r104-yard-14",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:r104-ballast-curve",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 162.76725777247862,
+      "y": 71.08419798172856,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-15",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:rc1",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 93.79129914919015,
+      "y": 47.65366864729336,
+      "angle": 22.5
+    },
+    {
+      "id": "r104-yard-16",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:rc1",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 132.41871614711897,
+      "y": 63.653668647276504,
+      "angle": 22.5
+    },
+    {
+      "id": "r104-yard-17",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:rc2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 173.9535492724786,
+      "y": 71.95919798172856,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-18",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:rc2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 175.32613227247862,
+      "y": 71.95919798172856,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-19",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:rc2",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 135.33035725730102,
+      "y": 55.916301034496435,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-20",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s08",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 140.01664875730103,
+      "y": 55.916301034496435,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-21",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s08",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 60,
+      "y": 24,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-22",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 72,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-23",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 88,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-24",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 104,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-25",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 120,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-26",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 136,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-27",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 152,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-28",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 168,
+      "y": 24,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-29",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 104.01664875937219,
+      "y": 39.916301034513296,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-30",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 120.01664875937219,
+      "y": 39.916301034513296,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-31",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 136.0166487593722,
+      "y": 39.916301034513296,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-32",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 152.01664875937217,
+      "y": 39.916301034513296,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-33",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 168.01664875937217,
+      "y": 39.916301034513296,
+      "angle": 0
+    },
+    {
+      "id": "r104-yard-34",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 152.01664875730103,
+      "y": 55.916301034496435,
+      "angle": 180
+    },
+    {
+      "id": "r104-yard-35",
+      "kind": "track",
+      "layerId": "layout",
+      "partId": "trixbrix:s16",
+      "heightPlates": 2,
+      "groupId": "r104-right-yard",
+      "arrangementId": "trixbrix:r104-right-yard-4",
+      "x": 168.01664875730103,
+      "y": 55.91630103449643,
+      "angle": 180
+    }
+  ]
+}

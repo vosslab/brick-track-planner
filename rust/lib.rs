@@ -6,7 +6,7 @@ mod evaluation;
 mod model;
 mod niltc;
 mod ports;
-mod venue;
+mod routes;
 
 pub use bindings::{catalog_json, encode_webp, evaluate_json};
 pub use evaluation::{EvaluationError, evaluate};

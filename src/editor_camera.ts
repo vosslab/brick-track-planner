@@ -4,12 +4,7 @@ import { setSceneDetail } from "./scene_appearance";
 type Bounds = Point & { width: number; height: number };
 type Gesture = {
   first: Point;
-  anchor: Point;
   target: Element;
-  multi: boolean;
-  pan: boolean;
-  drag: boolean;
-  box?: boolean;
   moved: boolean;
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
@@ -26,12 +21,7 @@ export class EditorCamera {
   constructor(
     host: HTMLElement,
     hooks: {
-      tap: (point: Point, target: Element, multi: boolean) => void;
-      canDrag: (target: Element) => boolean;
-      startDrag: (target: Element, multi: boolean) => void;
-      drag: (from: Point, to: Point, phase: "preview" | "commit" | "cancel") => void;
-      boxActive: () => boolean;
-      box: (from: Point, to: Point, phase: "preview" | "commit" | "cancel") => void;
+      tap: (point: Point, target: Element) => void;
     },
   ) {
     this.#host = host;
@@ -75,6 +65,29 @@ export class EditorCamera {
       if (event.code === "Space") host.removeAttribute("data-space-pan");
     });
     window.addEventListener("blur", () => host.removeAttribute("data-space-pan"));
+    window.addEventListener("keydown", (event) => {
+      if (
+        !this.#bounds ||
+        event.defaultPrevented ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        !["ArrowDown", "ArrowLeft", "ArrowRight", "ArrowUp"].includes(event.key)
+      )
+        return;
+      const target = event.target;
+      if (target !== host && (target !== document.body || !host.matches(":hover"))) return;
+      event.preventDefault();
+      const distance = 48 / Math.max(this.#pixelsPerStud, 0.01);
+      const move = {
+        ArrowDown: { x: 0, y: distance },
+        ArrowLeft: { x: -distance, y: 0 },
+        ArrowRight: { x: distance, y: 0 },
+        ArrowUp: { x: 0, y: -distance },
+      }[event.key];
+      if (!move) return;
+      this.#pan(move.x, move.y);
+    });
     host.addEventListener("pointerdown", (event) => {
       const target = event.target;
       if (!(target instanceof Element) || event.button === 2) return;
@@ -85,20 +98,11 @@ export class EditorCamera {
         this.#gesture = {
           first: point,
           target,
-          anchor: this.world(point.x, point.y),
-          multi: event.shiftKey || event.ctrlKey || event.metaKey,
-          pan: event.button === 1 || host.hasAttribute("data-space-pan"),
-          drag: false,
           moved: false,
         };
       } else if (this.#pointers.size === 2) {
         const initial = this.#pair();
         if (!initial || !this.#bounds) return;
-        const gesture = this.#gesture;
-        if (gesture?.drag) {
-          const move = gesture.box ? hooks.box : hooks.drag;
-          move(gesture.anchor, gesture.anchor, "cancel");
-        }
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
@@ -121,41 +125,26 @@ export class EditorCamera {
       if (!gesture.moved) {
         if (Math.hypot(point.x - gesture.first.x, point.y - gesture.first.y) < 5) return;
         gesture.moved = true;
-        gesture.box = !gesture.pan && hooks.boxActive();
-        gesture.drag = !gesture.pan && (gesture.box || hooks.canDrag(gesture.target));
-        if (gesture.drag && !gesture.box) hooks.startDrag(gesture.target, gesture.multi);
-        host.dataset["dragging"] = "";
       }
       const world = this.world(point.x, point.y);
-      if (gesture.drag) {
-        const move = gesture.box ? hooks.box : hooks.drag;
-        move(gesture.anchor, world, "preview");
-      } else {
-        const old = this.world(before.x, before.y);
-        this.#pan(old.x - world.x, old.y - world.y);
-      }
+      const old = this.world(before.x, before.y);
+      this.#pan(old.x - world.x, old.y - world.y);
     });
     const finish = (event: PointerEvent): void => {
       if (!this.#pointers.delete(event.pointerId)) return;
       this.#pinch = undefined;
-      delete host.dataset["dragging"];
       const gesture = this.#gesture;
       this.#gesture = undefined;
       if (!gesture) return;
       const point = this.world(event.clientX, event.clientY);
-      if (gesture.drag) {
-        const move = gesture.box ? hooks.box : hooks.drag;
-        move(gesture.anchor, point, event.type === "pointercancel" ? "cancel" : "commit");
-      } else if (!gesture.moved && !gesture.pan && event.type === "pointerup") {
-        hooks.tap(point, gesture.target, gesture.multi);
-      }
+      if (!gesture.moved && event.type === "pointerup") hooks.tap(point, gesture.target);
     };
     host.addEventListener("pointerup", finish);
     host.addEventListener("pointercancel", finish);
     // Keyboard-generated clicks have no pointer sequence.
     host.addEventListener("click", (event) => {
       if (event.detail !== 0 || !(event.target instanceof SVGElement)) return;
-      hooks.tap(this.center, event.target, event.shiftKey);
+      hooks.tap(this.center, event.target);
     });
   }
 

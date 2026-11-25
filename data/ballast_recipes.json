@@ -1,20 +1,5 @@
 [
   {
-    "id": "pennlug-s16",
-    "name": "PennLUG LEGO 9V S16 straight",
-    "source": "https://l-gauge.org/downloads/Ref001BallastStraightPennLUGRevA.pdf",
-    "revision": "001A",
-    "trackPartIds": ["lego:9v-s16"],
-    "materials": [
-      {"partId": "3070", "name": "Tile 1 x 1", "color": "black", "quantity": 16},
-      {"partId": "3023", "name": "Plate 1 x 2", "color": "dark-bluish-gray", "quantity": 8},
-      {"partId": "2431", "name": "Tile 1 x 4", "color": "black", "quantity": 8},
-      {"partId": "3020", "name": "Plate 2 x 4", "color": "dark-bluish-gray", "quantity": 4},
-      {"partId": "3034", "name": "Plate 2 x 8", "color": "red", "quantity": 4},
-      {"partId": "3034", "name": "Plate 2 x 8", "color": "dark-bluish-gray", "quantity": 4}
-    ]
-  },
-  {
     "id": "pennlug-r104",
     "name": "PennLUG R104 curve",
     "source": "https://l-gauge.org/downloads/Ref022BallastR104CurveRevA.pdf",

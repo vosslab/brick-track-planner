@@ -5,13 +5,27 @@ import init, {
 } from "../generated/wasm/track_geometry.js";
 import type { Catalog, Point, Project } from "./project";
 
-export type EndpointStatus = {
-  status: "joined" | "misaligned" | "height" | "missing" | "hidden";
-  gap?: number;
-  angle?: number;
-  height?: number;
-  ambiguous?: boolean;
-};
+export type NiltcIssue =
+  | { kind: "missing-mainline"; lane: "outer" | "inner" }
+  | { kind: "mainline-height"; lane: "outer" | "inner"; itemId: string }
+  | { kind: "exit-off-standard"; lane: "outer" | "inner"; exitId: string }
+  | {
+      kind: "mainline-radius";
+      lane: "outer" | "inner";
+      itemId: string;
+      expectedRadius: number;
+      actualRadius: number;
+      minimumRadius: boolean;
+    }
+  | { kind: "mainline-curve-sweep"; lane: "outer" | "inner"; actualDegrees: number }
+  | {
+      kind: "mainline-event-spacing";
+      lane: "outer" | "inner";
+      previousItemId: string;
+      itemId: string;
+      requiredStuds: number;
+      actualStuds: number;
+    };
 
 export type Analysis = {
   project: Project;
@@ -26,22 +40,18 @@ export type Analysis = {
     joined: boolean;
     ambiguous?: boolean;
   }[];
-  seams: { id: string; outer: EndpointStatus; inner: EndpointStatus }[];
-  overhangs: { pieceId: string; rings: Point[][] }[];
-  venueIssues: {
-    kind: "table-overlap" | "outside-venue" | "keepout";
-    entityId: string;
-    otherId?: string;
+  routes: {
+    from: { pieceId: string; portId: string };
+    to: { pieceId: string; portId: string };
+    kind: "internal" | "joint";
+    path?: number;
+    length?: number;
+    radius?: number;
+    turn?: number;
+    event?: "switch" | "curve" | "crossing";
   }[];
-  niltcIssues: ({ tableId: string; itemId?: string; exitId?: string } & (
-    | { kind: "table-grid" | "baseplate-grid"; lane?: never }
-    | {
-        kind: "missing-mainline" | "mainline-height" | "exit-off-standard";
-        lane: "outer" | "inner";
-      }
-  ))[];
-  noTable: boolean;
-  counts: { partId: string; brand: string; name: string; count: number }[];
+  overhangs: { pieceId: string; rings: Point[][] }[];
+  niltcIssues: NiltcIssue[];
   unresolved: { id: string; name: string; sourceId: string }[];
 };
 
@@ -50,12 +60,8 @@ export async function initEngine(): Promise<Catalog> {
   return JSON.parse(catalog_json()) as Catalog;
 }
 
-export function evaluate(
-  project: Project,
-  draft?: { pieceIds: string[]; radius: number },
-): Analysis {
-  const draftJson = draft ? JSON.stringify(draft) : "";
-  return JSON.parse(evaluate_json(JSON.stringify(project), draftJson)) as Analysis;
+export function evaluate(project: Project): Analysis {
+  return JSON.parse(evaluate_json(JSON.stringify(project))) as Analysis;
 }
 
 export function encodeWebp(rgba: Uint8Array, width: number, height: number): Uint8Array {

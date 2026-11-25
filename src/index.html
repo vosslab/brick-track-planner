@@ -1,209 +1,359 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#153f34">
-  <title>Brick Track Planner</title>
-  <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./main.js"></script>
-</head>
-<body>
-  <header class="app-header">
-    <a class="brand" href="./" aria-label="Brick Track Planner home">
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
-      <span>Brick Track <strong>Planner</strong></span>
-    </a>
-    <div class="file-controls" aria-label="Project files">
-      <button type="button" id="open-project">Open</button>
-      <button type="button" id="import-project">Import BlueBrick</button>
-      <div id="project-file-actions" class="project-file-action" hidden>
-        <button type="button" id="save-project">Save project</button>
-        <label class="screen-reader" for="export-format">Export format</label>
-        <select id="export-format">
-          <option value="png">PNG</option><option value="webp">WebP</option>
-          <option value="pdf">PDF</option><option value="ldraw">LDraw</option>
-        </select>
-        <label class="screen-reader" for="raster-resolution">Raster resolution</label>
-        <select id="raster-resolution">
-          <option value="standard">Standard</option>
-          <option value="high">High</option>
-        </select>
-        <label class="screen-reader" for="pdf-mode">PDF mode</label>
-        <select id="pdf-mode" hidden>
-          <option value="grayscale">Grayscale</option>
-          <option value="color">Color</option>
-        </select>
-        <button type="button" id="export-layout" class="primary">Export</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153f34" />
+    <title>Brick Track Planner</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="./" aria-label="Brick Track Planner home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <span>Brick Track <strong>Planner</strong></span>
+      </a>
+      <div class="file-controls" aria-label="Project files">
+        <button type="button" id="open-project">Open</button>
+        <button type="button" id="import-project">Import BlueBrick</button>
+        <div id="project-file-actions" class="project-file-action">
+          <button type="button" id="save-project">Save project</button>
+          <label class="screen-reader" for="export-format">Export format</label>
+          <select id="export-format">
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+            <option value="pdf">PDF</option>
+            <option value="ldraw">LDraw</option>
+          </select>
+          <label class="screen-reader" for="raster-resolution">Raster resolution</label>
+          <select id="raster-resolution">
+            <option value="standard">Standard</option>
+            <option value="high">High</option>
+          </select>
+          <label class="screen-reader" for="pdf-mode">PDF mode</label>
+          <select id="pdf-mode" hidden>
+            <option value="grayscale">Grayscale</option>
+            <option value="color">Color</option>
+          </select>
+          <button type="button" id="export-layout" class="primary">Export</button>
+        </div>
+        <input id="project-file" type="file" accept=".btp.json,.json" hidden />
+        <input id="import-file" type="file" accept=".bbm,.xml" hidden />
       </div>
-      <input id="project-file" type="file" accept=".btp.json,.json" hidden>
-      <input id="import-file" type="file" accept=".bbm,.xml" hidden>
-    </div>
-  </header>
-  <main id="welcome" class="welcome">
-    <div class="welcome-body">
-      <h1>What are you designing?</h1>
-      <div id="starter-cards" class="starter-cards"></div>
-      <button type="button" id="open-existing" class="welcome-open">Open existing project</button>
-    </div>
-  </main>
-  <main id="editor" hidden>
-    <div class="project-bar">
-      <div class="project-title">
-        <label for="project-name">Layout name</label>
-        <input id="project-name" maxlength="160" autocomplete="off" spellcheck="false" value="Untitled layout">
-      </div>
-      <div class="project-actions">
-        <label class="screen-reader" for="preset">New project preset</label>
-        <select id="preset">
-          <option value="blank">Blank layout</option>
-          <option value="30x40">NILTC 30 &times; 40 in</option>
-          <option value="40x40">NILTC 40 &times; 40 in</option>
-          <option value="40x60">NILTC 40 &times; 60 in</option>
-          <option value="custom">Custom table</option>
-        </select>
-        <button type="button" id="new-project">New layout</button>
-        <label class="screen-reader" for="examples">Example layouts</label>
-        <select id="examples"><option value="">Open an example&hellip;</option></select>
-      </div>
-    </div>
-    <div class="workspace">
-      <aside class="panel library" aria-labelledby="library-title">
-        <div class="panel-head"><h2 id="library-title">Track library</h2>
-          <button type="button" class="panel-toggle" id="toggle-library" aria-expanded="true" aria-controls="library-body">Hide library</button>
+    </header>
+    <main id="editor">
+      <div class="project-bar">
+        <div class="project-title">
+          <span id="design-title">Layout name</span>
+          <input
+            id="project-name"
+            maxlength="160"
+            autocomplete="off"
+            spellcheck="false"
+            value="Untitled layout"
+            aria-labelledby="design-title"
+          />
+          <small id="design-size"></small>
         </div>
-        <div id="library-body">
-        <div class="library-controls">
-          <label class="screen-reader" for="part-search">Search track and kits</label>
-          <input type="search" id="part-search" placeholder="Search track and kits">
-          <label class="screen-reader" for="brand-filter">Track brand</label>
-          <select id="brand-filter"><option value="">All brands</option></select>
-        </div>
-        </div>
-        <div id="parts-list" class="parts-list"></div>
-      </aside>
-      <section class="workbench" aria-label="Tabletop workspace">
-        <div class="canvas-toolbar">
-          <div class="toolbar-group">
-            <button type="button" id="undo" disabled title="Undo (Ctrl/Command+Z)">Undo</button>
-            <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">Redo</button>
-            <button type="button" id="rotate-placement" disabled>Rotate 90&deg;</button>
-            <button type="button" id="box-select" aria-pressed="false">Box select</button>
-          </div>
-          <div class="toolbar-group">
-            <button type="button" id="add-table" class="primary" title="Add blank table">+ Table</button>
-            <button type="button" id="add-baseplate" aria-pressed="false">+ Baseplate</button>
-            <button type="button" id="seam-mode" aria-pressed="false">Seam</button>
-            <label class="check"><input type="checkbox" id="grid-toggle" checked> 32-stud grid</label>
-          </div>
-          <div id="siding-start" class="siding-start" hidden>
-            <button type="button" id="add-siding" aria-describedby="siding-hint">Add a siding</button>
-            <p id="siding-hint">Branch off the inner mainline into the marked space.</p>
-          </div>
-        </div>
-        <div class="viewport">
-          <div id="tabletop" role="group" aria-label="Tabletop canvas" tabindex="0" aria-describedby="camera-hint"></div>
-          <p id="camera-hint" class="screen-reader">Two-finger scroll to pan or hold Space while dragging. Pinch or use plus and minus to zoom. Press Enter to place at the center.</p>
-          <div id="empty-canvas" class="empty-canvas">
-            <div class="empty-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-            <h2>Start your layout</h2>
-            <p>Add a table or pick track from the library.</p>
-          </div>
-          <div class="zoom-controls" aria-label="Canvas zoom">
-            <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
-            <button type="button" id="fit-view">Fit view</button>
-            <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
-          </div>
-        </div>
-        <div class="canvas-footer">
-          <span id="mode-label">Select or drag a piece</span>
-          <span class="trackpad-hint" aria-hidden="true">Two-finger scroll to pan &middot; Pinch to zoom</span>
-          <button type="button" id="seam-controls" hidden>Seam controls</button>
-          <span id="fit-status" aria-live="polite"></span>
-        </div>
-      </section>
-      <aside class="panel inspector" aria-label="Layout inspector">
-        <button type="button" class="panel-toggle" id="toggle-inspector" aria-expanded="true" aria-controls="inspector-body">Hide inspector</button>
-        <div id="inspector-body">
-        <section class="panel-section inspector-edit">
-          <div class="panel-head"><h2>Inspector</h2><label class="check"><input id="multi-select" type="checkbox"> Multi-select</label></div>
-          <div id="selection-panel" class="panel-content"></div>
-          <div id="seam-panel" class="panel-content" hidden></div>
-        </section>
-        <section class="panel-section">
-          <div class="panel-head"><h2>Tables</h2><span id="table-count" class="number-tag"></span></div>
-          <div id="table-list" class="panel-content"></div>
-        </section>
-        <section class="panel-section">
-          <div class="panel-head"><h2>Parts tally</h2><span id="parts-count" class="number-tag"></span></div>
-          <div id="parts-summary" class="panel-content"></div>
-        </section>
-        <section class="panel-section">
-          <div class="panel-head"><h2>Diagnostics</h2></div>
-          <div id="diagnostics" class="panel-content"></div>
-          <section id="niltc-issues" class="panel-content" aria-label="NILTC checks" hidden></section>
-        </section>
-        <details id="sections-details" class="panel-section layer-panel">
-          <summary>Sections &amp; exits</summary>
-          <section id="sections-panel" class="panel-content" aria-label="Sections and exits"></section>
-        </details>
-        <details class="panel-section layer-panel">
-          <summary>Venue</summary>
-          <section id="venue-panel" class="panel-content" aria-label="Venue"></section>
-        </details>
-        <details class="panel-section layer-panel">
-          <summary>Show inventory</summary>
-          <section id="show-inventory" class="panel-content" aria-label="Show inventory"></section>
-        </details>
-        <details class="panel-section layer-panel">
-          <summary>Layers</summary>
-          <div id="layer-list" class="panel-content"></div>
-        </details>
-        </div>
-      </aside>
-    </div>
-  </main>
-  <p id="status" role="status" class="status">Loading track geometry&hellip;</p>
-  <dialog id="table-dialog" aria-labelledby="table-form-title">
-    <form id="table-form">
-      <h2 id="table-form-title">Add a table</h2>
-      <label for="table-preset">Size preset</label>
-      <select id="table-preset">
-        <option value="30x40">NILTC 30 &times; 40 in &middot; 96 &times; 128 studs</option>
-        <option value="40x40">NILTC 40 &times; 40 in &middot; 128 &times; 128 studs</option>
-        <option value="40x60">NILTC 40 &times; 60 in &middot; 128 &times; 192 studs</option>
-        <option value="custom">Custom size</option>
-      </select>
-      <label for="table-name">Table name</label>
-      <input id="table-name" required maxlength="120" value="Table 1">
-      <div id="custom-dimensions" hidden>
-        <label>Unit<select id="table-unit"><option value="stud">Studs</option><option value="in">Inches</option><option value="cm">Centimeters</option></select></label>
-        <div class="field-grid">
-        <label>Width<input id="table-width" type="number" min="0" required step="any" value="96"></label>
-        <label>Depth<input id="table-depth" type="number" min="0" required step="any" value="128"></label>
+        <div class="project-actions">
+          <button type="button" id="edit-design-area">Design area</button>
+          <button type="button" id="new-project">New design</button>
+          <label class="screen-reader" for="examples">Example layouts</label>
+          <select id="examples">
+            <option value="">Open an example&hellip;</option>
+          </select>
         </div>
       </div>
-      <p id="table-error" data-dialog-error role="alert"></p>
+      <div class="workspace">
+        <aside class="panel library" aria-labelledby="library-title">
+          <div class="panel-head">
+            <h2 id="library-title">Track library</h2>
+          </div>
+          <div id="library-body">
+            <section class="arrangement-library" aria-labelledby="arrangement-heading">
+              <h3 id="arrangement-heading">Parking and track arrangements</h3>
+              <p class="library-help">Add a complete, connected track build to the design area.</p>
+              <label for="arrangement">Arrangement</label>
+              <select id="arrangement">
+                <option value="">Add a complete arrangement...</option>
+              </select>
+              <label for="anchor">Location</label>
+              <select id="anchor">
+                <option value="center">Best connected fit</option>
+                <option value="selected">Replace selected straight</option>
+                <option value="mainline">Use the mainline</option>
+              </select>
+              <label for="arrangement-location">Fit location</label>
+              <div class="candidate-location-controls">
+                <select id="arrangement-location" aria-label="Fit location" disabled>
+                  <option>Preview to choose a fit</option>
+                </select>
+                <button id="next-arrangement-location" type="button" disabled>Next fit</button>
+              </div>
+              <label for="storage-length">Straight storage length</label>
+              <select id="storage-length">
+                <option value="0">No added storage</option>
+                <option value="32">32 studs</option>
+                <option value="64" selected>64 studs</option>
+                <option value="96">96 studs</option>
+              </select>
+              <div class="arrangement-actions">
+                <button type="button" id="preview-arrangement">Preview</button>
+                <button type="button" id="apply-arrangement" class="primary" disabled>Apply</button>
+                <button type="button" id="cancel-arrangement" disabled>Cancel</button>
+              </div>
+              <p id="arrangement-info" class="arrangement-info" aria-live="polite"></p>
+            </section>
+            <div class="direct-track-controls">
+              <h3>Add an individual piece</h3>
+              <label for="piece-choice">Track piece</label>
+              <select id="piece-choice">
+                <option value="">Choose a piece...</option>
+              </select>
+              <label for="piece-port">Connect from</label>
+              <select id="piece-port">
+                <option value="">Choose a track piece first</option>
+              </select>
+              <button type="button" id="extend-piece" disabled>Place connected track</button>
+            </div>
+          </div>
+        </aside>
+        <section class="workbench" aria-label="Track plan workspace">
+          <div class="canvas-toolbar">
+            <div class="toolbar-group">
+              <button type="button" id="undo" disabled title="Undo (Ctrl/Command+Z)">Undo</button>
+              <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">
+                Redo
+              </button>
+              <label class="check"
+                ><input type="checkbox" id="grid-toggle" checked /> 32-stud grid</label
+              >
+            </div>
+          </div>
+          <div class="viewport">
+            <div
+              id="tabletop"
+              role="group"
+              aria-label="Track plan"
+              tabindex="0"
+              aria-describedby="camera-hint"
+            ></div>
+            <p id="camera-hint" class="screen-reader">
+              Click a connection to add or extend track. Pinch or use plus and minus to zoom.
+            </p>
+            <div class="zoom-controls" aria-label="Canvas zoom">
+              <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+              <button type="button" id="fit-view">Fit view</button>
+              <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+            </div>
+          </div>
+          <div class="canvas-footer">
+            <span id="fit-status" aria-live="polite"></span>
+          </div>
+        </section>
+        <aside class="panel inspector" aria-label="Layout inspector">
+          <div id="inspector-body">
+            <section class="panel-section inspector-edit">
+              <div class="panel-head">
+                <h2>Inspector</h2>
+                <span class="inspector-caption">Selected track</span>
+              </div>
+              <p id="selection-info" class="panel-content">
+                Select a track piece to inspect or extend it.
+              </p>
+              <button type="button" id="remove-piece" class="danger" disabled>
+                Remove selected track
+              </button>
+              <div id="selection-panel" class="panel-content"></div>
+            </section>
+            <section class="panel-section">
+              <div class="panel-head"><h2>Design area</h2></div>
+              <div id="area-summary" class="panel-content"></div>
+              <p class="panel-content">
+                <a href="./references/niltc-track-specifications/"
+                  >NILTC track standard (offline copy)</a
+                >
+              </p>
+            </section>
+            <section class="panel-section">
+              <div class="panel-head">
+                <h2>Parts tally</h2>
+                <span id="parts-count" class="number-tag"></span>
+              </div>
+              <div id="parts-summary" class="panel-content"></div>
+            </section>
+            <section class="panel-section">
+              <div class="panel-head"><h2>Diagnostics</h2></div>
+              <div id="diagnostics" class="panel-content"></div>
+              <section
+                id="niltc-issues"
+                class="panel-content"
+                aria-label="NILTC checks"
+                hidden
+              ></section>
+              <label class="screen-reader" for="trace-from">Trace a train route from</label>
+              <select id="trace-from">
+                <option value="">Trace from...</option>
+              </select>
+              <button type="button" id="trace-route" disabled>Trace route</button>
+              <p id="route-info" class="panel-content" aria-live="polite"></p>
+            </section>
+            <details class="panel-section layer-panel">
+              <summary>Mainline handoffs</summary>
+              <section
+                id="handoff-panel"
+                class="panel-content"
+                aria-label="Mainline handoffs"
+              ></section>
+            </details>
+            <details class="panel-section layer-panel">
+              <summary>Show inventory</summary>
+              <section
+                id="show-inventory"
+                class="panel-content"
+                aria-label="Show inventory"
+              ></section>
+            </details>
+            <details class="panel-section layer-panel">
+              <summary>Ballast references</summary>
+              <section
+                id="ballast-panel"
+                class="panel-content"
+                aria-label="Ballast build references"
+              ></section>
+            </details>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <p id="status" role="status" class="status">Loading track geometry&hellip;</p>
+    <dialog id="area-dialog" aria-labelledby="area-form-title">
+      <form id="area-form">
+        <p class="eyebrow">Your assigned display</p>
+        <h2 id="area-form-title">Set up your design area</h2>
+        <p class="dialog-intro">
+          Enter the space you will fill. Baseplates cover the whole area automatically.
+        </p>
+        <label for="area-name">Design name</label>
+        <input id="area-name" required maxlength="120" value="My NILTC layout" />
+        <div class="field-grid area-measurements">
+          <label
+            >Width along the track<select id="area-width">
+              <option value="128">40 in * 4 baseplates</option>
+              <option value="192" selected>60 in * 6 baseplates</option>
+              <option value="256">80 in * 8 baseplates</option>
+              <option value="320">100 in * 10 baseplates</option>
+              <option value="other">Other</option>
+            </select></label
+          >
+          <label
+            >Depth from plexiglass<select id="area-depth">
+              <option value="96">30 in * 3 baseplates</option>
+              <option value="128" selected>40 in * 4 baseplates</option>
+              <option value="192">60 in * 6 baseplates</option>
+              <option value="other">Other</option>
+            </select></label
+          >
+        </div>
+        <div id="area-other-dimensions" class="field-grid" hidden>
+          <label
+            >Width in nominal inches<input
+              id="area-other-width"
+              type="number"
+              min="10"
+              step="10"
+              value="60"
+          /></label>
+          <label
+            >Depth in nominal inches<input
+              id="area-other-depth"
+              type="number"
+              min="10"
+              step="10"
+              value="40"
+          /></label>
+        </div>
+        <fieldset class="assignment-fieldset">
+          <legend>Roger assigned</legend>
+          <div class="assignment-options" role="radiogroup" aria-label="Assigned mainline">
+            <label
+              ><input type="radio" name="assignment" value="straight" checked /><span
+                class="assignment-diagram straight-diagram"
+                aria-hidden="true"
+              ></span
+              ><strong>Straight</strong><small>Both mainlines run along one edge.</small></label
+            >
+            <label
+              ><input type="radio" name="assignment" value="corner" /><span
+                class="assignment-diagram corner-diagram"
+                aria-hidden="true"
+              ></span
+              ><strong>Curve</strong><small>R120 outside and R104 inside.</small></label
+            >
+            <label
+              ><input type="radio" name="assignment" value="general" /><span
+                class="assignment-diagram general-diagram"
+                aria-hidden="true"
+              ></span
+              ><strong>General</strong><small>Plan your own track.</small></label
+            >
+          </div>
+        </fieldset>
+        <fieldset id="area-fronts" class="assignment-fieldset">
+          <legend id="area-fronts-label">Public edge</legend>
+          <div class="edge-options" role="radiogroup" aria-label="Public side">
+            <label
+              ><input type="radio" name="front" value="north" checked /><span
+                data-straight="Top edge"
+                data-corner="Top-right corner"
+                >Top edge</span
+              ></label
+            >
+            <label
+              ><input type="radio" name="front" value="east" /><span
+                data-straight="Right edge"
+                data-corner="Bottom-right corner"
+                >Right edge</span
+              ></label
+            >
+            <label
+              ><input type="radio" name="front" value="south" /><span
+                data-straight="Bottom edge"
+                data-corner="Bottom-left corner"
+                >Bottom edge</span
+              ></label
+            >
+            <label
+              ><input type="radio" name="front" value="west" /><span
+                data-straight="Left edge"
+                data-corner="Top-left corner"
+                >Left edge</span
+              ></label
+            >
+          </div>
+        </fieldset>
+        <p id="area-error" data-dialog-error role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" id="cancel-area">Cancel</button
+          ><button type="submit" id="create-area" class="primary">Create track plan</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="import-preview" aria-labelledby="preview-title">
+      <h2 id="preview-title">Review BlueBrick import</h2>
+      <p id="preview-name"></p>
+      <ul id="import-warnings" class="warning-list"></ul>
+      <p id="import-error" data-dialog-error role="alert"></p>
       <div class="dialog-actions">
-        <button type="button" id="cancel-table">Cancel</button>
-        <button type="submit" id="create-table" class="primary">Add table</button>
+        <button type="button" id="cancel-import">Cancel</button>
+        <button type="button" id="confirm-import" class="primary">Open imported layout</button>
       </div>
-    </form>
-  </dialog>
-  <dialog id="import-preview" aria-labelledby="preview-title">
-    <h2 id="preview-title">Review BlueBrick import</h2>
-    <p id="preview-name"></p>
-    <ul id="import-warnings" class="warning-list"></ul>
-    <p id="import-error" data-dialog-error role="alert"></p>
-    <div class="dialog-actions">
-      <button type="button" id="cancel-import">Cancel</button>
-      <button type="button" id="confirm-import" class="primary">Open imported layout</button>
-    </div>
-  </dialog>
-  <dialog id="export-report" aria-labelledby="report-title">
-    <h2 id="report-title">LDraw export details</h2>
-    <div id="export-notes"></div>
-    <form class="dialog-actions" method="dialog"><button class="primary">Done</button></form>
-  </dialog>
-</body>
+    </dialog>
+    <dialog id="export-report" aria-labelledby="report-title">
+      <h2 id="report-title">LDraw export details</h2>
+      <div id="export-notes"></div>
+      <form class="dialog-actions" method="dialog"><button class="primary">Done</button></form>
+    </dialog>
+  </body>
 </html>

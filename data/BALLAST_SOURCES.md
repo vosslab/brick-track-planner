@@ -2,21 +2,14 @@
 
 [ballast_recipes.json](ballast_recipes.json) records the parts that attach to a single track
 section. Quantities cover the ballast assembly. Track elements and separate baseplate substrates
-have their own inventories. Material identity is the LEGO design ID and color together.
+have their own inventories. [build_references.json](build_references.json) links complete
+arrangements to instructions that cannot honestly be represented as a one-piece recipe. Material
+identity is the LEGO design ID and color together.
 
 | L-Gauge sheet | Catalog track IDs | Ballast pieces per track |
 | --- | --- | --- |
-| [001A straight](https://l-gauge.org/downloads/Ref001BallastStraightPennLUGRevA.pdf) | `lego:9v-s16` | 44 |
 | [022A R104 curve](https://l-gauge.org/downloads/Ref022BallastR104CurveRevA.pdf) | `bricktracks:r104`, `trixbrix:r104` | 71 |
 | [023B R120 curve](https://l-gauge.org/downloads/Ref023BallastR120CurveRevB.pdf) | `bricktracks:r120` | 98 |
-
-Sheet 001A page 2 shows the 16-stud metal-rail straight with one-stud end sleepers, three two-stud
-interior sleepers, and a round center hole. Its underside drawing shows how the plates engage these
-sleepers. Those details match L-Gauge's 2865 track and the LDraw assembly 74746, which includes
-the 2865a plastic body and the two metal rails. The recipe follows the illustrated colors and
-keeps the red 2 x 8 plates listed under their own color. The sheet permits a color substitution for
-these hidden plates. [L-Gauge track geometry](https://l-gauge.org/wiki/index.php/Track_Geometry),
-[LDraw 9V straight assembly](https://library.ldraw.org/parts/26280).
 
 Sheets 022A and 023B name the supported products. The catalog includes BrickTracks R104PFDBG8,
 TrixBrix R104, and BrickTracks R120PFDBG8. Sheet 022A's cover count includes the track shown in
@@ -41,3 +34,16 @@ numbers to the design IDs and color names used in the recipe.
 | 4211475 | 4032 | Light bluish gray |
 | 4543086 | 32028 | Dark bluish gray |
 | 4211001 | 3710 | Dark bluish gray |
+
+## Switch and return-curve build references
+
+[Sheet 016A](https://l-gauge.org/downloads/Ref016BallastSwitchRightEvenRevA.pdf) documents a
+ballasted right switch and its baseplate substrate. The planner links it only to the complete
+`lego:rc-r40-right-switch-return` arrangement, which uses genuine LEGO RC/PF track. Sheet 016A is
+a construction reference, not a track-piece recipe, because the switch body and its branch geometry
+vary by manufacturer.
+
+[Sheet 017A](https://l-gauge.org/downloads/Ref017BallastRightReturnCurveRevA.pdf) is the companion
+ballasted right return-curve **substrate**. The member sheet shows it with Sheet 016A only for the
+same genuine LEGO RC/PF arrangement. It does not supply a rail return curve and it is not evidence
+that an R104 or other vendor-specific return geometry closes without the catalog's connector check.

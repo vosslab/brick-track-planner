@@ -1,78 +1,101 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import {
-  duplicateTrackSelection,
-  snapNiltcBaseplatePose,
-  snapNiltcTablePose,
-} from "../src/editor_niltc.ts";
-import { newProject, worldPose } from "../src/project.ts";
+import { commitItems } from "../src/arrangements.ts";
+import { newProject } from "../src/project.ts";
+import { traceRoute } from "../src/route_trace.ts";
 
-const table = {
-  id: "test-table",
-  name: "Test table",
-  layerId: "layout",
-  width: 128,
-  depth: 128,
-  x: 0,
-  y: 0,
-  angle: 0,
-  niltc: "straight",
-  fronts: ["north"],
+const catalog = {
+  parts: [
+    {
+      id: "test:straight",
+      brand: "Test",
+      name: "Straight",
+      ports: [],
+      paths: [],
+      routes: [],
+      footprint: [
+        { x: -8, y: -4 },
+        { x: 8, y: -4 },
+        { x: 8, y: 4 },
+        { x: -8, y: 4 },
+      ],
+    },
+  ],
+  kits: [],
 };
 
-test("NILTC editing uses the tabletop grid and favors contact with a nearby nominal edge", () => {
+test("area fit rejects a track that would leave the member design area", () => {
   const project = newProject();
-  project.tables = [table, { ...table, id: "neighbor", x: 128 }];
-  const candidate = { x: 16, y: 1, angle: -4 };
-  assert.deepEqual(snapNiltcTablePose(project, table, candidate), { x: 0, y: 0, angle: 0 });
-
-  const plate = { x: 50, y: 82, angle: 93 };
-  assert.deepEqual(snapNiltcBaseplatePose(table, plate), { x: 48, y: 80, angle: 90 });
-  const custom = { ...table, niltc: undefined };
-  assert.deepEqual(snapNiltcTablePose(project, custom, candidate), candidate);
-  assert.deepEqual(snapNiltcBaseplatePose(custom, plate), plate);
+  project.area.width = 32;
+  project.area.depth = 32;
+  const result = commitItems(project, catalog, {
+    items: [
+      {
+        id: "outside",
+        kind: "track",
+        partId: "test:straight",
+        layerId: "layout",
+        heightPlates: 0,
+        x: 29,
+        y: 16,
+        angle: 0,
+      },
+    ],
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.project, undefined);
+  assert.deepEqual(
+    result.issues.map(({ kind }) => kind),
+    ["outside-area"],
+  );
+  assert.deepEqual(project.items, []);
 });
 
-test("duplicate offsets a mixed piece group together and retains attached-local data", () => {
+test("a fitted arrangement changes the project only after it passes its area check", () => {
   const project = newProject();
-  project.tables = [{ ...table, x: 128, angle: 90 }];
-  const track = {
-    id: "track",
-    kind: "track",
-    partId: "lego:9v-s16",
-    layerId: table.layerId,
-    tableId: table.id,
-    heightPlates: 2,
-    ballast: "gray",
-    x: 16,
-    y: 48,
-    angle: 90,
-  };
-  const plate = {
-    id: "plate",
-    kind: "baseplate",
-    name: "River",
-    layerId: table.layerId,
-    tableId: table.id,
-    x: 16,
-    y: 48,
-    angle: 90,
-  };
-  project.items = [track, plate];
-  const ids = duplicateTrackSelection(project, [table.id, track.id, plate.id]);
-  assert.equal(new Set(ids).size, 2);
-  const [copyTrack, copyPlate] = project.items.slice(2);
-  assert.deepEqual(copyTrack, { ...track, id: ids[0], y: 16 });
-  assert.deepEqual(copyPlate, { ...plate, id: ids[1], y: 16 });
-  assert.notEqual(ids[0], track.id);
-  assert.notEqual(ids[1], plate.id);
-  const originalWorld = worldPose(track, project.tables);
-  const copyWorld = worldPose(copyTrack, project.tables);
-  assert.equal(copyWorld.x - originalWorld.x, 32);
-  assert.ok(Math.abs(copyWorld.y - originalWorld.y) < 1e-6);
-  assert.deepEqual(project.items.slice(0, 2), [track, plate]);
+  project.area.width = 32;
+  project.area.depth = 32;
+  const result = commitItems(project, catalog, {
+    items: [
+      {
+        id: "inside",
+        kind: "track",
+        partId: "test:straight",
+        layerId: "layout",
+        heightPlates: 0,
+        x: 16,
+        y: 16,
+        angle: 0,
+      },
+    ],
+  });
+  assert.equal(result.ok, true);
+  assert.deepEqual(
+    result.project?.items.map(({ id }) => id),
+    ["inside"],
+  );
+  assert.deepEqual(project.items, []);
+});
 
-  const [trackOnly] = duplicateTrackSelection(project, [track.id]);
-  assert.equal(project.items.find(({ id }) => id === trackOnly)?.y, 32);
+test("the R56 double pass-through keeps its center and two diagonal routes isolated", () => {
+  const catalog = JSON.parse(
+    readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8"),
+  );
+  const part = catalog.parts.find(({ id }) => id === "trixbrix:r56-double-pass-through");
+  assert.ok(part, "the planning catalog includes the R56 double pass-through");
+  const links = part.routes.map(({ from, to, ...route }) => ({
+    from: { pieceId: "r56", portId: from },
+    to: { pieceId: "r56", portId: to },
+    kind: "internal",
+    ...route,
+  }));
+  const endpoint = (portId) => ({ pieceId: "r56", portId });
+
+  assert.deepEqual(traceRoute(links, endpoint("center-west"), endpoint("center-east")), [links[0]]);
+  assert.deepEqual(traceRoute(links, endpoint("west-north"), endpoint("east-south")), [links[1]]);
+  assert.deepEqual(traceRoute(links, endpoint("west-south"), endpoint("east-north")), [links[2]]);
+  assert.equal(traceRoute(links, endpoint("center-west"), endpoint("west-north")), undefined);
+  assert.equal(traceRoute(links, endpoint("west-north"), endpoint("west-south")), undefined);
 });

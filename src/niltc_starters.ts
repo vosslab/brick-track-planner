@@ -1,26 +1,35 @@
-import { composePose, newProject } from "./project";
-import type { Catalog, Edge, Part, Pose, Project, SectionExit, Table } from "./project";
+import { composePose, newProject, poseConnectingPorts } from "./project";
+import type { Catalog, Edge, Part, Pose, Project, SectionExit } from "./project";
 
-export const STARTER_CARDS = [
-  { kind: "40x40", title: "40\u00d740", description: "Start with one table." },
-  {
-    kind: "60x40-straight",
-    title: "60\u00d740 Straight",
-    description: "Leave room for a yard.",
-  },
-  {
-    kind: "60x40-curve",
-    title: "60\u00d740 Curve",
-    description: "Turn both mainlines around a corner.",
-  },
-  {
-    kind: "advanced",
-    title: "Advanced \u2014 I\u2019ll handle it",
-    description: "Start with a blank canvas.",
-  },
-] as const;
+export type SignupDimensions = { width: number; depth: number };
+export type NiltcStarterOptions = {
+  width: number;
+  depth: number;
+  mode: "straight" | "corner";
+  fronts: Edge[];
+  name?: string;
+};
+export type DesignAreaResize = { width: number; depth: number; name?: string };
 
-export type StarterKind = (typeof STARTER_CARDS)[number]["kind"];
+/** Converts signup dimensions to x/y drawing dimensions. Signup width always follows the track. */
+export function signupToAreaDimensions(
+  signup: SignupDimensions,
+  fronts: readonly Edge[],
+): SignupDimensions {
+  const front = fronts[0];
+  if (!front) return { ...signup };
+  return front === "east" || front === "west"
+    ? { width: signup.depth, depth: signup.width }
+    : { ...signup };
+}
+
+/** Converts x/y drawing dimensions to the member's width-along-track signup dimensions. */
+export function areaToSignupDimensions(
+  area: SignupDimensions,
+  fronts: readonly Edge[],
+): SignupDimensions {
+  return signupToAreaDimensions(area, fronts);
+}
 
 function findPart(catalog: Catalog, id: string): Part {
   const part = catalog.parts.find((entry) => entry.id === id);
@@ -34,129 +43,283 @@ function port(part: Part, id: string): Part["ports"][number] {
   return connector;
 }
 
-function connect(incoming: Pose, outgoing: Pose): Pose {
-  const angle = (outgoing.angle + 180 - incoming.angle + 360) % 360;
-  const offset = composePose(incoming, { x: 0, y: 0, angle });
-  return { x: outgoing.x - offset.x, y: outgoing.y - offset.y, angle };
-}
-
-function addLane(project: Project, table: Table, name: string, start: Pose, parts: Part[]): void {
+function addLane(
+  project: Project,
+  name: string,
+  start: Pose,
+  parts: Part[],
+): { first: string; last: string } {
   let end = start;
   for (const [index, part] of parts.entries()) {
-    const pose = connect(port(part, "a"), end);
+    const pose = poseConnectingPorts(port(part, "a"), end);
     project.items.push({
       kind: "track",
       id: `${name}-${index + 1}`,
       partId: part.id,
-      tableId: table.id,
-      layerId: table.layerId,
+      layerId: "layout",
       heightPlates: 2,
       ...pose,
     });
     end = composePose(port(part, "b"), pose);
   }
+  return { first: `${name}-1`, last: `${name}-${parts.length}` };
 }
 
-function starterExit(
-  table: Table,
-  edge: Edge,
-  name: string,
-  portId: string,
-  piece: number,
-): SectionExit {
+function exit(id: string, name: string, edge: Edge, first: string): SectionExit {
   return {
-    id: `exit-${edge}`,
+    id,
     name,
-    tableId: table.id,
     edge,
-    outer: { pieceId: `outer-${piece}`, portId },
-    inner: { pieceId: `inner-${piece}`, portId },
+    outer: { pieceId: `outer-${first}`, portId: first },
+    inner: { pieceId: `inner-${first}`, portId: first },
   };
 }
 
-export function createStarter(kind: StarterKind, catalog: Catalog): Project {
-  const project = newProject();
-  if (kind === "advanced") return project;
+function assertNiltcArea({ width, depth, mode, fronts }: NiltcStarterOptions): void {
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(depth) || width <= 0 || depth <= 0)
+    throw new Error("NILTC design area dimensions must be positive whole studs.");
+  if (width > 4096 || depth > 4096)
+    throw new Error("NILTC design areas are limited to 4096 studs in each direction.");
+  if (mode === "straight" && fronts.length !== 1)
+    throw new Error("A straight assignment has one public edge.");
+  if (mode === "straight" && (width < 32 || depth < 32))
+    throw new Error("A NILTC straight assignment needs 32 studs from the plexiglass.");
+  if (mode === "corner" && (width < 128 || depth < 128 || fronts.length !== 2))
+    throw new Error("A corner assignment needs two public edges and a 40 by 40 inch area.");
+}
 
-  const card = STARTER_CARDS.find((entry) => entry.kind === kind);
-  if (!card) throw new Error(`Unknown starter: ${kind}.`);
-  const curve = kind === "60x40-curve";
-  const narrow = kind === "40x40";
-  const nominal = narrow ? "NILTC 40 x 40 in" : "NILTC 60 x 40 in";
-  const table: Table = {
-    id: "starter-table",
-    name: nominal,
-    nominal,
-    layerId: "layout",
-    sectionId: "starter-section",
-    x: 0,
-    y: 0,
-    angle: 0,
-    width: narrow ? 128 : 192,
-    depth: 128,
-    fronts: curve ? ["north", "west"] : ["north"],
-    niltc: curve ? "corner" : "straight",
-  };
-  project.name = card.title;
-  project.tables.push(table);
-
-  for (let y = 16; y < table.depth; y += 32) {
-    for (let x = 16; x < table.width; x += 32) {
-      project.items.push({
-        kind: "baseplate",
-        id: `baseplate-${x}-${y}`,
-        tableId: table.id,
-        layerId: table.layerId,
-        x,
-        y,
-        angle: 0,
-      });
+function straightRunParts(catalog: Catalog, length: number): Part[] {
+  const choices = [
+    [16, "lego:rc-s16"],
+    [8, "trixbrix:s08"],
+    [4, "bricktracks:s04"],
+    [2, "trixbrix:s02"],
+    [1, "trixbrix:s01"],
+  ] as const;
+  let remaining = length;
+  const parts: Part[] = [];
+  for (const [studs, id] of choices) {
+    const part = findPart(catalog, id);
+    while (remaining >= studs) {
+      parts.push(part);
+      remaining -= studs;
     }
   }
+  if (remaining) throw new Error(`No catalog straight track can complete ${length} studs.`);
+  return parts;
+}
 
-  const straight = findPart(catalog, "lego:9v-s16");
-  const straightCount = (table.width - (curve ? 128 : 0)) / 16;
-  const straights = Array<Part>(straightCount).fill(straight);
+function rotatedPoint(point: Pose, width: number, depth: number, rotation: number): Pose {
+  if (rotation === 0) return point;
+  if (rotation === 90) return { x: width - point.y, y: point.x, angle: point.angle + 90 };
+  if (rotation === 180) return { x: width - point.x, y: depth - point.y, angle: point.angle + 180 };
+  if (rotation === 270) return { x: point.y, y: depth - point.x, angle: point.angle + 270 };
+  throw new Error(`Unsupported corner rotation ${rotation}.`);
+}
+
+function cornerRotation(fronts: Edge[]): number {
+  const key = [...fronts].sort().join(",");
+  return (
+    (
+      { "north,west": 0, "east,north": 90, "east,south": 180, "south,west": 270 } as Record<
+        string,
+        number
+      >
+    )[key] ?? -1
+  );
+}
+
+function rotateCornerProject(
+  project: Project,
+  width: number,
+  depth: number,
+  rotation: number,
+): void {
+  for (const item of project.items) Object.assign(item, rotatedPoint(item, width, depth, rotation));
+  const all: Edge[] = ["north", "east", "south", "west"];
+  for (const value of project.area.exits) {
+    const edge = all[(all.indexOf(value.edge) + rotation / 90) % all.length]!;
+    value.edge = edge;
+    value.id = `exit-${edge}`;
+    value.name = `${edge[0]!.toUpperCase()}${edge.slice(1)} exit`;
+  }
+}
+
+/** Build both required mainlines for the member's assigned design area. */
+export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOptions): Project {
+  assertNiltcArea(options);
+  const project = newProject();
+  const signup = areaToSignupDimensions(options, options.fronts);
+  project.name = options.name ?? `NILTC ${signup.width / 3.2} × ${signup.depth / 3.2} in`;
+  project.area = {
+    width: options.width,
+    depth: options.depth,
+    fronts: options.fronts,
+    niltc: options.mode,
+    exits: [],
+  };
+
+  if (options.mode === "straight") {
+    const front = options.fronts[0]!;
+    const vertical = front === "east" || front === "west";
+    const length = vertical ? options.depth : options.width;
+    const reverse = front === "south" || front === "east";
+    const start = reverse
+      ? vertical
+        ? { x: options.width - 8, y: options.depth, angle: 270 }
+        : { x: options.width, y: options.depth - 8, angle: 180 }
+      : vertical
+        ? { x: 8, y: 0, angle: 90 }
+        : { x: 0, y: 8, angle: 0 };
+    const laneStart = (offset: number): Pose =>
+      vertical
+        ? { ...start, x: front === "east" ? options.width - offset : offset }
+        : { ...start, y: front === "south" ? options.depth - offset : offset };
+    const run = straightRunParts(catalog, length);
+    const outer = addLane(project, "outer", laneStart(8), run);
+    const inner = addLane(project, "inner", laneStart(24), run);
+    const edges: [Edge, Edge] = vertical
+      ? reverse
+        ? ["south", "north"]
+        : ["north", "south"]
+      : reverse
+        ? ["east", "west"]
+        : ["west", "east"];
+    const [startEdge, endEdge] = edges;
+    const startExit = exit(`exit-${startEdge}`, `${startEdge} exit`, startEdge, "a");
+    const endExit = exit(`exit-${endEdge}`, `${endEdge} exit`, endEdge, "b");
+    startExit.outer.pieceId = outer.first;
+    startExit.inner.pieceId = inner.first;
+    endExit.outer.pieceId = outer.last;
+    endExit.inner.pieceId = inner.last;
+    project.area.exits = [startExit, endExit];
+    return project;
+  }
+
+  const rotation = cornerRotation(options.fronts);
+  if (rotation < 0) throw new Error("A corner assignment needs two adjacent public edges.");
+  const canonicalWidth = rotation % 180 ? options.depth : options.width;
+  const canonicalDepth = rotation % 180 ? options.width : options.depth;
+  const leading = straightRunParts(catalog, canonicalDepth - 128);
+  const trailing = straightRunParts(catalog, canonicalWidth - 128);
   for (const [lane, offset, radius] of [
     ["outer", 8, 120],
     ["inner", 24, 104],
   ] as const) {
-    const arcs = curve ? Array<Part>(8).fill(findPart(catalog, `bricktracks:r${radius}`)) : [];
-    const start = curve ? { x: offset, y: table.depth, angle: 270 } : { x: 0, y: offset, angle: 0 };
-    addLane(project, table, lane, start, [...arcs, ...straights]);
+    const parts = [
+      ...leading,
+      ...Array<Part>(8).fill(findPart(catalog, `bricktracks:r${radius}`)),
+      ...trailing,
+    ];
+    addLane(project, lane, { x: offset, y: canonicalDepth, angle: 270 }, parts);
   }
-  project.sections.push({
-    id: "starter-section",
-    name: card.title,
-    exits: [
-      starterExit(table, "east", "East exit", "b", straightCount + (curve ? 8 : 0)),
-      curve
-        ? starterExit(table, "south", "South exit", "a", 1)
-        : starterExit(table, "west", "West exit", "a", 1),
-    ],
-  });
+  const total = leading.length + 8 + trailing.length;
+  const southExit = exit("exit-south", "South exit", "south", "a");
+  const eastExit = exit("exit-east", "East exit", "east", "b");
+  southExit.outer.pieceId = "outer-1";
+  southExit.inner.pieceId = "inner-1";
+  eastExit.outer.pieceId = `outer-${total}`;
+  eastExit.inner.pieceId = `inner-${total}`;
+  project.area.exits = [southExit, eastExit];
+  rotateCornerProject(project, options.width, options.depth, rotation);
   return project;
 }
 
-/** Extend a fresh straight starter while preserving both named mainline exits. */
-export function addStarterSiding(project: Project, catalog: Catalog): string {
-  const first = project.items.find(({ id }) => id === "inner-3");
-  if (first?.kind !== "track") throw new Error("The starter mainline is missing.");
-  const straight = findPart(catalog, first.partId);
-  const turnout = findPart(catalog, "lego:9v-r40-right");
-  const curve = findPart(catalog, "lego:9v-r40");
-  const siding = findPart(catalog, "trixbrix:s32");
-  const start = composePose(port(straight, "a"), first);
-  const turnoutPose = connect(port(turnout, "common"), { ...start, angle: start.angle + 180 });
-  const curvePose = connect(port(curve, "b"), composePose(port(turnout, "branch"), turnoutPose));
-  const sidingPose = connect(port(siding, "a"), composePose(port(curve, "a"), curvePose));
-
-  // The turnout's through route spans two S16s. The reversed curve makes the siding parallel.
-  project.items = project.items.filter(({ id }) => id !== first.id && id !== "inner-4");
-  project.items.push(
-    { ...first, partId: turnout.id, ...turnoutPose },
-    { ...first, id: "starter-siding-curve", partId: curve.id, ...curvePose },
-    { ...first, id: "starter-siding-straight", partId: siding.id, ...sidingPose },
+function sameStarterItems(left: Project, right: Project): boolean {
+  return (
+    JSON.stringify(left.items) === JSON.stringify(right.items) &&
+    JSON.stringify(left.area.exits) === JSON.stringify(right.area.exits)
   );
-  return first.id;
+}
+
+function cloneProject(project: Project): Project {
+  return {
+    ...project,
+    area: {
+      ...project.area,
+      fronts: [...project.area.fronts],
+      exits: project.area.exits.map((entry) => ({
+        ...entry,
+        outer: { ...entry.outer },
+        inner: { ...entry.inner },
+      })),
+    },
+    layers: project.layers.map((layer) => ({ ...layer })),
+    items: project.items.map((item) => ({ ...item })),
+  };
+}
+
+function safelyExtendEditedStraight(
+  project: Project,
+  resize: DesignAreaResize,
+): Project | undefined {
+  if (project.area.niltc !== "straight") return undefined;
+  const front = project.area.fronts[0];
+  if (!front) return undefined;
+  const vertical = front === "east" || front === "west";
+  const oldAlong = vertical ? project.area.depth : project.area.width;
+  const newAlong = vertical ? resize.depth : resize.width;
+  const oldAcross = vertical ? project.area.width : project.area.depth;
+  const newAcross = vertical ? resize.width : resize.depth;
+  if (newAlong !== oldAlong || newAcross < oldAcross) return undefined;
+
+  const resized = cloneProject(project);
+  const delta = newAcross - oldAcross;
+  resized.area.width = resize.width;
+  resized.area.depth = resize.depth;
+  if (resize.name !== undefined) resized.name = resize.name;
+  if (front === "south") for (const item of resized.items) item.y += delta;
+  if (front === "east") for (const item of resized.items) item.x += delta;
+  return resized;
+}
+
+/** Resize an unedited starter by rebuilding its required mainlines. */
+export function resizeDesignArea(
+  project: Project,
+  catalog: Catalog,
+  resize: DesignAreaResize,
+): Project {
+  if (
+    !Number.isSafeInteger(resize.width) ||
+    !Number.isSafeInteger(resize.depth) ||
+    resize.width <= 0 ||
+    resize.depth <= 0
+  )
+    throw new Error("Design area width and depth must be positive whole studs.");
+  if (resize.width > 4096 || resize.depth > 4096)
+    throw new Error("Design areas are limited to 4096 studs in each direction.");
+  if (!project.area.niltc) {
+    const resized = cloneProject(project);
+    resized.area.width = resize.width;
+    resized.area.depth = resize.depth;
+    if (resize.name !== undefined) resized.name = resize.name;
+    return resized;
+  }
+
+  if (resize.width === project.area.width && resize.depth === project.area.depth) {
+    const resized = cloneProject(project);
+    if (resize.name !== undefined) resized.name = resize.name;
+    return resized;
+  }
+
+  const starter = createNiltcStarter(catalog, {
+    width: project.area.width,
+    depth: project.area.depth,
+    mode: project.area.niltc,
+    fronts: project.area.fronts,
+  });
+  if (!sameStarterItems(project, starter)) {
+    const extended = safelyExtendEditedStraight(project, resize);
+    if (extended) return extended;
+    throw new Error(
+      "This NILTC area has edited track. You can rename it or extend away from the plexiglass without changing its mainline length.",
+    );
+  }
+  return createNiltcStarter(catalog, {
+    width: resize.width,
+    depth: resize.depth,
+    mode: project.area.niltc,
+    fronts: project.area.fronts,
+    name: resize.name ?? project.name,
+  });
 }

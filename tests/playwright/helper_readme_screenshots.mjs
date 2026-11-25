@@ -1,5 +1,5 @@
 /**
- * Capture the two stable README views from a locally staged Pages build.
+ * Capture the stable README starting and yard views from a locally staged Pages build.
  *
  * Usage:
  *   node tests/playwright/helper_readme_screenshots.mjs \
@@ -18,8 +18,6 @@ if (!baseUrl || !outputDirectory) {
 const output = resolve(outputDirectory);
 await mkdir(output, { recursive: true });
 
-const advancedStarter = /^Advanced/;
-
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({
@@ -27,15 +25,14 @@ try {
     deviceScaleFactor: 1,
   });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: advancedStarter, exact: true }).waitFor();
-  await page.screenshot({ path: `${output}/starter_chooser.png` });
+  await page.getByRole("button", { name: "New design" }).waitFor();
+  await page.getByRole("group", { name: "Track plan", exact: true }).waitFor();
+  await page.screenshot({ path: `${output}/member_design_start.png` });
 
-  await page.getByRole("button", { name: advancedStarter, exact: true }).click();
-  await page.getByRole("group", { name: "Tabletop canvas" }).waitFor();
-  await page.getByLabel("Example layouts").selectOption({ label: "Whole Show" });
-  await page.locator('[data-table-id="northwest"]').waitFor();
+  await page.getByLabel("Example layouts").selectOption({ label: "Member yard" });
+  await page.locator("[data-piece-id]").first().waitFor();
   await page.getByRole("button", { name: "Fit view" }).click();
-  await page.screenshot({ path: `${output}/whole_show.png` });
+  await page.screenshot({ path: `${output}/member_yard.png` });
 } finally {
   await browser.close();
 }

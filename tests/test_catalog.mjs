@@ -31,12 +31,60 @@ test("catalog references physical parts and has terminal centerlines", () => {
         );
       }
     }
+    assert.ok(Array.isArray(part.routes), `${part.id} has routes`);
+    for (const route of part.routes) {
+      assert.notEqual(route.from, route.to, part.id);
+      assert.ok(
+        part.ports.some((port) => port.id === route.from),
+        `${part.id}:${route.from}`,
+      );
+      assert.ok(
+        part.ports.some((port) => port.id === route.to),
+        `${part.id}:${route.to}`,
+      );
+      assert.ok(Number.isInteger(route.path) && route.path >= 0 && route.path < part.paths.length);
+    }
   }
   for (const kit of kits.values()) {
     for (const { partId } of kit.parts) {
       assert.ok(parts.has(partId), partId);
     }
   }
+});
+
+test("catalog uses plastic RC/PF track and exposes practical multi-route products", () => {
+  assert.ok(parts.has("lego:rc-s16"));
+  assert.ok([...parts.keys()].every((id) => !id.includes("9v")));
+  for (const id of [
+    "trixbrix:r40-double-crossover",
+    "trixbrix:r40-triple-switch",
+    "trixbrix:r104-wye",
+    "trixbrix:r56-double-pass-through",
+  ]) {
+    assert.ok(parts.has(id), id);
+  }
+  for (const [id, count] of [
+    ["trixbrix:r104-double-crossover-kit", 14],
+    ["trixbrix:r40-double-crossover-kit", 1],
+    ["trixbrix:r104-triple-kit", 5],
+    ["trixbrix:r40-right-yard-4", 7],
+    ["trixbrix:r40-triple-parallel", 8],
+    ["lego:rc-r40-right-switch-return", 4],
+  ]) {
+    assert.equal(kits.get(id).parts.length, count, id);
+  }
+  assert.ok(!parts.has("trixbrix:r104-double-crossover"));
+  assert.ok(!parts.has("trixbrix:r40-right-yard-4"));
+  assert.equal(kits.get("trixbrix:r104-right-yard-4").parts.length, 35);
+  const passThrough = parts.get("trixbrix:r56-double-pass-through");
+  assert.deepEqual(
+    passThrough.routes.map(({ from, to }) => [from, to]),
+    [
+      ["center-west", "center-east"],
+      ["west-north", "east-south"],
+      ["west-south", "east-north"],
+    ],
+  );
 });
 
 test("eight mixed-brand segments trace each quarter circle", () => {
@@ -163,26 +211,94 @@ test("TrixBrix recipes join four physical parts and preserve assembled ports", (
         };
       }),
     );
-    const exposed = ports.filter(
-      (port) =>
-        !ports.some(
-          (other) =>
-            port.type === other.type &&
-            Math.hypot(port.x - other.x, port.y - other.y) < 1e-5 &&
-            Math.abs(port.angle - other.angle) === 180,
-        ),
-    );
+    const exposed = ports
+      .filter(
+        (port) =>
+          !ports.some(
+            (other) =>
+              port.type === other.type &&
+              Math.hypot(port.x - other.x, port.y - other.y) < 1e-5 &&
+              Math.abs(port.angle - other.angle) === 180,
+          ),
+      )
+      .filter(
+        (port, index, all) =>
+          all.findIndex(
+            (other) =>
+              other.type === port.type &&
+              Math.abs(other.x - port.x) < 1e-5 &&
+              Math.abs(other.y - port.y) < 1e-5 &&
+              Math.abs(other.angle - port.angle) < 1e-5,
+          ) === index,
+      );
     const expected = [
       [-20.5 * sign, 3.875, sign === 1 ? 180 : 0],
       [19.5 * sign, -4.125, sign === 1 ? 337.5 : 202.5],
       [19.5 * sign, 3.875, sign === 1 ? 0 : 180],
     ];
-    assert.equal(exposed.length, expected.length);
-    exposed.forEach((port, index) => {
-      near(port.x, expected[index][0]);
-      near(port.y, expected[index][1]);
-      assert.equal(port.angle, expected[index][2]);
+    for (const [x, y, angle] of expected) {
+      const port = exposed.find(
+        (entry) =>
+          Math.abs(entry.x - x) < 1e-5 && Math.abs(entry.y - y) < 1e-5 && entry.angle === angle,
+      );
+      assert.ok(port, `${hand} turnout exposes ${x},${y},${angle}`);
       assert.equal(port.type, "regular");
-    });
+    }
   }
+});
+
+test("R40 parallel triple has three aligned 16-stud exits", () => {
+  const triple = parts.get("trixbrix:r40-triple-switch");
+  assert.deepEqual(
+    triple.inventory.map(({ quantity }) => quantity),
+    [1, 1],
+    "source body inventory has a base and detachable section",
+  );
+  const physicalCount = (id) =>
+    kits
+      .get(id)
+      .parts.reduce(
+        (count, { partId }) =>
+          count +
+          (parts.get(partId).inventory?.reduce((sum, component) => sum + component.quantity, 0) ??
+            1),
+        0,
+      );
+  assert.equal(physicalCount("trixbrix:r40-triple"), 6, "standard triple purchase count");
+  assert.equal(physicalCount("trixbrix:r40-triple-parallel"), 9, "parallel triple purchase count");
+  const kit = kits.get("trixbrix:r40-triple-parallel");
+  const ports = kit.parts.flatMap((pose) =>
+    parts.get(pose.partId).ports.map((port) => {
+      const offset = rotate(port, pose.angle);
+      return {
+        ...port,
+        x: pose.x + offset.x,
+        y: pose.y + offset.y,
+        angle: (((pose.angle + port.angle) % 360) + 360) % 360,
+      };
+    }),
+  );
+  const exposed = ports.filter(
+    (port) =>
+      !ports.some(
+        (other) =>
+          other !== port &&
+          Math.hypot(port.x - other.x, port.y - other.y) < 0.001 &&
+          Math.abs(((((port.angle - other.angle + 540) % 360) + 360) % 360) - 180) < 0.001,
+      ),
+  );
+  for (const x of [-16, 0, 16]) {
+    assert.ok(
+      exposed.some(
+        (port) =>
+          Math.abs(port.x - x) < 0.001 && Math.abs(port.y + 32) < 0.001 && port.angle === 270,
+      ),
+      `missing aligned R40 exit at ${x},-32`,
+    );
+  }
+  assert.ok(
+    exposed.some(
+      (port) => Math.abs(port.x) < 0.001 && Math.abs(port.y - 16) < 0.001 && port.angle === 90,
+    ),
+  );
 });
