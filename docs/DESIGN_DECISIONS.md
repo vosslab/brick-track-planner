@@ -36,6 +36,19 @@ checks.
 **Owner.** [scene_appearance.ts](../src/scene_appearance.ts),
 [CATALOG_SOURCES.md](../data/CATALOG_SOURCES.md)
 
+### Number examples and compare track counts
+
+**Decision.** Use stable example numbers and frame the track in each preview.
+Keep the mainline baseline first and order the other cards by total physical
+track count from the layout inventory.
+
+**Why.** Members can identify a plan in conversation and compare the track
+it requires.
+
+**Consequence.** Keep the list in track count order when editing the plans.
+
+**Owner.** [straight_examples.json](../data/straight_examples.json)
+
 ### Save designs and templates as LDraw track plans
 
 **Decision.** Use the same LDraw format for member downloads and bundled

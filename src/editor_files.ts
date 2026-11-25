@@ -193,10 +193,14 @@ export function setupFiles(
         try {
           const project = await loadTemplate(template);
           const preview = createScene(project, catalog, evaluate(project), {
+            cropToTrack: true,
             grid: true,
             sharing: true,
           });
-          const total = showInventory(project, catalog).track.reduce((sum, row) => sum + row.required, 0);
+          const total = showInventory(project, catalog).track.reduce(
+            (sum, row) => sum + row.required,
+            0,
+          );
           const description = card.querySelector("small");
           if (description) description.textContent = `${total} track pieces. ${template.purpose}`;
           preview.setAttribute("aria-hidden", "true");

@@ -32,9 +32,10 @@ test("the 40 by 60 gallery previews and opens editable straight examples", async
   await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
   await expect(gallery).toBeVisible();
   await expect(gallery.locator(".template-card")).toHaveCount(straightExamples.length);
-  await expect(gallery.locator(".template-card svg[data-track-scene]")).toHaveCount(
-    straightExamples.length,
-  );
+  const drawings = gallery.locator(".template-card svg[data-track-scene]");
+  await expect(drawings).toHaveCount(straightExamples.length);
+  const mainlineFrame = (await drawings.first().getAttribute("viewBox"))?.split(" ").map(Number);
+  expect(mainlineFrame?.[3]).toBeLessThan(192);
   const clipped = await gallery.locator(".template-card small").evaluateAll((descriptions) =>
     descriptions
       .filter((description) => {
@@ -44,8 +45,12 @@ test("the 40 by 60 gallery previews and opens editable straight examples", async
       .map((description) => description.textContent),
   );
   expect(clipped).toEqual([]);
-  for (const example of straightExamples)
-    await expect(gallery.getByRole("button", { name: new RegExp(example.name) })).toBeVisible();
+  await expect(gallery.locator(".template-card strong")).toHaveText(
+    straightExamples.map(({ id, name }) => `#${id} ${name}`),
+  );
+  await expect(
+    gallery.getByRole("button", { name: /^#2 Double crossover 15 track pieces/ }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#start-screen")).toBeVisible();
@@ -59,11 +64,11 @@ test("the 40 by 60 gallery previews and opens editable straight examples", async
   await expect(page.locator("#design-size")).toContainText("40 × 60");
 
   await page.getByRole("button", { name: "Browse 40 × 60 examples", exact: true }).click();
-  await gallery.getByRole("button", { name: /^Short diagonal loading spur\./ }).click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("Short diagonal loading spur");
+  await gallery.getByRole("button", { name: /^#6 Short perpendicular freight spur/ }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Short perpendicular freight spur");
   expect(
-    (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("diagonal-loading-")),
-  ).toHaveLength(1);
+    (await saveProject(page)).project.items.filter(({ id }) => id.startsWith("freight-straight-")),
+  ).toHaveLength(2);
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {

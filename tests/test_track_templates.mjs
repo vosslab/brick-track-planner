@@ -98,7 +98,9 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
   for (const { file, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
-    parts.push(showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0));
+    parts.push(
+      showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
+    );
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
       [128, 192, "straight"],
@@ -145,7 +147,8 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
       (port) => port.type === "regular" && !port.joined && !/^(inner|outer)-/.test(port.pieceId),
     );
     if (/^(10|11|12)-/.test(file)) {
-      const rightEdgeClearance = result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
+      const rightEdgeClearance =
+        result.project.area.width - Math.max(...storageEnds.map(({ x }) => x)) - 4;
       assert.ok(rightEdgeClearance >= 0 && rightEdgeClearance < 3, `${name} uses the right edge`);
     }
     if (id === "04-r40-right-yard") {
@@ -161,7 +164,11 @@ test("every 40 by 60 straight example is a clean connected NILTC assignment", ()
   }
   assert.equal(fingerprints.size, straightExamples.length);
   const [, ...ranked] = parts;
-  assert.deepEqual(ranked, [...ranked].sort((a, b) => a - b), "examples after the baseline are ordered by physical track count");
+  assert.deepEqual(
+    ranked,
+    [...ranked].sort((a, b) => a - b),
+    "examples after the baseline are ordered by physical track count",
+  );
 });
 
 test("the short freight spur keeps the same approach and trims only perpendicular straights", () => {
@@ -172,7 +179,10 @@ test("the short freight spur keeps the same approach and trims only perpendicula
   const removed = full.items.filter(({ id }) => !retained.has(id));
   assert.equal(removed.length, 5);
   assert.ok(removed.every(({ partId, angle }) => partId === "lego:rc-s16" && angle === 90));
-  assert.deepEqual(short.items, full.items.filter(({ id }) => retained.has(id)));
+  assert.deepEqual(
+    short.items,
+    full.items.filter(({ id }) => retained.has(id)),
+  );
 });
 
 test("the double crossover example transfers trains between the mainlines", () => {

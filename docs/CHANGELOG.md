@@ -4,6 +4,10 @@
 
 ### Behavior or Interface Changes
 
+- Number the straight examples and sort after the mainline baseline by track
+  piece count. Frame the track in each preview. Consolidate duplicate
+  sidings, move perpendicular tracks to the right, and fill the four-track
+  right yard to the display edge.
 - Draw six LEGO and BrickTracks pieces from their LDraw models. Show open
   sleepers on other rail pieces and simplify track when zoomed out.
 - Add shorter gallery versions of the diagonal and perpendicular spurs,

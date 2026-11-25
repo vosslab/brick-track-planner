@@ -47,6 +47,7 @@ export type SceneOptions = {
   routes?: readonly SceneRoute[];
   trace?: readonly SceneTrace[];
   grid?: boolean;
+  cropToTrack?: boolean;
   sharing?: boolean;
   interaction?: "pieces" | "ports" | "placement";
   /** Open ports available as the next endpoint while extending a track. */
@@ -260,8 +261,10 @@ function drawArea(
   options: SceneOptions,
 ): void {
   const { area } = project;
-  addBounds(bounds, { x: 0, y: 0 });
-  addBounds(bounds, { x: area.width, y: area.depth });
+  if (!options.cropToTrack) {
+    addBounds(bounds, { x: 0, y: 0 });
+    addBounds(bounds, { x: area.width, y: area.depth });
+  }
   const group = svg("g", { "data-design-area": "true", "aria-label": "Design area" });
   group.append(
     svg("rect", {
