@@ -28,6 +28,8 @@ import {
 import { renderVenue } from "./editor_venue";
 import { evaluate, initEngine } from "./engine";
 import type { Analysis } from "./engine";
+import { addStarterSiding } from "./niltc_starters";
+import type { StarterKind } from "./niltc_starters";
 import { localPose, newProject, worldPose } from "./project";
 import type { Catalog, Edge, Endpoint, Item, Point, Pose, Project, Table } from "./project";
 import { createScene } from "./scene";
@@ -74,6 +76,7 @@ class Planner {
   #swap: Swap | undefined;
   #box = false;
   #newTable = false;
+  #suggestSiding = false;
   #dragFrame = 0;
 
   constructor(catalog: Catalog) {
@@ -98,15 +101,18 @@ class Planner {
 
     setupPalette(catalog, () => this.#renderPalette());
     this.#wireControls();
-    renderStarterCards(catalog, (project) => this.#run(() => this.#openProject(project)));
+    renderStarterCards(catalog, (project, kind) =>
+      this.#run(() => this.#openProject(project, "", kind)),
+    );
     notice("");
   }
 
-  #openProject(project: Project, message = ""): void {
+  #openProject(project: Project, message = "", starter?: StarterKind): void {
     const next = new EditorState(project);
     this.#resetTools();
     this.#sections.reset();
     this.#state = next;
+    this.#suggestSiding = starter === "40x40" || starter === "60x40-straight";
     const editor = element("editor");
     const entering = editor.hidden;
     editor.hidden = false;
@@ -137,6 +143,7 @@ class Planner {
     handle("add-baseplate", () =>
       this.#choose({ id: "baseplate", name: "32 x 32 baseplate", kind: "baseplate", angle: 0 }),
     );
+    handle("add-siding", () => this.#addSiding());
     handle("undo", () => this.#history("undo"));
     handle("redo", () => this.#history("redo"));
     handle("box-select", () => {
@@ -155,7 +162,7 @@ class Planner {
     handle("fit-view", () => this.#renderScene(this.#swap?.analysis ?? this.#state.analysis, true));
     handle("zoom-out", () => this.#camera.zoom(1.25));
     handle("zoom-in", () => this.#camera.zoom(0.8));
-    handle("rotate-placement", () => this.#rotatePlacement());
+    handle("rotate-placement", () => this.#rotate());
     handle("seam-controls", () => this.#showSeamPanel());
     handle("toggle-library", () => this.#collapse("library"));
     handle("toggle-inspector", () => this.#collapse("inspector"));
@@ -226,7 +233,7 @@ class Planner {
         this.#place(this.#camera.center);
       } else if (event.key === "+" || event.key === "=") this.#camera.zoom(0.8);
       else if (event.key === "-") this.#camera.zoom(1.25);
-      else if (event.key.toLowerCase() === "r") this.#rotatePlacement();
+      else if (event.key.toLowerCase() === "r") this.#rotate();
     }
   }
 
@@ -313,10 +320,27 @@ class Planner {
     toCanvas();
   }
 
-  #rotatePlacement(): void {
-    if (!this.#placement) return;
-    this.#placement.angle = (this.#placement.angle + 90) % 360;
-    this.#renderMode();
+  #rotate(): void {
+    if (this.#seam.draft || this.#swap || this.#box) return;
+    if (this.#placement) {
+      this.#placement.angle = (this.#placement.angle + 90) % 360;
+      this.#renderMode();
+      return;
+    }
+    const { project, selection } = this.#state;
+    const table = project.tables.find(({ id }) => selection.has(id));
+    const item = project.items.find(({ id }) => selection.has(id));
+    const pose = table ?? (item && worldPose(item, project.tables));
+    if (pose) this.#applyPose({ ...pose, angle: pose.angle + 90 }, pose);
+  }
+
+  #addSiding(): void {
+    if (!this.#suggestSiding) return;
+    const project = structuredClone(this.#state.project);
+    const turnout = addStarterSiding(project, this.#catalog);
+    this.#commit(project, { selectIds: [turnout] });
+    toCanvas();
+    notice("Added a siding. Extend it from the open end or use Undo to remove it.");
   }
 
   #place(point: Point): void {
@@ -690,6 +714,7 @@ class Planner {
     options: { fit?: boolean; selectIds?: string[]; snapIds?: string[] } = {},
   ): void {
     this.#state.commit(project, this.#snap(options.snapIds));
+    this.#suggestSiding = false;
     this.#swap = undefined;
     notice("");
     if (options.selectIds) {
@@ -705,6 +730,7 @@ class Planner {
       selection: this.#state.selection,
       grid: input("grid-toggle").checked,
       interaction: this.#seam.draft ? "ports" : this.#placement ? "placement" : "pieces",
+      sidingSpace: this.#suggestSiding && !this.#placement && !this.#seam.draft && !this.#box,
       reuse: element("tabletop").querySelector<SVGSVGElement>("svg[data-track-scene]") ?? undefined,
     });
     this.#camera.show(scene, fit);
@@ -734,7 +760,10 @@ class Planner {
       Boolean(this.#state.project.venue) ||
       this.#state.project.tables.length > 0 ||
       this.#state.project.items.length > 0;
-    button("rotate-placement").hidden = !this.#placement;
+    const editing = Boolean(this.#seam.draft || this.#swap || this.#box);
+    button("rotate-placement").disabled =
+      editing || (!this.#placement && !this.#state.selection.size);
+    element("siding-start").hidden = !this.#suggestSiding || editing || Boolean(this.#placement);
     button("seam-controls").hidden = !this.#seam.draft;
     button("seam-mode").setAttribute("aria-pressed", String(Boolean(this.#seam.draft)));
     button("box-select").setAttribute("aria-pressed", String(this.#box));

@@ -87,6 +87,7 @@
           <div class="toolbar-group">
             <button type="button" id="undo" disabled title="Undo (Ctrl/Command+Z)">Undo</button>
             <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">Redo</button>
+            <button type="button" id="rotate-placement" disabled>Rotate 90&deg;</button>
             <button type="button" id="box-select" aria-pressed="false">Box select</button>
           </div>
           <div class="toolbar-group">
@@ -94,6 +95,10 @@
             <button type="button" id="add-baseplate" aria-pressed="false">+ Baseplate</button>
             <button type="button" id="seam-mode" aria-pressed="false">Seam</button>
             <label class="check"><input type="checkbox" id="grid-toggle" checked> 32-stud grid</label>
+          </div>
+          <div id="siding-start" class="siding-start" hidden>
+            <button type="button" id="add-siding" aria-describedby="siding-hint">Add a siding</button>
+            <p id="siding-hint">Branch off the inner mainline into the marked space.</p>
           </div>
         </div>
         <div class="viewport">
@@ -112,7 +117,6 @@
         </div>
         <div class="canvas-footer">
           <span id="mode-label">Select or drag a piece</span>
-          <button type="button" id="rotate-placement" hidden>Rotate 90&deg;</button>
           <button type="button" id="seam-controls" hidden>Seam controls</button>
           <span id="fit-status" aria-live="polite"></span>
         </div>

@@ -71,7 +71,14 @@ for (const starter of starters) {
       await expect(card.locator("svg")).toBeVisible();
     }
     await expect(button(page, "Open existing project")).toBeVisible();
-    await button(page, starter.name).click();
+    const starterCard = button(page, starter.name);
+    await expect(starterCard.locator("[data-audience-front-marker]")).toHaveCount(
+      starter.curve ? 6 : 3,
+    );
+    await expect(starterCard.locator("[data-audience-front-label]")).toHaveCount(
+      starter.curve ? 2 : 1,
+    );
+    await starterCard.click();
     await expect(canvas(page)).toBeVisible();
 
     const { project } = await saveProject(page);
@@ -108,8 +115,21 @@ for (const starter of starters) {
       starter.curve ? "south" : "west",
     ]);
     await expect(canvas(page).locator('[data-port-id][data-open="true"]')).toHaveCount(4);
+    await expect(canvas(page).locator("[data-table-label]")).toHaveText(/\+2 pl$/);
+    await expect(canvas(page).locator("[data-audience-front-marker]")).toHaveCount(
+      starter.curve ? 6 : 3,
+    );
+    await expect(canvas(page).locator("[data-audience-front-label]")).toHaveCount(
+      starter.curve ? 2 : 1,
+    );
+    await expect(canvas(page).getByText("Audience front", { exact: true })).toHaveCount(
+      starter.curve ? 2 : 1,
+    );
+    await expect(canvas(page).locator('use[stroke$="-raised)"]')).toHaveCount(0);
+    const captions = canvas(page).locator("[data-track-caption]");
 
     if (starter.curve) {
+      await expect(captions).toHaveText(["R120", "R104"]);
       for (const radius of [120, 104]) {
         expect(rails.filter(({ partId }) => partId === `bricktracks:r${radius}`)).toHaveLength(8);
       }
@@ -117,10 +137,59 @@ for (const starter of starters) {
       expect(approaches.map(({ x, y }) => [Math.round(x), Math.round(y)])).toEqual(
         [8, 24].flatMap((y) => [136, 152, 168, 184].map((x) => [x, y])),
       );
+    } else {
+      await expect(captions).toHaveCount(0);
     }
     expect(errors).toEqual([]);
   });
 }
+
+test("phone user adds and saves the suggested 40x40 siding without disturbing mainlines", async ({
+  page,
+  hasTouch,
+}) => {
+  test.skip(!hasTouch, "touch starter workflow");
+  const errors = watchErrors(page);
+  await boot(page, { startAdvanced: false });
+  await button(page, "40\u00d740").tap();
+
+  const scene = canvas(page).locator("[data-track-scene]");
+  const addSiding = button(page, "Add a siding");
+  await expect(addSiding).toBeVisible();
+  await expect(scene.locator("[data-siding-space]")).toHaveCount(1);
+  const before = (await saveProject(page)).project;
+  await addSiding.tap();
+  await expect(addSiding).toBeHidden();
+  await expect(scene.locator("[data-siding-space]")).toHaveCount(0);
+  await expect(scene.locator('[data-port-id][data-open="true"]')).toHaveCount(5);
+  await expect(scene.locator("[data-overhang-for]")).toHaveCount(0);
+
+  const { path, project } = await saveProject(page);
+  expect(project.items.filter(({ kind }) => kind === "track")).toHaveLength(17);
+  expect(project.items.find(({ id }) => id === "inner-3")).toMatchObject({
+    partId: "lego:9v-r40-right",
+    heightPlates: 2,
+  });
+  expect(project.items.find(({ id }) => id === "starter-siding-curve")).toMatchObject({
+    partId: "lego:9v-r40",
+    heightPlates: 2,
+  });
+  expect(project.items.find(({ id }) => id === "starter-siding-straight")).toMatchObject({
+    partId: "trixbrix:s32",
+    heightPlates: 2,
+  });
+  expect(project.sections[0]?.exits).toEqual(before.sections[0]?.exits);
+
+  await button(page, "Undo").tap();
+  expect((await saveProject(page)).project).toEqual(before);
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    button(page, "Open").tap(),
+  ]);
+  await chooser.setFiles(path);
+  await expect(scene.locator('[data-port-id][data-open="true"]')).toHaveCount(5);
+  expect(errors).toEqual([]);
+});
 
 test("places actual lanes and a baseplate on a rotated NILTC table", async ({ page, hasTouch }) => {
   const errors = watchErrors(page);
@@ -169,14 +238,20 @@ test("places actual lanes and a baseplate on a rotated NILTC table", async ({ pa
   expect(originalTable).toMatchObject({ angle: 90, niltc: "straight", fronts: ["north"] });
   const rails = initial.items.filter((item) => item.kind === "track");
   expect(
-    rails.map(({ y, angle, heightPlates, tableId }) => ({ y, angle, heightPlates, tableId })),
-  ).toEqual([8, 24].map((y) => ({ y, angle: 0, heightPlates: 2, tableId: originalTable.id })));
-  expect(initial.items.find(({ kind }) => kind === "baseplate")).toMatchObject({
+    rails.map(({ y, angle, heightPlates, tableId }) => ({
+      y,
+      axis: angle % 180,
+      heightPlates,
+      tableId,
+    })),
+  ).toEqual([8, 24].map((y) => ({ y, axis: 0, heightPlates: 2, tableId: originalTable.id })));
+  const baseplate = initial.items.find(({ kind }) => kind === "baseplate");
+  expect(baseplate).toMatchObject({
     x: 16,
     y: 16,
-    angle: 0,
     tableId: originalTable.id,
   });
+  expect(baseplate && baseplate.angle % 90).toBe(0);
   await expect(openEnds).toHaveCount(4);
 
   await dragTable(page, table, hasTouch);
@@ -210,9 +285,19 @@ test("places actual lanes and a baseplate on a rotated NILTC table", async ({ pa
   await expect(mode).toHaveValue("off");
   const gridWarning = button(page, /Imported baseplate is off the 32-stud baseplate grid/);
   await expect(gridWarning).toHaveCount(0);
+  const captions = canvas(page).locator("[data-track-caption]");
+  await expect(captions).toHaveText(["+2 pl", "+2 pl"]);
   await mode.selectOption({ label: "Straight" });
   await expect(gridWarning).toBeVisible();
+  await expect(captions).toHaveCount(0);
   await expect(openEnds).toHaveCount(4);
+
+  const track = canvas(page).getByRole("button", { name: "9V straight S16" }).first();
+  await track.press("Enter");
+  await page.getByRole("spinbutton", { name: "Height (plates)" }).fill("0");
+  await button(page, "Apply").click();
+  await expect(captions).toHaveText("0 pl");
+  await expect(track.locator('use[stroke$="-lowered)"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 

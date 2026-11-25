@@ -41,15 +41,19 @@ A `.btps.json` file has this version 1 envelope:
 ```json
 {
   "version": 1,
-  "section": { "name": "Yard", "ownerName": "Optional member name" },
+  "section": { "name": "Yard", "ownerName": "Member name" },
   "anchorTableId": "yard-table",
   "project": {
     "version": 2,
     "name": "Yard",
-    "sections": [],
+    "sections": [{ "id": "yard", "name": "Yard", "exits": [] }],
     "members": [],
-    "layers": [],
-    "tables": [],
+    "layers": [{ "id": "layout", "name": "Layout", "visible": true }],
+    "tables": [{
+      "id": "yard-table", "name": "Yard table", "layerId": "layout",
+      "sectionId": "yard", "x": 0, "y": 0, "angle": 0,
+      "width": 128, "depth": 128, "fronts": []
+    }],
     "items": [],
     "seams": []
   }

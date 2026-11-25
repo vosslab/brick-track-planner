@@ -9,7 +9,7 @@ import { evaluateWasm } from "./helper_wasm";
 
 // Run with PW_BENCHMARK=1 ./run_playwright_tests.sh benchmark.spec.ts --workers=1.
 // Selector contract: src/index.html:100,133 exposes the tabletop and parts tally.
-// src/editor_panels.ts:73,87 exposes the pose controls; src/scene.ts:279,766 identifies the track and scene.
+// src/editor_panels.ts:73,87 exposes the pose controls; src/scene.ts:118,598 identifies the track and scene.
 test.skip(process.env["PW_BENCHMARK"] !== "1", "opt-in diagnostic");
 
 function layout(count: number): Project {

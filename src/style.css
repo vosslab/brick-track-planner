@@ -163,6 +163,8 @@ h2, p { margin: 0; }
 
 .workbench { grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
 .canvas-toolbar { justify-content: space-between; padding: .4rem .5rem; border-bottom: 1px solid var(--line); }
+.siding-start { display: flex; flex: 1 1 100%; align-items: center; flex-wrap: wrap; gap: .3rem .65rem; padding: .3rem .42rem; border: 1px solid var(--line); border-radius: 6px; background: var(--accent-soft); }
+.siding-start p { color: var(--accent-dark); font-size: .82rem; }
 .check { display: inline-flex; align-items: center; gap: .38rem; min-height: var(--control-height); padding-inline: .2rem; font-size: .79rem; white-space: nowrap; cursor: pointer; }
 .viewport { position: relative; min-height: 0; overflow: hidden; background: var(--board); isolation: isolate; }
 #tabletop { width: 100%; height: 100%; touch-action: none; cursor: grab; }
@@ -271,7 +273,6 @@ dialog h2 { font-size: 1.25rem; margin-bottom: .5rem; }
 #tabletop[data-mode="box"] { cursor: crosshair; }
 #tabletop[data-mode="seam"] [data-port-id] { cursor: pointer; }
 #tabletop[data-mode="seam"] [data-port-id]:hover { filter: drop-shadow(0 0 1px #006f71); }
-#rotate-placement { font-size: .8rem; }
 @media (max-width: 750px) {
   .panel-toggle { display: block; font-size: .74rem; }
   .inspector > .panel-toggle { margin: .42rem; }

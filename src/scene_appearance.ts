@@ -1,9 +1,8 @@
 import type { Catalog, Point, TrackItem } from "./project";
-import { pathData, svg, unit } from "./scene_drawing";
+import { detailStyle, pathData, svg, unit } from "./scene_drawing";
 
 type Part = Catalog["parts"][number];
 type Ballast = NonNullable<TrackItem["ballast"]>;
-const detail = "display: var(--track-detail, none)";
 
 function offsetRail(
   route: readonly Point[],
@@ -107,7 +106,7 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
     svg("path", {
       d: geometry.ties,
       "stroke-width": 0.9,
-      style: `${detail}; stroke: var(--track-tie, #565a55)`,
+      style: `${detailStyle}; stroke: var(--track-tie, #565a55)`,
       "pointer-events": "none",
     }),
     svg("path", {
@@ -121,7 +120,7 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
       stroke: "#e8e9e3",
       "stroke-width": 0.28,
       "pointer-events": "none",
-      style: detail,
+      style: detailStyle,
     }),
   );
   defs.append(route, shape);
@@ -140,6 +139,7 @@ export function partInstance(
   item: TrackItem,
   part: Part,
   selected: boolean,
+  heightOffset: number,
 ): void {
   const ballast = item.ballast ?? "bare";
   group.setAttribute("data-ballast", ballast);
@@ -171,7 +171,7 @@ export function partInstance(
         href: routeHref,
         stroke: `url(#${prefix}-ballast-grain)`,
         "stroke-width": ballastWidths[ballast] - 0.6,
-        style: detail,
+        style: detailStyle,
       }),
     );
     group.append(shoulder);
@@ -179,8 +179,8 @@ export function partInstance(
   group.append(svg("use", { href: `#${id}` }));
 
   // Height stays legible above bare or ballasted track at every scale.
-  if (item.heightPlates !== 0) {
-    const hatch = `url(#${prefix}-${item.heightPlates > 0 ? "raised" : "lowered"})`;
+  if (heightOffset !== 0) {
+    const hatch = `url(#${prefix}-${heightOffset > 0 ? "raised" : "lowered"})`;
     group.append(
       hasRails
         ? svg("use", {
@@ -277,7 +277,7 @@ export function baseplateDrawing(
       fill: `url(#${patternId})`,
       "pointer-events": "none",
       "data-baseplate-studs": "true",
-      style: detail,
+      style: detailStyle,
     }),
   );
 }

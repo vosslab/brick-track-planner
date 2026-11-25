@@ -5,9 +5,10 @@ export type Bounds = { left: number; top: number; right: number; bottom: number 
 const svgNamespace = "http://www.w3.org/2000/svg";
 export const paper = "#faf6ee";
 export const ink = "#2a2721";
-export const edgeInk = "#685a48";
+const edgeInk = "#685a48";
 export const selectionInk = "#006f71";
 export const warningInk = "#923722";
+export const detailStyle = "display: var(--track-detail, none)";
 
 export function svg<Tag extends keyof SVGElementTagNameMap>(
   name: Tag,
@@ -59,7 +60,12 @@ export function world(point: Point, pose: Pose): Point {
   };
 }
 
-export function addShapeBounds(bounds: Bounds, points: readonly Point[], pose: Pose, margin = 0): void {
+export function addShapeBounds(
+  bounds: Bounds,
+  points: readonly Point[],
+  pose: Pose,
+  margin = 0,
+): void {
   const radians = ((pose.angle % 360) * Math.PI) / 180;
   const cosine = Math.cos(radians);
   const sine = Math.sin(radians);
@@ -92,7 +98,11 @@ export function line(start: Point, end: Point, attributes: Attributes): SVGLineE
   return svg("line", { x1: start.x, y1: start.y, x2: end.x, y2: end.y, ...attributes });
 }
 
-export function path(points: readonly Point[], attributes: Attributes, closed = false): SVGPathElement {
+export function path(
+  points: readonly Point[],
+  attributes: Attributes,
+  closed = false,
+): SVGPathElement {
   return svg("path", { d: pathData(points, closed), fill: "none", ...attributes });
 }
 
@@ -158,7 +168,76 @@ export function tableEdge(table: Table, side: Edge, inset = 0): [Point, Point] {
   }
 }
 
-export function tableDrawing(table: Table, selected: boolean, bounds: Bounds): SVGGElement {
+function audienceMarker(side: Edge, distance: number, table: Table): Point[] {
+  const inset = 3;
+  switch (side) {
+    case "north":
+      return [
+        { x: distance - inset, y: inset },
+        { x: distance, y: 0 },
+        { x: distance + inset, y: inset },
+      ];
+    case "east":
+      return [
+        { x: table.width - inset, y: distance - inset },
+        { x: table.width, y: distance },
+        { x: table.width - inset, y: distance + inset },
+      ];
+    case "south":
+      return [
+        { x: distance - inset, y: table.depth - inset },
+        { x: distance, y: table.depth },
+        { x: distance + inset, y: table.depth - inset },
+      ];
+    case "west":
+      return [
+        { x: inset, y: distance - inset },
+        { x: 0, y: distance },
+        { x: inset, y: distance + inset },
+      ];
+  }
+}
+
+function audienceLabel(
+  table: Table,
+  side: Edge,
+  bounds: Bounds,
+  labels: SVGGElement,
+  atOverview: boolean,
+): void {
+  const horizontal = side === "north" || side === "south";
+  const local = horizontal
+    ? { x: table.width / 2, y: side === "north" ? -5 : table.depth + 5 }
+    : { x: side === "west" ? -5 : table.width + 5, y: table.depth / 2 };
+  const at = world(local, table);
+  const angle = (table.angle % 180) + (horizontal ? 0 : 90);
+  const upright = ((((angle + 90) % 180) + 180) % 180) - 90;
+  const size = atOverview ? 4 : 2.6;
+  const width = "Audience front".length * size * 0.57;
+  addShapeBounds(bounds, rectangle(-width / 2, -size, width, size * 1.3), {
+    ...at,
+    angle: upright,
+  });
+  labels.append(
+    label(at, "Audience front", size, {
+      "data-audience-front-label": side,
+      "text-anchor": "middle",
+      "font-weight": 650,
+      transform: `rotate(${upright} ${at.x} ${at.y})`,
+      ...(atOverview ? {} : { style: detailStyle }),
+    }),
+  );
+}
+
+export function tableDrawing(
+  table: Table,
+  selected: boolean,
+  bounds: Bounds,
+  guideId: string,
+  guideLayer: SVGGElement,
+  labels: SVGGElement,
+  frontLabelsAtOverview: boolean,
+): SVGGElement {
   const points = rectangle(0, 0, table.width, table.depth);
   addShapeBounds(bounds, points, table);
   const group = svg("g", {
@@ -180,28 +259,58 @@ export function tableDrawing(table: Table, selected: boolean, bounds: Bounds): S
       true,
     ),
   );
+  if (!table.fronts.length) return group;
+  const guides = svg("g", { id: guideId, stroke: "#76523b" });
+  const definitions = svg("defs");
+  definitions.append(guides);
+  group.append(definitions);
+  guideLayer.append(svg("use", { href: `#${guideId}`, transform: poseTransform(table) }));
   for (const side of table.fronts) {
-    group.append(
+    guides.append(
       line(...tableEdge(table, side), {
-        stroke: "#76523b",
         "stroke-width": 1.35,
         "data-front": side,
       }),
     );
+    const horizontal = side === "north" || side === "south";
+    const length = horizontal ? table.width : table.depth;
+    for (const factor of [0.25, 0.5, 0.75]) {
+      guides.append(
+        path(audienceMarker(side, length * factor, table), {
+          "data-audience-front-marker": side,
+          "stroke-width": 0.8,
+        }),
+      );
+    }
+    audienceLabel(table, side, bounds, labels, frontLabelsAtOverview);
     for (const offset of [8, 24]) {
-      if (offset >= (side === "north" || side === "south" ? table.depth : table.width)) continue;
+      const extent = horizontal ? table.depth : table.width;
+      if (offset >= extent) continue;
       const [start, end] = tableEdge(table, side, offset);
-      group.append(
+      guides.append(
         line(start, end, {
-          stroke: "#76523b",
           "stroke-width": 0.38,
           "stroke-dasharray": offset === 8 ? "3 2" : "1 2",
           "data-front": side,
           "data-lane-studs": offset,
         }),
       );
+      if (table.niltc && extent >= offset + 8 && length >= 32) {
+        const [a, b] = tableEdge(table, side, offset + 7);
+        const at = world({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, table);
+        const angle = (table.angle % 180) + (horizontal ? 0 : 90);
+        const upright = ((((angle + 90) % 180) + 180) % 180) - 90;
+        labels.append(
+          label(at, offset === 8 ? "Outer mainline" : "Inner mainline", 2.6, {
+            "data-lane-label": offset,
+            "text-anchor": "middle",
+            "font-weight": 650,
+            transform: `rotate(${upright} ${at.x} ${at.y})`,
+            style: detailStyle,
+          }),
+        );
+      }
     }
   }
   return group;
 }
-

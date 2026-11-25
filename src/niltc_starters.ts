@@ -2,21 +2,21 @@ import { composePose, newProject } from "./project";
 import type { Catalog, Edge, Part, Pose, Project, SectionExit, Table } from "./project";
 
 export const STARTER_CARDS = [
-  { kind: "40x40", title: "40\u00d740", description: "Two straight mainlines on a square table." },
+  { kind: "40x40", title: "40\u00d740", description: "Start with one table." },
   {
     kind: "60x40-straight",
     title: "60\u00d740 Straight",
-    description: "Two straight mainlines with extra space to build.",
+    description: "Leave room for a yard.",
   },
   {
     kind: "60x40-curve",
     title: "60\u00d740 Curve",
-    description: "Two mainlines on a quarter-turn with an east extension.",
+    description: "Turn both mainlines around a corner.",
   },
   {
     kind: "advanced",
     title: "Advanced \u2014 I\u2019ll handle it",
-    description: "Start with an empty layout.",
+    description: "Start with a blank canvas.",
   },
 ] as const;
 
@@ -28,17 +28,22 @@ function findPart(catalog: Catalog, id: string): Part {
   return part;
 }
 
+function port(part: Part, id: string): Part["ports"][number] {
+  const connector = part.ports.find((entry) => entry.id === id);
+  if (!connector) throw new Error(`${part.name} is missing connector ${id}.`);
+  return connector;
+}
+
+function connect(incoming: Pose, outgoing: Pose): Pose {
+  const angle = (outgoing.angle + 180 - incoming.angle + 360) % 360;
+  const offset = composePose(incoming, { x: 0, y: 0, angle });
+  return { x: outgoing.x - offset.x, y: outgoing.y - offset.y, angle };
+}
+
 function addLane(project: Project, table: Table, name: string, start: Pose, parts: Part[]): void {
   let end = start;
   for (const [index, part] of parts.entries()) {
-    const a = part.ports.find(({ id }) => id === "a");
-    const b = part.ports.find(({ id }) => id === "b");
-    if (!a || !b) throw new Error(`The starter requires both connectors on ${part.id}.`);
-
-    // Align the incoming catalog connector with the previous piece's outgoing connector.
-    const angle = (end.angle + 180 - a.angle + 360) % 360;
-    const offset = composePose(a, { x: 0, y: 0, angle });
-    const pose = { x: end.x - offset.x, y: end.y - offset.y, angle };
+    const pose = connect(port(part, "a"), end);
     project.items.push({
       kind: "track",
       id: `${name}-${index + 1}`,
@@ -48,7 +53,7 @@ function addLane(project: Project, table: Table, name: string, start: Pose, part
       heightPlates: 2,
       ...pose,
     });
-    end = composePose(b, pose);
+    end = composePose(port(part, "b"), pose);
   }
 }
 
@@ -131,4 +136,27 @@ export function createStarter(kind: StarterKind, catalog: Catalog): Project {
     ],
   });
   return project;
+}
+
+/** Extend a fresh straight starter while preserving both named mainline exits. */
+export function addStarterSiding(project: Project, catalog: Catalog): string {
+  const first = project.items.find(({ id }) => id === "inner-3");
+  if (first?.kind !== "track") throw new Error("The starter mainline is missing.");
+  const straight = findPart(catalog, first.partId);
+  const turnout = findPart(catalog, "lego:9v-r40-right");
+  const curve = findPart(catalog, "lego:9v-r40");
+  const siding = findPart(catalog, "trixbrix:s32");
+  const start = composePose(port(straight, "a"), first);
+  const turnoutPose = connect(port(turnout, "common"), { ...start, angle: start.angle + 180 });
+  const curvePose = connect(port(curve, "b"), composePose(port(turnout, "branch"), turnoutPose));
+  const sidingPose = connect(port(siding, "a"), composePose(port(curve, "a"), curvePose));
+
+  // The turnout's through route spans two S16s. The reversed curve makes the siding parallel.
+  project.items = project.items.filter(({ id }) => id !== first.id && id !== "inner-4");
+  project.items.push(
+    { ...first, partId: turnout.id, ...turnoutPose },
+    { ...first, id: "starter-siding-curve", partId: curve.id, ...curvePose },
+    { ...first, id: "starter-siding-straight", partId: siding.id, ...sidingPose },
+  );
+  return first.id;
 }

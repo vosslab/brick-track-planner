@@ -3,7 +3,8 @@ import type { Locator, Page } from "@playwright/test";
 
 import { chooseFile, saveProject, test } from "./helper_planner";
 
-// Appearance controls: src/editor_panels.ts:145. Canvas item IDs: src/scene.ts:286.
+// Appearance: src/editor_panels.ts:145. Canvas item IDs: src/scene.ts:286.
+// Inventory rows: src/editor_inventory.ts:6. Published S16 recipe: data/ballast_recipes.json:3.
 const baseplate = { id: "plate", kind: "baseplate", x: 32, y: 56, color: "#aa3366" };
 const straight = { id: "straight", kind: "track", partId: "lego:9v-s16", x: 24, y: 18 };
 const next = { ...straight, id: "next-straight", x: 40 };
@@ -70,14 +71,21 @@ test("edits appearance on a small screen and saves it independently of geometry"
   const ballast = planner.getByRole("combobox", { name: "Ballast style" });
   const count = planner.getByRole("checkbox", { name: "Count PennLUG ballast" });
   await expect(planner.getByText(/allow \+2 plates/)).toBeVisible();
-  await expect(count).toHaveAccessibleDescription("No published ballast recipe for this piece.");
   await ballast.selectOption({ label: "PennLUG-style" });
   await expect(count).not.toBeChecked();
   await activate(count, hasTouch);
   await expect(count).toBeChecked();
+  await activate(planner.getByText("Show inventory", { exact: true }), hasTouch);
+  const inventory = planner.getByRole("region", { name: "Show inventory" });
+  const materials = inventory.getByRole("heading", { name: "Published PennLUG materials" });
+  await expect(materials).toBeVisible();
+  await expect(
+    inventory.locator(".list-row").filter({ hasText: "Tile 1 x 1 (black, 3070)" }).first(),
+  ).toHaveText(/3070\)\s*16$/);
   await activate(planner.getByRole("button", { name: "Undo", exact: true }), hasTouch);
   await expect(count).not.toBeChecked();
   await expect(ballast).toHaveValue("pennlug");
+  await expect(materials).toHaveCount(0);
   await activate(count, hasTouch);
 
   const { path, project } = await saveProject(planner);

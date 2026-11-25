@@ -12,10 +12,28 @@ import {
   trackHalfWidth,
 } from "./scene_appearance";
 import {
-  addBounds, addShapeBounds, boundedLabel, emptyBounds, includeBounds, ink, line,
-  paper, path, pathData, poseTransform, rectangle, selectionInk, svg, tableDrawing, tableEdge, unit, warningInk, world,
+  addBounds,
+  addShapeBounds,
+  boundedLabel,
+  emptyBounds,
+  includeBounds,
+  ink,
+  line,
+  paper,
+  path,
+  pathData,
+  poseTransform,
+  rectangle,
+  selectionInk,
+  svg,
+  tableDrawing,
+  tableEdge,
+  unit,
+  warningInk,
+  world,
 } from "./scene_drawing";
 import type { Bounds } from "./scene_drawing";
+import { seamS8Suppliers } from "./seam_supply";
 
 export { setSceneDetail } from "./scene_appearance";
 
@@ -24,6 +42,7 @@ type SceneOptions = {
   grid?: boolean;
   sharing?: boolean;
   interaction?: "pieces" | "ports" | "placement";
+  sidingSpace?: boolean;
   sectionId?: string;
   reuse?: SVGSVGElement;
 };
@@ -50,6 +69,7 @@ type SceneLayers = {
   venue: SVGGElement;
   tables: SVGGElement;
   plates: SVGGElement;
+  guides: SVGGElement;
   tracks: SVGGElement;
   issues: SVGGElement;
   ports: SVGGElement;
@@ -59,6 +79,7 @@ type SceneLayers = {
   portsById: Map<string, Drawn>;
 };
 const sceneLayers = new WeakMap<SVGSVGElement, SceneLayers>();
+const niltcHeightPlates = 2;
 let sceneNumber = 0;
 
 function syncLayer(layer: SVGGElement, nodes: readonly SVGElement[]): void {
@@ -86,6 +107,8 @@ function itemDrawing(
   bounds: Bounds,
   drawings: Drawings,
   interaction: SceneOptions["interaction"],
+  referenceHeight: number,
+  showCurve: boolean,
 ): Pick<Drawn, "node" | "label"> {
   const name =
     item.kind === "track"
@@ -121,11 +144,12 @@ function itemDrawing(
     for (const route of part.paths) {
       addShapeBounds(bounds, route, pose, halfWidth + 0.25);
     }
-    partInstance(group, partId, drawings.prefix, item, part, selected);
+    const heightOffset = item.heightPlates - referenceHeight;
+    partInstance(group, partId, drawings.prefix, item, part, selected, heightOffset);
     const captions = [];
-    if (part.radius !== undefined) captions.push(`R${part.radius}`);
-    if (part.sweep !== undefined) captions.push(`${part.sweep}\u00b0`);
-    if (item.heightPlates !== 0)
+    if (showCurve && part.radius !== undefined) captions.push(`R${part.radius}`);
+    if (showCurve && part.sweep !== undefined) captions.push(`${part.sweep}\u00b0`);
+    if (heightOffset !== 0)
       captions.push(`${item.heightPlates > 0 ? "+" : ""}${item.heightPlates} pl`);
     if (captions.length) {
       const route = part.paths.find((route) => route.length > 2) ?? part.paths[0];
@@ -179,10 +203,12 @@ function itemKey(
   pose: Pose,
   selected: boolean,
   interaction: SceneOptions["interaction"],
+  referenceHeight: number,
+  showCurve: boolean,
 ): string {
   const appearance =
     item.kind === "track"
-      ? [item.partId, item.heightPlates, item.ballast]
+      ? [item.partId, item.heightPlates, item.ballast, referenceHeight, showCurve]
       : item.kind === "baseplate"
         ? [item.name, item.color]
         : [item.name, item.width, item.depth];
@@ -387,7 +413,6 @@ function seamDrawing(
   );
   const statuses = new Map(analysis.seams.map((seam) => [seam.id, seam]));
   const tables = new Map(project.tables.map((table) => [table.id, table]));
-  const items = new Map(project.items.map((item) => [item.id, item]));
 
   for (const seam of project.seams) {
     const firstTableShown = sectionTables?.has(seam.tableA) ?? true;
@@ -400,7 +425,6 @@ function seamDrawing(
     const [start, end] = tableEdge(table, firstTableShown ? seam.edgeA : seam.edgeB);
     const at = world({ x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, table);
     const group = svg("g", { "data-seam-id": seam.id, "pointer-events": "none" });
-    const supplierNames = new Set<string>();
     for (const [index, lane] of (["outer", "inner"] as const).entries()) {
       if (status[lane].status === "hidden") continue;
       const pair = seam[lane];
@@ -414,19 +438,14 @@ function seamDrawing(
         x: at.x,
         y: at.y + index * 4,
       });
-      for (const item of [items.get(pair.a.pieceId), items.get(pair.b.pieceId)]) {
-        if (item?.kind === "track" && item.partId === "bricktracks:s08" && item.tableId) {
-          const supplier = tables.get(item.tableId);
-          if (supplier) supplierNames.add(supplier.name);
-        }
-      }
     }
-    if (supplierNames.size) {
+    const supplierNames = seamS8Suppliers(project, analysis, seam);
+    if (supplierNames.length) {
       group.append(
         boundedLabel(
           bounds,
           { x: at.x, y: at.y + 8 },
-          `S8 supplied by ${[...supplierNames].join(", ")}`,
+          `S8 supplied by ${supplierNames.join(", ")}`,
           2.45,
           { "data-s8-supply": "true" },
         ),
@@ -599,6 +618,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     venue: svg("g"),
     tables: svg("g"),
     plates: svg("g"),
+    guides: svg("g", { "pointer-events": "none" }),
     tracks: svg("g"),
     issues: svg("g"),
     ports: svg("g"),
@@ -615,6 +635,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     layers.venue,
     layers.tables,
     layers.plates,
+    layers.guides,
     layers.tracks,
     layers.issues,
     layers.ports,
@@ -659,18 +680,66 @@ export function createScene(
       )
     : undefined;
   const sectionItems = sectionTables ? new Set<string>() : undefined;
+  const visibleItems = project.items.filter(
+    (item) =>
+      visible.has(item.layerId) &&
+      (!sectionTables || (item.tableId && sectionTables.has(item.tableId))),
+  );
+  const curveGroups = new Map<string, string[]>();
+  for (const item of visibleItems) {
+    if (item.kind !== "track" || !item.tableId || !tables.get(item.tableId)?.niltc) continue;
+    const part = parts.get(item.partId);
+    if (!part || (part.radius === undefined && part.sweep === undefined)) continue;
+    const key = JSON.stringify([item.tableId, part.radius, part.sweep]);
+    const group = curveGroups.get(key);
+    if (group) group.push(item.id);
+    else curveGroups.set(key, [item.id]);
+  }
+  const representativeCurves = new Set(
+    [...curveGroups.values()].map((group) => group[Math.floor(group.length / 2)]),
+  );
   const tableNodes: SVGGElement[] = [];
   layers.venue.replaceChildren();
   layers.labels.replaceChildren();
   layers.issues.replaceChildren();
+  layers.guides.replaceChildren();
   for (const table of project.tables) {
     if (!visible.has(table.layerId) || (sectionTables && !sectionTables.has(table.id))) continue;
     visibleTables.set(table.id, table);
     const selected = options.selection?.has(table.id) ?? false;
-    tableNodes.push(tableDrawing(table, selected, bounds));
+    tableNodes.push(
+      tableDrawing(
+        table,
+        selected,
+        bounds,
+        `${drawings.prefix}-guides-${tableNodes.length}`,
+        layers.guides,
+        layers.labels,
+        (sectionTables?.size ?? project.tables.length) === 1,
+      ),
+    );
+    if (options.sidingSpace && table.id === "starter-table") {
+      layers.guides.append(
+        svg("rect", {
+          "data-siding-space": "",
+          x: 4,
+          y: 34,
+          width: table.width - 8,
+          height: table.depth - 38,
+          rx: 2,
+          fill: "#fff8d3",
+          "fill-opacity": 0.18,
+          stroke: "#f9efd2",
+          "stroke-width": 0.9,
+          "stroke-dasharray": "3 2",
+          transform: poseTransform(table),
+        }),
+      );
+    }
     const at = world({ x: table.width / 2, y: 5 }, table);
+    const name = table.niltc ? `${table.name} \u00b7 +${niltcHeightPlates} pl` : table.name;
     layers.labels.append(
-      boundedLabel(bounds, at, table.name, 3.4, {
+      boundedLabel(bounds, at, name, 3.4, {
         "font-weight": 700,
         "data-table-label": table.id,
       }),
@@ -682,17 +751,14 @@ export function createScene(
   const plates: SVGElement[] = [];
   const tracks: SVGElement[] = [];
   const captions: SVGElement[] = [];
-  for (const item of project.items) {
-    if (
-      !visible.has(item.layerId) ||
-      (sectionTables && (!item.tableId || !sectionTables.has(item.tableId)))
-    )
-      continue;
+  for (const item of visibleItems) {
     sectionItems?.add(item.id);
     const selected = options.selection?.has(item.id) ?? false;
     const table = item.tableId ? tables.get(item.tableId) : undefined;
     const pose = table ? composePose(item, table) : item;
-    const key = itemKey(item, pose, selected, options.interaction);
+    const referenceHeight = table?.niltc ? niltcHeightPlates : 0;
+    const showCurve = !table?.niltc || selected || representativeCurves.has(item.id);
+    const key = itemKey(item, pose, selected, options.interaction, referenceHeight, showCurve);
     let drawing = layers.itemsById.get(item.id);
     if (!drawing || drawing.key !== key) {
       const part = item.kind === "track" ? parts.get(item.partId) : undefined;
@@ -700,7 +766,17 @@ export function createScene(
       drawing = {
         key,
         bounds: itemBounds,
-        ...itemDrawing(item, pose, part, selected, itemBounds, drawings, options.interaction),
+        ...itemDrawing(
+          item,
+          pose,
+          part,
+          selected,
+          itemBounds,
+          drawings,
+          options.interaction,
+          referenceHeight,
+          showCurve,
+        ),
       };
     }
     itemsById.set(item.id, drawing);
