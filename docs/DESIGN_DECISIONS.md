@@ -7,6 +7,22 @@ the reasoning a later reader needs. Guidance Neil Voss states belongs in
 `docs/active_plans/decisions/`. [PROPAGATED HEADER - ENTRIES BELOW ARE YOURS]
 <!-- VENDORED HEADER: END -->
 
+### Build and upload with Pages
+
+**Decision.** The GitHub Pages workflow builds and uploads the site for
+deployment. Run critical release tests locally and push to GitHub only after
+all local checks pass.
+
+**Why.** Pages needs a publishable bundle. Local tests verify track geometry,
+saved plans, and member editing flows.
+
+**Consequence.** The local release verifier builds the Pages artifact and runs
+the Rust, Node, and Playwright suites. The workflow checks that the site can
+build and that the required files are present.
+
+**Owner.** [.github/workflows/deploy-pages.yml](../.github/workflows/deploy-pages.yml),
+[devel/verify_release.sh](../devel/verify_release.sh)
+
 ### Keep one design area per project
 
 **Decision.** A native project has one `area` with dimensions, public edge or

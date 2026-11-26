@@ -28,14 +28,11 @@ jobs:
           cache: npm
       - name: Install Rust and wasm-pack
         run: |
-          rustup toolchain install stable --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
           rustup default stable
           cargo install wasm-pack --locked
       - run: npm ci --no-audit
-      - run: ./node_modules/.bin/playwright install --with-deps chromium webkit
-      - run: ./devel/verify_release.sh --reporter=list,html
-        env:
-          PLAYWRIGHT_HTML_OPEN: never
+      - run: ./build_github_pages.sh
       - name: Upload Pages files
         uses: actions/upload-artifact@v7
         with:
@@ -43,14 +40,6 @@ jobs:
           path: dist/
           if-no-files-found: error
           include-hidden-files: true
-      - name: Upload browser evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: brick-track-planner-browser-evidence
-          path: |
-            playwright-report/
-            test-results/
       - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:

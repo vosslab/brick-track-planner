@@ -62,3 +62,6 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Keep blocking checks tied to meaningful failures with a concrete recovery
   action. Use temporary checks for implementation evidence and keep only
   permanent tests that earn their upkeep.
+- Use the GitHub Pages workflow to build and upload the site. Run critical
+  tests, including Playwright, locally. Push to GitHub only after all local
+  checks pass.

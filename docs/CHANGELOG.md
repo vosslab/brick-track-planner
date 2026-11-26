@@ -4,11 +4,12 @@
 
 ### Fixes and Maintenance
 
+- Build and upload the site in GitHub Actions. Run the critical release checks,
+  including Playwright, locally. Push only after all local checks pass.
 - Target the canvas directly in touch editing tests and verify the saved copy
   against its preview at 1-stud resolution.
-- Keep Pages verification focused on the build, geometry, saved plans, and
-  browser workflows. Remove the subpixel screenshot matrix and run the
-  touch browser suite on member editor flows.
+- Remove the subpixel screenshot matrix and run the touch browser suite on
+  member editor flows.
 
 ## 2026-11-25
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify the Rust engine and the browser artifact built for Pages.
+# Run local release checks against the Rust engine and Pages artifact.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 

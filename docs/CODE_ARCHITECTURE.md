@@ -57,7 +57,12 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 
 ### Release checks
 
-The Pages workflow uses [devel/verify_release.sh](../devel/verify_release.sh).
+The Pages workflow runs `./build_github_pages.sh` and publishes `dist/`.
+Resolve any local check failures and rerun the checks before pushing to GitHub.
+
+Run `npm run setup:playwright` once to install the local browsers. Use
+`./devel/verify_release.sh` for the full local release checks or
+`./run_playwright_tests.sh --build` for the browser suite alone.
 
 | Check | Recovery on failure |
 | --- | --- |
@@ -66,10 +71,10 @@ The Pages workflow uses [devel/verify_release.sh](../devel/verify_release.sh).
 | Browser workflows | Use the failure report and trace to reproduce the broken flow or correct invalid test input. |
 
 Chromium and WebKit run the browser suite. The touch project exercises the
-member editor flows. The Pages job uploads browser evidence when verification
-fails. Use [check_codebase.sh](../check_codebase.sh), `cargo fmt --check`, and
-`cargo clippy --locked --all-targets` for development checks. Use screenshots
-and measurements for visual review while adjusting the layout.
+member editor flows. Use [check_codebase.sh](../check_codebase.sh),
+`cargo fmt --check`, and `cargo clippy --locked --all-targets` for development
+checks. Use screenshots and measurements for visual review while adjusting
+the layout.
 
 ## Extension points
 
