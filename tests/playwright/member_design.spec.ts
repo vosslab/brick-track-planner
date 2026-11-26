@@ -385,13 +385,9 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await page.getByRole("button", { name: "Move", exact: true }).click();
   }
   await canvas.scrollIntoViewIfNeeded();
-  const place = page.getByRole("button", { name: "Place", exact: true });
   const destination = await drawingPoint(canvas, item.x + 16, item.y + 16);
   if (hasTouch) {
     await canvas.tap({ position: destination.position });
-    await expect(place).toBeEnabled();
-    expect((await saveProject(page)).project).toEqual(original);
-    await place.tap();
   } else {
     const { screen: from } = await drawingPoint(canvas, item.x, item.y);
     const { screen: to } = destination;
@@ -412,9 +408,6 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
 
   if (hasTouch) {
     await page.getByRole("button", { name: "Move", exact: true }).tap();
-    const { position } = await drawingPoint(canvas, item.x, item.y + 16);
-    await canvas.tap({ position });
-    await expect(place).toBeEnabled();
     await page.getByRole("button", { name: "Cancel", exact: true }).tap();
   } else {
     const { screen: start } = await drawingPoint(canvas, item.x + 16, item.y + 16);
@@ -470,34 +463,32 @@ test("members can copy and paste a piece at a valid position, then undo", async 
   await expect(status).toContainText("Track copied");
   await page.keyboard.press(`${modifier}+v`);
   await expect(canvas).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(page.locator("#track-edit-hint")).toContainText("overlap");
   await page.getByRole("combobox", { name: "Placement", exact: true }).selectOption("fine");
-  const { position } = await drawingPoint(canvas, 44, 52);
-  if (hasTouch) await canvas.tap({ position });
-  else await canvas.click({ position });
-  const ghost = canvas.locator('[data-edit-preview] [data-kind="track"]');
-  await expect(ghost).toBeVisible();
-  const preview = await ghost.evaluate((element) => {
-    const drawing = element.closest<SVGGElement>("[data-scene-drawing]")!.getScreenCTM()!;
-    const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
-    const pose = drawing.inverse().multiply(matrix);
-    return { x: Math.round(pose.e), y: Math.round(pose.f) };
-  });
-  await page.getByRole("button", { name: "Place", exact: true }).click();
-  await expect(status).toContainText("Placed duplicate track");
+  if (hasTouch) await piece.tap();
+  else await piece.click();
+  await expect(page.locator("#track-edit-hint")).toContainText("overlap");
+
+  await canvas.scrollIntoViewIfNeeded();
+  const destination = await drawingPoint(canvas, 44, 52);
+  if (hasTouch) {
+    await page.touchscreen.tap(Math.round(destination.screen.x), Math.round(destination.screen.y));
+  } else {
+    await page.mouse.click(destination.screen.x, destination.screen.y);
+  }
+  await expect(piece.last()).toHaveAttribute("aria-pressed", "true");
+  const empty = await drawingPoint(canvas, 90, 130);
+  if (hasTouch) await canvas.tap({ position: empty.position });
+  else await canvas.click({ position: empty.position });
   const duplicated = (await saveProject(page)).project;
   expect(duplicated.items).toHaveLength(2);
   expect(duplicated.items[0]).toEqual(original.items[0]);
   const copy = duplicated.items[1]!;
   expect(copy.id).not.toBe(original.items[0]!.id);
-  expect(preview.x % 8 !== 0 || preview.y % 8 !== 0).toBe(true);
-  expect(copy).toEqual({ ...original.items[0], id: copy.id, ...preview });
+  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 44, y: 52 });
   await page.keyboard.press(`${modifier}+z`);
   expect((await saveProject(page)).project).toEqual(original);
-  await piece.press("Enter");
-  await page.getByRole("button", { name: "Move", exact: true }).click();
-  await expect(page.getByRole("combobox", { name: "Placement", exact: true })).toHaveValue("club");
+  await page.keyboard.press(`${modifier}+Shift+z`);
+  expect((await saveProject(page)).project).toEqual(duplicated);
 });
 
 test("a yard selection snaps as a unit and Connect fills a straight gap", async ({
@@ -536,10 +527,14 @@ test("a yard selection snaps as a unit and Connect fills a straight gap", async 
   await page.getByRole("button", { name: "Select arrangement" }).click();
   await expect(hint).toContainText("2 selected");
   await move.click();
+  if (!hasTouch) {
+    const { screen } = await drawingPoint(canvas, 65, 49);
+    await page.mouse.move(screen.x, screen.y);
+    const ghost = canvas.locator('[data-edit-preview] [data-kind="track"]').first();
+    await expect(ghost).toBeVisible();
+  }
   await end("east", "a").press("Enter");
-  await expect(hint).toContainText("Snaps to");
-  await expect(place).toBeFocused();
-  await page.keyboard.press("Enter");
+  await expect(canvas).toBeFocused();
   const moved = (await saveProject(page)).project;
   expect(moved.items).toEqual([
     { ...project.items[0], x: 64 },

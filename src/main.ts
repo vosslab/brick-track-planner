@@ -61,6 +61,12 @@ class Planner {
         if (this.#preview) this.#arrangements.pick(point);
         else this.#tracks.pick(point, target, this.#camera.snapRadius, multiple);
       },
+      hover: (event): void => {
+        if (!this.#tracks.pickingDestination || !(event.target instanceof Element)) return;
+        const point = this.#camera.world(event.clientX, event.clientY);
+        this.#tracks.move(point, this.#camera.snapRadius, event.target);
+      },
+      clearHover: (): void => this.#tracks.clearHover(),
       beginDrag: (point, target): "drag" | "pan" | "blocked" =>
         this.#tracks.beginMove(point, target),
       drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
@@ -141,16 +147,19 @@ class Planner {
       this.#commit({ ...this.#requireState().project, name });
     };
     document.addEventListener("keydown", (event) => {
+      if (!this.#state || event.defaultPrevented || document.querySelector("dialog[open]")) return;
+      if (event.key === "Escape" && this.#tracks.pickingDestination) {
+        event.preventDefault();
+        this.#tracks.cancel();
+        return;
+      }
       if (
-        event.defaultPrevented ||
-        document.querySelector("dialog[open]") ||
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLSelectElement ||
         event.target instanceof HTMLTextAreaElement ||
         (event.target instanceof HTMLElement && event.target.isContentEditable)
       )
         return;
-      if (!this.#state) return;
       const shortcut = event.ctrlKey || event.metaKey;
       const key = event.key.toLowerCase();
       if (shortcut && key === "z") {

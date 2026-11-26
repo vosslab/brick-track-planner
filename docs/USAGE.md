@@ -137,10 +137,10 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-With a mouse, grab a track piece and drag it. The outline shows where it
-will land when you release. With touch, tap a piece, choose **Move**, tap a
-destination, and choose **Place**. Tap a different destination to update the
-preview or use **Cancel** to return to the drawing.
+With a mouse, drag a track piece and release it at a valid position. The
+outline shows where the track will land. You can also select track and choose
+**Move**. Point to a destination to preview it, then click to move the track
+there. On touch, select track, choose **Move**, and tap the destination.
 
 Use **Shift+click** or **Select multiple** to add and remove pieces from the
 selection. For an installed kit, choose one of its pieces and then
@@ -156,17 +156,21 @@ offers **Rotate left**, **Rotate right**, **Duplicate**, and **Delete selected
 track** for a single piece. Each rotation is 90 degrees. **Undo** and
 **Redo** apply one design operation at a time.
 
+Choose **Duplicate**, or copy a selected piece with **Command+C** or **Ctrl+C**
+and paste with **Command+V** or **Ctrl+V**. Click or tap a valid destination to
+place the copy. You can paste into another plan opened in the same tab. If a
+move or copy does not fit, choose another destination or use **Cancel**.
+
 To fill a straight gap, choose **Connect two ends** and select two open
 rail ends. The ends need to face each other on the same line and at the
-same height. Review the gap length and parts, then choose **Place**. Use
-**Arrangement** to place larger components for turns and branches.
+same height. Review the gap length and parts, then choose **Place**. To add
+a larger component for a turn or branch, preview it in **Arrangement** and
+choose **Add to layout**.
 
-With the keyboard, tab to a piece or highlighted rail end and press **Enter**
-to select it. Use **Place** to accept the preview and **Esc** to cancel. You
-can also copy a selected piece with **Command+C** or **Ctrl+C**, then use
-**Command+V** or **Ctrl+V** and choose a destination for the copy. Pressing
-**Enter** on the drawing previews the position at the center of the view.
-You can paste into another plan opened in the same tab.
+With the keyboard, tab to a piece and press **Enter** to select it. After
+choosing **Move**, **Duplicate**, or paste, press **Enter** on a highlighted
+rail end to snap to it, or on the drawing to use the center of the view.
+Press **Esc** to cancel an active placement.
 
 Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
 or trackpad. On touch, swipe to pan and pinch to zoom. The rotate button

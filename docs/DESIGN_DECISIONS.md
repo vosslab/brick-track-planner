@@ -127,20 +127,22 @@ accidentally moved away from track.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
 
-### Use one editor for mouse and touch
+### Place track in one action
 
-**Decision.** Use direct drag for mouse input and tap, preview, and Place
-for touch. Both use the same editor state, layout validation, and history.
+**Decision.** Commit a valid move on drag release. For Move, Duplicate, and
+paste, commit a valid placement on the destination click, tap, or keyboard
+activation. Keep explicit confirmation for a straight gap or a new arrangement.
 
-**Why.** A mouse can position a piece while showing its destination. A touch
-user can lift their finger to see the proposed placement before accepting it.
+**Why.** The destination gesture completes an ordinary drawing edit. A gap
+fill or arrangement calls for a review of the parts the planner proposes.
 
-**Consequence.** The editor matches existing port angles when snapping a
-move. It uses 8-stud shifts away from a joint and offers 1-stud shifts for
-fine positioning. The straight-gap tool fills with measured catalog pieces.
+**Consequence.** Hover previews placement with a mouse. Each input uses the
+same validation, snapping, and history. A successful placement is one undoable
+edit. A blocked destination leaves the plan unchanged.
 
-**Owner.** [src/editor_track.ts](../src/editor_track.ts) and
-[src/editor_placement.ts](../src/editor_placement.ts)
+**Owner.** [src/editor_track.ts](../src/editor_track.ts),
+[src/editor_placement.ts](../src/editor_placement.ts),
+[src/editor_arrangements.ts](../src/editor_arrangements.ts)
 
 ### Treat routes as catalog data
 

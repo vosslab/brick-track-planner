@@ -2,6 +2,11 @@
 
 ## 2026-11-26
 
+### Behavior or Interface Changes
+
+- Place pasted, duplicated, or explicitly moved track with one click or tap.
+  Preview the destination with a mouse and undo the placement as one edit.
+
 ### Fixes and Maintenance
 
 - Build and upload the site in GitHub Actions. Run the critical release checks,

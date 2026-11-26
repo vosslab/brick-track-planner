@@ -14,6 +14,7 @@ type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
 export class EditorCamera {
   readonly #host: HTMLElement;
+  readonly #clearHover: () => void;
   readonly #pointers = new Map<number, Point>();
   #gesture: Gesture | undefined;
   #pinch: Pinch | undefined;
@@ -28,12 +29,15 @@ export class EditorCamera {
     host: HTMLElement,
     hooks: {
       tap: (point: Point, target: Element, selectMultiple: boolean) => void;
+      hover: (event: PointerEvent) => void;
+      clearHover: () => void;
       beginDrag: (point: Point, target: Element) => "drag" | "pan" | "blocked";
       drag: (point: Point) => void;
       endDrag: (point: Point, cancelled: boolean) => void;
     },
   ) {
     this.#host = host;
+    this.#clearHover = hooks.clearHover;
     this.#viewport = { width: host.clientWidth, height: host.clientHeight };
     new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -137,7 +141,16 @@ export class EditorCamera {
     });
     host.addEventListener("pointermove", (event) => {
       const before = this.#pointers.get(event.pointerId);
-      if (!before) return;
+      if (!before) {
+        if (
+          !this.#pointers.size &&
+          event.pointerType === "mouse" &&
+          event.buttons === 0 &&
+          !host.hasAttribute("data-space-pan")
+        )
+          hooks.hover(event);
+        return;
+      }
       const point = { x: event.clientX, y: event.clientY };
       this.#pointers.set(event.pointerId, point);
       if (this.#pinch) {
@@ -188,6 +201,9 @@ export class EditorCamera {
     host.addEventListener("pointerup", finish);
     host.addEventListener("pointercancel", finish);
     host.addEventListener("lostpointercapture", finish);
+    host.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "mouse") hooks.clearHover();
+    });
     // Keyboard-generated clicks have no pointer sequence.
     host.addEventListener("click", (event) => {
       if (event.detail !== 0 || !(event.target instanceof SVGElement)) return;
@@ -228,7 +244,7 @@ export class EditorCamera {
       };
     }
     if (this.#host.firstElementChild !== scene) this.#host.replaceChildren(scene);
-    this.#update();
+    this.#update(fit);
   }
 
   world(x: number, y: number): Point {
@@ -320,15 +336,16 @@ export class EditorCamera {
     this.#pan(pinch.anchor.x - center.x, pinch.anchor.y - center.y);
   }
 
-  #update(): void {
+  #update(fit = false): void {
     if (!this.#scene || !this.#bounds) return;
     const { x, y, width, height } = this.#bounds;
     const viewBox = `${x} ${y} ${width} ${height}`;
-    if (this.#scene.getAttribute("viewBox") !== viewBox)
-      this.#scene.setAttribute("viewBox", viewBox);
     const rotation = `rotate(${this.#angle})`;
-    if (this.#drawing?.getAttribute("transform") !== rotation)
-      this.#drawing?.setAttribute("transform", rotation);
+    const viewChanged = this.#scene.getAttribute("viewBox") !== viewBox;
+    const rotated = this.#drawing?.getAttribute("transform") !== rotation;
+    if (fit || viewChanged || rotated) this.#clearHover();
+    if (viewChanged) this.#scene.setAttribute("viewBox", viewBox);
+    if (rotated) this.#drawing?.setAttribute("transform", rotation);
     this.#updateDetail();
   }
 
