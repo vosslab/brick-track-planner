@@ -7,7 +7,7 @@ monospaced and one condensed face.
 
 | Local file | Upstream file | Purpose |
 | --- | --- | --- |
-| `atkinson-hyperlegible-next.woff2` | [`AtkinsonHyperlegibleNext[wght].woff2`](https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/main/fonts/webfonts/AtkinsonHyperlegibleNext%5Bwght%5D.woff2) | Proportional web font, variable weight 200–800. |
+| `atkinson-hyperlegible-next.woff2` | [`AtkinsonHyperlegibleNext[wght].woff2`](https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/main/fonts/webfonts/AtkinsonHyperlegibleNext%5Bwght%5D.woff2) | Proportional web font, variable weight 200-800. |
 | `atkinson-hyperlegible-mono-regular.woff2` | [`AtkinsonHyperlegibleMono-Regular.woff2`](https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next-mono/main/fonts/webfonts/AtkinsonHyperlegibleMono-Regular.woff2) | Fixed-width web font, regular (400). |
 | `ibm-plex-sans-condensed-regular.woff2` | [`IBMPlexSansCondensed-Regular.woff2`](https://raw.githubusercontent.com/IBM/plex/master/packages/plex-sans-condensed/fonts/complete/woff2/IBMPlexSansCondensed-Regular.woff2) | Condensed web font for narrow labels, regular (400). |
 | `atkinson-hyperlegible-next-regular.ttf` | [`AtkinsonHyperlegibleNext-Regular.ttf`](https://raw.githubusercontent.com/googlefonts/atkinson-hyperlegible-next/main/fonts/ttf/AtkinsonHyperlegibleNext-Regular.ttf) | Static PDF embedding font, regular (400). |
