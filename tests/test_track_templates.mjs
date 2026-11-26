@@ -166,8 +166,15 @@ test("every straight example fits and connects the intended routes", () => {
         assert.ok(reaches(result.routes, east[row], west[row]), `row ${row + 1} runs through`);
       }
       assert.ok(reaches(result.routes, east[7], west[0]), "row 8 transfers to row 1");
-      for (const middle of west.slice(1, 7)) {
-        assert.ok(!reaches(result.routes, east[7], middle), "middle rows cross independently");
+      for (let row = 0; row < 7; row++) {
+        assert.deepEqual(
+          [
+            reaches(result.routes, west[row], east[row + 1]),
+            reaches(result.routes, east[row], west[row + 1]),
+          ],
+          [row % 2 === 0, row % 2 === 1],
+          `rows ${row + 1} and ${row + 2} use alternating single crossovers`,
+        );
       }
       continue;
     }
@@ -296,8 +303,8 @@ function assertCollisionFree(project, name) {
   for (const [key, items] of batches) {
     const batch = commitItems(placed, catalog, { items });
     assert.equal(batch.ok, true, `${name} places ${key} without a collision`);
-    if (key === "eight-track-diagonal") {
-      // PT40's switch ends and the documented S4 crossing joins have overlapping bounding hulls.
+    if (key === "eight-track-diagonal" || key.startsWith("single-crossover-")) {
+      // The documented TrixBrix assemblies have overlapping hulls inside each group.
       placed = batch.project;
       continue;
     }

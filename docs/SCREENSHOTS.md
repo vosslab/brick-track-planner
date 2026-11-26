@@ -90,16 +90,23 @@ Open these plans with **Browse straight examples**. Both collections use
 ![The R40&ndash;R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
 <!-- screenshots:end -->
 
-#### 8TRY - Eight-track pass-through
+#### 8TRY - Eight-track switch yard
 
-Eight parallel rows run between the left and right edges. Two R40 turnouts
-and six 45-degree crossings carry a train from row 8 to row 1. The middle
-rows keep their own straight routes.
-In **Diagnostics**, select the open end at (192, 120) in the route dropdown.
-Choose **Trace route**, then click the left end of the frontmost row.
+Eight parallel rows run between the left and right edges. Seven alternating
+R40 single crossovers connect adjacent rows. Each uses two matching switches
+and a connector. The 45-degree diagonal connects the right end of row 8
+directly to the left end of row 1.
+([TrixBrix right switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/right-switch-r40/9953-right-switch-r40),
+[TrixBrix left switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/switches-and-crossovers-r40/left-switch-r40/9937-left-switch-r40))
+
+Every row is reachable with reversals. To get from row 8 to row 5, run left
+to row 7, right to row 6, then left to row 5. Reverse after the train clears
+the crossover. The shortest approach at a table edge is 16 studs. Longer trains
+may need continuation track beyond the table for some moves. **Trace route**
+shows one move at a time.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Eight full-width tracks with a diagonal route from the rear right to the front left](screenshots/example_8try.webp)
+![Eight full-width tracks with alternating single crossovers and a diagonal route between the outer rows](screenshots/example_8try.webp)
 <!-- screenshots:end -->
 
 ### 40 by 40 inches

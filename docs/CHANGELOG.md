@@ -10,6 +10,8 @@
   return from the rear tracks to the front tracks.
 - Rework 8TRY as eight full-width tracks. Six 45-degree crossings carry
   the row 8 to row 1 transfer between two R40 turnouts.
+- Connect every adjacent pair of rows in 8TRY with alternating left- and
+  right-hand R40 single crossovers. Refresh the yard and gallery screenshots.
 - Name the two turnaround templates R104 semicircle return and R120 corner return.
 - Replace U-shaped staging with two editable turnarounds based on the
   Downers Grove and Aurora show plans.
@@ -52,6 +54,7 @@
 
 ### Fixes and Maintenance
 
+- Keep parts quantities on one line when the part name wraps in the inspector.
 - Match the R40 left turnout footprint to its mirrored right counterpart
   so the measured left ladder fits.
 - Refresh the README around the first siding build and current examples.

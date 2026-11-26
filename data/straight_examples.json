@@ -66,8 +66,8 @@
     "code": "8TRY",
     "frontage": 60,
     "file": "eight_track_ladder_yard.ldr",
-    "name": "Eight-track pass-through",
-    "purpose": "Run straight through on all eight rows. A 45-degree diagonal carries a train from the rear-right end to the front-left end."
+    "name": "Eight-track switch yard",
+    "purpose": "Reach any row via alternating single crossovers. A diagonal links rows 8 and 1."
   },
   {
     "code": "ML40",

@@ -672,6 +672,9 @@ button.list-row {
   color: var(--muted);
   margin-top: 0.1rem;
 }
+.list-row > small + small {
+  white-space: nowrap;
+}
 .number-tag {
   display: grid;
   place-items: center;

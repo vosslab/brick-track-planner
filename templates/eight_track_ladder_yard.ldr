@@ -3,225 +3,197 @@
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
-0 !BRICKTRACK PROJECT @Eight-track%20pass-through
+0 !BRICKTRACK PROJECT @Eight-track%20switch%20yard
 0 !BRICKTRACK AREA 192 128 -
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @row-1-switch @layout @trixbrix%3Ar40-right-switch @eight-track-diagonal - - -
-1 72 800 -8 -222.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 960 -8 -222.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @row-8-switch @layout @trixbrix%3Ar40-right-switch @eight-track-diagonal - - -
-1 72 3040 -8 -2337.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 3200 -8 -2337.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @diagonal-start @layout @trixbrix%3Ar40-pass-through-adapter @eight-track-diagonal - - -
-1 72 958.90071536 -8 -315.89435548 0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
+1 72 1118.90071536 -8 -315.89435548 0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
 0 !BRICKTRACK TRACK @diagonal-end @layout @trixbrix%3Ar40-pass-through-adapter @eight-track-diagonal - - -
-1 72 2881.09928464 -8 -2244.10564452 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
+1 72 3041.09928464 -8 -2244.10564452 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
 0 !BRICKTRACK TRACK @row-2-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 1120 -8 -480 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 1280 -8 -480 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @diagonal-link-2 @layout @trixbrix%3As04 @eight-track-diagonal - - -
-1 72 1280 -8 -640 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
+1 72 1440 -8 -640 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
 0 !BRICKTRACK TRACK @row-3-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 1440 -8 -800 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 1600 -8 -800 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @diagonal-link-3 @layout @trixbrix%3As04 @eight-track-diagonal - - -
-1 72 1600 -8 -960 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
+1 72 1760 -8 -960 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
 0 !BRICKTRACK TRACK @row-4-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 1760 -8 -1120 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 1920 -8 -1120 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @diagonal-link-4 @layout @trixbrix%3As04 @eight-track-diagonal - - -
-1 72 1920 -8 -1280 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
+1 72 2080 -8 -1280 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
 0 !BRICKTRACK TRACK @row-5-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 2080 -8 -1440 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 2240 -8 -1440 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @diagonal-link-5 @layout @trixbrix%3As04 @eight-track-diagonal - - -
-1 72 2240 -8 -1600 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
+1 72 2400 -8 -1600 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
 0 !BRICKTRACK TRACK @row-6-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 2400 -8 -1760 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 2560 -8 -1760 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @diagonal-link-6 @layout @trixbrix%3As04 @eight-track-diagonal - - -
-1 72 2560 -8 -1920 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
+1 72 2720 -8 -1920 0.707106781187 0 0.707106781187 0 1 0 -0.707106781187 0 0.707106781187 bricktrack-trixbrix-s04.dat
 0 !BRICKTRACK TRACK @row-7-crossing @layout @trixbrix%3Acrossing-45-right @eight-track-diagonal - - -
-1 72 2720 -8 -2080 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 2880 -8 -2080 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+0 !BRICKTRACK TRACK @row-2-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 1040 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-2-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 1520 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-3-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 1360 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-3-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 1840 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-4-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 1680 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-4-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2160 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-5-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2000 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-5-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2480 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-6-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2320 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-6-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2800 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-7-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 2640 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-7-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
+1 72 3120 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @crossover-1-2-west-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-1-2 - - -
+1 72 1920 -8 -222.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-1-2-connector @layout @trixbrix%3Ar40-right-connector @single-crossover-1-2 - - -
+1 72 2080 -8 -320 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
+0 !BRICKTRACK TRACK @crossover-1-2-east-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-1-2 - - -
+1 72 2240 -8 -417.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-1-2-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 2400 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-1-2-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 1760 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-2-3-west-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-2-3 - - -
+1 72 2880 -8 -737.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-2-3-connector @layout @trixbrix%3Ar40-left-connector @single-crossover-2-3 - - -
+1 72 3040 -8 -640 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-connector.dat
+0 !BRICKTRACK TRACK @crossover-2-3-east-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-2-3 - - -
+1 72 3200 -8 -542.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-2-3-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 3360 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-2-3-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 2720 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-3-4-west-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-3-4 - - -
+1 72 640 -8 -862.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-3-4-connector @layout @trixbrix%3Ar40-right-connector @single-crossover-3-4 - - -
+1 72 800 -8 -960 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
+0 !BRICKTRACK TRACK @crossover-3-4-east-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-3-4 - - -
+1 72 960 -8 -1057.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-3-4-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 1120 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-3-4-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 480 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-4-5-west-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-4-5 - - -
+1 72 2880 -8 -1377.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-4-5-connector @layout @trixbrix%3Ar40-left-connector @single-crossover-4-5 - - -
+1 72 3040 -8 -1280 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-connector.dat
+0 !BRICKTRACK TRACK @crossover-4-5-east-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-4-5 - - -
+1 72 3200 -8 -1182.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-4-5-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 3360 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-4-5-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 2720 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-5-6-west-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-5-6 - - -
+1 72 640 -8 -1502.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-5-6-connector @layout @trixbrix%3Ar40-right-connector @single-crossover-5-6 - - -
+1 72 800 -8 -1600 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
+0 !BRICKTRACK TRACK @crossover-5-6-east-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-5-6 - - -
+1 72 960 -8 -1697.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-5-6-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 1120 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-5-6-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 480 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-6-7-west-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-6-7 - - -
+1 72 1600 -8 -2017.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-6-7-connector @layout @trixbrix%3Ar40-left-connector @single-crossover-6-7 - - -
+1 72 1760 -8 -1920 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-connector.dat
+0 !BRICKTRACK TRACK @crossover-6-7-east-switch @layout @trixbrix%3Ar40-left-switch @single-crossover-6-7 - - -
+1 72 1920 -8 -1822.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-left-switch.dat
+0 !BRICKTRACK TRACK @crossover-6-7-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 2080 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-6-7-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 1440 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-7-8-west-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-7-8 - - -
+1 72 640 -8 -2142.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-7-8-connector @layout @trixbrix%3Ar40-right-connector @single-crossover-7-8 - - -
+1 72 800 -8 -2240 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-connector.dat
+0 !BRICKTRACK TRACK @crossover-7-8-east-switch @layout @trixbrix%3Ar40-right-switch @single-crossover-7-8 - - -
+1 72 960 -8 -2337.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+0 !BRICKTRACK TRACK @crossover-7-8-east-straight @layout @lego%3Arc-s16 - - - -
+1 72 1120 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @crossover-7-8-west-straight @layout @lego%3Arc-s16 - - - -
+1 72 480 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-1-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-16 @layout @trixbrix%3As08 - - - -
-1 72 400 -8 -160 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-1-straight-56 @layout @lego%3Arc-s16 - - - -
-1 72 1280 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-72 @layout @lego%3Arc-s16 - - - -
-1 72 1600 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-88 @layout @lego%3Arc-s16 - - - -
-1 72 1920 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-104 @layout @lego%3Arc-s16 - - - -
-1 72 2240 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-120 @layout @lego%3Arc-s16 - - - -
-1 72 2560 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-1-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -160 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-2-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 880 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-2-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 1360 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-1-straight-16 @layout @lego%3Arc-s16 - - - -
+1 72 480 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-1-straight-64 @layout @lego%3Arc-s16 - - - -
+1 72 1440 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-1-straight-128 @layout @lego%3Arc-s16 - - - -
+1 72 2720 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-1-straight-144 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-1-straight-160 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-1-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-2-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-2-straight-16 @layout @lego%3Arc-s16 - - - -
 1 72 480 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-32 @layout @trixbrix%3As08 - - - -
-1 72 720 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-2-straight-72 @layout @lego%3Arc-s16 - - - -
-1 72 1600 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-88 @layout @lego%3Arc-s16 - - - -
-1 72 1920 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-104 @layout @lego%3Arc-s16 - - - -
-1 72 2240 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-120 @layout @lego%3Arc-s16 - - - -
-1 72 2560 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-2-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-3-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 1200 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-3-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 1680 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-2-straight-32 @layout @lego%3Arc-s16 - - - -
+1 72 800 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-2-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-3-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-48 @layout @trixbrix%3As08 - - - -
-1 72 1040 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-3-straight-88 @layout @lego%3Arc-s16 - - - -
-1 72 1920 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-104 @layout @lego%3Arc-s16 - - - -
-1 72 2240 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-120 @layout @lego%3Arc-s16 - - - -
-1 72 2560 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-3-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -800 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-4-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 1520 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-4-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2000 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-3-straight-96 @layout @lego%3Arc-s16 - - - -
+1 72 2080 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-3-straight-112 @layout @lego%3Arc-s16 - - - -
+1 72 2400 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-3-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-4-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-48 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-64 @layout @trixbrix%3As08 - - - -
-1 72 1360 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-4-straight-104 @layout @lego%3Arc-s16 - - - -
-1 72 2240 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-120 @layout @lego%3Arc-s16 - - - -
-1 72 2560 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-4-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -1120 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-5-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 1840 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-5-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2320 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-4-straight-64 @layout @lego%3Arc-s16 - - - -
+1 72 1440 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-4-straight-112 @layout @lego%3Arc-s16 - - - -
+1 72 2400 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-4-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -1120 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-5-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-48 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-5-straight-64 @layout @lego%3Arc-s16 - - - -
 1 72 1440 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-80 @layout @trixbrix%3As08 - - - -
-1 72 1680 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-5-straight-120 @layout @lego%3Arc-s16 - - - -
-1 72 2560 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-5-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -1440 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-6-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2160 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-6-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2640 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-5-straight-80 @layout @lego%3Arc-s16 - - - -
+1 72 1760 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-5-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -1440 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-6-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-48 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-64 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-80 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-96 @layout @trixbrix%3As08 - - - -
-1 72 2000 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-6-straight-136 @layout @lego%3Arc-s16 - - - -
-1 72 2880 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-6-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -1760 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-7-crossing-west @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2480 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-7-crossing-east @layout @trixbrix%3As08 @eight-track-diagonal - - -
-1 72 2960 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-6-straight-144 @layout @lego%3Arc-s16 - - - -
+1 72 3040 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-6-straight-160 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-6-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -1760 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-7-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-48 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-64 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-80 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-96 @layout @lego%3Arc-s16 - - - -
-1 72 2080 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-112 @layout @trixbrix%3As08 - - - -
-1 72 2320 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-7-straight-152 @layout @lego%3Arc-s16 - - - -
-1 72 3200 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-7-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -2080 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-7-straight-112 @layout @lego%3Arc-s16 - - - -
+1 72 2400 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-7-straight-160 @layout @lego%3Arc-s16 - - - -
+1 72 3360 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-7-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -2080 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-8-straight-0 @layout @lego%3Arc-s16 - - - -
 1 72 160 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-8-straight-16 @layout @lego%3Arc-s16 - - - -
-1 72 480 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-8-straight-32 @layout @lego%3Arc-s16 - - - -
-1 72 800 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-8-straight-48 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-8-straight-64 @layout @lego%3Arc-s16 - - - -
 1 72 1440 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-8-straight-80 @layout @lego%3Arc-s16 - - - -
@@ -230,12 +202,10 @@
 1 72 2080 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @row-8-straight-112 @layout @lego%3Arc-s16 - - - -
 1 72 2400 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-8-straight-128 @layout @trixbrix%3As08 - - - -
-1 72 2640 -8 -2400 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
-0 !BRICKTRACK TRACK @row-8-straight-168 @layout @lego%3Arc-s16 - - - -
-1 72 3520 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
-0 !BRICKTRACK TRACK @row-8-straight-184 @layout @trixbrix%3As08 - - - -
-1 72 3760 -8 -2400 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+0 !BRICKTRACK TRACK @row-8-straight-128 @layout @lego%3Arc-s16 - - - -
+1 72 2720 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
+0 !BRICKTRACK TRACK @row-8-straight-176 @layout @lego%3Arc-s16 - - - -
+1 72 3680 -8 -2400 1 0 0 0 1 0 0 0 1 53401.dat
 0 FILE bricktrack-trixbrix-r40-right-switch.dat
 0 Name: bricktrack-trixbrix-r40-right-switch.dat
 0 Brick Track Planner schematic TrixBrix Right switch R40
@@ -379,4 +349,68 @@
 4 16 -80 -16 -46.4 80 -16 -46.4 80 -16 -53.6 -80 -16 -53.6
 4 16 -80 -16 -46.4 -80 -8 -46.4 80 -8 -46.4 80 -16 -46.4
 4 16 -80 -16 -53.6 80 -16 -53.6 80 -8 -53.6 -80 -8 -53.6
+0 FILE bricktrack-trixbrix-r40-right-connector.dat
+0 Name: bricktrack-trixbrix-r40-right-connector.dat
+0 Brick Track Planner schematic TrixBrix R40 right rail-yard connector
+4 16 -33.252706 -8 82.810742 -38.8015 -8 74.976785 83.604086 -8 -11.723115 89.15288 -8 -3.889157
+4 16 -79.492653 -8 17.527763 -85.041446 -8 9.693805 37.36414 -8 -77.006094 42.912933 -8 -69.172136
+4 16 69.742461 -16 5.765249 19.391081 -16 -65.322378 13.4045 -16 -61.322272 63.75588 -16 9.765355
+4 16 69.742461 -16 5.765249 69.742461 -8 5.765249 19.391081 -8 -65.322378 19.391081 -16 -65.322378
+4 16 63.75588 -16 9.765355 13.4045 -16 -61.322272 13.4045 -8 -61.322272 63.75588 -8 9.765355
+4 16 -13.4045 -16 61.322272 -63.75588 -16 -9.765355 -69.742461 -16 -5.765249 -19.391081 -16 65.322378
+4 16 -13.4045 -16 61.322272 -13.4045 -8 61.322272 -63.75588 -8 -9.765355 -63.75588 -16 -9.765355
+4 16 -19.391081 -16 65.322378 -69.742461 -16 -5.765249 -69.742461 -8 -5.765249 -19.391081 -8 65.322378
+0 FILE bricktrack-trixbrix-r40-left-switch.dat
+0 Name: bricktrack-trixbrix-r40-left-switch.dat
+0 Brick Track Planner schematic TrixBrix Left switch R40
+4 16 137.5 -8 -324.8 137.5 -8 -315.2 -12.5 -8 -315.2 -12.5 -8 -324.8
+4 16 137.5 -8 -244.8 137.5 -8 -235.2 -12.5 -8 -235.2 -12.5 -8 -244.8
+4 16 137.5 -8 -164.8 137.5 -8 -155.2 -12.5 -8 -155.2 -12.5 -8 -164.8
+4 16 137.5 -8 -84.8 137.5 -8 -75.2 -12.5 -8 -75.2 -12.5 -8 -84.8
+4 16 137.5 -8 -4.8 137.5 -8 4.8 -12.5 -8 4.8 -12.5 -8 -4.8
+4 16 137.5 -8 75.2 137.5 -8 84.8 -12.5 -8 84.8 -12.5 -8 75.2
+4 16 137.5 -8 155.2 137.5 -8 164.8 -12.5 -8 164.8 -12.5 -8 155.2
+4 16 137.5 -8 235.2 137.5 -8 244.8 -12.5 -8 244.8 -12.5 -8 235.2
+4 16 137.5 -8 315.2 137.5 -8 324.8 -12.5 -8 324.8 -12.5 -8 315.2
+4 16 8.9 -16 -320 8.9 -16 320 16.1 -16 320 16.1 -16 -320
+4 16 8.9 -16 -320 8.9 -8 -320 8.9 -8 320 8.9 -16 320
+4 16 16.1 -16 -320 16.1 -16 320 16.1 -8 320 16.1 -8 -320
+4 16 108.9 -16 -320 108.9 -16 320 116.1 -16 320 116.1 -16 -320
+4 16 108.9 -16 -320 108.9 -8 -320 108.9 -8 320 108.9 -16 320
+4 16 116.1 -16 -320 116.1 -16 320 116.1 -8 320 116.1 -8 -320
+4 16 137.561436 -8 -316.282366 136.475125 -8 -306.744026 -12.561436 -8 -323.717634 -11.475125 -8 -333.255974
+4 16 128.508845 -8 -236.7962 127.422534 -8 -227.25786 -21.614027 -8 -244.231468 -20.527716 -8 -253.769808
+4 16 119.456254 -8 -157.310034 118.369943 -8 -147.771694 -30.666618 -8 -164.745302 -29.580307 -8 -174.283642
+4 16 95.759432 -8 -64.801223 92.686799 -8 -55.706229 -49.42249 -8 -103.716124 -46.349857 -8 -112.811118
+4 16 70.154155 -8 10.990397 67.081521 -8 20.085392 -75.027768 -8 -27.924503 -71.955134 -8 -37.019498
+4 16 29.695953 -8 94.873506 25.054394 -8 103.276834 -106.247612 -8 30.75247 -101.606052 -8 22.349141
+4 16 8.9 -16 -320 -10.609174 -16 -151.742322 -3.54227 -16 -150.164996 16.1 -16 -320
+4 16 8.9 -16 -320 8.9 -8 -320 -10.609174 -8 -151.742322 -10.609174 -16 -151.742322
+4 16 16.1 -16 -320 -3.54227 -16 -150.164996 -3.54227 -8 -150.164996 16.1 -8 -320
+4 16 -10.609174 -16 -151.742322 -57.242195 -16 -13.708582 -50.627571 -16 -10.792504 -3.54227 -16 -150.164996
+4 16 -10.609174 -16 -151.742322 -10.609174 -8 -151.742322 -57.242195 -8 -13.708582 -57.242195 -16 -13.708582
+4 16 -3.54227 -16 -150.164996 -50.627571 -16 -10.792504 -50.627571 -8 -10.792504 -3.54227 -8 -150.164996
+4 16 -57.242195 -16 -13.708582 -116.891081 -16 94.677622 -110.9045 -16 98.677728 -50.627571 -16 -10.792504
+4 16 -57.242195 -16 -13.708582 -57.242195 -8 -13.708582 -116.891081 -8 94.677622 -116.891081 -16 94.677622
+4 16 -50.627571 -16 -10.792504 -110.9045 -16 98.677728 -110.9045 -8 98.677728 -50.627571 -8 -10.792504
+4 16 108.9 -16 -320 87.54227 -16 -129.835004 94.609174 -16 -128.257678 116.1 -16 -320
+4 16 108.9 -16 -320 108.9 -8 -320 87.54227 -8 -129.835004 87.54227 -16 -129.835004
+4 16 116.1 -16 -320 94.609174 -16 -128.257678 94.609174 -8 -128.257678 116.1 -8 -320
+4 16 87.54227 -16 -129.835004 34.627571 -16 26.792504 41.242195 -16 29.708582 94.609174 -16 -128.257678
+4 16 87.54227 -16 -129.835004 87.54227 -8 -129.835004 34.627571 -8 26.792504 34.627571 -16 26.792504
+4 16 94.609174 -16 -128.257678 41.242195 -16 29.708582 41.242195 -8 29.708582 94.609174 -8 -128.257678
+4 16 34.627571 -16 26.792504 -33.74412 -16 150.234645 -27.757539 -16 154.234751 41.242195 -16 29.708582
+4 16 34.627571 -16 26.792504 34.627571 -8 26.792504 -33.74412 -8 150.234645 -33.74412 -16 150.234645
+4 16 41.242195 -16 29.708582 -27.757539 -16 154.234751 -27.757539 -8 154.234751 41.242195 -8 29.708582
+0 FILE bricktrack-trixbrix-r40-left-connector.dat
+0 Name: bricktrack-trixbrix-r40-left-connector.dat
+0 Brick Track Planner schematic TrixBrix R40 left rail-yard connector
+4 16 -89.15288 -8 -3.889157 -83.604086 -8 -11.723115 38.8015 -8 74.976785 33.252706 -8 82.810742
+4 16 -42.912933 -8 -69.172136 -37.36414 -8 -77.006094 85.041446 -8 9.693805 79.492653 -8 17.527763
+4 16 19.391081 -16 65.322378 69.742461 -16 -5.765249 63.75588 -16 -9.765355 13.4045 -16 61.322272
+4 16 19.391081 -16 65.322378 19.391081 -8 65.322378 69.742461 -8 -5.765249 69.742461 -16 -5.765249
+4 16 13.4045 -16 61.322272 63.75588 -16 -9.765355 63.75588 -8 -9.765355 13.4045 -8 61.322272
+4 16 -63.75588 -16 9.765355 -13.4045 -16 -61.322272 -19.391081 -16 -65.322378 -69.742461 -16 5.765249
+4 16 -63.75588 -16 9.765355 -63.75588 -8 9.765355 -13.4045 -8 -61.322272 -13.4045 -16 -61.322272
+4 16 -69.742461 -16 5.765249 -19.391081 -16 -65.322378 -19.391081 -8 -65.322378 -69.742461 -8 5.765249
 0 NOFILE
