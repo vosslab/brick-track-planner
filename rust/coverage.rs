@@ -1,7 +1,10 @@
-use geo::{Area, BooleanOps, Coord, LineString, MultiPolygon, Polygon};
+use geo::{Area, BooleanOps, BoundingRect, Coord, LineString, MultiPolygon, Polygon};
 use serde::Serialize;
 
 use crate::model::{Catalog, Item, ItemKind, Layout, Point, Pose, Project};
+
+// Match the design-edge tolerance in the arrangement fit check.
+const EDGE_TOLERANCE: f64 = 0.05;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -89,6 +92,14 @@ pub(crate) fn overhangs<'a>(
         .filter(|item| layout.visible(&item.layer_id))
         .filter_map(|item| {
             let footprint = item_polygon(item, catalog)?;
+            let bounds = footprint.bounding_rect()?;
+            if bounds.min().x >= -EDGE_TOLERANCE
+                && bounds.min().y >= -EDGE_TOLERANCE
+                && bounds.max().x <= project.area.width + EDGE_TOLERANCE
+                && bounds.max().y <= project.area.depth + EDGE_TOLERANCE
+            {
+                return None;
+            }
             let rings: Vec<Vec<Point>> = footprint
                 .difference(&support)
                 .0

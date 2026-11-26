@@ -64,6 +64,8 @@ findings from the current project, so editing, Undo/Redo, reopening a saved
 file, and switching layout tabs keep the drawing and findings in agreement.
 Findings identify affected track and clear when the geometry is repaired.
 An ordinary open rail end is a connection point, not a placement problem.
+Guided fitting and placement findings both allow 0.05 stud of offset at the
+design boundary.
 
 Overlap findings use modeled footprints for ordinary straights and curves,
 and routed paths for molded parts and adapters. Angled straight beds allow

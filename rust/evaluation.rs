@@ -297,6 +297,25 @@ mod tests {
     }
 
     #[test]
+    fn tolerates_small_offsets_at_the_design_edge() {
+        let mut value = project();
+        value["items"] = json!([{
+            "id": "edge-track", "kind": "track", "partId": "lego:rc-s16",
+            "layerId": "layout", "x": 8, "y": 24, "angle": 0, "heightPlates": 0
+        }]);
+        for (x, expected_overhangs) in [(8.0, 0), (7.99, 0), (7.94, 1)] {
+            value["items"][0]["x"] = json!(x);
+            let result: serde_json::Value =
+                serde_json::from_str(&evaluate(&value.to_string()).unwrap()).unwrap();
+            assert_eq!(
+                result["overhangs"].as_array().unwrap().len(),
+                expected_overhangs,
+                "straight positioned at x = {x}"
+            );
+        }
+    }
+
+    #[test]
     fn keeps_design_area_and_item_coordinate_limits_separate() {
         let mut value = project();
         assert!(evaluate(&value.to_string()).is_ok());

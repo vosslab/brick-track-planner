@@ -29,6 +29,8 @@
 
 ### Fixes and Maintenance
 
+- Use the same 0.05-stud design-edge tolerance for fit checks and placement
+  warnings so flush track with tiny offsets stays clear.
 - Use native image decoding for layout exports and a dialog form for the
   example gallery's Close button.
 - Use the browser's structured clone when resizing a design.
