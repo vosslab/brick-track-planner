@@ -44,12 +44,15 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   perpendicular spurs.
 - Make track look like the actual parts and preserve small details on
   high-density displays.
+- Choose typography from Atkinson Hyperlegible Next, Atkinson Hyperlegible
+  Mono, and IBM Plex Sans Condensed. Follow [FONT_STYLE.md](FONT_STYLE.md).
 - Offer shorter examples where the length of straight storage can vary.
 - Use automated screenshots and fine-grained measurements to catch even
   small misalignments between controls. Measure button centering and insets
   against the visible column edges.
 - Show each example layout in its own screenshot and show the start screen
   and blank editor separately.
+- Write the README and screenshot walkthroughs for a first-time planner user.
 - Tell members what space and track an arrangement needs and why a preview
   cannot fit. Make moving and deleting selected track obvious on desktop
   and mobile.
@@ -57,9 +60,13 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   several selected pieces together.
 - Make track editing feel like LibreOffice Draw or Inkscape. Keep moved,
   pasted, or duplicated track on the destination click or tap.
+- Let members delete a selection of several objects. Support Command-click
+  and Command-drag for selecting track on Mac.
 - Users get frustrated when they hold a piece and cannot put it down.
   Implement place-and-flag: let them drop the track, show what needs fixing,
   and keep the solution simple.
+- Be very tolerant at the design boundary. A saved track plan can extend
+  past the border on purpose to connect to another section.
 - Use layout tabs inside the planner so members can copy track between yards
   and compare variations. Ask before closing a layout with unsaved edits.
 - Give those editing workflows priority over further Undo and Redo work.

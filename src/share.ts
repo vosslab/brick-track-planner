@@ -1,10 +1,34 @@
 import { encodeWebp } from "./engine";
 import type { Analysis } from "./engine";
 import type { Catalog, Project } from "./project";
-import { createScene, setSceneDetail } from "./scene";
+import { createScene, drawingFont, setSceneDetail } from "./scene";
+import { svg } from "./scene_drawing";
 
 type ShareFormat = "png" | "webp" | "pdf";
 const maxPixels = 12_000_000;
+
+async function embedDrawingFont(scene: SVGSVGElement): Promise<void> {
+  if (!scene.querySelector("text")) return;
+  const response = await fetch(
+    new URL("./fonts/atkinson-hyperlegible-next.woff2", import.meta.url),
+  ).catch(() => undefined);
+  if (!response?.ok) return;
+  const blob = await response.blob();
+  const font = await new Promise<string | ArrayBuffer | null>((resolve) => {
+    const reader = new FileReader();
+    reader.addEventListener("loadend", () => resolve(reader.result), { once: true });
+    reader.readAsDataURL(blob);
+  });
+  // SVG images cannot fetch stylesheets or fonts while being rasterized.
+  if (typeof font === "string")
+    scene.prepend(
+      svg(
+        "style",
+        {},
+        `@font-face { font-family: "${drawingFont}"; src: url("${font}") format("woff2"); font-weight: 200 800; }`,
+      ),
+    );
+}
 
 async function sceneCanvas(scene: SVGSVGElement, longSide = 2400): Promise<HTMLCanvasElement> {
   const view = scene.viewBox.baseVal;
@@ -21,6 +45,7 @@ async function sceneCanvas(scene: SVGSVGElement, longSide = 2400): Promise<HTMLC
 
   scene.setAttribute("width", String(width));
   scene.setAttribute("height", String(height));
+  await embedDrawingFont(scene);
   const contents = new XMLSerializer().serializeToString(scene);
   const url = URL.createObjectURL(new Blob([contents], { type: "image/svg+xml;charset=utf-8" }));
   try {

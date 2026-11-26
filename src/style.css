@@ -16,7 +16,8 @@
   --radius: 10px;
   --control-height: 36px;
   --gutter: clamp(0.65rem, 1.5vw, 1.4rem);
-  font-family: system-ui, sans-serif;
+  font-family: "Atkinson Hyperlegible Next", sans-serif;
+  font-size-adjust: from-font;
   color: var(--ink);
   background: var(--paper);
 }
@@ -181,6 +182,14 @@ input,
 select {
   font: inherit;
   color: inherit;
+}
+#trace-from {
+  font-family: "IBM Plex Sans Condensed", "Atkinson Hyperlegible Next", sans-serif;
+}
+#track-position input,
+#parts-summary .list-row > small:last-child,
+.number-tag {
+  font-family: "Atkinson Hyperlegible Mono", monospace;
 }
 button,
 select,
@@ -513,6 +522,7 @@ p {
   isolation: isolate;
 }
 #tabletop {
+  position: relative;
   width: 100%;
   height: 100%;
   touch-action: none;
@@ -666,7 +676,6 @@ button.list-row {
   background: var(--accent-soft);
   color: var(--accent-dark);
   font-size: 0.72rem;
-  font-weight: 780;
 }
 fieldset {
   min-width: 0;

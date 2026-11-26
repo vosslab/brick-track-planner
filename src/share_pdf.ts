@@ -13,14 +13,41 @@ const pageWidth = 792;
 const pageHeight = 612;
 const margin = 32;
 const bodyWidth = pageWidth - 2 * margin;
+const atkinsonFont = "Atkinson Hyperlegible Next";
 
-function title(pdf: jsPDF, heading: string, subtitle: string): number {
+function binaryString(data: ArrayBuffer): string {
+  const bytes = new Uint8Array(data);
+  let result = "";
+  for (let start = 0; start < bytes.length; start += 0x8000) {
+    result += String.fromCharCode(...bytes.subarray(start, start + 0x8000));
+  }
+  return result;
+}
+
+async function registerPdfFonts(pdf: jsPDF): Promise<string> {
+  try {
+    for (const [file, style] of [
+      ["atkinson-hyperlegible-next-regular.ttf", "normal"],
+      ["atkinson-hyperlegible-next-bold.ttf", "bold"],
+    ] as const) {
+      const response = await fetch(new URL(`./fonts/${file}`, import.meta.url));
+      if (!response.ok) throw new Error(`The PDF font ${file} could not be loaded.`);
+      pdf.addFileToVFS(file, binaryString(await response.arrayBuffer()));
+      pdf.addFont(file, atkinsonFont, style);
+    }
+    return atkinsonFont;
+  } catch {
+    return "helvetica";
+  }
+}
+
+function title(pdf: jsPDF, font: string, heading: string, subtitle: string): number {
   pdf.setTextColor(45);
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont(font, "bold");
   pdf.setFontSize(22);
   const headingLines = pdf.splitTextToSize(heading, bodyWidth) as string[];
   pdf.text(headingLines, margin, 43);
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont(font, "normal");
   pdf.setFontSize(11);
   const subtitleLines = pdf.splitTextToSize(subtitle, bodyWidth) as string[];
   const subtitleTop = 43 + headingLines.length * 25;
@@ -28,18 +55,18 @@ function title(pdf: jsPDF, heading: string, subtitle: string): number {
   return subtitleTop + subtitleLines.length * 13 + 12;
 }
 
-function printBlocks(pdf: jsPDF, blocks: PrintBlock[], top: number): void {
+function printBlocks(pdf: jsPDF, font: string, blocks: PrintBlock[], top: number): void {
   let y = top;
   for (const { title: heading, rows } of blocks) {
     if (y > pageHeight - 55) {
       pdf.addPage();
       y = 42;
     }
-    pdf.setFont("helvetica", "bold");
+    pdf.setFont(font, "bold");
     pdf.setFontSize(13);
     pdf.text(heading, margin, y, { maxWidth: bodyWidth });
     y += 17;
-    pdf.setFont("helvetica", "normal");
+    pdf.setFont(font, "normal");
     pdf.setFontSize(10);
     for (const row of rows.length ? rows : ["None"]) {
       const lines = pdf.splitTextToSize(row, bodyWidth) as string[];
@@ -114,11 +141,18 @@ export async function sharePdf(
   analysis: Analysis,
   rasterize: (scene: SVGSVGElement) => Promise<HTMLCanvasElement>,
 ): Promise<Blob> {
-  const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter", compress: true });
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "pt",
+    format: "letter",
+    compress: true,
+    putOnlyUsedFonts: true,
+  });
+  const font = await registerPdfFonts(pdf);
   const name = project.name.trim() || "Untitled layout";
   pdf.setProperties({ title: name });
   const scene = createScene(project, catalog, analysis, { sharing: true });
-  const top = title(pdf, name, areaDescription(project));
+  const top = title(pdf, font, name, areaDescription(project));
   diagram(pdf, await rasterize(scene), scene.viewBox.baseVal.width, top);
   const inventory = showInventory(project, catalog);
   const exits = project.area.exits.map(
@@ -128,6 +162,7 @@ export async function sharePdf(
   const checks = diagnosticsFor(analysis).map(({ message }) => message);
   printBlocks(
     pdf,
+    font,
     [
       { title: "Mainline connections", rows: exits },
       ...(checks.length ? [{ title: "Layout checks to resolve", rows: checks }] : []),
@@ -165,7 +200,7 @@ export async function sharePdf(
     top + 290,
   );
   const pages = pdf.getNumberOfPages();
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont(font, "normal");
   pdf.setFontSize(9);
   for (let page = 1; page <= pages; page++) {
     pdf.setPage(page);

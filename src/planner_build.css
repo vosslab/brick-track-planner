@@ -132,6 +132,13 @@
 #tabletop[data-edit-tool="selection"] [data-kind="track"][role="button"] {
   cursor: grab;
 }
+.track-selection-box {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed var(--focus);
+  outline: 1px solid var(--surface);
+  pointer-events: none;
+}
 #tabletop[data-edit-tool="placement"] {
   cursor: crosshair;
 }

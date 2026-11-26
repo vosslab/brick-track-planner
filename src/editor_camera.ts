@@ -9,15 +9,26 @@ type Gesture = {
   primary: boolean;
   selectMultiple: boolean;
   canDragTrack: boolean;
-  action?: "drag" | "pan" | "blocked" | "place";
+  canBoxSelect: boolean;
+  action?: "drag" | "pan" | "blocked" | "place" | "box";
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
+
+function rectangleBetween(first: Point, last: Point): DOMRect {
+  return new DOMRect(
+    Math.min(first.x, last.x),
+    Math.min(first.y, last.y),
+    Math.abs(first.x - last.x),
+    Math.abs(first.y - last.y),
+  );
+}
 
 export class EditorCamera {
   readonly #host: HTMLElement;
   readonly #clearHover: () => void;
   readonly #endDrag: (point: Point, cancelled: boolean) => void;
   readonly #pointers = new Map<number, Point>();
+  readonly #selectionBox = document.createElement("div");
   #gesture: Gesture | undefined;
   #pinch: Pinch | undefined;
   // Bounds follow the rotated view. Track edits stay in unrotated design coordinates.
@@ -34,6 +45,8 @@ export class EditorCamera {
       hover: (event: PointerEvent, target: Element) => void;
       clearHover: () => void;
       holding: () => boolean;
+      selecting: () => boolean;
+      selectBox: (box: DOMRectReadOnly) => void;
       beginDrag: (point: Point, target: Element) => "drag" | "pan" | "blocked";
       drag: (point: Point) => void;
       endDrag: (point: Point, cancelled: boolean) => void;
@@ -42,6 +55,8 @@ export class EditorCamera {
     this.#host = host;
     this.#clearHover = hooks.clearHover;
     this.#endDrag = hooks.endDrag;
+    this.#selectionBox.className = "track-selection-box";
+    this.#selectionBox.setAttribute("aria-hidden", "true");
     this.#viewport = { width: host.clientWidth, height: host.clientHeight };
     new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -113,12 +128,14 @@ export class EditorCamera {
       host.setPointerCapture(event.pointerId);
       if (this.#pointers.size === 1) {
         const primary = event.button === 0 && !host.hasAttribute("data-space-pan");
+        const modifier = event.metaKey || event.ctrlKey;
         this.#gesture = {
           first: point,
           target,
           primary,
-          selectMultiple: event.shiftKey,
-          canDragTrack: primary && event.pointerType === "mouse" && !event.shiftKey,
+          selectMultiple: event.shiftKey || modifier,
+          canDragTrack: primary && event.pointerType === "mouse" && !event.shiftKey && !modifier,
+          canBoxSelect: primary && event.pointerType === "mouse" && modifier && hooks.selecting(),
           action: primary && hooks.holding() ? "place" : undefined,
         };
       } else if (this.#pointers.size === 2) {
@@ -127,6 +144,7 @@ export class EditorCamera {
         if (this.#gesture?.action === "drag")
           hooks.endDrag(this.world(initial.mid.x, initial.mid.y), true);
         if (this.#gesture?.action === "place") hooks.clearHover();
+        this.#selectionBox.remove();
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
@@ -164,9 +182,23 @@ export class EditorCamera {
       }
       if (!gesture.action) {
         if (Math.hypot(point.x - gesture.first.x, point.y - gesture.first.y) < 5) return;
-        gesture.action = gesture.canDragTrack
-          ? hooks.beginDrag(this.world(gesture.first.x, gesture.first.y), gesture.target)
-          : "pan";
+        if (gesture.canBoxSelect) gesture.action = "box";
+        else {
+          gesture.action = gesture.canDragTrack
+            ? hooks.beginDrag(this.world(gesture.first.x, gesture.first.y), gesture.target)
+            : "pan";
+        }
+      }
+      if (gesture.action === "box") {
+        const box = rectangleBetween(gesture.first, point);
+        const canvas = host.getBoundingClientRect();
+        const { style } = this.#selectionBox;
+        style.left = `${box.left - canvas.left}px`;
+        style.top = `${box.top - canvas.top}px`;
+        style.width = `${box.width}px`;
+        style.height = `${box.height}px`;
+        if (!this.#selectionBox.isConnected) host.append(this.#selectionBox);
+        return;
       }
       if (gesture.action === "drag") {
         hooks.drag(this.world(point.x, point.y));
@@ -200,6 +232,11 @@ export class EditorCamera {
         clientY >= rect.top &&
         clientY <= rect.bottom;
       const released = event.type === "pointerup" && inside;
+      if (gesture.action === "box") {
+        this.#selectionBox.remove();
+        if (released) hooks.selectBox(rectangleBetween(gesture.first, { x: clientX, y: clientY }));
+        return;
+      }
       if (gesture.action === "drag") hooks.endDrag(point, !released);
       if (
         !gesture.action &&
@@ -222,7 +259,7 @@ export class EditorCamera {
       hooks.tap(
         this.world(rect.x + rect.width / 2, rect.y + rect.height / 2),
         event.target,
-        event.shiftKey,
+        event.shiftKey || event.metaKey || event.ctrlKey,
       );
     });
   }
@@ -307,6 +344,12 @@ export class EditorCamera {
     return this.#bounds ? { ...this.#bounds, angle: this.#angle } : undefined;
   }
 
+  cancelBoxSelection(): boolean {
+    if (!this.#gesture?.canBoxSelect) return false;
+    this.#cancelGesture();
+    return true;
+  }
+
   restore(view: CameraView | undefined): void {
     this.#cancelGesture();
     this.#angle = view?.angle ?? 0;
@@ -319,6 +362,7 @@ export class EditorCamera {
     const gesture = this.#gesture;
     this.#gesture = undefined;
     this.#pinch = undefined;
+    this.#selectionBox.remove();
     this.#host.removeAttribute("data-space-pan");
     const pointers = [...this.#pointers.keys()];
     this.#pointers.clear();

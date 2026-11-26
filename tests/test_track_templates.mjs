@@ -6,7 +6,7 @@ import test from "node:test";
 import catalog from "../data/catalog.json" with { type: "json" };
 import straightExamples from "../data/straight_examples.json" with { type: "json" };
 import { findArrangementAnchors } from "../src/arrangement_anchors.ts";
-import { commitItems, previewArrangement } from "../src/arrangements.ts";
+import { commitItems, placementWarnings, previewArrangement } from "../src/arrangements.ts";
 import { openTrackPlan } from "../src/ldraw.ts";
 import { newProject } from "../src/project.ts";
 import { showInventory } from "../src/show_inventory.ts";
@@ -25,6 +25,22 @@ test("the straight template has two named NILTC handoffs", () => {
     project.area.exits.map(({ edge }) => edge),
     ["west", "east"],
   );
+});
+
+test("a clean joint at a named handoff can lead past the design border", () => {
+  const project = template("member-straight");
+  const east = project.area.exits.find(({ edge }) => edge === "east");
+  const end = project.items.find(({ id }) => id === east.outer.pieceId);
+  const continuation = { ...end, id: "neighbor-straight", x: project.area.width + 8 };
+  const analysis = evaluate({ ...project, items: [...project.items, continuation] });
+
+  assert.ok(
+    analysis.routes.some(
+      ({ kind, from, to }) =>
+        kind === "joint" && [from.pieceId, to.pieceId].includes(continuation.id),
+    ),
+  );
+  assert.deepEqual(placementWarnings(analysis, catalog), []);
 });
 
 test("the yard template has three 128-stud R104 storage tracks on the inner mainline", () => {

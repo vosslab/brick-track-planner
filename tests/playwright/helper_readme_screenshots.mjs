@@ -36,15 +36,16 @@ try {
     await expect(
       target.getByRole("heading", { name: "Start with your assigned display area" }),
     ).toBeVisible();
+    await target.evaluate(() => document.fonts.ready);
   };
   const capture = async (name, target = page, scale = "device") => {
-    await page.mouse.move(0, 0);
     execFileSync("cwebp", ["-quiet", "-q", "90", "-o", join(output, `${name}.webp`), "--", "-"], {
       input: await target.screenshot({ ...screenshotOptions, scale }),
     });
   };
   const track = page.locator("#tabletop [data-kind=track]");
-  const fit = () => page.getByRole("button", { name: "Fit view", exact: true }).click();
+  const fit = (target = page) =>
+    target.getByRole("button", { name: "Fit view", exact: true }).click();
   const create = (target = page) =>
     target.getByRole("button", { name: "Create track plan", exact: true }).click();
   const layoutName = page.getByLabel("Layout name");
@@ -67,7 +68,7 @@ try {
   await page.setViewportSize(desktopViewport);
 
   await create();
-  await expect(page.getByRole("heading", { name: "Add track" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Add track" })).toBeVisible();
   await expect(track.first()).toBeVisible();
   await expect(page.locator("#design-size")).toContainText("60 × 40");
   await capture("member_mainline_start");
@@ -80,27 +81,86 @@ try {
   await fit();
   await capture("member_parking_siding");
 
+  await layoutName.fill("Parking siding");
+  await layoutName.blur();
+  await page.getByRole("button", { name: "Duplicate plan", exact: true }).click();
+  await layoutName.fill("Parking option B");
+  await layoutName.blur();
+  const tabs = page.getByRole("tablist", { name: "Open layouts" });
+  await expect(tabs.getByRole("tab", { name: "Parking siding", exact: true })).toBeVisible();
+  await expect(tabs.getByRole("tab", { name: "Parking option B", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await capture("layout_tabs");
+
+  const selectedPieces = [track.nth(1), track.nth(2)];
+  const boxes = await Promise.all(selectedPieces.map((piece) => piece.boundingBox()));
+  const selection = {
+    left: Math.min(...boxes.map(({ x }) => x)) - 8,
+    top: Math.min(...boxes.map(({ y }) => y)) - 8,
+    right: Math.max(...boxes.map(({ x, width }) => x + width)) + 8,
+    bottom: Math.max(...boxes.map(({ y, height }) => y + height)) + 8,
+  };
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  const tabletop = await page.locator("#tabletop").boundingBox();
+  await page.mouse.click(tabletop.x + 8, tabletop.y + 8);
+  await page.keyboard.down(modifier);
+  await page.mouse.move(selection.left, selection.top);
+  await page.mouse.down();
+  await page.mouse.move(selection.right, selection.bottom, { steps: 3 });
+  await expect(page.locator(".track-selection-box")).toBeVisible();
+  await page.mouse.up();
+  await page.keyboard.up(modifier);
+  await expect(page.locator('#tabletop [data-kind="track"][aria-pressed="true"]')).toHaveCount(2);
+  await expect(
+    page.getByRole("button", { name: "Delete selected track", exact: true }),
+  ).toBeEnabled();
+  await capture("select_multiple_track");
+
   for (const { code, name } of straightExamples) {
-    await page.getByRole("button", { name: "Browse straight examples", exact: true }).click();
-    await gallery.getByRole("button", { name: `Open ${code} · ${name}`, exact: true }).click();
-    await expect(layoutName).toHaveValue(name);
-    await fit();
-    await capture(`example_${code.toLowerCase()}`);
+    const examplePage = await browser.newPage({
+      viewport: desktopViewport,
+      deviceScaleFactor: 1.5,
+    });
+    try {
+      await start(examplePage);
+      await examplePage.locator("#start-browse-examples").click();
+      const exampleGallery = examplePage.getByRole("dialog", {
+        name: "Straight examples",
+        exact: true,
+      });
+      await exampleGallery
+        .getByRole("button", { name: `Open ${code} · ${name}`, exact: true })
+        .click();
+      await expect(examplePage.getByLabel("Layout name")).toHaveValue(name);
+      await fit(examplePage);
+      await capture(`example_${code.toLowerCase()}`, examplePage);
+    } finally {
+      await examplePage.close();
+    }
   }
 
-  const templates = page.getByLabel("Track templates");
-  const options = templates.locator('option[value$=".ldr"]');
-  await expect(options.first()).toBeAttached();
-  const templateFiles = await options.evaluateAll((entries) => entries.map((entry) => entry.value));
+  const templateFiles = await page
+    .getByLabel("Track templates")
+    .locator('option[value$=".ldr"]')
+    .evaluateAll((entries) => entries.map((entry) => entry.value));
   for (const file of templateFiles) {
-    const previousName = await layoutName.inputValue();
-    await templates.selectOption(file);
-    await expect(layoutName).not.toHaveValue(previousName);
-    await expect(track.first()).toBeVisible();
-    await fit();
-    const name =
-      file === "member-yard.ldr" ? "member_r104_yard" : file.slice(0, -4).replaceAll("-", "_");
-    await capture(name);
+    const templatePage = await browser.newPage({
+      viewport: desktopViewport,
+      deviceScaleFactor: 1.5,
+    });
+    try {
+      await start(templatePage);
+      await templatePage.getByLabel("Start from a template").selectOption(file);
+      await expect(templatePage.locator("#tabletop [data-kind=track]").first()).toBeVisible();
+      await fit(templatePage);
+      const name =
+        file === "member-yard.ldr" ? "member_r104_yard" : file.slice(0, -4).replaceAll("-", "_");
+      await capture(name, templatePage);
+    } finally {
+      await templatePage.close();
+    }
   }
 
   const startBlank = async (target = page) => {

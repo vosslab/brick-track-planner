@@ -73,6 +73,7 @@ mkdir -p dist/wasm dist/templates dist/examples dist/references
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
 cp src/planner_build.css dist/planner_build.css
+cp -R assets/fonts dist/fonts
 cp generated/wasm/track_geometry_bg.wasm dist/wasm/
 cp "${required_templates[@]}" dist/templates/
 cp examples/bluebrick-example.bbm dist/examples/

@@ -12,8 +12,9 @@ whole number of plates. One plate equals 3.2 mm.
 
 Every design area is covered by derived 32 by 32 stud baseplate cells. The
 tiled grid scales with the area and is a visual and build-planning surface, not
-track geometry or a collection of movable objects. Track footprint checks
-compare each physical track footprint with the one area rectangle.
+track geometry or a collection of movable objects. The area rectangle guides
+arrangement recommendations and provides the boundary for named handoffs.
+The engine measures footprint overhang relative to that rectangle.
 
 ## Mainline assignments
 
@@ -58,14 +59,13 @@ and product links live in [`../data/CATALOG_SOURCES.md`](../data/CATALOG_SOURCES
 
 ## Placement findings
 
-Ordinary track drops commit even when track overlaps, lies outside the design
-area, or has facing rail ends at different heights. Analysis derives these
-findings from the current project, so editing, Undo/Redo, reopening a saved
-file, and switching layout tabs keep the drawing and findings in agreement.
-Findings identify affected track and clear when the geometry is repaired.
-An ordinary open rail end is a connection point, not a placement problem.
-Guided fitting and placement findings both allow 0.05 stud of offset at the
-design boundary.
+Ordinary track drops commit even when track overlaps or has facing rail ends
+at different heights. Track can extend past the design area, including a
+clean joint through a named handoff. Analysis derives findings from the
+current project, so editing, Undo/Redo, reopening a saved file, and switching
+layout tabs keep the drawing and findings in agreement. Findings clear when
+the geometry is repaired. Guided fitting and overhang measurement both allow
+0.05 stud of offset at the design boundary.
 
 Overlap findings use modeled footprints for ordinary straights and curves,
 and routed paths for molded parts and adapters. Angled straight beds allow

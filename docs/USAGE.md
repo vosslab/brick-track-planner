@@ -32,7 +32,7 @@ track instead of moving baseplates.
 ## Compare the straight examples
 
 Choose **Browse straight examples** on the start screen or in the editor.
-The gallery opens with nine plans for 60 inches along the track and 40 inches
+The gallery opens with ten plans for 60 inches along the track and 40 inches
 of depth, followed by five plans for a 40 by 40 inch display. In each size,
 the mainline and back-out siding come first. The remaining plans are ordered
 by physical track piece count.
@@ -81,8 +81,8 @@ Switching layouts cancels an unfinished placement preview.
    choose **Select arrangement**.
 3. Choose **Copy**, switch to Yard B, then choose **Paste**.
 4. Point to a destination to preview the copy, then click or tap to place it.
-   If the track overlaps or extends outside the area, the planner flags it
-   after placement. **Esc** or **Cancel** cancels an unfinished preview.
+   If the track overlaps, the planner flags it after placement. **Esc** or
+   **Cancel** cancels an unfinished preview.
 
 The source stays intact. A successful placement is one undoable edit. The
 next click selects track and leaves the copy in place. The pieces retain
@@ -132,10 +132,9 @@ The arrangement picker shows the selected kit's footprint and the track it
 needs. A connected-fit preview highlights the changes. If no connected fit is
 available, the message below **Preview on track** explains why, and the whole
 kit remains available to place. Click anywhere in the drawing to drop it and
-return to track selection, even without a connected fit. Overlap or track
-outside the area produces a red warning after placement; open **Diagnostics**
-to find the problem. You can also change the placement options and preview
-again.
+return to track selection, even without a connected fit. Overlapping pieces
+appear in red after placement. Open **Diagnostics** to find the problem.
+You can also change the placement options and preview again.
 
 Connected-fit recommendations keep joined rails at the same height. Free
 placement still lets you put the kit down and flags facing ends at different
@@ -197,21 +196,26 @@ You can put track down even when the destination needs repair.
 You can also select track and choose **Move**, then click the
 destination.
 
-Use **Shift+click** or **Select multiple** to add and remove pieces from the
-selection. For an installed kit, choose one of its pieces and then
-**Select arrangement**. Move the selection together to keep its internal
-joints. The preview marks any joints to stationary track that the move opens.
-Track that carries a named mainline handoff must stay in place.
-Placing other track over that handoff leaves the starter in place and flags
-the conflict for repair in **Diagnostics**.
+Hold **Command** on Mac or **Ctrl** elsewhere and click to add or remove
+individual pieces. Hold the same key and drag a box that fully encloses
+several pieces to add them together. **Shift+click** and **Select multiple**
+also work for individual pieces. For an installed kit, choose one of its
+pieces and then **Select arrangement**.
+
+Choose **Move** to move the selection together and keep its internal joints.
+The preview marks any joints to stationary track that the move opens.
+Choose **Delete selected track** or press **Delete** to remove the selection
+in one edit. Deselect any piece carrying a named mainline handoff before
+moving or deleting the rest of the selection. Track can extend through a
+handoff to connect to the next display.
 
 Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
 Choose **1-stud grid** to make a smaller adjustment for that placement. For a
 single piece you can enter X and Y in studs under **Exact position** in the
 inspector. X increases to the right and Y increases down. The toolbar also
-offers **Rotate left**, **Rotate right**, **Duplicate**, and **Delete selected
-track** for a single piece. Each rotation is 90 degrees. **Undo** and
-**Redo** apply one design operation at a time.
+offers **Rotate left**, **Rotate right**, and **Duplicate** for a single
+piece. Each rotation is 90 degrees. **Undo** and **Redo** apply one design
+operation at a time.
 
 Choose **Duplicate** to copy one selected piece within the current layout.
 Click or tap the destination to place it. Use **Copy** and **Paste** for
@@ -235,15 +239,13 @@ or trackpad. On touch, when no track is held, drag one finger anywhere in the
 drawing, including over track, to pan. Pinch with two fingers to zoom. The rotate button
 beside **Fit view** turns the view without rotating any track pieces.
 
-The parts panel totals physical pieces in the current design. The findings
-panel reports modeled overlaps in ordinary track, including curves, track
-outside the design area, facing rail ends at
-different heights, protected NILTC mainline findings, and imported parts without
-usable geometry. The drawing identifies track that needs attention. Findings
-follow the current layout, including after saving and reopening it, and clear
-when you fix or remove the problem. Open rail ends remain visible as
-connection points while placing or tracing track. A highlighted line or part in
-the route panel explains the selected path.
+The parts panel totals physical pieces in the current design. **Diagnostics**
+reports overlaps, facing rail ends at different heights, protected NILTC
+mainline findings, and imported parts without usable geometry. Track may
+extend past the design-area border. Findings follow the current layout,
+including after saving and reopening, and clear when you fix the problem.
+Open rail ends mark connection points while placing or tracing track. The
+route panel highlights the selected path.
 
 ## Save and export
 

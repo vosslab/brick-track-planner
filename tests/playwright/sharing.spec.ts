@@ -47,11 +47,26 @@ async function exportLayout(planner: Page, format: string, info: TestInfo): Prom
 
 function pdfText(pdf: string): string {
   const streams = /\/Filter\s*\/FlateDecode[^\n]*\n>>\nstream\n([\s\S]*?)\nendstream/g;
-  return Array.from(pdf.matchAll(streams), ([, stream]) =>
+  const inflated = Array.from(pdf.matchAll(streams), ([, stream]) =>
     stream && stream.length < 100_000
       ? inflateSync(Buffer.from(stream, "latin1")).toString("latin1")
       : "",
-  ).join("\n");
+  );
+  const glyphs = new Map(
+    inflated.flatMap((stream) =>
+      Array.from(stream.matchAll(/<([0-9a-f]{4})><([0-9a-f]{4})>/gi), ([, from, to]) => [
+        from ?? "",
+        String.fromCodePoint(Number.parseInt(to ?? "0", 16)),
+      ]),
+    ),
+  );
+  return inflated
+    .map((stream) =>
+      stream.replace(/<([0-9a-f]+)>\s*Tj/gi, (_, encoded) =>
+        (encoded.match(/.{4}/g) ?? []).map((glyph: string) => glyphs.get(glyph) ?? "").join(""),
+      ),
+    )
+    .join("\n");
 }
 
 test("imports measured external track, preserves it on save and reopens it", async ({

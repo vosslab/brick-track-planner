@@ -149,6 +149,10 @@ export class TrackTools {
     return this.#selected;
   }
 
+  get selecting(): boolean {
+    return !this.#arrangement && this.#interaction.kind === "select";
+  }
+
   useDefaultTool(): void {
     input(this.#hooks.analysis().project.area.niltc ? "build-arrangement" : "build-piece").checked =
       true;
@@ -276,6 +280,14 @@ export class TrackTools {
   selectPiece(id: string): void {
     this.cancel();
     this.#selected = new Set([id]);
+    this.#selectionInfo();
+    this.#hooks.render();
+  }
+
+  addToSelection(ids: readonly string[]): void {
+    if (!this.selecting || !ids.length) return;
+    if (this.#selectedTrack().length !== this.#selected.size) this.#selected.clear();
+    for (const id of ids) this.#selected.add(id);
     this.#selectionInfo();
     this.#hooks.render();
   }
@@ -833,7 +845,7 @@ export class TrackTools {
       );
       hint.textContent =
         this.#selected.size > 1
-          ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Remove it from the selection to move the other pieces.`
+          ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Deselect that protected piece before moving or deleting the other pieces.`
           : "This track carries a named mainline exit and cannot be moved or deleted.";
     } else if (this.#multiple)
       hint.textContent = `${this.#selected.size} selected. Pick pieces to add or remove them.`;
@@ -855,7 +867,7 @@ export class TrackTools {
         ? `${this.#selected.size} track pieces selected.`
         : (name ?? "Select a track piece in the drawing.");
     const protectedExit = protectedTrack(project, this.#selected);
-    button("remove-piece").disabled = !item || protectedExit;
+    button("remove-piece").disabled = !this.#selected.size || protectedExit;
     const movable = item?.kind === "track" && !protectedExit;
     const hasTrack = this.#selectedTrack().length > 0;
     button("move-track").disabled = protectedExit || !hasTrack;
@@ -880,17 +892,17 @@ export class TrackTools {
   }
 
   remove(): void {
-    if (this.#selected.size !== 1 || this.#arrangement || this.#interaction.kind !== "select")
-      return;
+    if (!this.#selected.size || !this.selecting) return;
     const project = this.#hooks.analysis().project;
     if (protectedTrack(project, this.#selected)) {
       this.#hooks.notice(protectedMessage, true);
       return;
     }
+    const count = this.#selected.size;
     this.#hooks.commit({
       ...project,
       items: project.items.filter(({ id }) => !this.#selected.has(id)),
     });
-    this.#hooks.notice("Removed track piece.");
+    this.#hooks.notice(`Removed ${count === 1 ? "track piece" : `${count} track pieces`}.`);
   }
 }

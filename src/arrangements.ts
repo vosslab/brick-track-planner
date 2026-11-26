@@ -16,7 +16,7 @@ export type ArrangementIssue = {
 };
 
 export type PlacementWarning = {
-  kind: "outside-area" | "overlap" | "height" | "ambiguous" | "handoff";
+  kind: "overlap" | "height" | "ambiguous" | "handoff";
   message: string;
   pieceIds: string[];
 };
@@ -383,12 +383,6 @@ function heightWarnings(ports: Analysis["ports"]): PlacementWarning[] {
 /** Evaluate the current track placement, including files and undo snapshots. */
 export function placementWarnings(analysis: Analysis, catalog: Catalog): PlacementWarning[] {
   const warnings = railOverlapWarnings(analysis.project, catalog);
-  for (const { pieceId } of analysis.overhangs)
-    warnings.push({
-      kind: "outside-area",
-      message: "This piece extends outside the design area.",
-      pieceIds: [pieceId],
-    });
   warnings.push(...heightWarnings(analysis.ports));
 
   const key = ({ pieceId, portId }: Endpoint): string => JSON.stringify([pieceId, portId]);
@@ -417,9 +411,17 @@ export function placementWarnings(analysis: Analysis, catalog: Catalog): Placeme
       pieceIds: [pieceId],
     });
   if (handoffs.size) {
+    const overhanging = new Set(analysis.overhangs.map(({ pieceId }) => pieceId));
     for (const { kind, from, to } of analysis.routes) {
       if (kind !== "joint") continue;
-      const message = handoffs.get(key(from)) ?? handoffs.get(key(to));
+      const fromMessage = handoffs.get(key(from));
+      const toMessage = handoffs.get(key(to));
+      const message = fromMessage ?? toMessage;
+      if (
+        (fromMessage && overhanging.has(to.pieceId)) ||
+        (toMessage && overhanging.has(from.pieceId))
+      )
+        continue;
       if (message)
         warnings.push({
           kind: "handoff",

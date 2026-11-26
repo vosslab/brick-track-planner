@@ -84,6 +84,25 @@ class Planner {
       },
       clearHover: (): void => this.#tracks.clearHover(),
       holding: (): boolean => Boolean(this.#preview || this.#tracks.pickingDestination),
+      selecting: (): boolean => this.#tracks.selecting,
+      selectBox: (box): void => {
+        const ids: string[] = [];
+        for (const track of tabletop.querySelectorAll<SVGGElement>(
+          '[data-kind="track"][role="button"]',
+        )) {
+          const { top, right, bottom, left } = track.getBoundingClientRect();
+          const id = track.dataset["pieceId"];
+          if (
+            id &&
+            top >= box.top &&
+            right <= box.right &&
+            bottom <= box.bottom &&
+            left >= box.left
+          )
+            ids.push(id);
+        }
+        this.#tracks.addToSelection(ids);
+      },
       beginDrag: (point, target): "drag" | "pan" | "blocked" =>
         this.#tracks.beginMove(point, target),
       drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
@@ -175,6 +194,10 @@ class Planner {
     input("project-name").onchange = (): void => this.#commitName();
     document.addEventListener("keydown", (event) => {
       if (!this.#active || event.defaultPrevented || document.querySelector("dialog[open]")) return;
+      if (event.key === "Escape" && this.#camera.cancelBoxSelection()) {
+        event.preventDefault();
+        return;
+      }
       if (event.key === "Escape" && this.#tracks.pickingDestination) {
         event.preventDefault();
         this.#tracks.cancel();
@@ -217,7 +240,13 @@ class Planner {
           const rect = placement.getBoundingClientRect();
           const point = this.#camera.world(rect.x + rect.width / 2, rect.y + rect.height / 2);
           if (this.#preview) this.#arrangements.pick(point);
-          else this.#tracks.pick(point, placement, this.#camera.snapRadius, event.shiftKey);
+          else
+            this.#tracks.pick(
+              point,
+              placement,
+              this.#camera.snapRadius,
+              event.shiftKey || shortcut,
+            );
           if (this.#tracks.editPreview?.kind === "ready")
             button("place-edit").focus({ preventScroll: true });
         }

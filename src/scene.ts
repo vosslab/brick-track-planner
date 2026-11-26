@@ -33,6 +33,8 @@ import type { Bounds } from "./scene_drawing";
 
 export { setSceneDetail } from "./scene_appearance";
 
+export const drawingFont = "Atkinson Hyperlegible Next";
+
 export type SceneRoute = { pieceIds: readonly string[]; color?: string; label?: string };
 export type SceneTrace = {
   from: { pieceId: string; portId?: string };
@@ -453,7 +455,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
   const scene = svg("svg", {
     role: options.interaction ? "group" : "img",
     "data-track-scene": "true",
-    "font-family": "system-ui, sans-serif",
+    "font-family": `"${drawingFont}", sans-serif`,
     style: `background: ${paper}`,
   });
   const prefix = `track-scene-${++sceneNumber}`;
@@ -639,21 +641,6 @@ export function createScene(
   sync(layers.itemLabels, labels);
   drawRouteOverlays(options, drawn, layers.overlays);
   drawTrace(options, project, partById, layers.overlays);
-  for (const overhang of analysis.overhangs) {
-    const shape = overhang.rings.map((ring) => pathData(ring, true)).join(" ");
-    layers.overlays.append(
-      svg("path", {
-        d: shape,
-        fill: "#df7758",
-        "fill-opacity": 0.36,
-        stroke: warningInk,
-        "stroke-width": 0.42,
-        "stroke-dasharray": "1 0.5",
-        "fill-rule": "evenodd",
-        "data-overhang-for": overhang.pieceId,
-      }),
-    );
-  }
   layers.overlays.append(...warningOutlines);
   drawExits(project, analysis, bounds, layers.labels);
   const ports: SVGElement[] = [];

@@ -13,6 +13,14 @@
 
 ### Behavior or Interface Changes
 
+- Use Atkinson Hyperlegible Next for the planner and PDF exports,
+  Atkinson Hyperlegible Mono for aligned numbers, and IBM Plex Sans
+  Condensed for narrow route labels.
+- Treat the design-area border as a guide for placed track. Track can extend
+  past it or continue through a named handoff without a placement warning.
+- Delete several selected pieces in one edit. Use Command-click on Mac or
+  Ctrl-click elsewhere to toggle pieces, and drag with that key held to
+  select everything inside the box.
 - Export PDFs in color with a single PDF option.
 - Let ordinary track drops finish even with overlaps, track outside the area,
   or facing rail ends at different heights. Flag the affected track and report
@@ -29,6 +37,8 @@
 
 ### Fixes and Maintenance
 
+- Lead the README with an editable example and a first siding walkthrough.
+  Refresh the screenshot collection and show how to compare two layout tabs.
 - Use the same 0.05-stud design-edge tolerance for fit checks and placement
   warnings so flush track with tiny offsets stays clear.
 - Use native image decoding for layout exports and a dialog form for the
@@ -50,7 +60,8 @@
   against its preview at 1-stud resolution.
 - Remove the subpixel screenshot matrix and run the touch browser suite on
   member editor flows.
-
+- Synchronized shared style guides, tests, and repository support files from the starter template.
+- Synchronized shared style guides, tests, and repository support files from the starter template.
 ## 2026-11-25
 
 ### Behavior or Interface Changes

@@ -1,12 +1,19 @@
 # Planner screenshots
 
-[Start a plan](#start-a-plan) &middot; [60 by 40 inches](#60-by-40-inches)
-&middot; [40 by 40 inches](#40-by-40-inches) &middot; [Other templates](#other-templates)
-&middot; [Place track](#place-track)
+[Start a plan](#start-a-plan) &middot; [Place track](#place-track)
+&middot; [Select several pieces](#select-several-pieces)
+&middot; [Compare two versions](#compare-two-versions)
+&middot; [Straight examples](#straight-examples)
+&middot; [Other templates](#other-templates)
 
 ## Start a plan
 
 ### Start screen
+
+To try a layout right away, choose **Browse straight examples** and pick
+**BOS** under **60 &times; 40 inches**. To start your own plan, enter your
+assigned display size, choose a track shape, and select **Create track plan**.
+Choose **Curve** to see both corner options.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![The startup form with dimensions, mainline choices, and template controls](screenshots/member_design_start.webp)
@@ -15,20 +22,71 @@
 
 ### Blank General editor
 
+Choose **General** to start with an empty drawing and add the track
+yourself.
+
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![An empty 60 by 40 inch General plan with Single piece selected and Place at center available](screenshots/general_blank_start.webp)
 <!-- screenshots:end -->
 
 ### Straight member starter
 
+Choose **Straight** to start with the two shared club tracks already in place.
+
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A new 60 by 40 inch Straight assignment with both club mainlines and Arrangement selected](screenshots/member_mainline_start.webp)
+<!-- screenshots:end -->
+
+## Place track
+
+### Preview and add a siding
+
+In a Straight plan, keep **Back-out parking siding** selected. Choose
+**Preview on track** to see where the siding fits, then **Add to layout** to
+put it in the plan.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A green parking siding preview and the Add to layout button](screenshots/member_parking_siding_preview.webp)
+![The applied parking siding connected to the inner mainline](screenshots/member_parking_siding.webp)
+<!-- screenshots:end -->
+
+### Place a single piece
+
+In the blank General editor, choose **Choose on the drawing** under
+**Place at**. Choose **Place on drawing**, then click or tap the drawing
+once. The piece stays where you put it. Select **Move** to reposition it,
+or drag it with a mouse.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A straight track piece appears after choosing Place on drawing and clicking the grid](screenshots/place_single_track_demo.webp)
+<!-- screenshots:end -->
+
+## Select several pieces
+
+Hold **Command** on Mac or **Ctrl** elsewhere and drag a box that fully
+encloses the pieces. Hold the same key and click to add or remove one
+piece. On touch, choose **Select multiple** and tap the pieces. Choose
+**Move** or **Delete selected track** to act on the whole selection.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Two highlighted track pieces with Delete selected track available in the toolbar](screenshots/select_multiple_track.webp)
+<!-- screenshots:end -->
+
+## Compare two versions
+
+Choose **Duplicate plan** and give the copy a short name in **Layout name**.
+Edit the copy, then click either tab to compare the two versions. Choose
+**Save track plan** from each tab you want to keep.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The original plan and a practice copy in two layout tabs above the drawing](screenshots/layout_tabs.webp)
 <!-- screenshots:end -->
 
 ## Straight examples
 
 Open these plans with **Browse straight examples**. Both collections use
-40 inches of depth. The first number is the width along the track.
+40 inches of depth. The first number is the width along the track. Jump to
+[60 by 40 inches](#60-by-40-inches) or [40 by 40 inches](#40-by-40-inches).
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Gallery showing both sizes with their type codes and piece counts](screenshots/straight_examples.webp)
@@ -144,6 +202,10 @@ shows one move at a time.
 ## Other templates
 
 Open these plans from **Other templates** on the start screen or in the editor.
+You can also download the [R104 yard](../templates/member-yard.ldr),
+[R104 semicircle return](../templates/r104-semicircle-return.ldr), or
+[R120 corner return](../templates/r120-corner-return.ldr) and use
+**Open track plan** in the planner.
 
 ### Member straight
 
@@ -175,21 +237,19 @@ Open these plans from **Other templates** on the start screen or in the editor.
 ![A 120 by 100 inch turnaround with an R120 quarter-turn and a straight between bends](screenshots/r120_corner_return.webp)
 <!-- screenshots:end -->
 
-## Place track
+## Recapture the collection
 
-### Preview and add a siding
+Use the local Pages build, Playwright Chromium, and the libwebp tools
+`cwebp` and `img2webp`. Build and serve the app from the repository root.
 
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A green parking siding preview and the Add to layout button](screenshots/member_parking_siding_preview.webp)
-![The applied parking siding connected to the inner mainline](screenshots/member_parking_siding.webp)
-<!-- screenshots:end -->
+```bash
+./build_github_pages.sh
+source source_me.sh && bash tests/playwright/helper_pages_server.sh 4173
+```
 
-### Place a single piece
+From a second terminal, capture to a temporary directory for inspection.
 
-In the blank General editor, choose **Choose on the drawing** under
-**Place at**. Activate **Place on drawing**, then click inside the grid.
-The editor adds the selected straight and highlights it.
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A straight track piece appears after choosing Place on drawing and clicking the grid](screenshots/place_single_track_demo.webp)
-<!-- screenshots:end -->
+```bash
+node tests/playwright/helper_readme_screenshots.mjs \
+  http://127.0.0.1:4173/brick-track-planner/ /tmp/brick-track-planner-readme
+```

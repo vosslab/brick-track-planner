@@ -1,54 +1,59 @@
 # Brick Track Planner
 
-Design your LEGO train club display around the tracks it must connect to. Start with the NILTC mainlines, fit a siding or yard in your assigned space, and trace a train's route through the pieces you'll build with.
+Plan a LEGO train layout that fits your display space. Start with an editable example or add a siding to your club's mainlines, then save your plan and share a parts list.
 
-[Open the hosted planner](https://vosslab.github.io/brick-track-planner/).
+[Open the planner online](https://vosslab.github.io/brick-track-planner/).
 
-This pre-production browser editor keeps member layouts in tabs with one drawing visible. The
-hosted editor follows the deployed revision. Use the local build to try this
-checkout.
+The planner is in pre-production. The online version runs in your browser.
+Use the local build below to try the revision in this checkout.
 
-## From display space to siding
+## See a finished plan
 
-A 60 by 40 inch straight assignment starts with two connected mainlines. The
-parking siding preview shows where the turnout fits and how much straight
-storage track the space allows.
+The Back-out siding example shows a 60 by 40 inch display. Its two mainlines
+are the shared tracks that continue into your neighbors' layouts. The siding
+branches off the inner mainline and gives a train a place to park.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-
-![Start screen for entering a member's assigned display area](docs/screenshots/member_design_start.webp)
-![A 60 by 40 inch member plan with a parking siding connected behind the mainline](docs/screenshots/member_parking_siding.webp)
+![The Back-out siding example showing two shared mainlines and one parking track](docs/screenshots/example_bos.webp)
 <!-- screenshots:end -->
 
 ## Quick start
 
-1. Set the width to **60 in** and depth to **40 in**, keep **Straight**, and
-   select **Create track plan**. Both club mainlines appear.
-2. Under **Add track**, keep **Arrangement** and **Back-out parking siding**.
-   Select **Preview on track** to see the replacement track and the available
-   storage length.
-3. Select **Add to layout**, then **Save track plan**. The editable LDraw
-   download opens again from **Open track plan**.
+1. Open the planner and choose **Browse straight examples**.
+2. Under **60 &times; 40 inches**, choose the **BOS** drawing for **Back-out siding**.
+   The example opens as an editable drawing. Click a piece to select it.
+3. Choose **Duplicate plan** to experiment in a second layout tab. Click
+   either tab to switch between the two layouts.
+4. Choose **Save track plan** to download the active layout as an editable
+   LDraw (`.ldr`) file. Use **Open track plan** to continue working on it later.
 
-For a shorter siding, open **Placement options**, set **Extra storage track** to
-**32 studs** or **No added straights**, and preview again.
+## Start with your assigned space
 
-## Choose a starting layout
+1. On the start screen or under **New design**, enter your assigned width,
+   depth, and track shape. To make a similar plan, use **60 in**,
+   **40 in**, and **Straight**, then choose **Create track plan**.
+   Both club mainlines appear.
+2. In **Add track**, keep **Arrangement** and **Back-out parking siding**
+   selected. Choose **Preview on track** to see where the siding fits.
+3. Choose **Add to layout**. The green preview becomes part of your plan.
+   You can now save the plan or share a PDF parts list.
 
-- **Browse straight examples** opens editable 60 by 40 inch and 40 by 40 inch
-  plans. Try **DTS60** for a drive-through siding with 80 studs of straight
-  storage, or **PT40**, **TJ40**, and **TJ56** for three junction examples.
-- **Curve** offers two illustrated bends using R120 on the outside and R104 on
-  the inside. **General** starts with an empty design area.
-- **Other templates** includes the [R104 yard](templates/member-yard.ldr) and
-  two same-edge turnarounds, the
-  [R104 semicircle return](templates/r104-semicircle-return.ldr) and
-  [R120 corner return](templates/r120-corner-return.ldr).
+Choose **Curve** for one of two illustrated club bends, or **General** to
+start with an empty drawing. The screenshot guide shows each starting
+point and how to place your first piece. [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md#start-a-plan)
 
-Use **Trace route** to check how a train reaches storage. The parts tally
-counts the individual track pieces. Export a PNG or WebP drawing, or a PDF
-build sheet with the club handoffs and parts list. Import a supported BlueBrick
-Map v9 as a reviewable plan with unfamiliar parts marked on the drawing.
+## What you can do next
+
+- **Edit a piece.** Select it to move, rotate, or copy it. When holding a piece,
+  click or tap the drawing to put it down. Check **Diagnostics** if it turns red.
+- **Edit several pieces together.** Hold **Command** on Mac or **Ctrl**
+  elsewhere and drag a box around the pieces. Move or delete them as a group.
+- **Explore other plans.** Try **DTS60** for a drive-through siding or **4TRY**
+  for a small yard. **Other templates** has curve, yard, and turnaround plans.
+- **Check a route and count your parts.** Use **Trace route** to see how a
+  train reaches storage. The parts tally counts the actual track pieces.
+- **Share a drawing or build sheet.** Export PNG or WebP for a picture, or PDF
+  for a layout drawing with the club connections and parts list.
 
 ## Run the local editor
 
@@ -68,8 +73,9 @@ site, and runs the TypeScript, Node, and browser checks. Run
 
 ## Documentation
 
-- [docs/USAGE.md](docs/USAGE.md) for setup, arrangement fit, editing, and sharing.
-- [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for every example, the blank editor,
+- [docs/USAGE.md](docs/USAGE.md) for setup, editing, copying between layouts,
+  importing supported BlueBrick plans, and sharing.
+- [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for first steps, every example,
   and a first-track placement demo.
 - [NILTC track specifications](docs/references/niltc-track-specifications/index.html)
   for the club straight and corner diagrams.

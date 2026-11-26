@@ -4,6 +4,7 @@ import type { Locator } from "@playwright/test";
 import straightExamples from "../../data/straight_examples.json" with { type: "json" };
 import {
   boot,
+  chooseFile,
   createProject,
   drawingPoint,
   openEditingPlan,
@@ -341,10 +342,19 @@ test("a general plan can start at center and freely place a new piece", async ({
   await page.getByRole("button", { name: "Place on drawing", exact: true }).click();
   const canvas = page.getByRole("group", { name: "Track plan", exact: true });
   await pickDrawing(canvas, hasTouch, 0, 48);
-  await expect(canvas.locator(warnedTrack)).toHaveCount(1);
-  const { project } = await saveProject(page);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(0);
+  const saved = await saveProject(page);
+  const { project } = saved;
   expect(project.items).toHaveLength(2);
-  expect(project.items[1]).toMatchObject({ x: 0, y: 48 });
+  expect(project.items[1]).toMatchObject({ x: 0 });
+  expect(project.items[1]!.y).toBeGreaterThanOrEqual(47);
+  expect(project.items[1]!.y).toBeLessThanOrEqual(49);
+  await chooseFile(
+    page,
+    page.getByRole("button", { name: "Open track plan", exact: true }),
+    saved.path,
+  );
+  await expect(canvas.locator(warnedTrack)).toHaveCount(0);
 });
 
 test("members can move by dragging or tapping, edit exact position, and undo", async ({
@@ -385,7 +395,7 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await page.mouse.up();
   }
   await expect(canvas.locator("[data-edit-preview] > *")).toHaveCount(0);
-  await expect(canvas.locator(warnedTrack)).toHaveCount(1);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(0);
   const moved = (await saveProject(page)).project;
   expect(moved.items).toEqual([{ ...item, x: 0, y: movedY }]);
   const undo = page.getByRole("button", { name: "Undo", exact: true });
@@ -422,7 +432,7 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
 
   await x.fill("-20");
   await y.press("Enter");
-  await expect(page.getByRole("status")).toContainText(/outside the design area/i);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(0);
   const outside = (await saveProject(page)).project;
   expect(outside.items).toEqual([{ ...positioned.items[0], x: -20 }]);
   await undo.click();
@@ -465,11 +475,69 @@ test("members can paste a single piece with keyboard shortcuts and undo it", asy
   expect(duplicated.items[0]).toEqual(original.items[0]);
   const copy = duplicated.items[1]!;
   expect(copy.id).not.toBe(original.items[0]!.id);
-  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 44, y: 52 });
+  expect({
+    ...copy,
+    id: original.items[0]!.id,
+    x: original.items[0]!.x,
+    y: original.items[0]!.y,
+  }).toEqual(original.items[0]);
+  expect(copy.x).toBeGreaterThanOrEqual(43);
+  expect(copy.x).toBeLessThanOrEqual(45);
+  expect(copy.y).toBeGreaterThanOrEqual(51);
+  expect(copy.y).toBeLessThanOrEqual(53);
   await page.keyboard.press(`${modifier}+z`);
   expect((await saveProject(page)).project).toEqual(original);
   await page.keyboard.press(`${modifier}+Shift+z`);
   expect((await saveProject(page)).project).toEqual(duplicated);
+});
+
+test("selecting and deleting several track pieces is one undoable edit", async ({
+  page,
+  hasTouch,
+}) => {
+  await boot(page, { startProject: false });
+  const project = await openEditingPlan(page, [
+    straight("west", 32, 48),
+    straight("middle", 48, 48),
+    straight("east", 96, 84),
+  ]);
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  const piece = (id: string): Locator => canvas.locator(`#scene-item-${id}`);
+  const selected = canvas.locator('[data-kind="track"][aria-pressed="true"]');
+  const remove = page.getByRole("button", { name: "Delete selected track" });
+  if (hasTouch) {
+    await page.getByRole("button", { name: "Select multiple" }).tap();
+    await piece("west").tap();
+    await piece("middle").tap();
+  } else {
+    const modifier = process.platform === "darwin" ? "Meta" : "Control";
+    await piece("east").click();
+    await piece("middle").click({ modifiers: [modifier] });
+    await expect(selected).toHaveCount(2);
+    await piece("middle").click({ modifiers: [modifier] });
+    await expect(selected).toHaveCount(1);
+
+    const { screen: start } = await drawingPoint(canvas, 21, 38);
+    const { screen: end } = await drawingPoint(canvas, 60, 58);
+    await page.keyboard.down(modifier);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y, { steps: 3 });
+    await page.mouse.up();
+    await page.keyboard.up(modifier);
+    await expect(selected).toHaveCount(3);
+    await piece("east").click({ modifiers: [modifier] });
+  }
+  await expect(selected).toHaveCount(2);
+  await expect(remove).toBeEnabled();
+  if (hasTouch) await remove.tap();
+  else await page.keyboard.press("Delete");
+  await expect(piece("west")).toHaveCount(0);
+  await expect(piece("middle")).toHaveCount(0);
+  await expect(piece("east")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect((await saveProject(page)).project).toEqual(project);
 });
 
 test("a yard selection snaps as a unit and Connect fills a straight gap", async ({

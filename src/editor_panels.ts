@@ -34,14 +34,6 @@ function mainlineRule(analysis: Analysis): string {
 /** Member-readable checks. Protected NILTC handoffs are errors; private routes are not inferred here. */
 export function diagnosticsFor(analysis: Analysis): Diagnostic[] {
   const checks: Diagnostic[] = [];
-  for (const { pieceId } of analysis.overhangs) {
-    checks.push({
-      message:
-        "This track extends outside the assigned design area. Move it inside or choose a layout that fits.",
-      targetId: pieceId,
-      placementWarning: true,
-    });
-  }
   for (const issue of analysis.niltcIssues) {
     const lane = laneName(issue.lane);
     if (issue.kind === "missing-mainline") {
@@ -110,13 +102,11 @@ export function renderDiagnostics(
   const visibleItems = new Set(
     analysis.project.items.filter(({ layerId }) => visibleLayers.has(layerId)).map(({ id }) => id),
   );
-  const warnings: Diagnostic[] = placementWarnings
-    .filter(({ kind }) => kind !== "outside-area")
-    .map(({ message, pieceIds }) => ({
-      message,
-      targetId: pieceIds.find((id) => visibleItems.has(id)),
-      placementWarning: true,
-    }));
+  const warnings: Diagnostic[] = placementWarnings.map(({ message, pieceIds }) => ({
+    message,
+    targetId: pieceIds.find((id) => visibleItems.has(id)),
+    placementWarning: true,
+  }));
   const rows = [...warnings, ...diagnosticsFor(analysis)].map(
     ({ message, targetId, placementWarning }) => {
       const row =
@@ -132,10 +122,10 @@ export function renderDiagnostics(
     ...(rows.length ? rows : [textNode("p", "No fit or route issues.")]),
   );
   const fit = element("fit-status");
-  const count = warnings.length + analysis.overhangs.length;
+  const count = warnings.length;
   fit.textContent = count
     ? `${count} placement ${count === 1 ? "warning" : "warnings"}. See Diagnostics.`
-    : "Fits design area";
+    : "No placement warnings";
   fit.classList.toggle("bad-status", count > 0);
 }
 
