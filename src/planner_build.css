@@ -1,4 +1,54 @@
-/* Track library controls, arrangement previews and the editable example gallery. */
+/* Track editing, arrangement controls, and the editable example gallery. */
+.canvas-toolbar button {
+  min-width: var(--control-height);
+}
+.canvas-toolbar button[aria-pressed="true"] {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+}
+.canvas-toolbar .edit-hint {
+  margin: 0;
+  min-height: 3lh;
+  color: var(--muted);
+}
+.canvas-toolbar .edit-hint[data-error] {
+  color: var(--warning);
+}
+#placement-grid {
+  max-width: 100%;
+}
+.track-action-short {
+  display: none;
+}
+@container (max-width: 31rem) {
+  #selection-actions button {
+    padding-inline: 0.45rem;
+  }
+  .track-action-label {
+    display: none;
+  }
+  .track-action-short {
+    display: inline;
+  }
+  #selection-actions button[id^="rotate-track"] span {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+}
+#tabletop [data-piece-id][role="button"] {
+  cursor: pointer;
+}
+#tabletop[data-edit-tool="selection"] [data-kind="track"][role="button"] {
+  cursor: grab;
+}
+#tabletop[data-edit-tool="placement"] {
+  cursor: crosshair;
+}
+#tabletop [data-piece-id]:focus-visible {
+  outline: 2px solid var(--accent-dark);
+}
+
 .arrangement-info {
   color: var(--muted);
   font-size: 0.76rem;

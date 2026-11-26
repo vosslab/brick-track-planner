@@ -53,3 +53,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Tell members what space and track an arrangement needs and why a preview
   cannot fit. Make moving and deleting selected track obvious on desktop
   and mobile.
+- Use mouse editing on desktop and tap-to-move on mobile. Let members move
+  several selected pieces together.
+- Favor track ends and the club grid. Keep finer placement for special cases
+  and use 90-degree turns for track rotation.
+- Fill straight gaps between components. Use larger parts and kits for
+  the rest of the layout geometry.

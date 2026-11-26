@@ -1,6 +1,20 @@
 import { commitItems } from "./arrangements";
 import { button, element, input, select } from "./editor_dom";
 import { renderBallast } from "./editor_panels";
+import {
+  blockedEdit,
+  checkEdit,
+  chooseDestination,
+  endpointKey as key,
+  openRailEnds,
+  prepareTranslation,
+  previewGap,
+  previewTranslation,
+  protectedMessage,
+  protectedTrack,
+  translationTargets,
+} from "./editor_placement";
+import type { Destination, EditPreview } from "./editor_placement";
 import type { Analysis } from "./engine";
 import {
   ensureVisibleWorkingLayer,
@@ -8,7 +22,7 @@ import {
   projectId,
   visibleTrackItems,
 } from "./project";
-import type { Catalog, Endpoint, Point, Project, TrackItem } from "./project";
+import type { Catalog, Point, Project, TrackItem } from "./project";
 import { traceRoute } from "./route_trace";
 import type { RouteLink } from "./route_trace";
 
@@ -16,29 +30,38 @@ type Hooks = {
   analysis: () => Analysis;
   commit: (project: Project) => void;
   render: () => void;
+  renderPreview: () => void;
   cancelArrangement: () => void;
   notice: (message: string, error?: boolean) => void;
 };
 
-type Move = {
-  item: TrackItem;
-  start: Point;
-  drawings: { node: SVGElement; transform: string | null }[];
+type RailEnd = Analysis["ports"][number];
+type TranslationEdit = {
+  kind: "drag" | "move" | "duplicate";
+  items: readonly TrackItem[];
+  origin: Point;
+  geometry: ReturnType<typeof prepareTranslation>;
+  targets: Map<string, RailEnd>;
+  last?: { point: Point; radius: number; end?: string };
+  destination?: Destination;
+  preview?: EditPreview;
 };
-
-function key(endpoint: Endpoint): string {
-  return JSON.stringify([endpoint.pieceId, endpoint.portId]);
-}
-
-const pasteHint = "Click to place the copy, or press Enter for the view center. Esc cancels.";
+type Interaction =
+  | { kind: "select" }
+  | { kind: "extend" }
+  | { kind: "trace" }
+  | TranslationEdit
+  | { kind: "connect"; first?: RailEnd; preview?: EditPreview };
 
 export class TrackTools {
   readonly #catalog: Catalog;
   readonly #hooks: Hooks;
-  #mode: "extend" | "trace" | "paste" | undefined;
-  #selected: string | undefined;
+  #interaction: Interaction = { kind: "select" };
+  #selected = new Set<string>();
+  #multiple = false;
+  #arrangement = false;
   #copied: TrackItem | undefined;
-  #moving: Move | undefined;
+  #dragFrame: number | undefined;
   #route: RouteLink[] = [];
   #openEnds = new Map<string, Analysis["ports"][number]>();
 
@@ -47,7 +70,7 @@ export class TrackTools {
     this.#hooks = hooks;
     for (const radio of [input("build-arrangement"), input("build-piece")]) {
       radio.addEventListener("change", () => {
-        this.#hooks.cancelArrangement();
+        this.cancel();
         this.#showTool();
       });
     }
@@ -69,6 +92,31 @@ export class TrackTools {
     button("trace-route").addEventListener("click", () => this.#arm("trace"));
     select("trace-from").addEventListener("change", () => this.#arm("trace"));
     button("remove-piece").addEventListener("click", () => this.remove());
+    button("move-track").addEventListener("click", () => this.#startMove());
+    button("rotate-track-left").addEventListener("click", () => this.#rotate(-90));
+    button("rotate-track-right").addEventListener("click", () => this.#rotate(90));
+    button("duplicate-track").addEventListener("click", () => {
+      const [item] = this.#selectedTrack();
+      if (item && this.#selected.size === 1) this.#startCopy(item);
+    });
+    button("select-multiple").addEventListener("click", () => {
+      this.cancel();
+      this.#multiple = !this.#multiple;
+      this.#editControls();
+    });
+    button("select-arrangement").addEventListener("click", () => this.#selectArrangement());
+    button("connect-ends").addEventListener("click", () => this.#startConnect());
+    button("place-edit").addEventListener("click", () => this.#applyPreview());
+    button("cancel-edit").addEventListener("click", () => this.cancel());
+    select("placement-grid").addEventListener("change", () => {
+      const edit = this.#interaction;
+      if (edit.kind !== "move" && edit.kind !== "duplicate") return;
+      this.#hooks.render();
+      if (edit.last) {
+        const { point, radius, end } = edit.last;
+        this.#updateTranslation(edit, point, radius, end);
+      }
+    });
     const positionForm = element("track-position-form");
     if (positionForm instanceof HTMLFormElement)
       positionForm.addEventListener("submit", (event) => {
@@ -77,12 +125,20 @@ export class TrackTools {
       });
   }
 
-  get selection(): Set<string> {
-    return new Set(this.#selected ? [this.#selected] : []);
+  get selection(): ReadonlySet<string> {
+    return this.#selected;
   }
+
   useDefaultTool(): void {
     input(this.#hooks.analysis().project.area.niltc ? "build-arrangement" : "build-piece").checked =
       true;
+    this.#multiple = false;
+  }
+
+  #selectedTrack(): TrackItem[] {
+    return visibleTrackItems(this.#hooks.analysis().project).filter(({ id }) =>
+      this.#selected.has(id),
+    );
   }
 
   #showTool(): void {
@@ -122,6 +178,7 @@ export class TrackTools {
     const { area } = this.#hooks.analysis().project;
     const port = this.#openEnds.get(target);
     if (target === "center" || port) {
+      this.cancel();
       this.#extend({ x: area.width / 2, y: area.depth / 2 }, port, target === "center");
     }
   }
@@ -129,33 +186,73 @@ export class TrackTools {
     return this.#route;
   }
   get pickingPort(): boolean {
-    return this.#mode === "extend" || this.#mode === "trace";
+    const { kind } = this.#interaction;
+    return (
+      kind === "extend" ||
+      kind === "trace" ||
+      kind === "connect" ||
+      ((kind === "move" || kind === "duplicate") && !this.#fine)
+    );
   }
-  get pasting(): boolean {
-    return this.#mode === "paste";
+  get pickingDestination(): boolean {
+    return this.#interaction.kind === "move" || this.#interaction.kind === "duplicate";
   }
-  get extendablePorts(): Pick<ReadonlySet<string>, "has"> | undefined {
-    return this.#mode === "extend" ? this.#openEnds : undefined;
+  get targetPorts(): Pick<ReadonlySet<string>, "has"> | undefined {
+    const edit = this.#interaction;
+    if (edit.kind === "extend" || edit.kind === "connect") return this.#openEnds;
+    if ((edit.kind === "move" || edit.kind === "duplicate") && !this.#fine) return edit.targets;
+    return undefined;
+  }
+
+  get editPreview(): EditPreview | undefined {
+    const edit = this.#interaction;
+    if ("preview" in edit && edit.preview) return edit.preview;
+    if (edit.kind === "connect" && edit.first) return blockedEdit("", [], [edit.first]);
+    if (edit.kind === "move") return blockedEdit("", [], [edit.origin]);
+    return undefined;
+  }
+
+  get #fine(): boolean {
+    return select("placement-grid").value === "fine";
+  }
+
+  setArrangementActive(active: boolean): void {
+    this.#arrangement = active;
+    this.#editControls();
   }
 
   stopPicking(): void {
-    const wasPasting = this.pasting;
-    this.#mode = undefined;
+    if (this.#dragFrame !== undefined) cancelAnimationFrame(this.#dragFrame);
+    this.#dragFrame = undefined;
+    this.#interaction = { kind: "select" };
+    select("placement-grid").value = "club";
     this.#route = [];
     element("route-info").textContent = "";
     element("piece-info").textContent = "";
-    if (wasPasting) this.#selectionInfo();
+    this.#editControls();
+  }
+
+  cancel(): boolean {
+    const active = this.#arrangement || this.#interaction.kind !== "select";
+    if (!active) return false;
+    const focused = element("placement-actions").contains(document.activeElement);
+    this.#hooks.cancelArrangement();
+    this.stopPicking();
+    this.#hooks.render();
+    if (focused) element("tabletop").focus({ preventScroll: true });
+    return true;
   }
 
   selectPiece(id: string): void {
-    this.#selected = id;
+    this.cancel();
+    this.#selected = new Set([id]);
     this.#selectionInfo();
     this.#hooks.render();
   }
 
   copy(): boolean {
-    const item = this.#hooks.analysis().project.items.find(({ id }) => id === this.#selected);
-    if (item?.kind !== "track") return false;
+    const [item] = this.#selectedTrack();
+    if (!item || this.#selected.size !== 1) return false;
     this.#copied = { ...item };
     this.#hooks.notice("Track copied. Paste to place a duplicate.");
     return true;
@@ -163,11 +260,7 @@ export class TrackTools {
 
   startPaste(): boolean {
     if (!this.#copied) return false;
-    this.#hooks.cancelArrangement();
-    this.#mode = "paste";
-    this.#selectionInfo();
-    element("tabletop").focus({ preventScroll: true });
-    this.#hooks.notice(pasteHint);
+    this.#startCopy(this.#copied);
     return true;
   }
 
@@ -181,8 +274,8 @@ export class TrackTools {
   }
 
   #arm(mode: "extend" | "trace"): void {
-    this.#hooks.cancelArrangement();
-    this.#mode = mode;
+    this.cancel();
+    this.#interaction = { kind: mode };
     this.#route = [];
     const instruction =
       mode === "trace"
@@ -193,17 +286,25 @@ export class TrackTools {
     this.#hooks.notice(instruction);
     if (mode === "trace") element("route-info").textContent = instruction;
     else element("piece-info").textContent = instruction;
+    this.#editControls();
     this.#hooks.render();
   }
 
-  reset(): void {
-    this.#mode = undefined;
-    this.#route = [];
-    this.#selected = undefined;
-    this.#clearMove();
-    element("route-info").textContent = "";
-    this.#selectionInfo();
+  reset(clearSelection = false): void {
+    this.#arrangement = false;
+    this.stopPicking();
     const analysis = this.#hooks.analysis();
+    const visible = new Set(
+      analysis.project.layers.filter(({ visible }) => visible).map(({ id }) => id),
+    );
+    this.#selected = clearSelection
+      ? new Set()
+      : new Set(
+          analysis.project.items
+            .filter(({ id, layerId }) => this.#selected.has(id) && visible.has(layerId))
+            .map(({ id }) => id),
+        );
+    if (clearSelection) this.#multiple = false;
     const options = new Map<string, string>();
     for (const exit of analysis.project.area.exits) {
       for (const lane of ["outer", "inner"] as const) {
@@ -212,7 +313,7 @@ export class TrackTools {
     }
     const tracks = new Map(visibleTrackItems(analysis.project).map((item) => [item.id, item]));
     const names = new Map(this.#catalog.parts.map((part) => [part.id, part.name]));
-    this.#openEnds.clear();
+    this.#openEnds = new Map(openRailEnds(analysis).map((port) => [key(port), port]));
     const target = select("piece-target");
     target.replaceChildren(new Option("Choose on the drawing", "drawing"));
     if (!tracks.size) target.add(new Option("Center of design area", "center", true, true));
@@ -225,10 +326,7 @@ export class TrackTools {
         item?.kind === "track"
       ) {
         const label = `${names.get(item.partId)} · ${port.portId} (${Math.round(port.x)}, ${Math.round(port.y)})`;
-        if (!port.ambiguous) {
-          this.#openEnds.set(key(port), port);
-          target.add(new Option(label, key(port)));
-        }
+        if (this.#openEnds.has(key(port))) target.add(new Option(label, key(port)));
         options.set(key(port), label);
       }
     }
@@ -239,17 +337,44 @@ export class TrackTools {
     selectFrom.replaceChildren(...[...options].map(([value, label]) => new Option(label, value)));
     if (options.has(previous)) selectFrom.value = previous;
     button("trace-route").disabled = !options.size;
+    this.#selectionInfo();
   }
 
-  pick(point: Point, target: Element, radius: number): void {
-    if (this.pasting) {
-      this.#placeCopy(point);
-      return;
-    }
+  pick(point: Point, target: Element, radius: number, multiple = false): void {
     const hit = target.closest<SVGElement>("[data-piece-id]");
     const id = hit?.dataset["pieceId"];
-    const analysis = this.#hooks.analysis();
     const portId = hit?.dataset["portId"];
+    const endpoint = id && portId ? key({ pieceId: id, portId }) : undefined;
+    const edit = this.#interaction;
+    if (edit.kind === "move" || edit.kind === "duplicate") {
+      this.#updateTranslation(edit, point, radius, endpoint);
+      return;
+    }
+    if (edit.kind === "connect") {
+      this.#pickGapEnd(edit, point, radius, endpoint);
+      return;
+    }
+    if (edit.kind === "select") {
+      if (this.#multiple || multiple) {
+        if (
+          id &&
+          this.#hooks
+            .analysis()
+            .project.items.some((item) => item.id === id && item.kind === "track")
+        ) {
+          if (this.#selected.has(id)) this.#selected.delete(id);
+          else {
+            if (this.#selectedTrack().length !== this.#selected.size) this.#selected.clear();
+            this.#selected.add(id);
+          }
+        }
+      } else this.#selected = new Set(id ? [id] : []);
+      this.#selectionInfo();
+      this.#hooks.render();
+      return;
+    }
+    if (edit.kind === "drag") return;
+    const analysis = this.#hooks.analysis();
     const ports = analysis.ports
       .filter(
         (p) =>
@@ -257,7 +382,7 @@ export class TrackTools {
       )
       .map((p) => ({ port: p, distance: Math.hypot(p.x - point.x, p.y - point.y) }))
       .sort((a, b) => a.distance - b.distance);
-    if (this.#mode === "extend") {
+    if (edit.kind === "extend") {
       const candidate = ports.find(
         ({ port, distance }) =>
           this.#openEnds.has(key(port)) && (portId || distance <= radius || id),
@@ -272,7 +397,7 @@ export class TrackTools {
       this.#extend(point, candidate?.port);
       return;
     }
-    if (this.#mode === "trace") {
+    if (edit.kind === "trace") {
       const value = select("trace-from").value;
       const start = analysis.ports.find((p) => key(p) === value);
       if (!start || (!id && (ports[0]?.distance ?? Infinity) > radius)) return;
@@ -283,94 +408,200 @@ export class TrackTools {
         if (route !== undefined) break;
       }
       this.#route = route ?? [];
-      this.#selected = id ?? ports[0]?.port.pieceId;
+      this.#selected = new Set(targetId ? [targetId] : []);
       const message = route
         ? `Connected route through ${route.filter((link) => link.kind === "internal").length} track sections.`
         : "No connected route from that entrance.";
       element("route-info").textContent = message;
       this.#hooks.notice(message, !route);
-    } else {
-      this.#selected = id;
-      this.#route = [];
-      element("route-info").textContent = "";
     }
     this.#selectionInfo();
     this.#hooks.render();
   }
 
-  beginMove(point: Point, target: Element): boolean {
-    if (this.#mode || !this.#selected) return false;
+  beginMove(point: Point, target: Element): "drag" | "pan" | "blocked" {
+    if (this.#arrangement || this.#interaction.kind !== "select") return "pan";
     const id = target.closest<SVGElement>("[data-piece-id]")?.dataset["pieceId"];
-    if (id !== this.#selected) return false;
+    if (!id) return "pan";
     const project = this.#hooks.analysis().project;
     const item = project.items.find((entry) => entry.id === id);
-    if (!item || item.kind !== "track") return false;
-    if (project.area.exits.some((exit) => exit.outer.pieceId === id || exit.inner.pieceId === id)) {
-      this.#hooks.notice(
-        "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.",
-        true,
-      );
-      return false;
+    if (!item || item.kind !== "track") return "pan";
+    if (!this.#selected.has(id)) this.#selected = new Set([id]);
+    const selected = this.#selectedTrack();
+    if (protectedTrack(project, this.#selected)) {
+      this.#selectionInfo();
+      this.#hooks.render();
+      return "blocked";
     }
-    // Clearing an arrangement preview redraws the scene, so collect the new SVG nodes.
-    this.#hooks.cancelArrangement();
-    const drawings = Array.from(element("tabletop").querySelectorAll<SVGElement>("[data-piece-id]"))
-      .filter((node) => node.dataset["pieceId"] === id)
-      .map((node) => ({ node, transform: node.getAttribute("transform") }));
-    this.#moving = { item, start: point, drawings };
-    return true;
+    this.#startTranslation("drag", selected, point);
+    return "drag";
   }
 
-  move(point: Point): void {
-    const moving = this.#moving;
-    if (!moving) return;
-    const dx = Math.round(point.x - moving.start.x);
-    const dy = Math.round(point.y - moving.start.y);
-    for (const { node, transform } of moving.drawings) {
-      node.setAttribute("transform", `translate(${dx} ${dy}) ${transform ?? ""}`);
-    }
+  move(point: Point, radius: number): void {
+    const edit = this.#interaction;
+    if (edit.kind !== "drag") return;
+    edit.last = { point, radius };
+    if (this.#dragFrame !== undefined) return;
+    this.#dragFrame = requestAnimationFrame(() => {
+      this.#dragFrame = undefined;
+      if (this.#interaction === edit && edit.last)
+        this.#updateTranslation(edit, edit.last.point, edit.last.radius);
+    });
   }
 
-  endMove(point: Point, cancelled: boolean): void {
-    const moving = this.#moving;
-    if (!moving) return;
-    this.#clearMove();
+  endMove(point: Point, radius: number, cancelled: boolean): void {
+    const edit = this.#interaction;
+    if (edit.kind !== "drag") return;
     if (!cancelled) {
-      this.#commitMove({
-        ...moving.item,
-        x: moving.item.x + Math.round(point.x - moving.start.x),
-        y: moving.item.y + Math.round(point.y - moving.start.y),
-      });
+      this.#updateTranslation(edit, point, radius);
+      if (edit.preview?.kind === "ready") {
+        this.#applyPreview();
+        return;
+      }
     }
+    this.stopPicking();
+    this.#hooks.renderPreview();
+    if (!cancelled && edit.preview?.kind === "blocked" && edit.preview.items.length)
+      this.#hooks.notice(edit.preview.message, true);
   }
 
-  #clearMove(): void {
-    if (!this.#moving) return;
-    for (const { node, transform } of this.#moving.drawings) {
-      if (transform === null) node.removeAttribute("transform");
-      else node.setAttribute("transform", transform);
-    }
-    this.#moving = undefined;
+  #startMove(): void {
+    const selected = this.#selectedTrack();
+    const [first] = selected;
+    if (!first || protectedTrack(this.#hooks.analysis().project, this.#selected)) return;
+    this.#startTranslation("move", selected, first);
   }
 
-  #placeCopy(point: Point): void {
-    if (!this.#copied) return;
+  #startCopy(source: TrackItem): void {
     const item: TrackItem = {
-      ...this.#copied,
+      ...source,
       id: projectId("track"),
-      x: Math.round(point.x),
-      y: Math.round(point.y),
       groupId: undefined,
       arrangementId: undefined,
     };
-    const result = commitItems(this.#hooks.analysis().project, this.#catalog, { items: [item] });
-    if (!result.project) {
-      this.#hooks.notice(result.issues[0]?.message ?? "This copy does not fit here.", true);
+    this.#startTranslation("duplicate", [item], item);
+  }
+
+  #startTranslation(
+    kind: TranslationEdit["kind"],
+    items: readonly TrackItem[],
+    origin: Point,
+  ): void {
+    this.cancel();
+    const geometry = prepareTranslation(
+      this.#hooks.analysis(),
+      this.#catalog,
+      items,
+      kind !== "duplicate",
+    );
+    this.#interaction = {
+      kind,
+      items,
+      origin,
+      geometry,
+      targets: new Map(translationTargets(geometry).map((port) => [key(port), port])),
+    };
+    this.#selectionInfo();
+    this.#hooks.render();
+    if (kind !== "drag") element("tabletop").focus({ preventScroll: true });
+  }
+
+  #updateTranslation(edit: TranslationEdit, point: Point, radius: number, end?: string): void {
+    edit.last = { point, radius, end };
+    const shift = { x: point.x - edit.origin.x, y: point.y - edit.origin.y };
+    const destination = chooseDestination(
+      edit.geometry,
+      shift,
+      radius,
+      this.#fine,
+      this.#fine ? undefined : end,
+    );
+    const previous = edit.destination;
+    if (
+      previous?.shift.x === destination.shift.x &&
+      previous.shift.y === destination.shift.y &&
+      previous.snap?.from === destination.snap?.from &&
+      previous.snap?.to === destination.snap?.to &&
+      previous.blocked === destination.blocked
+    )
       return;
+    edit.destination = destination;
+    edit.preview = previewTranslation(
+      this.#hooks.analysis(),
+      this.#catalog,
+      edit.geometry,
+      edit.items,
+      destination,
+    );
+    this.#editControls();
+    this.#hooks.renderPreview();
+  }
+
+  #selectArrangement(): void {
+    const [item] = this.#selectedTrack();
+    if (!item?.groupId || this.#selected.size !== 1) return;
+    const group = visibleTrackItems(this.#hooks.analysis().project).filter(
+      (candidate) => candidate.groupId === item.groupId,
+    );
+    this.#selected = new Set(group.map(({ id }) => id));
+    this.#selectionInfo();
+    this.#hooks.render();
+    element("tabletop").focus({ preventScroll: true });
+  }
+
+  #startConnect(): void {
+    this.cancel();
+    this.#interaction = { kind: "connect" };
+    this.#editControls();
+    this.#hooks.render();
+    element("tabletop").focus({ preventScroll: true });
+  }
+
+  #pickGapEnd(
+    edit: Extract<Interaction, { kind: "connect" }>,
+    point: Point,
+    radius: number,
+    endpoint?: string,
+  ): void {
+    let end = endpoint && this.#openEnds.get(endpoint);
+    if (!endpoint) {
+      let nearest = radius;
+      for (const candidate of this.#openEnds.values()) {
+        const distance = Math.hypot(candidate.x - point.x, candidate.y - point.y);
+        if (distance >= nearest) continue;
+        nearest = distance;
+        end = candidate;
+      }
     }
-    this.#hooks.commit(result.project);
-    this.selectPiece(item.id);
-    this.#hooks.notice("Pasted track piece.");
+    if (!end)
+      edit.preview = blockedEdit(
+        "Choose one of the highlighted open rail ends.",
+        [],
+        edit.first ? [edit.first] : [],
+      );
+    else if (!edit.first || key(edit.first) === key(end)) {
+      edit.first = end;
+      edit.preview = undefined;
+    } else edit.preview = previewGap(this.#hooks.analysis(), this.#catalog, edit.first, end);
+    this.#editControls();
+    this.#hooks.renderPreview();
+  }
+
+  #applyPreview(): void {
+    const edit = this.#interaction;
+    if (!("preview" in edit) || edit.preview?.kind !== "ready") return;
+    const focused = element("placement-actions").contains(document.activeElement);
+    if (edit.kind === "duplicate") this.#selected = new Set(edit.items.map(({ id }) => id));
+    this.#hooks.commit(edit.preview.project);
+    const count = edit.preview.items.length;
+    const receipt =
+      edit.kind === "connect"
+        ? `Connected both ends with ${count} ${count === 1 ? "piece" : "pieces"}.`
+        : edit.kind === "duplicate"
+          ? "Placed duplicate track."
+          : `Moved ${count === 1 ? "track piece" : `${count} track pieces`}.`;
+    this.#hooks.notice([receipt, edit.preview.message].filter(Boolean).join(" "));
+    if (focused) element("tabletop").focus({ preventScroll: true });
   }
 
   #extend(point: Point, target?: Analysis["ports"][number], centered = false): void {
@@ -397,111 +628,161 @@ export class TrackTools {
       this.#hooks.notice(message, true);
       return;
     }
+    this.#selected = new Set([id]);
     this.#hooks.commit(result.project);
-    this.#mode = "extend";
-    this.#selected = id;
-    this.#selectionInfo();
-    this.#hooks.render();
-    const message = `Placed ${part.name}. Choose another open end to continue, or press Escape.`;
+    const message = `Placed ${part.name}.`;
     element("piece-info").textContent = message;
     this.#hooks.notice(message);
   }
 
   #setPosition(): void {
-    const item = this.#hooks.analysis().project.items.find((entry) => entry.id === this.#selected);
-    if (!item || item.kind !== "track") return;
+    const [item] = this.#selectedTrack();
+    if (!item || this.#selected.size !== 1) return;
     const x = input("track-x").valueAsNumber;
     const y = input("track-y").valueAsNumber;
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-    this.#commitMove({ ...item, x, y });
+    this.#commitTransform(item, { ...item, x, y }, "Moved track piece.");
   }
 
-  #commitMove(item: TrackItem): void {
-    const project = this.#hooks.analysis().project;
-    const original = project.items.find(({ id }) => id === item.id);
-    if (!original || (original.x === item.x && original.y === item.y)) return;
-    if (
-      project.area.exits.some(
-        (exit) => exit.outer.pieceId === item.id || exit.inner.pieceId === item.id,
-      )
-    ) {
-      const message =
-        "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.";
-      this.#hooks.notice(message, true);
+  #rotate(degrees: number): void {
+    const [item] = this.#selectedTrack();
+    if (!item || this.#selected.size !== 1) return;
+    const angle = ((item.angle % 360) + degrees + 360) % 360;
+    this.#commitTransform(item, { ...item, angle }, "Rotated track piece.");
+  }
+
+  #commitTransform(original: TrackItem, item: TrackItem, message: string): void {
+    if (original.x === item.x && original.y === item.y && original.angle === item.angle) return;
+    const analysis = this.#hooks.analysis();
+    if (protectedTrack(analysis.project, this.#selected)) {
+      this.#hooks.notice(protectedMessage, true);
       return;
     }
-    const withoutItem = {
-      ...project,
-      items: project.items.filter((entry) => entry.id !== item.id),
-    };
-    const result = commitItems(withoutItem, this.#catalog, { items: [item] });
-    if (!result.project) {
-      const message = result.issues[0]?.message ?? "This track does not fit there.";
-      this.#hooks.notice(message, true);
+    this.cancel();
+    const context = prepareTranslation(analysis, this.#catalog, [original], true);
+    const preview = checkEdit(
+      analysis,
+      this.#catalog,
+      context.stationary,
+      [item],
+      [],
+      context.outside,
+    );
+    if (preview.kind === "blocked") this.#hooks.notice(preview.message, true);
+    else {
+      this.#hooks.commit(preview.project);
+      this.#hooks.notice([message, preview.message].filter(Boolean).join(" "));
+    }
+  }
+
+  #editControls(): void {
+    const edit = this.#interaction;
+    const translation = edit.kind === "move" || edit.kind === "duplicate";
+    const staged = translation || edit.kind === "connect";
+    const selecting = !this.#arrangement && (edit.kind === "select" || edit.kind === "drag");
+    if (edit.kind !== "drag") {
+      const [selected] = this.#selected.values();
+      button("select-arrangement").hidden =
+        !selecting ||
+        this.#selected.size !== 1 ||
+        !this.#hooks
+          .analysis()
+          .project.items.some(
+            (item) => item.id === selected && item.kind === "track" && item.groupId,
+          );
+    }
+    element("selection-actions").hidden = !selecting;
+    element("placement-actions").hidden = selecting;
+    element("placement-grid").hidden = !translation;
+    button("place-edit").hidden = !staged;
+    button("place-edit").disabled = !("preview" in edit && edit.preview?.kind === "ready");
+    button("select-multiple").setAttribute("aria-pressed", String(this.#multiple));
+    element("tabletop").dataset["editTool"] = selecting ? "selection" : "placement";
+    const hint = element("track-edit-hint");
+    const preview = "preview" in edit ? edit.preview : undefined;
+    hint.toggleAttribute("data-error", preview?.kind === "blocked");
+    if (preview) {
+      if (edit.kind === "drag" && !preview.message) hint.textContent = "Release to place.";
+      else hint.textContent = preview.message || "Choose Place to keep this position.";
       return;
     }
-    this.#hooks.commit({
-      ...project,
-      items: project.items.map((entry) => (entry.id === item.id ? item : entry)),
-    });
-    this.#selected = item.id;
-    this.#selectionInfo();
-    this.#hooks.render();
-    this.#hooks.notice("Moved track piece.");
+    if (this.#arrangement)
+      hint.textContent = "Choose a location for the arrangement, or cancel to edit track.";
+    else if (edit.kind === "extend") hint.textContent = "Choose where to add the track piece.";
+    else if (edit.kind === "trace") hint.textContent = "Choose track to trace the route to.";
+    else if (edit.kind === "connect")
+      hint.textContent = edit.first
+        ? "Choose the second open rail end."
+        : "Choose the first open rail end.";
+    else if (translation)
+      hint.textContent =
+        edit.kind === "duplicate"
+          ? "Choose where the copy should go, then choose Place."
+          : "Choose a new position for the marked point, or choose a highlighted rail end.";
+    else if (edit.kind === "drag") hint.textContent = "Release to place.";
+    else if (protectedTrack(this.#hooks.analysis().project, this.#selected)) {
+      const { project } = this.#hooks.analysis();
+      const handoff = project.area.exits.find(
+        ({ outer, inner }) =>
+          this.#selected.has(outer.pieceId) || this.#selected.has(inner.pieceId),
+      );
+      hint.textContent =
+        this.#selected.size > 1
+          ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Remove it from the selection to move the other pieces.`
+          : "This track carries a named mainline exit and cannot be moved or deleted.";
+    } else if (this.#multiple)
+      hint.textContent = `${this.#selected.size} selected. Pick pieces to add or remove them.`;
+    else if (this.#selected.size)
+      hint.textContent = `${this.#selected.size} selected. Drag track or choose Move.`;
+    else hint.textContent = "Select a track piece to edit it.";
   }
 
   #selectionInfo(): void {
     const project = this.#hooks.analysis().project;
-    const item = project.items.find((item) => item.id === this.#selected);
+    const id = this.#selected.size === 1 ? this.#selected.values().next().value : undefined;
+    const item = project.items.find((item) => item.id === id);
     const name =
       item?.kind === "track"
         ? this.#catalog.parts.find((p) => p.id === item.partId)?.name
         : item?.name;
-    element("selection-info").textContent = name ?? "Select a track piece in the drawing.";
-    const protectedExit = project.area.exits.some(
-      (exit) => exit.outer.pieceId === item?.id || exit.inner.pieceId === item?.id,
-    );
+    element("selection-info").textContent =
+      this.#selected.size > 1
+        ? `${this.#selected.size} track pieces selected.`
+        : (name ?? "Select a track piece in the drawing.");
+    const protectedExit = protectedTrack(project, this.#selected);
     button("remove-piece").disabled = !item || protectedExit;
     const movable = item?.kind === "track" && !protectedExit;
+    button("move-track").disabled = protectedExit || !this.#selectedTrack().length;
+    button("rotate-track-left").disabled = !movable;
+    button("rotate-track-right").disabled = !movable;
+    button("duplicate-track").disabled = item?.kind !== "track";
+    button("connect-ends").disabled = this.#openEnds.size < 2;
     element("track-position").hidden = !movable;
-    element("track-edit-hint").textContent = this.pasting
-      ? pasteHint
-      : protectedExit
-        ? "This track carries a named mainline exit and cannot be moved or deleted."
-        : movable
-          ? "Drag the selected track, or use Move track in the inspector."
-          : "Select a piece to move or delete it.";
     if (movable && item.kind === "track") {
       input("track-x").value = String(item.x);
       input("track-y").value = String(item.y);
     }
-    renderBallast(project, this.#catalog, this.#selected, (changes) => {
+    renderBallast(project, this.#catalog, id, (changes) => {
       if (!item || item.kind !== "track") return;
       this.#hooks.commit({
         ...project,
         items: project.items.map((p) => (p === item ? { ...item, ...changes } : p)),
       });
-      this.selectPiece(item.id);
     });
+    this.#editControls();
   }
 
   remove(): void {
-    if (!this.#selected) return;
+    if (this.#selected.size !== 1 || this.#arrangement || this.#interaction.kind !== "select")
+      return;
     const project = this.#hooks.analysis().project;
-    if (
-      project.area.exits.some(
-        (exit) => exit.outer.pieceId === this.#selected || exit.inner.pieceId === this.#selected,
-      )
-    ) {
-      this.#hooks.notice(
-        "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.",
-        true,
-      );
+    if (protectedTrack(project, this.#selected)) {
+      this.#hooks.notice(protectedMessage, true);
       return;
     }
     this.#hooks.commit({
       ...project,
-      items: project.items.filter((item) => item.id !== this.#selected),
+      items: project.items.filter(({ id }) => !this.#selected.has(id)),
     });
     this.#hooks.notice("Removed track piece.");
   }

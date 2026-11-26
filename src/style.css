@@ -501,28 +501,9 @@ p {
 }
 .canvas-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
   gap: 0.42rem;
   padding: 0.4rem var(--panel-inset);
   border-bottom: 1px solid var(--line);
-}
-.canvas-toolbar #remove-piece {
-  justify-self: center;
-}
-.canvas-toolbar .edit-hint {
-  text-align: end;
-}
-@container (max-width: 28rem) {
-  .canvas-toolbar {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-  .canvas-toolbar #remove-piece {
-    grid-area: 2 / 1 / auto / -1;
-  }
-  .canvas-toolbar .edit-hint {
-    grid-area: 1 / 2;
-  }
 }
 .viewport {
   position: relative;

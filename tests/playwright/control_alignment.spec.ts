@@ -190,13 +190,15 @@ for (const viewport of viewports) {
       await rows("Project actions", ".project-actions", 4);
       await page.getByRole("button", { name: "Fit view", exact: true }).click();
       await shot("06_canvas_controls", ".workbench");
-      const toolbar = await inspect("Canvas toolbar", ".workbench", ".canvas-toolbar button", 3);
-      const remove = toolbar.find(({ name }) => name === "remove-piece");
-      if (remove) {
-        const { bounds } = evidence["Canvas toolbar"]!;
-        close(remove.left - bounds.left, bounds.right - remove.right, "Delete button centering");
+      await rows("Track tools", '.toolbar-group[aria-label="Track tools"]', 4);
+      await rows("Selected track actions", "#selection-actions", 5);
+      if (viewport.width <= 750) {
+        for (const { height } of [
+          ...evidence["Track tools"]!.controls,
+          ...evidence["Selected track actions"]!.controls,
+        ])
+          expect.soft(height, "Touch control height").toBeGreaterThanOrEqual(44);
       }
-      await rows("Undo and Redo", ".toolbar-group", 2);
       await rows("Zoom controls", ".zoom-controls", 4);
       const zoom = evidence["Zoom controls"]!.controls;
       if (zoom.length === 4) close(zoom[0]!.width, zoom[2]!.width, "Zoom in/out width");
@@ -248,7 +250,7 @@ for (const viewport of viewports) {
       await column("Route controls", ".inspector-controls", "select, button", 2);
 
       await page.locator("#scene-item-inner-2").click();
-      await page.getByText("Move track", { exact: true }).click();
+      await page.getByText("Exact position", { exact: true }).click();
       await shot("13_move_track", ".inspector-edit");
       await rows("Track position inputs", "#track-position .field-grid", 2, "input");
       await column("Track position form", "#track-position-form", ".field-grid, button", 2);

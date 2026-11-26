@@ -1,4 +1,5 @@
 import type { Analysis } from "./engine";
+import type { EditPreview } from "./editor_placement";
 import { defaultBaseplateColor } from "./appearance";
 import type { Catalog, Item, Project } from "./project";
 import {
@@ -50,7 +51,7 @@ export type SceneOptions = {
   cropToTrack?: boolean;
   sharing?: boolean;
   interaction?: "pieces" | "ports" | "placement";
-  /** Open ports available as the next endpoint while extending a track. */
+  /** Rail ends available to the active canvas tool. */
   extendable?: Pick<ReadonlySet<string>, "has">;
   sidingSpace?: boolean;
   reuse?: SVGSVGElement;
@@ -70,6 +71,7 @@ type SceneLayers = {
   guides: SVGGElement;
   tracks: SVGGElement;
   overlays: SVGGElement;
+  editPreview: SVGGElement;
   ports: SVGGElement;
   itemLabels: SVGGElement;
   labels: SVGGElement;
@@ -202,10 +204,11 @@ function portDrawing(
     "data-ambiguous": String(port.ambiguous ?? false),
     "data-extendable": String(extendable),
     "aria-label": extendable
-      ? `Connect a new track piece at ${port.pieceId} / ${port.portId}`
+      ? `Open rail end at ${Number(port.x.toFixed(1))}, ${Number(port.y.toFixed(1))} studs, ${port.pieceId} / ${port.portId}`
       : `${port.pieceId} / ${port.portId}`,
   });
   if (options.interaction === "ports" && (!options.extendable || extendable)) {
+    group.id = `scene-port-${encodeURIComponent(portKey)}`;
     group.setAttribute("role", "button");
     group.setAttribute("tabindex", "0");
   }
@@ -217,6 +220,9 @@ function portDrawing(
         cy: port.y,
         r: extendable ? 5 : options.interaction === "ports" ? 4 : 2.8,
         fill: "transparent",
+        ...(extendable
+          ? { stroke: "transparent", "stroke-width": 14, "vector-effect": "non-scaling-stroke" }
+          : {}),
       }),
     );
   if (extendable)
@@ -463,6 +469,11 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     guides: svg("g", { "pointer-events": "none" }),
     tracks: svg("g"),
     overlays: svg("g", { "pointer-events": "none" }),
+    editPreview: svg("g", {
+      "pointer-events": "none",
+      "aria-hidden": "true",
+      "data-edit-preview": "",
+    }),
     ports: svg("g"),
     itemLabels: svg("g", { "pointer-events": "none" }),
     labels: svg("g", { "pointer-events": "none" }),
@@ -478,6 +489,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     layers.tracks,
     layers.overlays,
     layers.ports,
+    layers.editPreview,
     layers.itemLabels,
     layers.labels,
   );
@@ -485,6 +497,61 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
   setSceneDetail(scene, 0);
   sceneLayers.set(scene, layers);
   return [scene, layers];
+}
+
+export function drawEditPreview(scene: SVGSVGElement, preview?: EditPreview): void {
+  const layers = sceneLayers.get(scene);
+  if (!layers) return;
+  const { editPreview } = layers;
+  editPreview.replaceChildren();
+  if (!preview) return;
+  const ink = preview.kind === "blocked" && preview.message ? warningInk : selectionInk;
+  for (const item of preview.items) {
+    const part = layers.catalog.parts.find(({ id }) => id === item.partId);
+    if (!part) continue;
+    const drawing = trackDrawing(item, part, true, true, emptyBounds(), layers, undefined).node;
+    drawing.removeAttribute("data-piece-id");
+    editPreview.append(
+      drawing,
+      path(
+        part.footprint,
+        {
+          transform: poseTransform(item),
+          fill: "none",
+          stroke: ink,
+          "stroke-width": 1.5,
+          "stroke-dasharray": "4 3",
+          "vector-effect": "non-scaling-stroke",
+        },
+        true,
+      ),
+    );
+  }
+  for (const point of preview.marks) {
+    editPreview.append(
+      svg("circle", {
+        cx: point.x,
+        cy: point.y,
+        r: 2.8,
+        fill: "none",
+        stroke: ink,
+        "stroke-width": 2.5,
+        "vector-effect": "non-scaling-stroke",
+      }),
+    );
+  }
+  for (const point of preview.opened ?? []) {
+    const size = 2;
+    editPreview.append(
+      svg("path", {
+        d: `M ${point.x - size} ${point.y - size} l 4 4 m -4 0 l 4 -4`,
+        fill: "none",
+        stroke: warningInk,
+        "stroke-width": 2.5,
+        "vector-effect": "non-scaling-stroke",
+      }),
+    );
+  }
 }
 
 export function createScene(

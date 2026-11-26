@@ -5,8 +5,10 @@ type Bounds = Point & { width: number; height: number };
 type Gesture = {
   first: Point;
   target: Element;
-  moved: boolean;
-  dragging: boolean;
+  primary: boolean;
+  selectMultiple: boolean;
+  canDragTrack: boolean;
+  action?: "drag" | "pan" | "blocked";
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
@@ -25,10 +27,10 @@ export class EditorCamera {
   constructor(
     host: HTMLElement,
     hooks: {
-      tap: (point: Point, target: Element) => void;
-      beginDrag?: (point: Point, target: Element) => boolean;
-      drag?: (point: Point) => void;
-      endDrag?: (point: Point, cancelled: boolean) => void;
+      tap: (point: Point, target: Element, selectMultiple: boolean) => void;
+      beginDrag: (point: Point, target: Element) => "drag" | "pan" | "blocked";
+      drag: (point: Point) => void;
+      endDrag: (point: Point, cancelled: boolean) => void;
     },
   ) {
     this.#host = host;
@@ -71,7 +73,17 @@ export class EditorCamera {
     window.addEventListener("keyup", (event) => {
       if (event.code === "Space") host.removeAttribute("data-space-pan");
     });
-    window.addEventListener("blur", () => host.removeAttribute("data-space-pan"));
+    window.addEventListener("blur", () => {
+      host.removeAttribute("data-space-pan");
+      const gesture = this.#gesture;
+      this.#gesture = undefined;
+      this.#pinch = undefined;
+      if (gesture?.action === "drag") hooks.endDrag(gesture.first, true);
+      for (const id of this.#pointers.keys()) {
+        if (host.hasPointerCapture(id)) host.releasePointerCapture(id);
+      }
+      this.#pointers.clear();
+    });
     window.addEventListener("keydown", (event) => {
       if (
         !this.#bounds ||
@@ -97,25 +109,24 @@ export class EditorCamera {
     });
     host.addEventListener("pointerdown", (event) => {
       const target = event.target;
-      if (!(target instanceof Element) || event.button === 2) return;
+      if (!(target instanceof Element) || ![0, 1].includes(event.button)) return;
       const point = { x: event.clientX, y: event.clientY };
       this.#pointers.set(event.pointerId, point);
       host.setPointerCapture(event.pointerId);
       if (this.#pointers.size === 1) {
+        const primary = event.button === 0 && !host.hasAttribute("data-space-pan");
         this.#gesture = {
           first: point,
           target,
-          moved: false,
-          dragging:
-            event.button === 0 &&
-            !host.hasAttribute("data-space-pan") &&
-            (hooks.beginDrag?.(this.world(point.x, point.y), target) ?? false),
+          primary,
+          selectMultiple: event.shiftKey,
+          canDragTrack: primary && event.pointerType === "mouse" && !event.shiftKey,
         };
       } else if (this.#pointers.size === 2) {
         const initial = this.#pair();
         if (!initial || !this.#bounds) return;
-        if (this.#gesture?.dragging)
-          hooks.endDrag?.(this.world(initial.mid.x, initial.mid.y), true);
+        if (this.#gesture?.action === "drag")
+          hooks.endDrag(this.world(initial.mid.x, initial.mid.y), true);
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
@@ -135,14 +146,17 @@ export class EditorCamera {
       }
       const gesture = this.#gesture;
       if (!gesture) return;
-      if (!gesture.moved) {
+      if (!gesture.action) {
         if (Math.hypot(point.x - gesture.first.x, point.y - gesture.first.y) < 5) return;
-        gesture.moved = true;
+        gesture.action = gesture.canDragTrack
+          ? hooks.beginDrag(this.world(gesture.first.x, gesture.first.y), gesture.target)
+          : "pan";
       }
-      if (gesture.dragging) {
-        hooks.drag?.(this.world(point.x, point.y));
+      if (gesture.action === "drag") {
+        hooks.drag(this.world(point.x, point.y));
         return;
       }
+      if (gesture.action === "blocked") return;
       const old = this.#view(before.x, before.y);
       const next = this.#view(point.x, point.y);
       this.#pan(old.x - next.x, old.y - next.y);
@@ -153,9 +167,23 @@ export class EditorCamera {
       const gesture = this.#gesture;
       this.#gesture = undefined;
       if (!gesture) return;
-      const point = this.world(event.clientX, event.clientY);
-      if (gesture.dragging) hooks.endDrag?.(point, event.type !== "pointerup" || !gesture.moved);
-      if (!gesture.moved && event.type === "pointerup") hooks.tap(point, gesture.target);
+      const { clientX, clientY } = event;
+      const point = this.world(clientX, clientY);
+      const rect = host.getBoundingClientRect();
+      const inside =
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom;
+      const released = event.type === "pointerup" && inside;
+      if (gesture.action === "drag") hooks.endDrag(point, !released);
+      if (
+        !gesture.action &&
+        released &&
+        gesture.primary &&
+        Math.hypot(clientX - gesture.first.x, clientY - gesture.first.y) < 5
+      )
+        hooks.tap(point, gesture.target, gesture.selectMultiple);
     };
     host.addEventListener("pointerup", finish);
     host.addEventListener("pointercancel", finish);
@@ -163,7 +191,12 @@ export class EditorCamera {
     // Keyboard-generated clicks have no pointer sequence.
     host.addEventListener("click", (event) => {
       if (event.detail !== 0 || !(event.target instanceof SVGElement)) return;
-      hooks.tap(this.#turn(this.#center, -this.#angle), event.target);
+      const rect = event.target.getBoundingClientRect();
+      hooks.tap(
+        this.world(rect.x + rect.width / 2, rect.y + rect.height / 2),
+        event.target,
+        event.shiftKey,
+      );
     });
   }
 

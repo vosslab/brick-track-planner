@@ -4,6 +4,12 @@
 
 ### Behavior or Interface Changes
 
+- Drag track directly with a mouse, or choose Move and preview a destination
+  on touch. Move selected pieces and installed arrangements as a unit.
+- Snap moves to compatible rail ends or shift in 8-stud steps. Offer 1-stud
+  placement, quarter-turn rotation, and duplication beside the drawing.
+- Fill a straight gap between open rail ends with catalog parts. Preview the
+  parts and validate both joints before placing the run as one undoable edit.
 - Copy and paste selected track with Command+C and Command+V on macOS or Ctrl+C
   and Ctrl+V elsewhere. Place each copy in the drawing as an undoable edit.
 - Add 8TRY, a 60 by 40 inch yard with two four-track ladders and a shared
@@ -54,6 +60,7 @@
 
 ### Fixes and Maintenance
 
+- Allow the HTML-to-PDF command's error and success output in the local lint configuration.
 - Keep parts quantities on one line when the part name wraps in the inspector.
 - Match the R40 left turnout footprint to its mirrored right counterpart
   so the measured left ladder fits.

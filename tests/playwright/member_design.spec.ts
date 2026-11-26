@@ -1,7 +1,42 @@
 import { expect } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 import straightExamples from "../../data/straight_examples.json" with { type: "json" };
+import catalog from "../../data/catalog.json" with { type: "json" };
+import { saveTrackPlan } from "../../src/ldraw";
+import type { Catalog, Project, TrackItem } from "../../src/project";
 import { boot, createProject, saveProject, test, watchErrors } from "./helper_planner";
+
+function drawingPoint(drawing: Locator, x: number, y: number): Promise<{ x: number; y: number }> {
+  return drawing.evaluate(
+    (element, { x, y }) => {
+      const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
+      const screen = new DOMPoint(x, y).matrixTransform(matrix);
+      return { x: screen.x, y: screen.y };
+    },
+    { x, y },
+  );
+}
+
+function straight(id: string, x: number, y: number, angle = 0, heightPlates = 0): TrackItem {
+  return { id, x, y, angle, kind: "track", partId: "lego:rc-s16", layerId: "layout", heightPlates };
+}
+
+async function openEditingPlan(page: Page, items: TrackItem[]): Promise<Project> {
+  const project: Project = {
+    version: 3,
+    name: "Editing test yard",
+    area: { width: 128, depth: 192, fronts: [], exits: [] },
+    layers: [{ id: "layout", name: "Layout", visible: true }],
+    items,
+  };
+  await page.locator("#project-file").setInputFiles({
+    name: "yard.ldr",
+    mimeType: "text/plain",
+    buffer: Buffer.from(saveTrackPlan(project, catalog as Catalog)),
+  });
+  return project;
+}
 
 test("members can open each packaged track template", async ({ planner }) => {
   const templates = [
@@ -153,8 +188,9 @@ test("member creates a straight 60 by 40 NILTC design with automatic coverage", 
   const handoff = saved.project.area.exits[0]!.outer.pieceId;
   await page.locator(`#scene-item-${encodeURIComponent(handoff)}`).click();
   await expect(page.getByRole("button", { name: "Delete selected track" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Move", exact: true })).toBeDisabled();
   await expect(page.locator("#track-edit-hint")).toContainText(/named mainline/i);
-  await expect(page.getByText("Move track", { exact: true })).toBeHidden();
+  await expect(page.getByText("Exact position", { exact: true })).toBeHidden();
   expect(errors).toEqual([]);
 });
 
@@ -315,7 +351,10 @@ test("a general plan starts with a single piece and names its first action", asy
   await expect(page.getByRole("button", { name: "Place at center", exact: true })).toBeEnabled();
 });
 
-test("members can move, delete and undo edits to a selected piece", async ({ page, hasTouch }) => {
+test("members can move by dragging or tapping, edit exact position, and undo", async ({
+  page,
+  hasTouch,
+}) => {
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "general", width: "128", depth: "192" });
   const remove = page.getByRole("button", { name: "Delete selected track", exact: true });
@@ -328,34 +367,58 @@ test("members can move, delete and undo edits to a selected piece", async ({ pag
     name: "RC/PF straight S16",
     exact: true,
   });
-  if (hasTouch) await piece.tap();
-  else await piece.click();
-  await expect(remove).toBeEnabled();
   await page.getByRole("button", { name: "Rotate view clockwise" }).click();
 
-  const [from, to] = await piece.evaluate((element) => {
-    const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
-    return [new DOMPoint(0, 0), new DOMPoint(16, 16)].map((point) => {
-      const { x, y } = point.matrixTransform(matrix);
-      return { x, y };
-    });
-  });
+  const canvas = page.locator("#tabletop");
   if (hasTouch) {
-    const touch = await page.context().newCDPSession(page);
-    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [from!] });
-    await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [to!] });
-    await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    await touch.detach();
+    await piece.tap();
+    await page.getByRole("button", { name: "Move", exact: true }).click();
+  }
+  await canvas.scrollIntoViewIfNeeded();
+  const draw = canvas.locator("[data-scene-drawing]");
+  const from = await drawingPoint(draw, item.x, item.y);
+  const to = await drawingPoint(draw, item.x + 16, item.y + 16);
+  if (hasTouch) {
+    await page.touchscreen.tap(to.x, to.y);
+    await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
+    expect((await saveProject(page)).project).toEqual(original);
+    await page.getByRole("button", { name: "Place", exact: true }).click();
   } else {
-    await page.mouse.move(from!.x, from!.y);
+    await page.mouse.move(from.x, from.y);
     await page.mouse.down();
-    await page.mouse.move(to!.x, to!.y, { steps: 3 });
+    await page.mouse.move(to.x, to.y, { steps: 3 });
+    await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
     await page.mouse.up();
   }
   const moved = (await saveProject(page)).project;
   expect(moved.items).toEqual([{ ...item, x: item.x + 16, y: item.y + 16 }]);
+  const undo = page.getByRole("button", { name: "Undo", exact: true });
+  const frame = await canvas.locator("svg[data-track-scene]").getAttribute("viewBox");
+  await page.getByRole("button", { name: "Rotate right", exact: true }).click();
+  expect((await saveProject(page)).project.items).toEqual([{ ...moved.items[0], angle: 90 }]);
+  await undo.click();
+  await expect(canvas.locator("svg[data-track-scene]")).toHaveAttribute("viewBox", frame!);
 
-  await page.getByText("Move track", { exact: true }).click();
+  if (hasTouch) {
+    await page.getByRole("button", { name: "Move", exact: true }).click();
+    await canvas.scrollIntoViewIfNeeded();
+    const next = await drawingPoint(draw, item.x + 32, item.y + 16);
+    await page.touchscreen.tap(next.x, next.y);
+    await expect(page.getByRole("button", { name: "Place", exact: true })).toBeEnabled();
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  } else {
+    const start = await drawingPoint(draw, item.x + 16, item.y + 16);
+    const next = await drawingPoint(draw, item.x + 32, item.y + 16);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(next.x, next.y, { steps: 3 });
+    await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.mouse.up();
+  }
+  expect((await saveProject(page)).project).toEqual(moved);
+
+  await page.getByText("Exact position", { exact: true }).click();
   const x = page.getByRole("spinbutton", { name: "X in studs" });
   const y = page.getByRole("spinbutton", { name: "Y in studs" });
   await x.fill("40");
@@ -370,8 +433,7 @@ test("members can move, delete and undo edits to a selected piece", async ({ pag
   expect((await saveProject(page)).project).toEqual(positioned);
 
   await remove.click();
-  expect((await saveProject(page)).project.items).toEqual([]);
-  const undo = page.getByRole("button", { name: "Undo", exact: true });
+  await expect(piece).toHaveCount(0);
   await undo.click();
   expect((await saveProject(page)).project).toEqual(positioned);
   await undo.click();
@@ -399,23 +461,133 @@ test("members can copy and paste a piece at a valid position, then undo", async 
   await page.keyboard.press(`${modifier}+v`);
   await expect(canvas).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(status).toContainText("overlap");
+  await expect(page.locator("#track-edit-hint")).toContainText("overlap");
+  await page.getByRole("combobox", { name: "Placement", exact: true }).selectOption("fine");
+  await canvas.scrollIntoViewIfNeeded();
 
   const destination = await canvas.locator("[data-scene-drawing]").evaluate((drawing) => {
     const matrix = (drawing as SVGGraphicsElement).getScreenCTM()!;
-    const { x, y } = new DOMPoint(40, 48).matrixTransform(matrix);
+    const { x, y } = new DOMPoint(41, 49).matrixTransform(matrix);
     return { x, y };
   });
   await page.mouse.click(destination.x, destination.y);
-  await expect(status).toContainText("Pasted track piece");
+  await page.getByRole("button", { name: "Place", exact: true }).click();
+  await expect(status).toContainText("Placed duplicate track");
   const duplicated = (await saveProject(page)).project;
   expect(duplicated.items).toHaveLength(2);
   expect(duplicated.items[0]).toEqual(original.items[0]);
   const copy = duplicated.items[1]!;
   expect(copy.id).not.toBe(original.items[0]!.id);
-  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 40, y: 48 });
+  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 41, y: 49 });
   await page.keyboard.press(`${modifier}+z`);
   expect((await saveProject(page)).project).toEqual(original);
+  await piece.press("Enter");
+  await page.getByRole("button", { name: "Move", exact: true }).click();
+  await expect(page.getByRole("combobox", { name: "Placement", exact: true })).toHaveValue("club");
+});
+
+test("a yard selection snaps as a unit and Connect fills a straight gap", async ({
+  page,
+  hasTouch,
+}) => {
+  await boot(page, { startProject: false });
+  const groupId = "installed-run";
+  const project = await openEditingPlan(page, [
+    { ...straight("west", 32, 48), groupId },
+    { ...straight("middle", 48, 48), groupId },
+    straight("east", 96, 48),
+    straight("parallel", 96, 84),
+  ]);
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  const hint = page.locator("#track-edit-hint");
+  const place = page.getByRole("button", { name: "Place", exact: true });
+  const move = page.getByRole("button", { name: "Move", exact: true });
+  const undo = page.getByRole("button", { name: "Undo", exact: true });
+  const piece = (id: string): Locator => canvas.locator(`#scene-item-${id}`);
+  const end = (id: string, port: string): Locator =>
+    canvas.locator(`[data-piece-id="${id}"][data-port-id="${port}"]`);
+
+  if (hasTouch) {
+    await page.getByRole("button", { name: "Select multiple" }).click();
+    await piece("west").tap();
+    await piece("middle").tap();
+  } else {
+    await piece("west").click();
+    await piece("middle").click({ modifiers: ["Shift"] });
+  }
+  await expect(hint).toContainText("2 selected");
+  await expect(page.getByRole("button", { name: "Rotate right" })).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await piece("west").click();
+  await page.getByRole("button", { name: "Select arrangement" }).click();
+  await expect(hint).toContainText("2 selected");
+  await move.click();
+  await end("east", "a").press("Enter");
+  await expect(hint).toContainText("Snaps to");
+  await expect(place).toBeFocused();
+  await page.keyboard.press("Enter");
+  const moved = (await saveProject(page)).project;
+  expect(moved.items).toEqual([
+    { ...project.items[0], x: 64 },
+    { ...project.items[1], x: 80 },
+    ...project.items.slice(2),
+  ]);
+  await expect(end("west", "b")).toHaveAttribute("data-open", "false");
+  await expect(end("east", "a")).toHaveAttribute("data-open", "false");
+  await undo.click();
+  expect((await saveProject(page)).project).toEqual(project);
+
+  await page.getByRole("button", { name: "Connect two ends" }).click();
+  await end("middle", "b").click();
+  await end("parallel", "a").click();
+  await expect(hint).toContainText("same straight line");
+  await expect(place).toBeDisabled();
+  await end("east", "a").click();
+  await expect(hint).toContainText("32 studs");
+  await expect(hint).toContainText("2 × RC/PF straight S16");
+  await place.click();
+  const connected = (await saveProject(page)).project;
+  expect(connected.items.slice(0, 4)).toEqual(project.items);
+  expect(connected.items.slice(4).map(({ x, y }) => [x, y])).toEqual([
+    [64, 48],
+    [80, 48],
+  ]);
+  await expect(end("middle", "b")).toHaveAttribute("data-open", "false");
+  await expect(end("east", "a")).toHaveAttribute("data-open", "false");
+  await undo.click();
+  expect((await saveProject(page)).project).toEqual(project);
+});
+
+test("straight gap preview rejects an obstructed run, a fractional gap, and mismatched heights", async ({
+  page,
+}) => {
+  await boot(page, { startProject: false });
+  const project = await openEditingPlan(page, [
+    straight("obstructed-from", 32, 32),
+    straight("obstructed-to", 96, 32),
+    straight("blocker", 64, 32, 90),
+    straight("fractional-from", 32, 72),
+    straight("fractional-to", 96.5, 72),
+    straight("raised-from", 32, 112),
+    straight("raised-to", 96, 112, 0, 2),
+  ]);
+  const connect = page.getByRole("button", { name: "Connect two ends" });
+  const cancel = page.getByRole("button", { name: "Cancel", exact: true });
+  const place = page.getByRole("button", { name: "Place", exact: true });
+  for (const [id, reason] of [
+    ["obstructed", /overlaps/],
+    ["fractional", /cannot fill this gap exactly/],
+    ["raised", /same height/],
+  ] as const) {
+    await connect.click();
+    await page.locator(`#tabletop [data-piece-id="${id}-from"][data-port-id="b"]`).press("Enter");
+    await page.locator(`#tabletop [data-piece-id="${id}-to"][data-port-id="a"]`).press("Enter");
+    await expect(page.locator("#track-edit-hint")).toContainText(reason);
+    await expect(place).toBeDisabled();
+    await cancel.click();
+  }
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+  expect((await saveProject(page)).project).toEqual(project);
 });
 
 test("track controls stay inside their panels on a short laptop viewport", async ({ page }) => {

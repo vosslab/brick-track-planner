@@ -81,7 +81,7 @@ Choose **Single piece** to lay an individual rail. In an empty general layout,
 the default target is the center of the design area; choose **Place at center**
 to start there. Choose **Choose on the drawing** when you want to pick the
 location yourself. When exactly one private rail end is open, it is selected
-for you; choose **Connect piece** to extend it. Press Escape when you are done.
+for you. Choose **Connect piece** to extend it. Each placement returns you to track selection.
 [Watch the first piece being placed](SCREENSHOTS.md#place-a-single-piece).
 
 The arrangement picker shows the selected kit's footprint and the track it
@@ -137,21 +137,40 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-Click or tap a track piece to select it, then drag it to move it. For an exact
-position, open **Move track** in the inspector, enter X and Y in studs, and
-choose **Apply position**. X increases to the right and Y increases down.
-Use **Delete selected track** in the toolbar to remove the selection. A piece
-that carries a named mainline handoff must stay in place. Undo and Redo apply
-one design operation at a time. Drag empty space or scroll with two fingers
-to pan. Pinch or Control-scroll to zoom. Use the rotate button beside **Fit
-view** to turn the view 90 degrees clockwise. The saved plan keeps its original
-orientation and coordinates.
+With a mouse, grab a track piece and drag it. The outline shows where it
+will land when you release. With touch, tap a piece, choose **Move**, tap a
+destination, and choose **Place**. Tap a different destination to update the
+preview or use **Cancel** to return to the drawing.
 
-To duplicate a piece, select it and press **Command+C** on macOS or **Ctrl+C**
-elsewhere. Press **Command+V** or **Ctrl+V**, then click where the copy should
-go. Press **Enter** to place it at the center of the current view, or **Esc**
-to cancel. The copy keeps its angle and rail height. You can paste into
-another plan opened in the same tab.
+Use **Shift+click** or **Select multiple** to add and remove pieces from the
+selection. For an installed kit, choose one of its pieces and then
+**Select arrangement**. Move the selection together to keep its internal
+joints. The preview marks any joints to stationary track that the move opens.
+Track that carries a named mainline handoff must stay in place.
+
+Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
+Choose **1-stud grid** to make a smaller adjustment for that placement. For a
+single piece you can enter X and Y in studs under **Exact position** in the
+inspector. X increases to the right and Y increases down. The toolbar also
+offers **Rotate left**, **Rotate right**, **Duplicate**, and **Delete selected
+track** for a single piece. Each rotation is 90 degrees. **Undo** and
+**Redo** apply one design operation at a time.
+
+To fill a straight gap, choose **Connect two ends** and select two open
+rail ends. The ends need to face each other on the same line and at the
+same height. Review the gap length and parts, then choose **Place**. Use
+**Arrangement** to place larger components for turns and branches.
+
+With the keyboard, tab to a piece or highlighted rail end and press **Enter**
+to select it. Use **Place** to accept the preview and **Esc** to cancel. You
+can also copy a selected piece with **Command+C** or **Ctrl+C**, then use
+**Command+V** or **Ctrl+V** and choose a destination for the copy. Pressing
+**Enter** on the drawing previews the position at the center of the view.
+You can paste into another plan opened in the same tab.
+
+Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
+or trackpad. On touch, swipe to pan and pinch to zoom. The rotate button
+beside **Fit view** turns the view without rotating any track pieces.
 
 The parts panel totals physical pieces in the current design. The findings
 panel reports track outside the design area, protected NILTC mainline findings,

@@ -20,7 +20,7 @@ import {
 import { withParkingKits } from "./parking";
 import { newProject } from "./project";
 import type { Catalog, Project } from "./project";
-import { createScene } from "./scene";
+import { createScene, drawEditPreview } from "./scene";
 import { traceRoute } from "./route_trace";
 import { showInventory } from "./show_inventory";
 
@@ -57,19 +57,24 @@ class Planner {
     this.#catalog = catalog;
     const tabletop = element("tabletop");
     this.#camera = new EditorCamera(tabletop, {
-      tap: (point, target): void => {
-        if (!this.#arrangements.pick(point))
-          this.#tracks.pick(point, target, this.#camera.snapRadius);
+      tap: (point, target, multiple): void => {
+        if (this.#preview) this.#arrangements.pick(point);
+        else this.#tracks.pick(point, target, this.#camera.snapRadius, multiple);
       },
-      beginDrag: (point, target): boolean => this.#tracks.beginMove(point, target),
-      drag: (point): void => this.#tracks.move(point),
-      endDrag: (point, cancelled): void => this.#tracks.endMove(point, cancelled),
+      beginDrag: (point, target): "drag" | "pan" | "blocked" =>
+        this.#tracks.beginMove(point, target),
+      drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
+      endDrag: (point, cancelled): void =>
+        this.#tracks.endMove(point, this.#camera.snapRadius, cancelled),
     });
     this.#tracks = new TrackTools(catalog, {
       analysis: (): Analysis => this.#requireState().analysis,
       commit: (project): void => this.#commit(project),
       render: (): void => this.#draw(),
-      cancelArrangement: (): void => this.#arrangements.reset(),
+      renderPreview: (): void => this.#drawEditPreview(),
+      cancelArrangement: (): void => {
+        if (this.#preview) this.#arrangements.reset();
+      },
       notice,
     });
     this.#arrangements = new ArrangementTools(catalog, {
@@ -91,9 +96,9 @@ class Planner {
         ];
       },
       beginPreview: (): void => this.#tracks.stopPicking(),
-      endPreview: (): void => this.#tracks.stopPicking(),
       preview: (result): void => {
         this.#preview = result;
+        this.#tracks.setArrangementActive(Boolean(result));
         this.#draw();
       },
       commit: (project): void => this.#commit(project),
@@ -157,22 +162,26 @@ class Planner {
       } else if (shortcut && !event.altKey && !event.shiftKey && key === "v") {
         if (this.#tracks.startPaste()) event.preventDefault();
       } else if (event.key === "Escape") {
-        this.#reset();
+        if (!this.#tracks.cancel()) this.#reset(false, true);
       } else if (["Backspace", "Delete"].includes(event.key) && this.#tracks.selection.size) {
         event.preventDefault();
         this.#tracks.remove();
-      } else if (event.key === "Enter") {
+      } else if (event.key === "Enter" || event.key === " ") {
         const target = event.target;
         const placement =
-          target === tabletop && this.#tracks.pasting
+          target === tabletop && event.key === "Enter" && this.#tracks.pickingDestination
             ? tabletop
             : target instanceof SVGElement
-              ? target.closest<SVGElement>("[data-piece-id]")
+              ? target.closest<SVGElement>('[data-piece-id][role="button"]')
               : null;
         if (placement) {
+          event.preventDefault();
           const rect = placement.getBoundingClientRect();
           const point = this.#camera.world(rect.x + rect.width / 2, rect.y + rect.height / 2);
-          this.#tracks.pick(point, placement, this.#camera.snapRadius);
+          if (this.#preview) this.#arrangements.pick(point);
+          else this.#tracks.pick(point, placement, this.#camera.snapRadius, event.shiftKey);
+          if (this.#tracks.editPreview?.kind === "ready")
+            button("place-edit").focus({ preventScroll: true });
         }
       }
     });
@@ -195,7 +204,7 @@ class Planner {
     this.#arrangements.useDefaults();
     this.#tracks.useDefaultTool();
     this.#camera.reset();
-    this.#reset(true);
+    this.#reset(true, true);
     element("library-title").focus();
   }
 
@@ -205,15 +214,17 @@ class Planner {
   }
 
   #history(direction: "undo" | "redo"): void {
-    this.#requireState().change(direction);
-    this.#reset(true);
+    const state = this.#requireState();
+    if (direction === "undo" ? !state.canUndo : !state.canRedo) return;
+    state.change(direction);
+    this.#reset();
     notice(direction === "undo" ? "Edit undone." : "Edit restored.");
   }
 
-  #reset(fit = false): void {
+  #reset(fit = false, clearSelection = false): void {
     this.#preview = undefined;
     notice("");
-    this.#tracks.reset();
+    this.#tracks.reset(clearSelection);
     this.#arrangements.reset();
     const state = this.#requireState();
     const { project, analysis } = state;
@@ -252,16 +263,25 @@ class Planner {
             },
           )
         : analysis;
+    const focused = document.activeElement;
+    const focusedId =
+      focused instanceof SVGElement && this.#scene?.contains(focused) ? focused.id : "";
     this.#scene = createScene(working, this.#catalog, checked, {
       selection: this.#tracks.selection,
       trace: this.#tracks.route,
       interaction: this.#tracks.pickingPort ? "ports" : "pieces",
-      extendable: this.#tracks.extendablePorts,
+      extendable: this.#tracks.targetPorts,
       replacement: new Set(preview?.removedIds),
       addition: new Set(preview?.addedIds),
       reuse: this.#scene,
     });
     this.#camera.show(this.#scene, fit);
+    this.#drawEditPreview();
+    if (focusedId) document.getElementById(focusedId)?.focus({ preventScroll: true });
+  }
+
+  #drawEditPreview(): void {
+    if (this.#scene) drawEditPreview(this.#scene, this.#tracks.editPreview);
   }
 }
 

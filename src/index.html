@@ -152,16 +152,68 @@
         </aside>
         <section class="workbench" aria-label="Track plan workspace">
           <div class="canvas-toolbar">
-            <div class="toolbar-group">
+            <div class="toolbar-group" role="group" aria-label="Track tools">
               <button type="button" id="undo" disabled title="Undo (Ctrl/Command+Z)">Undo</button>
               <button type="button" id="redo" disabled title="Redo (Ctrl/Command+Shift+Z)">
                 Redo
               </button>
+              <button type="button" id="select-multiple" aria-pressed="false">
+                Select multiple
+              </button>
+              <button type="button" id="connect-ends" disabled>Connect two ends</button>
+              <button type="button" id="select-arrangement" hidden>Select arrangement</button>
             </div>
-            <button type="button" id="remove-piece" class="danger" disabled>
-              Delete selected track
-            </button>
-            <p id="track-edit-hint" class="edit-hint">Select a piece to move or delete it.</p>
+            <div
+              class="toolbar-group"
+              id="selection-actions"
+              role="group"
+              aria-label="Selected track actions"
+            >
+              <button type="button" id="move-track" disabled>Move</button>
+              <button
+                type="button"
+                id="rotate-track-left"
+                aria-label="Rotate left"
+                title="Rotate track 90 degrees left"
+                disabled
+              >
+                <span class="track-action-short" aria-hidden="true">&#x21B6;</span>
+                <span class="track-action-label">Rotate left</span>
+              </button>
+              <button
+                type="button"
+                id="rotate-track-right"
+                aria-label="Rotate right"
+                title="Rotate track 90 degrees right"
+                disabled
+              >
+                <span class="track-action-short" aria-hidden="true">&#x21B7;</span>
+                <span class="track-action-label">Rotate right</span>
+              </button>
+              <button type="button" id="duplicate-track" disabled>Duplicate</button>
+              <button
+                type="button"
+                id="remove-piece"
+                class="danger"
+                aria-label="Delete selected track"
+                disabled
+              >
+                <span class="track-action-short">Delete</span>
+                <span class="track-action-label">Delete selected track</span>
+              </button>
+            </div>
+            <div class="toolbar-group" id="placement-actions" role="group" aria-label="Placement" hidden>
+              <label class="screen-reader" for="placement-grid">Placement</label>
+              <select id="placement-grid" hidden>
+                <option value="club">Rail ends or 8-stud grid</option>
+                <option value="fine">1-stud grid</option>
+              </select>
+              <button type="button" id="place-edit" class="primary" disabled>Place</button>
+              <button type="button" id="cancel-edit">Cancel</button>
+            </div>
+            <p id="track-edit-hint" class="edit-hint" aria-live="polite">
+              Select a track piece to edit it.
+            </p>
           </div>
           <div class="viewport">
             <div
@@ -172,9 +224,9 @@
               aria-describedby="camera-hint"
             ></div>
             <p id="camera-hint" class="screen-reader">
-              Drag a selected piece to move it, or use Move track in the inspector. Drag open space
-              to pan. Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise.
-              Copy selected track with Control or Command+C, then use Control or Command+V to paste.
+              Drag track with a mouse, or use Move and choose a destination. Drag open space to
+              pan. Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise.
+              Focus a piece or a highlighted rail end and press Enter to select it.
             </p>
             <div class="zoom-controls" aria-label="Canvas view">
               <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
@@ -204,7 +256,7 @@
               <div class="panel-content">
                 <p id="selection-info">Select a track piece to edit it.</p>
                 <details id="track-position" class="placement-options" hidden>
-                  <summary>Move track</summary>
+                  <summary>Exact position</summary>
                   <form id="track-position-form" class="placement-fields">
                     <div class="field-grid">
                       <label for="track-x">

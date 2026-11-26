@@ -96,7 +96,7 @@ function projectPorts(project: Project, catalog: Catalog): WorldPort[] {
   return ports;
 }
 
-function fillersFrom(
+export function straightFillers(
   catalog: Catalog,
   start: Pose,
   heading: number,
@@ -352,7 +352,7 @@ export function findArrangementAnchors(
         if (!target) continue;
         const run = straightRun(catalog, ports, target, finish.angle, length);
         if (!run) continue;
-        const extra = fillersFrom(catalog, finish, finish.angle, run.length - length);
+        const extra = straightFillers(catalog, finish, finish.angle, run.length - length);
         if (!extra) continue;
         for (const id of run.ids) replace.add(id);
         fillers.push(...extra);

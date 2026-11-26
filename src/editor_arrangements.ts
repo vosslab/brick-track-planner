@@ -14,7 +14,6 @@ type PreviewHooks = {
   selection?: () => readonly string[];
   mainlineIds?: () => readonly string[];
   beginPreview?: () => void;
-  endPreview?: () => void;
 };
 
 const PRODUCTS = new Set([
@@ -104,7 +103,6 @@ export class ArrangementTools {
     this.#setInfo("");
     this.#setPreviewVisible(false);
     this.#setRequirements();
-    this.hooks.endPreview?.();
     this.hooks.preview(undefined);
   }
 

@@ -111,6 +111,21 @@ accidentally moved away from track.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
 
+### Use one editor for mouse and touch
+
+**Decision.** Use direct drag for mouse input and tap, preview, and Place
+for touch. Both use the same editor state, layout validation, and history.
+
+**Why.** A mouse can position a piece while showing its destination. A touch
+user can lift their finger to see the proposed placement before accepting it.
+
+**Consequence.** The editor matches existing port angles when snapping a
+move. It uses 8-stud shifts away from a joint and offers 1-stud shifts for
+fine positioning. The straight-gap tool fills with measured catalog pieces.
+
+**Owner.** [src/editor_track.ts](../src/editor_track.ts) and
+[src/editor_placement.ts](../src/editor_placement.ts)
+
 ### Treat routes as catalog data
 
 **Decision.** Every physical catalog part defines its valid port-to-port
