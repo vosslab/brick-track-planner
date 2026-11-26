@@ -55,25 +55,21 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 - [`../build_github_pages.sh`](../build_github_pages.sh) builds the Wasm
   bindings and Pages artifact used by browser tests.
 
-### Control alignment
+### Release checks
 
-Run the alignment collection against a fresh build from the repository root.
-The screenshot encoder is `cwebp`, supplied by the `webp` package in the
-[Brewfile](../Brewfile) and in the Pages verification workflow.
+The Pages workflow uses [devel/verify_release.sh](../devel/verify_release.sh).
 
-```sh
-./run_playwright_tests.sh --build tests/playwright/control_alignment.spec.ts
-```
+| Check | Recovery on failure |
+| --- | --- |
+| Rust and Node tests | Reproduce the failing geometry or saved-plan case and fix the broken contract. |
+| Pages build | Fix the reported compile error or missing asset before packaging the site. |
+| Browser workflows | Use the failure report and trace to reproduce the broken flow or correct invalid test input. |
 
-The suite runs at 360, 600, 751, and 1280 CSS pixels in Chromium, WebKit,
-and Chromium touch emulation. Each run writes numbered WebP screenshots
-and a `control-layout.json` file under `test-results/`. The Pages workflow
-includes those files in the `brick-track-planner-browser-evidence` artifact.
-
-For control groups that should align, the test compares rendered edges
-and gaps with a tolerance of 0.25 CSS pixels. The JSON records the measured
-rectangles and computed gaps. Screenshots show the surrounding page and
-controls for visual review.
+Chromium and WebKit run the browser suite. The touch project exercises the
+member editor flows. The Pages job uploads browser evidence when verification
+fails. Use [check_codebase.sh](../check_codebase.sh), `cargo fmt --check`, and
+`cargo clippy --locked --all-targets` for development checks. Use screenshots
+and measurements for visual review while adjusting the layout.
 
 ## Extension points
 

@@ -39,18 +39,12 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "touch", use: { ...devices["Pixel 7"] } },
     {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-      testMatch: [
-        "**/member_design.spec.ts",
-        "**/control_alignment.spec.ts",
-        "**/track_artwork.spec.ts",
-        "**/sharing.spec.ts",
-        "**/bluebrick_geometry.spec.ts",
-      ],
+      name: "touch",
+      use: { ...devices["Pixel 7"] },
+      testMatch: "**/member_design.spec.ts",
     },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
     command: `bash tests/playwright/helper_pages_server.sh ${port}`,

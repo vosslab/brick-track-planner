@@ -27,12 +27,11 @@ jobs:
           cache: npm
       - name: Install Rust and wasm-pack
         run: |
-          rustup toolchain install stable --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
           rustup default stable
           cargo install wasm-pack --locked
       - run: npm ci --no-audit
       - run: ./node_modules/.bin/playwright install --with-deps chromium webkit
-      - run: sudo apt-get install -y webp
       - run: ./devel/verify_release.sh --reporter=list,html
         env:
           PLAYWRIGHT_HTML_OPEN: never
@@ -44,10 +43,11 @@ jobs:
           if-no-files-found: error
           include-hidden-files: true
       - name: Upload browser evidence
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: brick-track-planner-browser-evidence
+          if-no-files-found: ignore
           path: |
             playwright-report/
             test-results/

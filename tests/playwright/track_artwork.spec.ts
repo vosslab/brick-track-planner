@@ -1,5 +1,3 @@
-import { execFileSync } from "node:child_process";
-
 import { expect } from "@playwright/test";
 
 import catalog from "../../data/catalog.json" with { type: "json" };
@@ -10,7 +8,7 @@ import { boot, test } from "./helper_planner";
 
 test.use({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
 
-test("shows source-model detail in the track canvas", async ({ page }, info) => {
+test("shows source-model detail in the track canvas", async ({ page }) => {
   const pieces = [
     ["lego:rc-s16", 14, 10],
     ["lego:rc-s16", 30, 10],
@@ -60,14 +58,6 @@ test("shows source-model detail in the track canvas", async ({ page }, info) => 
     "lego:rc-r40-right-switch",
     "lego:rc-r40-left-switch",
   ]);
-  const png = await scene.screenshot({ scale: "device" });
-  execFileSync(
-    "cwebp",
-    ["-quiet", "-q", "90", "-o", info.outputPath("track_artwork.webp"), "--", "-"],
-    {
-      input: png,
-    },
-  );
   const zoomOut = page.getByRole("button", { name: "Zoom out", exact: true });
   for (let step = 0; step < 10; step += 1) await zoomOut.click();
   await expect(scene).toHaveAttribute("data-scene-detail", "thumbnail");

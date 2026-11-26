@@ -59,3 +59,6 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   and use 90-degree turns for track rotation.
 - Fill straight gaps between components. Use larger parts and kits for
   the rest of the layout geometry.
+- Keep blocking checks tied to meaningful failures with a concrete recovery
+  action. Use temporary checks for implementation evidence and keep only
+  permanent tests that earn their upkeep.

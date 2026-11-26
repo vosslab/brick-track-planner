@@ -7,12 +7,22 @@ import { saveTrackPlan } from "../../src/ldraw";
 import type { Catalog, Project, TrackItem } from "../../src/project";
 import { boot, createProject, saveProject, test, watchErrors } from "./helper_planner";
 
-function drawingPoint(drawing: Locator, x: number, y: number): Promise<{ x: number; y: number }> {
-  return drawing.evaluate(
+type Pixel = { x: number; y: number };
+
+function drawingPoint(
+  canvas: Locator,
+  x: number,
+  y: number,
+): Promise<{ screen: Pixel; position: Pixel }> {
+  return canvas.evaluate(
     (element, { x, y }) => {
-      const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
+      const matrix = element.querySelector<SVGGElement>("[data-scene-drawing]")!.getScreenCTM()!;
       const screen = new DOMPoint(x, y).matrixTransform(matrix);
-      return { x: screen.x, y: screen.y };
+      const { left, top } = element.getBoundingClientRect();
+      return {
+        screen: { x: screen.x, y: screen.y },
+        position: { x: screen.x - left, y: screen.y - top },
+      };
     },
     { x, y },
   );
@@ -375,15 +385,16 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await page.getByRole("button", { name: "Move", exact: true }).click();
   }
   await canvas.scrollIntoViewIfNeeded();
-  const draw = canvas.locator("[data-scene-drawing]");
-  const from = await drawingPoint(draw, item.x, item.y);
-  const to = await drawingPoint(draw, item.x + 16, item.y + 16);
+  const place = page.getByRole("button", { name: "Place", exact: true });
+  const destination = await drawingPoint(canvas, item.x + 16, item.y + 16);
   if (hasTouch) {
-    await page.touchscreen.tap(to.x, to.y);
-    await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
+    await canvas.tap({ position: destination.position });
+    await expect(place).toBeEnabled();
     expect((await saveProject(page)).project).toEqual(original);
-    await page.getByRole("button", { name: "Place", exact: true }).click();
+    await place.tap();
   } else {
+    const { screen: from } = await drawingPoint(canvas, item.x, item.y);
+    const { screen: to } = destination;
     await page.mouse.move(from.x, from.y);
     await page.mouse.down();
     await page.mouse.move(to.x, to.y, { steps: 3 });
@@ -400,15 +411,14 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
   await expect(canvas.locator("svg[data-track-scene]")).toHaveAttribute("viewBox", frame!);
 
   if (hasTouch) {
-    await page.getByRole("button", { name: "Move", exact: true }).click();
-    await canvas.scrollIntoViewIfNeeded();
-    const next = await drawingPoint(draw, item.x + 32, item.y + 16);
-    await page.touchscreen.tap(next.x, next.y);
-    await expect(page.getByRole("button", { name: "Place", exact: true })).toBeEnabled();
-    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    await page.getByRole("button", { name: "Move", exact: true }).tap();
+    const { position } = await drawingPoint(canvas, item.x, item.y + 16);
+    await canvas.tap({ position });
+    await expect(place).toBeEnabled();
+    await page.getByRole("button", { name: "Cancel", exact: true }).tap();
   } else {
-    const start = await drawingPoint(draw, item.x + 16, item.y + 16);
-    const next = await drawingPoint(draw, item.x + 32, item.y + 16);
+    const { screen: start } = await drawingPoint(canvas, item.x + 16, item.y + 16);
+    const { screen: next } = await drawingPoint(canvas, item.x, item.y + 16);
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
     await page.mouse.move(next.x, next.y, { steps: 3 });
@@ -463,14 +473,17 @@ test("members can copy and paste a piece at a valid position, then undo", async 
   await page.keyboard.press("Enter");
   await expect(page.locator("#track-edit-hint")).toContainText("overlap");
   await page.getByRole("combobox", { name: "Placement", exact: true }).selectOption("fine");
-  await canvas.scrollIntoViewIfNeeded();
-
-  const destination = await canvas.locator("[data-scene-drawing]").evaluate((drawing) => {
-    const matrix = (drawing as SVGGraphicsElement).getScreenCTM()!;
-    const { x, y } = new DOMPoint(41, 49).matrixTransform(matrix);
-    return { x, y };
+  const { position } = await drawingPoint(canvas, 44, 52);
+  if (hasTouch) await canvas.tap({ position });
+  else await canvas.click({ position });
+  const ghost = canvas.locator('[data-edit-preview] [data-kind="track"]');
+  await expect(ghost).toBeVisible();
+  const preview = await ghost.evaluate((element) => {
+    const drawing = element.closest<SVGGElement>("[data-scene-drawing]")!.getScreenCTM()!;
+    const matrix = (element as SVGGraphicsElement).getScreenCTM()!;
+    const pose = drawing.inverse().multiply(matrix);
+    return { x: Math.round(pose.e), y: Math.round(pose.f) };
   });
-  await page.mouse.click(destination.x, destination.y);
   await page.getByRole("button", { name: "Place", exact: true }).click();
   await expect(status).toContainText("Placed duplicate track");
   const duplicated = (await saveProject(page)).project;
@@ -478,7 +491,8 @@ test("members can copy and paste a piece at a valid position, then undo", async 
   expect(duplicated.items[0]).toEqual(original.items[0]);
   const copy = duplicated.items[1]!;
   expect(copy.id).not.toBe(original.items[0]!.id);
-  expect(copy).toEqual({ ...original.items[0], id: copy.id, x: 41, y: 49 });
+  expect(preview.x % 8 !== 0 || preview.y % 8 !== 0).toBe(true);
+  expect(copy).toEqual({ ...original.items[0], id: copy.id, ...preview });
   await page.keyboard.press(`${modifier}+z`);
   expect((await saveProject(page)).project).toEqual(original);
   await piece.press("Enter");
