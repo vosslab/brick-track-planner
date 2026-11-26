@@ -253,15 +253,12 @@ export function setupFiles(
   };
   button("browse-examples").addEventListener("click", showGallery);
   button("start-browse-examples").addEventListener("click", showGallery);
-  button("close-template-gallery").addEventListener("click", () => gallery.close());
 
   const exportFormat = select("export-format");
   const rasterResolution = select("raster-resolution");
-  const pdfMode = select("pdf-mode");
   const updateExportOptions = (): void => {
     const format = exportFormat.value;
     rasterResolution.hidden = format !== "png" && format !== "webp";
-    pdfMode.hidden = format !== "pdf";
   };
   exportFormat.addEventListener("change", updateExportOptions);
   updateExportOptions();
@@ -276,10 +273,13 @@ export function setupFiles(
       exportButton.disabled = true;
       try {
         if (format === "png" || format === "webp" || format === "pdf") {
-          const blob = await exportSharing(format, project, catalog, analysis, {
-            rasterResolution: rasterResolution.value === "high" ? "high" : "standard",
-            pdfMode: pdfMode.value === "color" ? "color" : "grayscale",
-          });
+          const blob = await exportSharing(
+            format,
+            project,
+            catalog,
+            analysis,
+            rasterResolution.value === "high" ? "high" : "standard",
+          );
           downloadBlob(blob, `${name}.${format}`);
         }
         hooks.notice(`${project.name}: ${format.toUpperCase()} downloaded.`);

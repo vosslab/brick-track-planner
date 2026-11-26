@@ -279,23 +279,6 @@ function sameStarterItems(left: Project, right: Project): boolean {
   );
 }
 
-function cloneProject(project: Project): Project {
-  return {
-    ...project,
-    area: {
-      ...project.area,
-      fronts: [...project.area.fronts],
-      exits: project.area.exits.map((entry) => ({
-        ...entry,
-        outer: { ...entry.outer },
-        inner: { ...entry.inner },
-      })),
-    },
-    layers: project.layers.map((layer) => ({ ...layer })),
-    items: project.items.map((item) => ({ ...item })),
-  };
-}
-
 function safelyExtendEditedStraight(
   project: Project,
   resize: DesignAreaResize,
@@ -310,7 +293,7 @@ function safelyExtendEditedStraight(
   const newAcross = vertical ? resize.width : resize.depth;
   if (newAlong !== oldAlong || newAcross < oldAcross) return undefined;
 
-  const resized = cloneProject(project);
+  const resized = structuredClone(project);
   const delta = newAcross - oldAcross;
   resized.area.width = resize.width;
   resized.area.depth = resize.depth;
@@ -336,7 +319,7 @@ export function resizeDesignArea(
   if (resize.width > 4096 || resize.depth > 4096)
     throw new Error("Design areas are limited to 4096 studs in each direction.");
   if (!project.area.niltc) {
-    const resized = cloneProject(project);
+    const resized = structuredClone(project);
     resized.area.width = resize.width;
     resized.area.depth = resize.depth;
     if (resize.name !== undefined) resized.name = resize.name;
@@ -344,7 +327,7 @@ export function resizeDesignArea(
   }
 
   if (resize.width === project.area.width && resize.depth === project.area.depth) {
-    const resized = cloneProject(project);
+    const resized = structuredClone(project);
     if (resize.name !== undefined) resized.name = resize.name;
     return resized;
   }

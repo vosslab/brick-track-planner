@@ -8,34 +8,11 @@ import { createScene } from "./scene";
 import { showInventory } from "./show_inventory";
 import type { RequiredRow } from "./show_inventory";
 
-type PdfMode = "color" | "grayscale";
 type PrintBlock = { title: string; rows: string[] };
 const pageWidth = 792;
 const pageHeight = 612;
 const margin = 32;
 const bodyWidth = pageWidth - 2 * margin;
-
-function canvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("A canvas is required to draw the PDF.");
-  return context;
-}
-
-function grayscaleImage(canvas: HTMLCanvasElement): string {
-  const context = canvasContext(canvas);
-  const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-  for (let offset = 0; offset < pixels.data.length; offset += 4) {
-    const gray =
-      0.2126 * (pixels.data[offset] ?? 0) +
-      0.7152 * (pixels.data[offset + 1] ?? 0) +
-      0.0722 * (pixels.data[offset + 2] ?? 0);
-    pixels.data[offset] = gray;
-    pixels.data[offset + 1] = gray;
-    pixels.data[offset + 2] = gray;
-  }
-  context.putImageData(pixels, 0, 0);
-  return canvas.toDataURL("image/png");
-}
 
 function title(pdf: jsPDF, heading: string, subtitle: string): number {
   pdf.setTextColor(45);
@@ -100,20 +77,14 @@ function areaDescription(project: Project): string {
   return `${kind}  |  ${size}  |  ${edge}  |  ${exits.length} named mainline connection${exits.length === 1 ? "" : "s"}`;
 }
 
-function diagram(
-  pdf: jsPDF,
-  canvas: HTMLCanvasElement,
-  sceneWidth: number,
-  mode: PdfMode,
-  top: number,
-): void {
+function diagram(pdf: jsPDF, canvas: HTMLCanvasElement, sceneWidth: number, top: number): void {
   const width = bodyWidth;
   const height = 265;
   const scale = Math.min(width / canvas.width, height / canvas.height);
   const drawWidth = canvas.width * scale;
   const drawHeight = canvas.height * scale;
   pdf.addImage(
-    mode === "color" ? canvas.toDataURL("image/png") : grayscaleImage(canvas),
+    canvas.toDataURL("image/png"),
     "PNG",
     margin + (width - drawWidth) / 2,
     top + (height - drawHeight) / 2,
@@ -141,7 +112,6 @@ export async function sharePdf(
   project: Project,
   catalog: Catalog,
   analysis: Analysis,
-  mode: PdfMode,
   rasterize: (scene: SVGSVGElement) => Promise<HTMLCanvasElement>,
 ): Promise<Blob> {
   const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter", compress: true });
@@ -149,7 +119,7 @@ export async function sharePdf(
   pdf.setProperties({ title: name });
   const scene = createScene(project, catalog, analysis, { sharing: true });
   const top = title(pdf, name, areaDescription(project));
-  diagram(pdf, await rasterize(scene), scene.viewBox.baseVal.width, mode, top);
+  diagram(pdf, await rasterize(scene), scene.viewBox.baseVal.width, top);
   const inventory = showInventory(project, catalog);
   const exits = project.area.exits.map(
     ({ name: exitName, edge, outer, inner }) =>

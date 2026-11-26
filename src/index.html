@@ -31,11 +31,6 @@
             <option value="standard">Standard</option>
             <option value="high">High</option>
           </select>
-          <label class="screen-reader" for="pdf-mode">PDF mode</label>
-          <select id="pdf-mode" hidden>
-            <option value="grayscale">Grayscale</option>
-            <option value="color">Color</option>
-          </select>
           <button type="button" id="export-layout" class="primary">Export</button>
         </div>
         <input id="project-file" type="file" accept=".ldr" hidden />
@@ -506,9 +501,9 @@
           <div id="template-gallery-cards-40" class="template-gallery-cards"></div>
         </section>
       </div>
-      <div class="dialog-actions">
-        <button type="button" id="close-template-gallery">Close</button>
-      </div>
+      <form method="dialog" class="dialog-actions">
+        <button>Close</button>
+      </form>
     </dialog>
   </body>
 </html>

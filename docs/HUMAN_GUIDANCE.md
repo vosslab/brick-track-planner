@@ -63,6 +63,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use layout tabs inside the planner so members can copy track between yards
   and compare variations. Ask before closing a layout with unsaved edits.
 - Give those editing workflows priority over further Undo and Redo work.
+- Export PDFs in color only.
 - Favor track ends and the club grid. Keep finer placement for special cases
   and use 90-degree turns for track rotation.
 - Fill straight gaps between components. Use larger parts and kits for

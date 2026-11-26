@@ -4,10 +4,6 @@ import type { Catalog, Project } from "./project";
 import { createScene, setSceneDetail } from "./scene";
 
 type ShareFormat = "png" | "webp" | "pdf";
-type SharingOptions = {
-  rasterResolution?: "standard" | "high";
-  pdfMode?: "color" | "grayscale";
-};
 const maxPixels = 12_000_000;
 
 async function sceneCanvas(scene: SVGSVGElement, longSide = 2400): Promise<HTMLCanvasElement> {
@@ -29,12 +25,11 @@ async function sceneCanvas(scene: SVGSVGElement, longSide = 2400): Promise<HTMLC
   const url = URL.createObjectURL(new Blob([contents], { type: "image/svg+xml;charset=utf-8" }));
   try {
     const image = new Image();
-    await new Promise<void>((resolve, reject) => {
-      image.onload = (): void => resolve();
-      image.onerror = (): void => reject(new Error("The layout drawing could not be rendered."));
-      image.src = url;
+    image.src = url;
+    await image.decode().catch(() => {
+      throw new Error("The layout drawing could not be rendered.");
     });
-    context.fillStyle = "#faf6ee";
+    context.fillStyle = scene.style.backgroundColor;
     context.fillRect(0, 0, width, height);
     context.drawImage(image, 0, 0);
   } finally {
@@ -66,13 +61,13 @@ export async function exportSharing(
   project: Project,
   catalog: Catalog,
   analysis: Analysis,
-  options: SharingOptions = {},
+  rasterResolution: "standard" | "high" = "standard",
 ): Promise<Blob> {
   if (format === "pdf") {
     const { sharePdf } = await import("./share_pdf");
-    return sharePdf(project, catalog, analysis, options.pdfMode ?? "grayscale", sceneCanvas);
+    return sharePdf(project, catalog, analysis, sceneCanvas);
   }
   const scene = createScene(project, catalog, analysis, { sharing: true });
-  const canvas = await sceneCanvas(scene, options.rasterResolution === "high" ? 4096 : 2400);
+  const canvas = await sceneCanvas(scene, rasterResolution === "high" ? 4096 : 2400);
   return imageBlob(canvas, format);
 }

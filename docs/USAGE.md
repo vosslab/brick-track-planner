@@ -258,7 +258,8 @@ the catalog cannot place.
 Choose PNG or WebP for a drawing. Choose PDF for a member build sheet with
 design area dimensions, public edge, assigned mainline, named exits, drawing,
 route information, and parts list. Exports use the active layout and do not
-save its editable track plan.
+save its editable track plan. PDF export preserves the layout's colors. Use
+the printer's black-and-white setting when a monochrome handout is needed.
 
 **Close layout** closes the active tab. With unsaved changes, choose
 **Keep editing** or press **Esc** to keep it open. **Discard changes** closes

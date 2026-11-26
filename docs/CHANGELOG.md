@@ -13,6 +13,7 @@
 
 ### Behavior or Interface Changes
 
+- Export PDFs in color with a single PDF option.
 - Let ordinary track drops finish even with overlaps, track outside the area,
   or facing rail ends at different heights. Flag the affected track and report
   the problem until it is fixed or removed, including after save/reopen.
@@ -28,6 +29,9 @@
 
 ### Fixes and Maintenance
 
+- Use native image decoding for layout exports and a dialog form for the
+  example gallery's Close button.
+- Use the browser's structured clone when resizing a design.
 - Record the place-and-flag follow-on plan and replace valid-only drop
   instructions with the drop-and-repair workflow. Keep focused permanent
   behavior checks; use broad example, geometry, and gesture scans as one-time
