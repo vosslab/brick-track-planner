@@ -1,4 +1,94 @@
 /* Track editing, arrangement controls, and the editable example gallery. */
+.layout-tabs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 0.65rem;
+  margin-block-end: 0.45rem;
+  font-size: 0.87rem;
+}
+.layout-tab-rail {
+  position: relative;
+}
+#layout-tablist {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+.layout-tab-rail[data-more-left]::before,
+.layout-tab-rail[data-more-right]::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  width: 0.65rem;
+  pointer-events: none;
+}
+.layout-tab-rail[data-more-left]::before {
+  left: 0;
+  background: linear-gradient(to right, var(--muted), transparent);
+}
+.layout-tab-rail[data-more-right]::after {
+  right: 0;
+  background: linear-gradient(to left, var(--muted), transparent);
+}
+@media (forced-colors: active) {
+  .layout-tab-rail[data-more-left]::before {
+    border-left: 2px dotted CanvasText;
+  }
+  .layout-tab-rail[data-more-right]::after {
+    border-right: 2px dotted CanvasText;
+  }
+}
+#layout-tablist button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+  flex: none;
+  max-inline-size: min(25rem, 100%);
+}
+#layout-tablist button > :first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#layout-tablist [aria-selected="true"] {
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+#layout-tablist [aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0.4rem 0.15rem;
+  border-block-end: 3px solid currentColor;
+}
+.layout-tab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  padding-inline: 0.3rem;
+}
+@media (max-width: 500px) {
+  .layout-tabs {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+}
+
+#close-layout-dialog:modal {
+  max-block-size: calc(100dvh - 1.5rem);
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+}
+#close-layout-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
 .canvas-toolbar button {
   min-width: var(--control-height);
 }

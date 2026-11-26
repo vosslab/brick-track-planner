@@ -121,7 +121,9 @@ try {
     await place.focus();
     await frame?.(1000);
     await place.press("Enter");
-    await expect(target.locator("#piece-info")).toContainText("Click inside the design area");
+    await expect(target.locator("#piece-info")).toContainText(
+      "Click or tap the drawing to place the piece.",
+    );
     await frame?.(950);
     await target.getByRole("group", { name: "Track plan", exact: true }).click();
     await expect(target.locator("#tabletop [data-kind=track]")).toHaveCount(1);

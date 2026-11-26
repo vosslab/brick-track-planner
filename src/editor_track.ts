@@ -1,27 +1,26 @@
-import { commitItems } from "./arrangements";
 import { button, element, input, select } from "./editor_dom";
 import { renderBallast } from "./editor_panels";
 import {
   blockedEdit,
-  checkEdit,
+  captureRailGeometry,
   chooseDestination,
   endpointKey as key,
+  hasRailJoint,
+  missedSnapMessage,
   openRailEnds,
   prepareTranslation,
   previewGap,
+  previewPlacement,
   previewTranslation,
   protectedMessage,
   protectedTrack,
+  remapRailGeometry,
   translationTargets,
 } from "./editor_placement";
-import type { Destination, EditPreview } from "./editor_placement";
+import type { Destination, EditPreview, RailGeometry } from "./editor_placement";
+import { evaluate } from "./engine";
 import type { Analysis } from "./engine";
-import {
-  ensureVisibleWorkingLayer,
-  poseConnectingPorts,
-  projectId,
-  visibleTrackItems,
-} from "./project";
+import { poseConnectingPorts, projectId, visibleTrackItems } from "./project";
 import type { Catalog, Point, Project, TrackItem } from "./project";
 import { traceRoute } from "./route_trace";
 import type { RouteLink } from "./route_trace";
@@ -33,22 +32,30 @@ type Hooks = {
   renderPreview: () => void;
   cancelArrangement: () => void;
   notice: (message: string, error?: boolean) => void;
+  noticePlacement: (receipt: string, pieceIds: readonly string[]) => void;
 };
 
 type RailEnd = Analysis["ports"][number];
-type TranslationEdit = {
+type TrackCopy = {
+  items: readonly TrackItem[];
+  geometry: RailGeometry;
+};
+type PointerPlacement = {
+  last?: { point: Point; radius: number; end?: string };
+  preview?: EditPreview;
+};
+type PieceEdit = PointerPlacement & { kind: "extend"; id: string };
+type TranslationEdit = PointerPlacement & {
   kind: "drag" | "move" | "duplicate";
   items: readonly TrackItem[];
   origin: Point;
   geometry: ReturnType<typeof prepareTranslation>;
   targets: Map<string, RailEnd>;
-  last?: { point: Point; radius: number; end?: string };
   destination?: Destination;
-  preview?: EditPreview;
 };
 type Interaction =
   | { kind: "select" }
-  | { kind: "extend" }
+  | PieceEdit
   | { kind: "trace" }
   | TranslationEdit
   | { kind: "connect"; first?: RailEnd; preview?: EditPreview };
@@ -66,7 +73,7 @@ export class TrackTools {
   #selected = new Set<string>();
   #multiple = false;
   #arrangement = false;
-  #copied: TrackItem | undefined;
+  #copied: TrackCopy | undefined;
   #translationFrame: number | undefined;
   #route: RouteLink[] = [];
   #openEnds = new Map<string, Analysis["ports"][number]>();
@@ -87,24 +94,30 @@ export class TrackTools {
       choices.add(new Option(`${part.brand} · ${part.name}`, part.id));
     }
     choices.value = "lego:rc-s16";
-    choices.addEventListener("change", () => this.#piecePorts());
+    choices.addEventListener("change", () => {
+      this.#piecePorts();
+      this.#refreshPiecePreview();
+    });
     this.#piecePorts();
+    select("piece-port").addEventListener("change", () => this.#refreshPiecePreview());
     select("piece-target").addEventListener("change", () => {
       this.stopPicking();
       this.#showTool();
       this.#hooks.render();
     });
     button("extend-piece").addEventListener("click", () => this.#placePiece());
-    button("trace-route").addEventListener("click", () => this.#arm("trace"));
-    select("trace-from").addEventListener("change", () => this.#arm("trace"));
+    button("trace-route").addEventListener("click", () => this.#armTrace());
+    select("trace-from").addEventListener("change", () => this.#armTrace());
     button("remove-piece").addEventListener("click", () => this.remove());
     button("move-track").addEventListener("click", () => this.#startMove());
     button("rotate-track-left").addEventListener("click", () => this.#rotate(-90));
     button("rotate-track-right").addEventListener("click", () => this.#rotate(90));
     button("duplicate-track").addEventListener("click", () => {
       const [item] = this.#selectedTrack();
-      if (item && this.#selected.size === 1) this.#startCopy(item);
+      if (item && this.#selected.size === 1) this.#startCopy(this.#captureCopy([item]));
     });
+    button("copy-track").addEventListener("click", () => this.copy());
+    button("paste-track").addEventListener("click", () => this.startPaste());
     button("select-multiple").addEventListener("click", () => {
       this.cancel();
       this.#multiple = !this.#multiple;
@@ -158,10 +171,8 @@ export class TrackTools {
       ? empty
         ? "Choose a piece to start the track in your design area."
         : this.#openEnds.size
-          ? "Extend an open track end with the piece you choose."
-          : project.area.exits.length
-            ? "The mainline ends connect to the next display. Choose Arrangement to branch off with a siding or switch."
-            : "There are no open track ends. Choose Arrangement to insert a switch."
+          ? "Place a piece anywhere on the drawing, or connect to an open rail end."
+          : "Place a piece anywhere on the drawing. Choose Arrangement to insert a switch."
       : project.area.niltc
         ? "To park a train behind your display, preview a siding off the mainline."
         : "Preview a connected group of track pieces in your design area.";
@@ -173,21 +184,33 @@ export class TrackTools {
         : target === "center"
           ? "Place at center"
           : "Connect piece";
-    action.disabled = !select("piece-port").value || (!empty && !this.#openEnds.size);
+    action.disabled = !select("piece-port").value;
   }
 
   #placePiece(): void {
     const target = select("piece-target").value;
+    const id = projectId("track");
+    this.cancel();
     if (target === "drawing") {
-      this.#arm("extend");
+      this.#interaction = { kind: "extend", id };
+      const message = "Click or tap the drawing to place the piece.";
+      this.#hooks.notice(message);
+      element("piece-info").textContent = message;
+      this.#editControls();
+      this.#hooks.render();
+      element("tabletop").focus({ preventScroll: true });
       return;
     }
     const { area } = this.#hooks.analysis().project;
-    const port = this.#openEnds.get(target);
-    if (target === "center" || port) {
-      this.cancel();
-      this.#extend({ x: area.width / 2, y: area.depth / 2 }, port, target === "center");
-    }
+    this.#applyPiece(
+      this.#previewPiece(
+        id,
+        { x: area.width / 2, y: area.depth / 2 },
+        0,
+        target === "center" ? undefined : target,
+        target === "center",
+      ),
+    );
   }
   get route(): RouteLink[] {
     return this.#route;
@@ -202,7 +225,8 @@ export class TrackTools {
     );
   }
   get pickingDestination(): boolean {
-    return this.#interaction.kind === "move" || this.#interaction.kind === "duplicate";
+    const { kind } = this.#interaction;
+    return kind === "extend" || kind === "move" || kind === "duplicate";
   }
   get targetPorts(): Pick<ReadonlySet<string>, "has"> | undefined {
     const edit = this.#interaction;
@@ -257,9 +281,10 @@ export class TrackTools {
   }
 
   copy(): boolean {
-    const [item] = this.#selectedTrack();
-    if (!item || this.#selected.size !== 1) return false;
-    this.#copied = { ...item };
+    const items = this.#selectedTrack();
+    if (!items.length) return false;
+    this.#copied = this.#captureCopy(items);
+    button("paste-track").disabled = false;
     this.#hooks.notice("Track copied. Paste to place a duplicate.");
     return true;
   }
@@ -279,19 +304,12 @@ export class TrackTools {
     );
   }
 
-  #arm(mode: "extend" | "trace"): void {
+  #armTrace(): void {
     this.cancel();
-    this.#interaction = { kind: mode };
-    this.#route = [];
-    const instruction =
-      mode === "trace"
-        ? "Choose the track or connector to trace to."
-        : visibleTrackItems(this.#hooks.analysis().project).length
-          ? "Choose an open track end to extend."
-          : "Click inside the design area to start the track.";
+    this.#interaction = { kind: "trace" };
+    const instruction = "Choose the track or connector to trace to.";
     this.#hooks.notice(instruction);
-    if (mode === "trace") element("route-info").textContent = instruction;
-    else element("piece-info").textContent = instruction;
+    element("route-info").textContent = instruction;
     this.#editControls();
     this.#hooks.render();
   }
@@ -321,8 +339,11 @@ export class TrackTools {
     const names = new Map(this.#catalog.parts.map((part) => [part.id, part.name]));
     this.#openEnds = new Map(openRailEnds(analysis).map((port) => [key(port), port]));
     const target = select("piece-target");
-    target.replaceChildren(new Option("Choose on the drawing", "drawing"));
-    if (!tracks.size) target.add(new Option("Center of design area", "center", true, true));
+    target.replaceChildren(
+      new Option("Choose on the drawing", "drawing"),
+      new Option("Center of design area", "center"),
+    );
+    if (!tracks.size) target.value = "center";
     for (const port of analysis.ports) {
       const item = tracks.get(port.pieceId);
       if (
@@ -336,7 +357,8 @@ export class TrackTools {
         options.set(key(port), label);
       }
     }
-    if (this.#openEnds.size === 1) target.selectedIndex = 1;
+    const soleOpenEnd = this.#openEnds.keys().next().value;
+    if (this.#openEnds.size === 1 && soleOpenEnd) target.value = soleOpenEnd;
     this.#showTool();
     const selectFrom = select("trace-from");
     const previous = selectFrom.value;
@@ -354,8 +376,12 @@ export class TrackTools {
     if (edit.kind === "move" || edit.kind === "duplicate") {
       this.#cancelTranslationFrame();
       this.#updateTranslation(edit, point, radius, portKey(hit));
-      if (edit.preview?.kind === "ready") this.#applyPreview();
-      else this.#editControls();
+      this.#applyPreview();
+      return;
+    }
+    if (edit.kind === "extend") {
+      this.#cancelTranslationFrame();
+      this.#applyPiece(this.#previewPiece(edit.id, point, radius, portKey(hit)));
       return;
     }
     if (edit.kind === "connect") {
@@ -390,21 +416,6 @@ export class TrackTools {
       )
       .map((p) => ({ port: p, distance: Math.hypot(p.x - point.x, p.y - point.y) }))
       .sort((a, b) => a.distance - b.distance);
-    if (edit.kind === "extend") {
-      const candidate = ports.find(
-        ({ port, distance }) =>
-          this.#openEnds.has(key(port)) && (portId || distance <= radius || id),
-      );
-      if (!candidate && analysis.ports.length) {
-        const message =
-          "Choose an open end inside your layout. The mainline handoffs belong to the next display.";
-        element("piece-info").textContent = message;
-        this.#hooks.notice(message, true);
-        return;
-      }
-      this.#extend(point, candidate?.port);
-      return;
-    }
     if (edit.kind === "trace") {
       const value = select("trace-from").value;
       const start = analysis.ports.find((p) => key(p) === value);
@@ -447,23 +458,30 @@ export class TrackTools {
 
   move(point: Point, radius: number, target?: Element): void {
     const edit = this.#interaction;
-    if (edit.kind !== "drag" && edit.kind !== "move" && edit.kind !== "duplicate") return;
+    if (
+      edit.kind !== "extend" &&
+      edit.kind !== "drag" &&
+      edit.kind !== "move" &&
+      edit.kind !== "duplicate"
+    )
+      return;
     edit.last = { point, radius, end: portKey(target?.closest<SVGElement>("[data-piece-id]")) };
     if (this.#translationFrame !== undefined) return;
     this.#translationFrame = requestAnimationFrame(() => {
       this.#translationFrame = undefined;
-      if (this.#interaction === edit && edit.last)
-        this.#updateTranslation(edit, edit.last.point, edit.last.radius, edit.last.end);
+      if (this.#interaction !== edit || !edit.last) return;
+      if (edit.kind === "extend") this.#refreshPiecePreview();
+      else this.#updateTranslation(edit, edit.last.point, edit.last.radius, edit.last.end);
     });
   }
 
   clearHover(): void {
     const edit = this.#interaction;
-    if (edit.kind !== "move" && edit.kind !== "duplicate") return;
+    if (edit.kind !== "extend" && edit.kind !== "move" && edit.kind !== "duplicate") return;
     this.#cancelTranslationFrame();
     edit.last = undefined;
     if (!edit.preview) return;
-    edit.destination = undefined;
+    if (edit.kind !== "extend") edit.destination = undefined;
     edit.preview = undefined;
     this.#hooks.renderPreview();
   }
@@ -476,17 +494,14 @@ export class TrackTools {
   endMove(point: Point, radius: number, cancelled: boolean): void {
     const edit = this.#interaction;
     if (edit.kind !== "drag") return;
-    if (!cancelled) {
+    if (cancelled) {
+      this.stopPicking();
+      this.#hooks.renderPreview();
+    } else {
+      this.#cancelTranslationFrame();
       this.#updateTranslation(edit, point, radius);
-      if (edit.preview?.kind === "ready") {
-        this.#applyPreview();
-        return;
-      }
+      this.#applyPreview();
     }
-    this.stopPicking();
-    this.#hooks.renderPreview();
-    if (!cancelled && edit.preview?.kind === "blocked" && edit.preview.items.length)
-      this.#hooks.notice(edit.preview.message, true);
   }
 
   #startMove(): void {
@@ -496,28 +511,54 @@ export class TrackTools {
     this.#startTranslation("move", selected, first);
   }
 
-  #startCopy(source: TrackItem): void {
-    const item: TrackItem = {
-      ...source,
-      id: projectId("track"),
-      groupId: undefined,
-      arrangementId: undefined,
+  #captureCopy(items: readonly TrackItem[]): TrackCopy {
+    const analysis = this.#hooks.analysis();
+    const ids = new Set(items.map(({ id }) => id));
+    const groupSizes = new Map<string, number>();
+    for (const { groupId } of items) {
+      if (groupId) groupSizes.set(groupId, (groupSizes.get(groupId) ?? 0) + 1);
+    }
+    for (const item of analysis.project.items) {
+      if (item.kind === "track" && item.groupId && !ids.has(item.id))
+        groupSizes.delete(item.groupId);
+    }
+    return {
+      items: items.map((item) =>
+        item.groupId && (groupSizes.get(item.groupId) ?? 0) > 1
+          ? { ...item }
+          : { ...item, groupId: undefined, arrangementId: undefined },
+      ),
+      geometry: captureRailGeometry(analysis, items),
     };
-    this.#startTranslation("duplicate", [item], item);
+  }
+
+  #startCopy(source: TrackCopy): void {
+    const ids = new Map<string, string>();
+    const groupIds = new Map<string, string>();
+    const items = source.items.map((item) => {
+      const id = projectId("track");
+      ids.set(item.id, id);
+      const sourceGroupId = item.groupId;
+      let groupId = sourceGroupId && groupIds.get(sourceGroupId);
+      if (sourceGroupId && !groupId) {
+        groupId = projectId("group");
+        groupIds.set(sourceGroupId, groupId);
+      }
+      return { ...item, id, groupId };
+    });
+    const [first] = items;
+    if (first)
+      this.#startTranslation("duplicate", items, first, remapRailGeometry(source.geometry, ids));
   }
 
   #startTranslation(
     kind: TranslationEdit["kind"],
     items: readonly TrackItem[],
     origin: Point,
+    copied?: RailGeometry,
   ): void {
     this.cancel();
-    const geometry = prepareTranslation(
-      this.#hooks.analysis(),
-      this.#catalog,
-      items,
-      kind !== "duplicate",
-    );
+    const geometry = prepareTranslation(this.#hooks.analysis(), items, copied);
     this.#interaction = {
       kind,
       items,
@@ -542,17 +583,16 @@ export class TrackTools {
     );
     const previous = edit.destination;
     if (
-      previous?.shift.x === destination.shift.x &&
-      previous.shift.y === destination.shift.y &&
+      previous?.grid.x === destination.grid.x &&
+      previous.grid.y === destination.grid.y &&
       previous.snap?.from === destination.snap?.from &&
       previous.snap?.to === destination.snap?.to &&
-      previous.blocked === destination.blocked
+      previous.missedSnap === destination.missedSnap
     )
       return;
     edit.destination = destination;
     edit.preview = previewTranslation(
       this.#hooks.analysis(),
-      this.#catalog,
       edit.geometry,
       edit.items,
       destination,
@@ -591,16 +631,7 @@ export class TrackTools {
     radius: number,
     endpoint?: string,
   ): void {
-    let end = endpoint && this.#openEnds.get(endpoint);
-    if (!endpoint) {
-      let nearest = radius;
-      for (const candidate of this.#openEnds.values()) {
-        const distance = Math.hypot(candidate.x - point.x, candidate.y - point.y);
-        if (distance >= nearest) continue;
-        nearest = distance;
-        end = candidate;
-      }
-    }
+    const end = this.#nearbyOpenEnd(point, radius, endpoint);
     if (!end)
       edit.preview = blockedEdit(
         "Choose one of the highlighted open rail ends.",
@@ -617,52 +648,108 @@ export class TrackTools {
 
   #applyPreview(): void {
     const edit = this.#interaction;
-    if (!("preview" in edit) || edit.preview?.kind !== "ready") return;
-    const focused =
-      this.pickingDestination || element("placement-actions").contains(document.activeElement);
-    if (this.pickingDestination) this.#multiple = false;
-    if (edit.kind === "duplicate") this.#selected = new Set(edit.items.map(({ id }) => id));
-    this.#hooks.commit(edit.preview.project);
-    const count = edit.preview.items.length;
-    const receipt =
-      edit.kind === "connect"
-        ? `Connected both ends with ${count} ${count === 1 ? "piece" : "pieces"}.`
-        : edit.kind === "duplicate"
+    if (edit.kind === "connect") {
+      if (edit.preview?.kind !== "ready") return;
+      this.#hooks.commit(edit.preview.project);
+      const count = edit.preview.items.length;
+      this.#hooks.notice(
+        `Connected both ends with ${count} ${count === 1 ? "piece" : "pieces"}. ${edit.preview.message}`,
+      );
+      element("tabletop").focus({ preventScroll: true });
+    } else if (edit.kind === "drag" || edit.kind === "move" || edit.kind === "duplicate") {
+      if (!edit.preview) return;
+      const count = edit.items.length;
+      const receipt =
+        edit.kind === "duplicate"
           ? "Placed duplicate track."
           : `Moved ${count === 1 ? "track piece" : `${count} track pieces`}.`;
-    this.#hooks.notice([receipt, edit.preview.message].filter(Boolean).join(" "));
-    if (focused) element("tabletop").focus({ preventScroll: true });
+      this.#applyPlacement(edit.preview, receipt);
+      if (edit.kind !== "drag") element("tabletop").focus({ preventScroll: true });
+    }
   }
 
-  #extend(point: Point, target?: Analysis["ports"][number], centered = false): void {
+  #nearbyOpenEnd(point: Point, radius: number, endpoint?: string): RailEnd | undefined {
+    if (endpoint) return this.#openEnds.get(endpoint);
+    let nearest = radius;
+    let end: RailEnd | undefined;
+    for (const candidate of this.#openEnds.values()) {
+      const distance = Math.hypot(candidate.x - point.x, candidate.y - point.y);
+      if (distance >= nearest) continue;
+      nearest = distance;
+      end = candidate;
+    }
+    return end;
+  }
+
+  #refreshPiecePreview(): void {
+    const edit = this.#interaction;
+    if (edit.kind !== "extend" || !edit.last) return;
+    const { point, radius, end } = edit.last;
+    edit.preview = this.#previewPiece(edit.id, point, radius, end);
+    this.#hooks.renderPreview();
+  }
+
+  #previewPiece(
+    id: string,
+    point: Point,
+    radius: number,
+    end?: string,
+    centered = false,
+  ): EditPreview {
     const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
-    const incoming = part?.ports.find((p) => p.id === select("piece-port").value);
-    if (!part || !incoming) return;
-    const working = ensureVisibleWorkingLayer(this.#hooks.analysis().project);
-    const project = working.project;
-    const anchor = target ?? { x: Math.round(point.x), y: Math.round(point.y), angle: 0 };
-    const placement = centered ? { ...point, angle: 0 } : poseConnectingPorts(incoming, anchor);
-    const id = projectId("track");
+    const incoming = part?.ports.find(({ id }) => id === select("piece-port").value);
+    if (!part || !incoming) return blockedEdit("Choose a track piece and its connecting end.");
+    const { project } = this.#hooks.analysis();
+    const target = this.#nearbyOpenEnd(point, radius, end);
     const item: TrackItem = {
       kind: "track",
       partId: part.id,
       id,
-      layerId: working.layerId,
-      ...placement,
-      heightPlates: target?.heightPlates ?? (project.area.niltc ? 2 : 0),
+      layerId: project.layers.find(({ visible }) => visible)?.id ?? "",
+      x: centered ? point.x : Math.round(point.x),
+      y: centered ? point.y : Math.round(point.y),
+      angle: 0,
+      heightPlates: project.area.niltc ? 2 : 0,
     };
-    const result = commitItems(project, this.#catalog, { items: [item] });
-    if (!result.project) {
-      const message = result.issues[0]?.message ?? "This piece does not fit.";
-      element("piece-info").textContent = message;
-      this.#hooks.notice(message, true);
+    if (target) {
+      const snapped = {
+        ...item,
+        ...poseConnectingPorts(incoming, target),
+        heightPlates: target.heightPlates,
+      };
+      const preview = previewPlacement(project, project, [snapped], [target]);
+      if (
+        preview.kind === "ready" &&
+        hasRailJoint(evaluate(preview.project), { pieceId: id, portId: incoming.id }, target)
+      ) {
+        preview.message = "Snapped to the rail end.";
+        return preview;
+      }
+    }
+    const preview = previewPlacement(project, project, [item]);
+    if (preview.kind === "ready" && (end || target)) preview.message = missedSnapMessage;
+    return preview;
+  }
+
+  #applyPiece(preview: EditPreview): void {
+    const part = this.#catalog.parts.find(({ id }) => id === preview.items[0]?.partId);
+    this.#applyPlacement(preview, part ? `Placed ${part.name}.` : "Placed track piece.");
+    if (preview.kind === "blocked") element("piece-info").textContent = preview.message;
+  }
+
+  #applyPlacement(preview: EditPreview, receipt: string): void {
+    if (preview.kind === "blocked" || !preview.items.length) {
+      this.stopPicking();
+      this.#hooks.render();
+      if (preview.kind === "blocked") this.#hooks.notice(preview.message, true);
+      else this.#hooks.notice("Position unchanged.");
       return;
     }
-    this.#selected = new Set([id]);
-    this.#hooks.commit(result.project);
-    const message = `Placed ${part.name}.`;
-    element("piece-info").textContent = message;
-    this.#hooks.notice(message);
+    const ids = preview.items.map(({ id }) => id);
+    this.#multiple = false;
+    this.#selected = new Set(ids);
+    this.#hooks.commit(preview.project);
+    this.#hooks.noticePlacement([receipt, preview.message].filter(Boolean).join(" "), ids);
   }
 
   #setPosition(): void {
@@ -689,20 +776,8 @@ export class TrackTools {
       return;
     }
     this.cancel();
-    const context = prepareTranslation(analysis, this.#catalog, [original], true);
-    const preview = checkEdit(
-      analysis,
-      this.#catalog,
-      context.stationary,
-      [item],
-      [],
-      context.outside,
-    );
-    if (preview.kind === "blocked") this.#hooks.notice(preview.message, true);
-    else {
-      this.#hooks.commit(preview.project);
-      this.#hooks.notice([message, preview.message].filter(Boolean).join(" "));
-    }
+    const context = prepareTranslation(analysis, [original]);
+    this.#applyPlacement(previewPlacement(analysis.project, context.stationary, [item]), message);
   }
 
   #editControls(): void {
@@ -729,7 +804,7 @@ export class TrackTools {
     element("tabletop").dataset["editTool"] = selecting ? "selection" : "placement";
     const hint = element("track-edit-hint");
     const preview = "preview" in edit ? edit.preview : undefined;
-    hint.toggleAttribute("data-error", preview?.kind === "blocked");
+    hint.toggleAttribute("data-error", preview?.kind === "blocked" && Boolean(preview.message));
     if (preview?.message && (!translation || preview.kind === "blocked")) {
       hint.textContent = preview.message;
       return;
@@ -782,7 +857,9 @@ export class TrackTools {
     const protectedExit = protectedTrack(project, this.#selected);
     button("remove-piece").disabled = !item || protectedExit;
     const movable = item?.kind === "track" && !protectedExit;
-    button("move-track").disabled = protectedExit || !this.#selectedTrack().length;
+    const hasTrack = this.#selectedTrack().length > 0;
+    button("move-track").disabled = protectedExit || !hasTrack;
+    button("copy-track").disabled = !hasTrack;
     button("rotate-track-left").disabled = !movable;
     button("rotate-track-right").disabled = !movable;
     button("duplicate-track").disabled = item?.kind !== "track";

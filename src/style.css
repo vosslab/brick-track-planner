@@ -342,7 +342,7 @@ p {
 #editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   width: min(100%, 1810px);
   margin-inline: auto;
   padding: 0 var(--gutter) 0.65rem;

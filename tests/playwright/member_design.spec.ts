@@ -1,52 +1,20 @@
 import { expect } from "@playwright/test";
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
 import straightExamples from "../../data/straight_examples.json" with { type: "json" };
-import catalog from "../../data/catalog.json" with { type: "json" };
-import { saveTrackPlan } from "../../src/ldraw";
-import type { Catalog, Project, TrackItem } from "../../src/project";
-import { boot, createProject, saveProject, test, watchErrors } from "./helper_planner";
+import {
+  boot,
+  createProject,
+  drawingPoint,
+  openEditingPlan,
+  pickDrawing,
+  saveProject,
+  straight,
+  test,
+  watchErrors,
+} from "./helper_planner";
 
-type Pixel = { x: number; y: number };
-
-function drawingPoint(
-  canvas: Locator,
-  x: number,
-  y: number,
-): Promise<{ screen: Pixel; position: Pixel }> {
-  return canvas.evaluate(
-    (element, { x, y }) => {
-      const matrix = element.querySelector<SVGGElement>("[data-scene-drawing]")!.getScreenCTM()!;
-      const screen = new DOMPoint(x, y).matrixTransform(matrix);
-      const { left, top } = element.getBoundingClientRect();
-      return {
-        screen: { x: screen.x, y: screen.y },
-        position: { x: screen.x - left, y: screen.y - top },
-      };
-    },
-    { x, y },
-  );
-}
-
-function straight(id: string, x: number, y: number, angle = 0, heightPlates = 0): TrackItem {
-  return { id, x, y, angle, kind: "track", partId: "lego:rc-s16", layerId: "layout", heightPlates };
-}
-
-async function openEditingPlan(page: Page, items: TrackItem[]): Promise<Project> {
-  const project: Project = {
-    version: 3,
-    name: "Editing test yard",
-    area: { width: 128, depth: 192, fronts: [], exits: [] },
-    layers: [{ id: "layout", name: "Layout", visible: true }],
-    items,
-  };
-  await page.locator("#project-file").setInputFiles({
-    name: "yard.ldr",
-    mimeType: "text/plain",
-    buffer: Buffer.from(saveTrackPlan(project, catalog as Catalog)),
-  });
-  return project;
-}
+const warnedTrack = 'g[data-kind="track"][data-placement-warning]';
 
 test("members can open each packaged track template", async ({ planner }) => {
   const templates = [
@@ -288,7 +256,6 @@ test("a 40 by 60 member adds a fitted siding and extends its open end", async ({
   const afterSiding = await saveProject(page);
   await page.getByRole("radio", { name: "Single piece" }).check();
   await expect(page.locator("#piece-tools")).toBeVisible();
-  await expect(page.locator("#piece-target option")).toHaveCount(2);
   await expect(page.getByRole("button", { name: "Connect piece", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "Connect piece", exact: true }).click();
   const extended = await saveProject(page);
@@ -298,8 +265,9 @@ test("a 40 by 60 member adds a fitted siding and extends its open end", async ({
   expect(errors).toEqual([]);
 });
 
-test("a 40 by 60 corner uses the compact siding and refuses an oversized choice", async ({
+test("a 40 by 60 corner recommends a compact siding and flags a free oversized placement", async ({
   page,
+  hasTouch,
 }) => {
   const errors = watchErrors(page);
   await boot(page, { startProject: false });
@@ -316,6 +284,13 @@ test("a 40 by 60 corner uses the compact siding and refuses an oversized choice"
   await page.getByRole("button", { name: "Preview on track", exact: true }).click();
   await expect(page.locator("#arrangement-info")).toContainText("Fit to space");
   await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeHidden();
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  await pickDrawing(canvas, hasTouch, 56, 96);
+  const placed = (await saveProject(page)).project;
+  expect(placed.items.slice(0, before.project.items.length)).toEqual(before.project.items);
+  expect(placed.items.length).toBeGreaterThan(before.project.items.length);
+  await expect(canvas.locator(warnedTrack).first()).toBeVisible();
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
   expect((await saveProject(page)).project).toEqual(before.project);
 
   await page.getByLabel("Extra storage track").selectOption("auto");
@@ -353,12 +328,23 @@ test("the arrangement picker fits both T-junctions and explains the third lane",
   );
 });
 
-test("a general plan starts with a single piece and names its first action", async ({ page }) => {
+test("a general plan can start at center and freely place a new piece", async ({
+  page,
+  hasTouch,
+}) => {
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "general", width: "128", depth: "192" });
   await expect(page.getByRole("radio", { name: "Single piece" })).toBeChecked();
   await expect(page.locator("#build-hint")).toContainText("Choose a piece to start");
-  await expect(page.getByRole("button", { name: "Place at center", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Place at center", exact: true }).click();
+  await page.getByLabel("Place at", { exact: true }).selectOption("drawing");
+  await page.getByRole("button", { name: "Place on drawing", exact: true }).click();
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  await pickDrawing(canvas, hasTouch, 0, 48);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(1);
+  const { project } = await saveProject(page);
+  expect(project.items).toHaveLength(2);
+  expect(project.items[1]).toMatchObject({ x: 0, y: 48 });
 });
 
 test("members can move by dragging or tapping, edit exact position, and undo", async ({
@@ -385,7 +371,8 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await page.getByRole("button", { name: "Move", exact: true }).click();
   }
   await canvas.scrollIntoViewIfNeeded();
-  const destination = await drawingPoint(canvas, item.x + 16, item.y + 16);
+  const movedY = item.y + 16;
+  const destination = await drawingPoint(canvas, 0, movedY);
   if (hasTouch) {
     await canvas.tap({ position: destination.position });
   } else {
@@ -397,8 +384,10 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
     await page.mouse.up();
   }
+  await expect(canvas.locator("[data-edit-preview] > *")).toHaveCount(0);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(1);
   const moved = (await saveProject(page)).project;
-  expect(moved.items).toEqual([{ ...item, x: item.x + 16, y: item.y + 16 }]);
+  expect(moved.items).toEqual([{ ...item, x: 0, y: movedY }]);
   const undo = page.getByRole("button", { name: "Undo", exact: true });
   const frame = await canvas.locator("svg[data-track-scene]").getAttribute("viewBox");
   await page.getByRole("button", { name: "Rotate right", exact: true }).click();
@@ -410,8 +399,8 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
     await page.getByRole("button", { name: "Move", exact: true }).tap();
     await page.getByRole("button", { name: "Cancel", exact: true }).tap();
   } else {
-    const { screen: start } = await drawingPoint(canvas, item.x + 16, item.y + 16);
-    const { screen: next } = await drawingPoint(canvas, item.x, item.y + 16);
+    const { screen: start } = await drawingPoint(canvas, 0, movedY);
+    const { screen: next } = await drawingPoint(canvas, item.x, movedY);
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
     await page.mouse.move(next.x, next.y, { steps: 3 });
@@ -429,11 +418,14 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
   await y.press("Enter");
   const positioned = (await saveProject(page)).project;
   expect(positioned.items).toEqual([{ ...item, x: 40, y: 48 }]);
+  await expect(canvas.locator(warnedTrack)).toHaveCount(0);
 
   await x.fill("-20");
   await y.press("Enter");
   await expect(page.getByRole("status")).toContainText(/outside the design area/i);
-  expect((await saveProject(page)).project).toEqual(positioned);
+  const outside = (await saveProject(page)).project;
+  expect(outside.items).toEqual([{ ...positioned.items[0], x: -20 }]);
+  await undo.click();
 
   await remove.click();
   await expect(piece).toHaveCount(0);
@@ -445,7 +437,7 @@ test("members can move by dragging or tapping, edit exact position, and undo", a
   expect((await saveProject(page)).project).toEqual(original);
 });
 
-test("members can copy and paste a piece at a valid position, then undo", async ({
+test("members can paste a single piece with keyboard shortcuts and undo it", async ({
   page,
   hasTouch,
 }) => {
@@ -463,22 +455,11 @@ test("members can copy and paste a piece at a valid position, then undo", async 
   await expect(status).toContainText("Track copied");
   await page.keyboard.press(`${modifier}+v`);
   await expect(canvas).toBeFocused();
-  await page.getByRole("combobox", { name: "Placement", exact: true }).selectOption("fine");
-  if (hasTouch) await piece.tap();
-  else await piece.click();
-  await expect(page.locator("#track-edit-hint")).toContainText("overlap");
-
-  await canvas.scrollIntoViewIfNeeded();
-  const destination = await drawingPoint(canvas, 44, 52);
-  if (hasTouch) {
-    await page.touchscreen.tap(Math.round(destination.screen.x), Math.round(destination.screen.y));
-  } else {
-    await page.mouse.click(destination.screen.x, destination.screen.y);
-  }
+  const placement = page.getByRole("combobox", { name: "Placement", exact: true });
+  await placement.selectOption("fine");
+  await pickDrawing(canvas, hasTouch, 44, 52);
   await expect(piece.last()).toHaveAttribute("aria-pressed", "true");
-  const empty = await drawingPoint(canvas, 90, 130);
-  if (hasTouch) await canvas.tap({ position: empty.position });
-  else await canvas.click({ position: empty.position });
+  await pickDrawing(canvas, hasTouch, 90, 130);
   const duplicated = (await saveProject(page)).project;
   expect(duplicated.items).toHaveLength(2);
   expect(duplicated.items[0]).toEqual(original.items[0]);
@@ -699,7 +680,7 @@ test("member traces parking and yard routes and undoes the placement", async ({ 
   expect(errors).toEqual([]);
 });
 
-test("undersized design areas reject large arrangements and keep controls accessible", async ({
+test("undersized design areas explain the fit and keep free placement accessible", async ({
   page,
 }) => {
   const errors = watchErrors(page);
@@ -718,6 +699,8 @@ test("undersized design areas reject large arrangements and keep controls access
   await expect(page.locator("#arrangement-requirements")).toContainText("48");
   await expect(page.locator("#arrangement-info")).toContainText(/straight|space|area/i);
   await expect(page.getByRole("button", { name: "Add to layout", exact: true })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Cancel preview", exact: true })).toBeEnabled();
+  await expect(page.locator("#arrangement-info")).toContainText(/click or tap the drawing/i);
   expect((await saveProject(page)).project).toEqual(before.project);
   await expect(page.getByRole("group", { name: "Track plan" })).toHaveAttribute("tabindex", "0");
   expect(errors).toEqual([]);

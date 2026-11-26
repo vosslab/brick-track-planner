@@ -45,6 +45,7 @@ export type SceneOptions = {
   preview?: ReadonlySet<string>;
   replacement?: ReadonlySet<string>;
   addition?: ReadonlySet<string>;
+  placementWarnings?: ReadonlySet<string>;
   routes?: readonly SceneRoute[];
   trace?: readonly SceneTrace[];
   grid?: boolean;
@@ -576,24 +577,44 @@ export function createScene(
   const partById = new Map(catalog.parts.map((part) => [part.id, part]));
   const tracks: SVGElement[] = [];
   const labels: SVGElement[] = [];
+  const warningOutlines: SVGPathElement[] = [];
   const drawn = new Map<string, Drawn>();
   for (const item of project.items.filter((item) => visible.has(item.layerId))) {
     const itemBounds = emptyBounds();
     const selected = options.selection?.has(item.id) ?? false;
     const preview = options.preview?.has(item.id) ?? false;
+    const part = item.kind === "track" ? partById.get(item.partId) : undefined;
     const drawing =
       item.kind === "track"
-        ? trackDrawing(
-            item,
-            partById.get(item.partId),
-            selected,
-            preview,
-            itemBounds,
-            layers,
-            options.interaction,
-          )
+        ? trackDrawing(item, part, selected, preview, itemBounds, layers, options.interaction)
         : unresolvedDrawing(item, selected, itemBounds, options.interaction);
     drawn.set(item.id, drawing);
+    if (part && item.kind === "track" && options.placementWarnings?.has(item.id)) {
+      drawing.node.setAttribute("data-placement-warning", "true");
+      const descriptionId = `${layers.prefix}-warning-${encodeURIComponent(item.id)}`;
+      drawing.node.setAttribute("aria-describedby", descriptionId);
+      drawing.node.append(
+        svg("desc", { id: descriptionId }, "Placement warning. See Diagnostics."),
+      );
+      const edge = {
+        d: pathData(part.footprint, true),
+        transform: poseTransform(item),
+        fill: "none",
+        "stroke-linejoin": "round",
+        "vector-effect": "non-scaling-stroke",
+        "aria-hidden": "true",
+      };
+      warningOutlines.push(
+        svg("path", { ...edge, stroke: paper, "stroke-width": 4.5 }),
+        svg("path", {
+          ...edge,
+          stroke: "#b91c1c",
+          "stroke-width": 2.5,
+          "stroke-dasharray": "5 3",
+          "data-placement-warning-for": item.id,
+        }),
+      );
+    }
     if (options.replacement?.has(item.id)) {
       drawing.node.setAttribute("opacity", "0.32");
       drawing.node.style.setProperty("--track-bed", "#d97070");
@@ -633,6 +654,7 @@ export function createScene(
       }),
     );
   }
+  layers.overlays.append(...warningOutlines);
   drawExits(project, analysis, bounds, layers.labels);
   const ports: SVGElement[] = [];
   for (const port of analysis.ports) {

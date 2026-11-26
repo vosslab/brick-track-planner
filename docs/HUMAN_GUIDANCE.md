@@ -56,7 +56,13 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use mouse editing on desktop and tap-to-move on mobile. Let members move
   several selected pieces together.
 - Make track editing feel like LibreOffice Draw or Inkscape. Keep moved,
-  pasted, or duplicated track on the first valid destination click or tap.
+  pasted, or duplicated track on the destination click or tap.
+- Users get frustrated when they hold a piece and cannot put it down.
+  Implement place-and-flag: let them drop the track, show what needs fixing,
+  and keep the solution simple.
+- Use layout tabs inside the planner so members can copy track between yards
+  and compare variations. Ask before closing a layout with unsaved edits.
+- Give those editing workflows priority over further Undo and Redo work.
 - Favor track ends and the club grid. Keep finer placement for special cases
   and use 90-degree turns for track rotation.
 - Fill straight gaps between components. Use larger parts and kits for

@@ -42,7 +42,7 @@ export default defineConfig({
     {
       name: "touch",
       use: { ...devices["Pixel 7"] },
-      testMatch: "**/member_design.spec.ts",
+      testMatch: ["**/member_design.spec.ts", "**/layout_tabs.spec.ts"],
     },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],

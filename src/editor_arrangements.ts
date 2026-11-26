@@ -1,16 +1,17 @@
 import { button, element, select } from "./editor_dom";
-import { previewArrangement } from "./arrangements";
+import { placeItems, previewArrangement } from "./arrangements";
 import type { ArrangementResult } from "./arrangements";
 import { withParkingKits } from "./parking";
 import { arrangementRequirements, findArrangementAnchors } from "./arrangement_anchors";
 import type { ArrangementAnchor } from "./arrangement_anchors";
-import type { Catalog, Point, Project } from "./project";
+import type { Catalog, Point, Pose, Project } from "./project";
 
 type PreviewHooks = {
   project: () => Project;
   preview: (result: ArrangementResult | undefined) => void;
   commit: (project: Project) => void;
   notice: (message: string, error?: boolean) => void;
+  noticePlacement?: (receipt: string, pieceIds: readonly string[]) => void;
   selection?: () => readonly string[];
   mainlineIds?: () => readonly string[];
   beginPreview?: () => void;
@@ -34,7 +35,8 @@ const PRODUCTS = new Set([
 ]);
 
 function describe(result: ArrangementResult): string {
-  if (result.ok) return "This fits. Choose Add to layout to keep it.";
+  if (result.ok)
+    return "This fits. Click or tap the drawing to place it, or choose Add to layout for this fit.";
   return result.issues.map(({ message }) => message).join(" ");
 }
 
@@ -74,7 +76,7 @@ export class ArrangementTools {
     this.#storage.addEventListener("change", () => this.reset());
     this.#location.addEventListener("change", () => {
       this.#candidateIndex = this.#location.selectedIndex;
-      this.#showCandidate(this.#choice.value);
+      this.#showCandidate();
     });
     this.#storage.disabled = !this.#usesStorage();
     this.#setRequirements();
@@ -116,22 +118,24 @@ export class ArrangementTools {
     }
     this.reset();
     const fitting = this.#fittingAnchors();
-    this.#storageStuds = fitting.storageStuds;
+    this.#storageStuds = fitting.candidates.length
+      ? fitting.storageStuds
+      : (this.#storageChoices()[0] ?? 0);
     this.#candidates = fitting.candidates;
-    this.#setRequirements();
+    this.#setPreviewVisible(true);
+    this.hooks.beginPreview?.();
     if (!this.#candidates.length) {
-      this.#setInfo(fitting.reason);
+      const { width, depth } = this.hooks.project().area;
+      this.#showPreview({ x: width / 2, y: depth / 2, angle: 0 }, fitting.reason);
       return;
     }
-    this.#setPreviewVisible(true);
     this.#renderLocations();
-    this.hooks.beginPreview?.();
-    this.#showCandidate(choice);
+    this.#showCandidate();
   }
 
-  /** The canvas calls this while a preview is open to choose a nearby anchor. */
+  /** Place a nearby fitted arrangement or put the held kit at the clicked point. */
   pick(point: Point): boolean {
-    if (!this.#result || !this.#candidates.length) return false;
+    if (!this.#result) return false;
     const nearby = this.#candidates
       .map((candidate, index) => ({
         index,
@@ -139,42 +143,94 @@ export class ArrangementTools {
       }))
       .filter(({ distance }) => distance <= 24)
       .sort((first, second) => first.distance - second.distance)[0];
-    if (!nearby) return false;
-    this.#selectCandidate(nearby.index);
+    if (nearby) {
+      this.#selectCandidate(nearby.index);
+      if (this.#result?.ok && this.#result.project) {
+        this.apply();
+        return true;
+      }
+    }
+    const project = this.hooks.project();
+    const result = previewArrangement(project, this.#catalogFor(this.#storageStuds), {
+      kitId: this.#choice.value,
+      pose: {
+        x: point.x,
+        y: point.y,
+        angle: this.#candidates[this.#candidateIndex]?.pose.angle ?? 0,
+      },
+      heightPlates: project.area.niltc ? 2 : 0,
+    });
+    if (!result.candidateItems?.length) return true;
+    try {
+      const placed = placeItems(project, result.candidateItems);
+      this.#commit(placed, result.addedIds);
+    } catch (error) {
+      this.#fail(error);
+    }
     return true;
   }
 
   private apply(): void {
     if (!this.#result?.ok || !this.#result.project) return;
+    this.#commit(this.#result.project, this.#result.addedIds);
+  }
+
+  #commit(project: Project, addedIds: readonly string[]): void {
     const storage = this.#storageDescription();
     const name = this.#choice.selectedOptions[0]!.text;
     const message = `Added ${name}.${storage ? ` ${storage}` : ""} Choose Single piece to extend an open end.`;
-    this.hooks.commit(this.#result.project);
+    this.reset();
+    try {
+      this.hooks.commit(project);
+    } catch (error) {
+      this.#fail(error);
+      return;
+    }
     this.#setInfo(message);
-    this.hooks.notice(message);
+    if (this.hooks.noticePlacement) this.hooks.noticePlacement(message, addedIds);
+    else this.hooks.notice(message);
     this.#previewButton.focus();
   }
 
-  #showCandidate(choice: string): void {
+  #fail(error: unknown): void {
+    this.reset();
+    const message = error instanceof Error ? error.message : String(error);
+    this.#setInfo(message);
+    this.hooks.notice(message, true);
+    this.#previewButton.focus();
+  }
+
+  #showCandidate(): void {
     const candidate = this.#candidates[this.#candidateIndex];
     if (!candidate) return;
+    this.#showPreview(candidate.pose, candidate.message + ".", candidate);
+  }
+
+  #showPreview(pose: Pose, message: string, candidate?: ArrangementAnchor): void {
     const project = this.hooks.project();
     const heightPlates = project.area.niltc ? 2 : 0;
     const catalog = this.#catalogFor(this.#storageStuds);
     const result = previewArrangement(project, catalog, {
-      kitId: choice,
-      pose: candidate.pose,
+      kitId: this.#choice.value,
+      pose,
       heightPlates,
-      replaceIds: candidate.replaceIds,
-      fillers: candidate.fillers,
+      replaceIds: candidate?.replaceIds,
+      fillers: candidate?.fillers,
     });
     this.#result = result;
+    this.#setRequirements();
     this.hooks.preview(result);
-    this.#applyButton.disabled = !result.ok;
-    this.#applyButton.hidden = !result.ok;
+    this.#applyButton.disabled = !candidate || !result.ok;
+    this.#applyButton.hidden = !candidate || !result.ok;
     this.#cancelButton.disabled = false;
     this.#setInfo(
-      [candidate.message + ".", this.#storageDescription(), describe(result)]
+      [
+        message,
+        this.#storageDescription(),
+        candidate
+          ? describe(result)
+          : "Click or tap the drawing to place it and check Diagnostics.",
+      ]
         .filter(Boolean)
         .join(" "),
     );
@@ -183,7 +239,7 @@ export class ArrangementTools {
   #selectCandidate(index: number): void {
     this.#candidateIndex = index;
     this.#location.selectedIndex = index;
-    this.#showCandidate(this.#choice.value);
+    this.#showCandidate();
   }
 
   #fittingAnchors(): { storageStuds: number; candidates: ArrangementAnchor[]; reason: string } {
@@ -251,7 +307,7 @@ export class ArrangementTools {
 
   #setRequirements(): void {
     const storage =
-      this.#storage.value === "auto" && this.#candidates.length
+      this.#storage.value === "auto" && this.#result
         ? this.#storageStuds
         : Number(this.#storage.value === "auto" ? 0 : this.#storage.value);
     const catalog = this.#catalogFor(Number.isSafeInteger(storage) ? storage : 0);

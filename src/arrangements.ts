@@ -1,16 +1,24 @@
+import type { Analysis } from "./engine";
 import {
   angleGap,
   composePose,
   ensureVisibleWorkingLayer,
   projectId,
+  validateProject,
   visibleTrackItems,
 } from "./project";
-import type { Catalog, Kit, Point, Pose, Project, TrackItem } from "./project";
+import type { Catalog, Endpoint, Kit, Part, Point, Pose, Project, TrackItem } from "./project";
 
 export type ArrangementIssue = {
   kind: "unknown-kit" | "unknown-part" | "outside-area" | "overlap" | "misaligned";
   message: string;
   itemId?: string;
+};
+
+export type PlacementWarning = {
+  kind: "outside-area" | "overlap" | "height" | "ambiguous" | "handoff";
+  message: string;
+  pieceIds: string[];
 };
 
 export type ArrangementResult = {
@@ -40,7 +48,7 @@ function newId(prefix: string, index: number): string {
 }
 
 function rotate(point: Point, angle: number): Point {
-  const radians = (angle * Math.PI) / 180;
+  const radians = ((angle % 360) * Math.PI) / 180;
   return {
     x: point.x * Math.cos(radians) - point.y * Math.sin(radians),
     y: point.x * Math.sin(radians) + point.y * Math.cos(radians),
@@ -59,12 +67,12 @@ function footprintBounds(points: readonly Point[], pose: Pose): Bounds {
   return bounds;
 }
 
-function overlaps(first: Bounds, second: Bounds): boolean {
+function overlaps(first: Bounds, second: Bounds, tolerance = 0.05): boolean {
   return (
-    first.left < second.right - 0.05 &&
-    first.right > second.left + 0.05 &&
-    first.top < second.bottom - 0.05 &&
-    first.bottom > second.top + 0.05
+    first.left < second.right - tolerance &&
+    first.right > second.left + tolerance &&
+    first.top < second.bottom - tolerance &&
+    first.bottom > second.top + tolerance
   );
 }
 
@@ -135,6 +143,294 @@ function polygonsOverlap(first: readonly Point[], second: readonly Point[]): boo
   });
 }
 
+type RailSegment = { start: Point; end: Point; first: boolean; last: boolean; length: number };
+type RailShape = {
+  track: TrackItem;
+  part: Part;
+  bounds: Bounds;
+  segments: RailSegment[];
+  straightBounds?: Bounds;
+};
+const railTolerance = 0.05;
+const joinAngle = 0.25;
+const heightMismatchMessage =
+  "These rail ends meet at different heights. Move them apart or use track at a matching height.";
+
+function railSegments(part: Part, track: TrackItem): RailSegment[] {
+  return part.paths.flatMap((path) => {
+    const points = polygon(path, track);
+    return points.flatMap((start, index) => {
+      const end = points[index + 1];
+      if (!end) return [];
+      const length = Math.hypot(end.x - start.x, end.y - start.y);
+      return length
+        ? [{ start, end, length, first: index === 0, last: index === points.length - 2 }]
+        : [];
+    });
+  });
+}
+
+function railSegmentsOverlap(
+  first: RailSegment,
+  second: RailSegment,
+  includeEnds: boolean,
+): boolean {
+  const a = cross(first.start, first.end, second.start) / first.length;
+  const b = cross(first.start, first.end, second.end) / first.length;
+  const c = cross(second.start, second.end, first.start) / second.length;
+  const d = cross(second.start, second.end, first.end) / second.length;
+  if (Math.max(Math.abs(a), Math.abs(b), Math.abs(c), Math.abs(d)) <= railTolerance) {
+    const dx = first.end.x - first.start.x;
+    const dy = first.end.y - first.start.y;
+    const project = ({ x, y }: Point): number =>
+      ((x - first.start.x) * dx + (y - first.start.y) * dy) / first.length;
+    const start = project(second.start);
+    const end = project(second.end);
+    return (
+      Math.min(first.length, Math.max(start, end)) - Math.max(0, Math.min(start, end)) >
+      railTolerance
+    );
+  }
+  // Molded paths can meet at their ends even where their schematic footprints touch.
+  const crosses = (segment: RailSegment, start: number, end: number): boolean => {
+    const crossing = (start * segment.length) / (start - end);
+    return (
+      crossing >= (!includeEnds && segment.first ? railTolerance : -1e-8) &&
+      crossing <= segment.length + (!includeEnds && segment.last ? -railTolerance : 1e-8)
+    );
+  };
+  return crosses(first, c, d) && crosses(second, a, b);
+}
+
+function straightBounds(part: Part): Bounds | undefined {
+  const [path] = part.paths;
+  if (part.paths.length !== 1 || path?.length !== 2 || path.some(({ y }) => y !== 0))
+    return undefined;
+  const bounds = footprintBounds(part.footprint, { x: 0, y: 0, angle: 0 });
+  if (
+    part.footprint.length === 4 &&
+    part.footprint.every(
+      ({ x, y }) =>
+        (x === bounds.left || x === bounds.right) && (y === bounds.top || y === bounds.bottom),
+    )
+  )
+    return bounds;
+  return undefined;
+}
+
+function isOrdinaryCurve(part: Part): boolean {
+  return (
+    part.radius !== undefined &&
+    part.paths.length === 1 &&
+    part.ports.length === 2 &&
+    part.ports.every(({ type }) => type === "regular")
+  );
+}
+
+function alignedFootprint(shape: RailShape, frame: TrackItem, angle: number): Bounds {
+  const offset = rotate({ x: shape.track.x - frame.x, y: shape.track.y - frame.y }, -frame.angle);
+  return footprintBounds(shape.part.footprint, { ...offset, angle });
+}
+
+function railShapesOverlap(first: RailShape, second: RailShape, catalog: Catalog): boolean {
+  const { straightBounds } = first;
+  const { straightBounds: secondStraightBounds } = second;
+  const bothStraight = straightBounds !== undefined && secondStraightBounds !== undefined;
+  if (bothStraight) {
+    if (joinsAtRailEnd(first.track, second.track, catalog)) return false;
+    const angle = (second.track.angle % 360) - (first.track.angle % 360);
+    const gap = angleGap(0, angle);
+    const secondInFirst = alignedFootprint(second, first.track, angle);
+    if (Math.min(gap, 180 - gap) <= 1e-6) return overlaps(straightBounds, secondInFirst);
+
+    // shortcut: Allow half a stud of angled bed intrusion until footprints model molded corners.
+    const angledBedTolerance = 0.5;
+    if (
+      overlaps(straightBounds, secondInFirst, angledBedTolerance) &&
+      overlaps(
+        secondStraightBounds,
+        alignedFootprint(first, second.track, -angle),
+        angledBedTolerance,
+      )
+    )
+      return true;
+  }
+  if (
+    first.segments.some((left) =>
+      second.segments.some((right) => railSegmentsOverlap(left, right, bothStraight)),
+    )
+  )
+    return true;
+  return (
+    !bothStraight &&
+    (straightBounds !== undefined || isOrdinaryCurve(first.part)) &&
+    (second.straightBounds !== undefined || isOrdinaryCurve(second.part)) &&
+    !joinsAtRailEnd(first.track, second.track, catalog) &&
+    polygonsOverlap(
+      polygon(first.part.footprint, first.track),
+      polygon(second.part.footprint, second.track),
+    )
+  );
+}
+
+function railOverlapWarnings(project: Project, catalog: Catalog): PlacementWarning[] {
+  const items = visibleTrackItems(project);
+  if (items.length < 2) return [];
+  const parts = new Map(catalog.parts.map((part) => [part.id, part]));
+  const shapes = items.flatMap((track): RailShape[] => {
+    const part = parts.get(track.partId);
+    return part?.paths.length
+      ? [
+          {
+            track,
+            part,
+            bounds: footprintBounds(part.footprint, track),
+            segments: railSegments(part, track),
+            straightBounds: straightBounds(part),
+          },
+        ]
+      : [];
+  });
+  const left = (shape: RailShape): number => shape.bounds.left;
+  const top = (shape: RailShape): number => shape.bounds.top;
+  const extent = (coordinate: (shape: RailShape) => number): number => {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const shape of shapes) {
+      min = Math.min(min, coordinate(shape));
+      max = Math.max(max, coordinate(shape));
+    }
+    return max - min;
+  };
+  const vertical = extent(top) > extent(left);
+  const start = vertical ? top : left;
+  shapes.sort((a, b) => start(a) - start(b));
+  const warned = new Set<string>();
+  const warnings: PlacementWarning[] = [];
+  // shortcut: Use routed paths for molded parts and adapters until footprints model valid kit contacts.
+  for (const [index, first] of shapes.entries()) {
+    const firstId = first.track.id;
+    const end = vertical ? first.bounds.bottom : first.bounds.right;
+    for (let next = index + 1; next < shapes.length; next++) {
+      const second = shapes[next];
+      if (!second || start(second) > end) break;
+      const secondId = second.track.id;
+      if (warned.has(firstId) && warned.has(secondId)) continue;
+      if (
+        first.track.heightPlates === second.track.heightPlates &&
+        overlaps(first.bounds, second.bounds) &&
+        railShapesOverlap(first, second, catalog)
+      ) {
+        warned.add(firstId);
+        warned.add(secondId);
+        warnings.push({
+          kind: "overlap",
+          message: `${first.part.name} overlaps ${second.part.name}. Move or remove one piece.`,
+          pieceIds: [firstId, secondId],
+        });
+        if (warned.size === shapes.length) return warnings;
+      }
+    }
+  }
+  return warnings;
+}
+
+function railPortsAlign(first: Pose, second: Pose): boolean {
+  return (
+    Math.hypot(first.x - second.x, first.y - second.y) <= railTolerance &&
+    angleGap(first.angle, second.angle + 180) <= joinAngle
+  );
+}
+
+function heightWarnings(ports: Analysis["ports"]): PlacementWarning[] {
+  const firstHeight = ports[0]?.heightPlates;
+  if (ports.every(({ heightPlates }) => heightPlates === firstHeight)) return [];
+  const cells = new Map<string, Analysis["ports"]>();
+  const warned = new Set<string>();
+  const warnings: PlacementWarning[] = [];
+  for (const port of ports) {
+    const cellX = Math.floor(port.x / railTolerance);
+    const cellY = Math.floor(port.y / railTolerance);
+    const key = `${cellX},${cellY}`;
+    for (let x = cellX - 1; x <= cellX + 1; x++) {
+      for (let y = cellY - 1; y <= cellY + 1; y++) {
+        for (const neighbor of cells.get(`${x},${y}`) ?? []) {
+          if (
+            neighbor.heightPlates === port.heightPlates ||
+            neighbor.pieceId === port.pieceId ||
+            neighbor.type !== port.type ||
+            (warned.has(neighbor.pieceId) && warned.has(port.pieceId)) ||
+            !railPortsAlign(port, neighbor)
+          )
+            continue;
+          warned.add(neighbor.pieceId);
+          warned.add(port.pieceId);
+          warnings.push({
+            kind: "height",
+            message: heightMismatchMessage,
+            pieceIds: [neighbor.pieceId, port.pieceId],
+          });
+        }
+      }
+    }
+    const occupants = cells.get(key);
+    if (occupants) occupants.push(port);
+    else cells.set(key, [port]);
+  }
+  return warnings;
+}
+
+/** Evaluate the current track placement, including files and undo snapshots. */
+export function placementWarnings(analysis: Analysis, catalog: Catalog): PlacementWarning[] {
+  const warnings = railOverlapWarnings(analysis.project, catalog);
+  for (const { pieceId } of analysis.overhangs)
+    warnings.push({
+      kind: "outside-area",
+      message: "This piece extends outside the design area.",
+      pieceIds: [pieceId],
+    });
+  warnings.push(...heightWarnings(analysis.ports));
+
+  const key = ({ pieceId, portId }: Endpoint): string => JSON.stringify([pieceId, portId]);
+  const handoffs = new Map<string, string>();
+  for (const { outer, inner, name } of analysis.project.area.exits) {
+    const message = `Track occupies the named handoff "${name}". Leave it open for the next display.`;
+    handoffs.set(key(outer), message);
+    handoffs.set(key(inner), message);
+  }
+  const ambiguousPieces = new Set<string>();
+  for (const port of analysis.ports) {
+    if (!port.ambiguous) continue;
+    ambiguousPieces.add(port.pieceId);
+    const message = handoffs.get(key(port));
+    if (message)
+      warnings.push({
+        kind: "handoff",
+        message,
+        pieceIds: [port.pieceId],
+      });
+  }
+  for (const pieceId of ambiguousPieces)
+    warnings.push({
+      kind: "ambiguous",
+      message: "More than one rail end competes for this joint. Move or remove one piece.",
+      pieceIds: [pieceId],
+    });
+  if (handoffs.size) {
+    for (const { kind, from, to } of analysis.routes) {
+      if (kind !== "joint") continue;
+      const message = handoffs.get(key(from)) ?? handoffs.get(key(to));
+      if (message)
+        warnings.push({
+          kind: "handoff",
+          message,
+          pieceIds: [from.pieceId, to.pieceId],
+        });
+    }
+  }
+  return warnings;
+}
+
 function tracksForKit(
   catalog: Catalog,
   kit: Kit,
@@ -199,17 +495,17 @@ function regularPorts(
   );
 }
 
+function railEndsAlign(first: TrackItem, second: TrackItem, catalog: Catalog): boolean {
+  const rightPorts = regularPorts(second, catalog);
+  return regularPorts(first, catalog).some((left) =>
+    rightPorts.some((right) => railPortsAlign(left, right)),
+  );
+}
+
 /** A molded turnout may extend about a stud beyond its rail connector. That
  * small footprint overlap is valid only when two real regular rail ports mate. */
 function joinsAtRailEnd(first: TrackItem, second: TrackItem, catalog: Catalog): boolean {
-  if (first.heightPlates !== second.heightPlates) return false;
-  return regularPorts(first, catalog).some((left) =>
-    regularPorts(second, catalog).some(
-      (right) =>
-        Math.hypot(left.x - right.x, left.y - right.y) <= 0.05 &&
-        angleGap(left.angle, right.angle + 180) <= 0.25,
-    ),
-  );
+  return first.heightPlates === second.heightPlates && railEndsAlign(first, second, catalog);
 }
 
 function endpoint(
@@ -352,6 +648,19 @@ function physicalTrackIssues(
     for (const placed of existing) {
       const placedPart = catalog.parts.find(({ id }) => id === placed.partId);
       if (!placedPart) continue;
+      if (
+        track.heightPlates !== placed.heightPlates &&
+        part.ports.some((left) =>
+          placedPart.ports.some(
+            (right) =>
+              left.type === right.type &&
+              railPortsAlign(composePose(left, track), composePose(right, placed)),
+          ),
+        )
+      ) {
+        issues.push({ kind: "misaligned", itemId: placed.id, message: heightMismatchMessage });
+        continue;
+      }
       const placedBounds = footprintBounds(placedPart.footprint, placed);
       if (
         overlaps(bounds, placedBounds) &&
@@ -428,12 +737,7 @@ export function commitItems(
   const working = ensureVisibleWorkingLayer(project);
   const visibleIds = new Set(visibleTrackItems(working.project).map((item) => item.id));
   const replacement = new Set((request.replaceIds ?? []).filter((id) => visibleIds.has(id)));
-  const visibleLayers = new Set(
-    working.project.layers.filter((layer) => layer.visible).map((layer) => layer.id),
-  );
-  const tracks = request.items.map((item) =>
-    visibleLayers.has(item.layerId) ? item : { ...item, layerId: working.layerId },
-  );
+  const tracks = itemsOnVisibleLayers(working.project, working.layerId, request.items);
   const issues = physicalTrackIssues(
     working.project,
     catalog,
@@ -449,6 +753,29 @@ export function commitItems(
     candidateItems: tracks,
     project: issues.length ? undefined : replace(working.project, catalog, replacement, tracks),
   };
+}
+
+function itemsOnVisibleLayers(
+  project: Project,
+  layerId: string,
+  items: readonly TrackItem[],
+): TrackItem[] {
+  const visible = new Set(project.layers.filter((layer) => layer.visible).map((layer) => layer.id));
+  return items.map((item) => (visible.has(item.layerId) ? item : { ...item, layerId }));
+}
+
+/** Append freely placed track while preserving the project format and layer limits. */
+export function placeItems(project: Project, items: readonly TrackItem[]): Project {
+  const working = ensureVisibleWorkingLayer(project);
+  const placed = {
+    ...working.project,
+    items: [
+      ...working.project.items,
+      ...itemsOnVisibleLayers(working.project, working.layerId, items),
+    ],
+  };
+  validateProject(placed);
+  return placed;
 }
 
 function replace(

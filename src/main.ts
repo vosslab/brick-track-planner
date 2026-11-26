@@ -1,13 +1,16 @@
 import { setupAreaForm } from "./area_form";
 import type { AreaSetup } from "./area_form";
-import type { ArrangementResult } from "./arrangements";
+import { placementWarnings } from "./arrangements";
+import type { ArrangementResult, PlacementWarning } from "./arrangements";
 import { ArrangementTools } from "./editor_arrangements";
 import { EditorCamera } from "./editor_camera";
+import type { CameraView } from "./editor_camera";
 import { button, element, input } from "./editor_dom";
 import { errorMessage, setupFiles } from "./editor_files";
 import { renderInventory } from "./editor_inventory";
 import { renderDiagnostics } from "./editor_panels";
 import { EditorState } from "./editor_state";
+import { setupTabs } from "./editor_tabs";
 import { TrackTools } from "./editor_track";
 import { evaluate, initEngine } from "./engine";
 import type { Analysis } from "./engine";
@@ -18,11 +21,18 @@ import {
   signupToAreaDimensions,
 } from "./niltc_starters";
 import { withParkingKits } from "./parking";
-import { newProject } from "./project";
+import { ensureVisibleWorkingLayer, newProject, projectId } from "./project";
 import type { Catalog, Project } from "./project";
 import { createScene, drawEditPreview } from "./scene";
 import { traceRoute } from "./route_trace";
 import { showInventory } from "./show_inventory";
+
+type LayoutTab = {
+  id: string;
+  state: EditorState;
+  view: CameraView | undefined;
+  savedProject: Project | undefined;
+};
 
 function notice(message: string, error = false): void {
   const status = element("status");
@@ -47,11 +57,17 @@ function start(setup: AreaSetup, catalog: Catalog): Project {
 class Planner {
   readonly #catalog: Catalog;
   readonly #camera: EditorCamera;
-  #state: EditorState | undefined;
+  readonly #layouts: LayoutTab[] = [];
+  readonly #tabs: ReturnType<typeof setupTabs>;
+  readonly #areaForm: ReturnType<typeof setupAreaForm>;
+  #active: LayoutTab | undefined;
+  #navigation = 0;
   readonly #tracks: TrackTools;
   readonly #arrangements: ArrangementTools;
   #preview: ArrangementResult | undefined;
   #scene: SVGSVGElement | undefined;
+  #warnings: PlacementWarning[] = [];
+  #warnedPieces = new Set<string>();
 
   constructor(catalog: Catalog) {
     this.#catalog = catalog;
@@ -61,12 +77,13 @@ class Planner {
         if (this.#preview) this.#arrangements.pick(point);
         else this.#tracks.pick(point, target, this.#camera.snapRadius, multiple);
       },
-      hover: (event): void => {
-        if (!this.#tracks.pickingDestination || !(event.target instanceof Element)) return;
+      hover: (event, target): void => {
+        if (!this.#tracks.pickingDestination) return;
         const point = this.#camera.world(event.clientX, event.clientY);
-        this.#tracks.move(point, this.#camera.snapRadius, event.target);
+        this.#tracks.move(point, this.#camera.snapRadius, target);
       },
       clearHover: (): void => this.#tracks.clearHover(),
+      holding: (): boolean => Boolean(this.#preview || this.#tracks.pickingDestination),
       beginDrag: (point, target): "drag" | "pan" | "blocked" =>
         this.#tracks.beginMove(point, target),
       drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
@@ -82,6 +99,7 @@ class Planner {
         if (this.#preview) this.#arrangements.reset();
       },
       notice,
+      noticePlacement: (receipt, ids): void => this.#noticePlacement(receipt, ids),
     });
     this.#arrangements = new ArrangementTools(catalog, {
       project: (): Project => this.#requireState().project,
@@ -103,51 +121,60 @@ class Planner {
       },
       beginPreview: (): void => this.#tracks.stopPicking(),
       preview: (result): void => {
+        if (this.#preview === result) return;
         this.#preview = result;
         this.#tracks.setArrangementActive(Boolean(result));
         this.#draw();
       },
       commit: (project): void => this.#commit(project),
       notice,
+      noticePlacement: (receipt, ids): void => this.#noticePlacement(receipt, ids),
+    });
+    this.#tabs = setupTabs({
+      activate: (id): void => {
+        const layout = this.#layouts.find((tab) => tab.id === id);
+        if (!layout || layout === this.#active) return;
+        this.#navigation++;
+        this.#activate(layout);
+      },
+      duplicate: (): void => this.#duplicate(),
+      close: (): void => {
+        void this.#close();
+      },
     });
     setupFiles(catalog, {
-      analysis: (): Analysis => this.#requireState().analysis,
-      open: (project): void => this.#replace(project),
+      analysis: (): Analysis => {
+        this.#commitName();
+        return this.#requireState().analysis;
+      },
+      beginOpen: (): number => ++this.#navigation,
+      open: (project, saved, intent): void => this.#open(project, saved, intent),
+      saved: (project): void => {
+        const owner = this.#layouts.find((tab) => tab.state.project === project);
+        if (owner) owner.savedProject = project;
+      },
       notice,
     });
-    const form = setupAreaForm({
-      create: (setup): void => this.#replace(start(setup, catalog)),
-      update: (setup): void =>
-        this.#commit(
-          resizeDesignArea(this.#requireState().project, catalog, {
-            ...setup,
-            ...signupToAreaDimensions(setup, setup.fronts),
-          }),
-          true,
-        ),
+    this.#areaForm = setupAreaForm({
+      create: (setup): void => {
+        const intent = ++this.#navigation;
+        this.#open(start(setup, catalog), false, intent);
+      },
     });
-    button("new-project").onclick = (): void => form.open();
-    button("edit-design-area").onclick = (): void => {
-      const { name, area } = this.#requireState().project;
-      form.open({
-        name,
-        ...areaToSignupDimensions(area, area.fronts),
-        assignment: area.niltc ?? "general",
-        fronts: area.fronts,
-      });
+    button("new-project").onclick = (): void => {
+      this.#navigation++;
+      this.#areaForm.open();
     };
+    button("edit-design-area").onclick = (): void => this.#editArea();
     button("undo").onclick = (): void => this.#history("undo");
     button("redo").onclick = (): void => this.#history("redo");
     button("fit-view").onclick = (): void => this.#draw(true);
     button("zoom-in").onclick = (): void => this.#camera.zoom(0.8);
     button("zoom-out").onclick = (): void => this.#camera.zoom(1.25);
     button("rotate-view").onclick = (): void => this.#camera.rotateView();
-    input("project-name").onchange = (): void => {
-      const name = input("project-name").value.trim() || "My track plan";
-      this.#commit({ ...this.#requireState().project, name });
-    };
+    input("project-name").onchange = (): void => this.#commitName();
     document.addEventListener("keydown", (event) => {
-      if (!this.#state || event.defaultPrevented || document.querySelector("dialog[open]")) return;
+      if (!this.#active || event.defaultPrevented || document.querySelector("dialog[open]")) return;
       if (event.key === "Escape" && this.#tracks.pickingDestination) {
         event.preventDefault();
         this.#tracks.cancel();
@@ -178,7 +205,9 @@ class Planner {
       } else if (event.key === "Enter" || event.key === " ") {
         const target = event.target;
         const placement =
-          target === tabletop && event.key === "Enter" && this.#tracks.pickingDestination
+          target === tabletop &&
+          event.key === "Enter" &&
+          (this.#preview || this.#tracks.pickingDestination)
             ? tabletop
             : target instanceof SVGElement
               ? target.closest<SVGElement>('[data-piece-id][role="button"]')
@@ -194,49 +223,178 @@ class Planner {
         }
       }
     });
-    form.start();
+    this.#areaForm.start();
     notice("");
   }
 
   #commit(project: Project, fit = false): void {
-    this.#requireState().commit(project);
+    const state = this.#requireState();
+    const oldName = state.project.name;
+    state.commit(project);
     this.#reset(fit);
+    if (state.project.name !== oldName) this.#renderTabs();
   }
 
-  #replace(project: Project): void {
-    this.#state = new EditorState(project);
-    element("editor").hidden = false;
-    element("start-screen").hidden = true;
-    button("open-project").hidden = false;
-    element("project-file-actions").hidden = false;
-    document.body.dataset["projectOpen"] = "";
+  #commitName(): void {
+    const state = this.#active?.state;
+    if (!state) return;
+    const field = input("project-name");
+    if (field.value === state.project.name) return;
+    const name = field.value.trim() || "My track plan";
+    field.value = name;
+    if (name !== state.project.name) this.#commit({ ...state.project, name });
+  }
+
+  #editArea(): void {
+    const layout = this.#active;
+    if (!layout) return;
+    this.#navigation++;
+    this.#commitName();
+    const { name, area } = layout.state.project;
+    this.#areaForm.open({
+      setup: {
+        name,
+        ...areaToSignupDimensions(area, area.fronts),
+        assignment: area.niltc ?? "general",
+        fronts: area.fronts,
+      },
+      update: (setup): void => {
+        const project = resizeDesignArea(layout.state.project, this.#catalog, {
+          ...setup,
+          ...signupToAreaDimensions(setup, setup.fronts),
+        });
+        if (layout === this.#active) this.#commit(project, true);
+        else {
+          layout.state.commit(project);
+          this.#renderTabs();
+        }
+      },
+    });
+  }
+
+  #open(project: Project, saved: boolean, intent: number, view?: CameraView): void {
+    const state = new EditorState(project);
+    const tab = {
+      id: projectId("layout"),
+      state,
+      view,
+      savedProject: saved ? state.project : undefined,
+    };
+    this.#layouts.push(tab);
+    if (intent === this.#navigation || !this.#active) this.#activate(tab, !saved);
+    else this.#renderTabs();
+  }
+
+  #renderTabs(focus = false, focusAfterDialog = false): void {
+    const dialog = focus ? document.querySelector<HTMLDialogElement>("dialog:modal") : null;
+    const active = this.#active;
+    this.#tabs.render(
+      this.#layouts.map(({ id, state }) => ({ id, name: state.project.name })),
+      active?.id,
+      focus && !dialog,
+    );
+    dialog?.addEventListener(
+      "close",
+      () => {
+        if (active !== this.#active || document.querySelector("dialog:modal")) return;
+        const focused = document.activeElement;
+        if (focusAfterDialog || focused === document.body || !focused?.getClientRects().length)
+          this.#renderTabs(true);
+      },
+      { once: true },
+    );
+  }
+
+  #activate(tab: LayoutTab | undefined, focusAfterDialog = false): void {
+    const outgoing = this.#active;
+    if (outgoing === tab) return;
+    if (outgoing) {
+      this.#commitName();
+      outgoing.view = this.#camera.snapshot();
+    }
+    this.#camera.restore(tab?.view);
+    if (outgoing) {
+      if (tab) this.#tracks.stopPicking();
+      else {
+        this.#tracks.reset(true);
+        this.#preview = undefined;
+        this.#arrangements.reset();
+      }
+    }
+    this.#active = tab;
+    element("editor").hidden = !tab;
+    element("start-screen").hidden = Boolean(tab);
+    button("open-project").hidden = !tab;
+    element("project-file-actions").hidden = !tab;
+    document.body.toggleAttribute("data-project-open", Boolean(tab));
+    if (!tab) {
+      this.#renderTabs();
+      this.#areaForm.start();
+      input("area-name").focus({ preventScroll: true });
+      notice("");
+      return;
+    }
+    this.#renderTabs(true, focusAfterDialog);
     this.#arrangements.useDefaults();
     this.#tracks.useDefaultTool();
-    this.#camera.reset();
-    this.#reset(true, true);
-    element("library-title").focus();
+    this.#reset(false, true);
+  }
+
+  #duplicate(): void {
+    if (!this.#active) return;
+    this.#commitName();
+    const project = this.#active.state.project;
+    const names = new Set(this.#layouts.map(({ state }) => state.project.name));
+    let name = `${project.name} (copy)`;
+    for (let number = 2; names.has(name); number++) name = `${project.name} (copy ${number})`;
+    this.#open({ ...project, name }, false, ++this.#navigation, this.#camera.snapshot());
+  }
+
+  async #close(): Promise<void> {
+    const tab = this.#active;
+    if (!tab) return;
+    this.#navigation++;
+    this.#commitName();
+    const { project } = tab.state;
+    const saved = tab.savedProject;
+    const clean = project === saved || (saved && JSON.stringify(project) === JSON.stringify(saved));
+    if (!clean && !(await this.#tabs.confirmClose(project.name))) return;
+    const index = this.#layouts.indexOf(tab);
+    if (index < 0) return;
+    this.#layouts.splice(index, 1);
+    if (this.#active === tab) this.#activate(this.#layouts[index] ?? this.#layouts[index - 1]);
+    else this.#renderTabs();
   }
 
   #requireState(): EditorState {
-    if (!this.#state) throw new Error("Start a design or open a track plan first.");
-    return this.#state;
+    if (!this.#active) throw new Error("Start a design or open a track plan first.");
+    return this.#active.state;
+  }
+
+  #noticePlacement(receipt: string, ids: readonly string[]): void {
+    const issue = this.#warnings.find(({ pieceIds }) => pieceIds.some((id) => ids.includes(id)));
+    notice(issue ? `${receipt} ${issue.message} See Diagnostics.` : receipt, Boolean(issue));
   }
 
   #history(direction: "undo" | "redo"): void {
     const state = this.#requireState();
     if (direction === "undo" ? !state.canUndo : !state.canRedo) return;
+    const oldName = state.project.name;
     state.change(direction);
     this.#reset();
+    if (state.project.name !== oldName) this.#renderTabs();
     notice(direction === "undo" ? "Edit undone." : "Edit restored.");
   }
 
   #reset(fit = false, clearSelection = false): void {
     this.#preview = undefined;
+    const state = this.#requireState();
+    const { project, analysis } = state;
+    this.#warnings = placementWarnings(analysis, this.#catalog);
+    this.#warnedPieces = new Set(this.#warnings.flatMap(({ pieceIds }) => pieceIds));
     notice("");
     this.#tracks.reset(clearSelection);
     this.#arrangements.reset();
-    const state = this.#requireState();
-    const { project, analysis } = state;
     input("project-name").value = project.name;
     const inches = (studs: number): string => String(Number(((studs * 10) / 32).toFixed(2)));
     const { width, depth } = areaToSignupDimensions(project.area, project.area.fronts);
@@ -248,7 +406,7 @@ class Planner {
     button("undo").disabled = !state.canUndo;
     button("redo").disabled = !state.canRedo;
     renderInventory(showInventory(project, this.#catalog));
-    renderDiagnostics(analysis, (id) => this.#tracks.selectPiece(id));
+    renderDiagnostics(analysis, this.#warnings, (id) => this.#tracks.selectPiece(id));
     this.#draw(fit);
   }
 
@@ -256,22 +414,30 @@ class Planner {
     const { analysis, project } = this.#requireState();
     const preview = this.#preview;
     const candidate = preview?.candidateItems ?? [];
-    const working =
-      preview && candidate.length
-        ? { ...project, items: [...project.items, ...candidate] }
-        : project;
-    const checked =
-      preview && candidate.length
-        ? evaluate(
-            preview.project ?? {
-              ...project,
-              items: [
-                ...project.items.filter((item) => !preview.removedIds.includes(item.id)),
-                ...candidate,
-              ],
-            },
-          )
-        : analysis;
+    let working = project;
+    let checked = analysis;
+    if (preview && candidate.length) {
+      const { layers } = preview.project ?? ensureVisibleWorkingLayer(project).project;
+      const layer = layers.find(({ visible }) => visible);
+      const tracks =
+        layer && layers.length > project.layers.length
+          ? candidate.map((item) => ({ ...item, layerId: layer.id }))
+          : candidate;
+      working = { ...project, layers, items: [...project.items, ...tracks] };
+      try {
+        checked = evaluate(
+          preview.project ?? {
+            ...working,
+            items: [
+              ...project.items.filter(({ id }) => !preview.removedIds.includes(id)),
+              ...tracks,
+            ],
+          },
+        );
+      } catch {
+        // Keep the committed rail ends available if the preview exceeds structural limits.
+      }
+    }
     const focused = document.activeElement;
     const focusedId =
       focused instanceof SVGElement && this.#scene?.contains(focused) ? focused.id : "";
@@ -282,6 +448,7 @@ class Planner {
       extendable: this.#tracks.targetPorts,
       replacement: new Set(preview?.removedIds),
       addition: new Set(preview?.addedIds),
+      placementWarnings: this.#warnedPieces,
       reuse: this.#scene,
     });
     this.#camera.show(this.#scene, fit);

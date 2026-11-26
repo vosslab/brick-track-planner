@@ -2,19 +2,21 @@ import type { Point } from "./project";
 import { setSceneDetail } from "./scene_appearance";
 
 type Bounds = Point & { width: number; height: number };
+export type CameraView = Bounds & { angle: number };
 type Gesture = {
   first: Point;
   target: Element;
   primary: boolean;
   selectMultiple: boolean;
   canDragTrack: boolean;
-  action?: "drag" | "pan" | "blocked";
+  action?: "drag" | "pan" | "blocked" | "place";
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
 export class EditorCamera {
   readonly #host: HTMLElement;
   readonly #clearHover: () => void;
+  readonly #endDrag: (point: Point, cancelled: boolean) => void;
   readonly #pointers = new Map<number, Point>();
   #gesture: Gesture | undefined;
   #pinch: Pinch | undefined;
@@ -29,8 +31,9 @@ export class EditorCamera {
     host: HTMLElement,
     hooks: {
       tap: (point: Point, target: Element, selectMultiple: boolean) => void;
-      hover: (event: PointerEvent) => void;
+      hover: (event: PointerEvent, target: Element) => void;
       clearHover: () => void;
+      holding: () => boolean;
       beginDrag: (point: Point, target: Element) => "drag" | "pan" | "blocked";
       drag: (point: Point) => void;
       endDrag: (point: Point, cancelled: boolean) => void;
@@ -38,6 +41,7 @@ export class EditorCamera {
   ) {
     this.#host = host;
     this.#clearHover = hooks.clearHover;
+    this.#endDrag = hooks.endDrag;
     this.#viewport = { width: host.clientWidth, height: host.clientHeight };
     new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -77,17 +81,7 @@ export class EditorCamera {
     window.addEventListener("keyup", (event) => {
       if (event.code === "Space") host.removeAttribute("data-space-pan");
     });
-    window.addEventListener("blur", () => {
-      host.removeAttribute("data-space-pan");
-      const gesture = this.#gesture;
-      this.#gesture = undefined;
-      this.#pinch = undefined;
-      if (gesture?.action === "drag") hooks.endDrag(gesture.first, true);
-      for (const id of this.#pointers.keys()) {
-        if (host.hasPointerCapture(id)) host.releasePointerCapture(id);
-      }
-      this.#pointers.clear();
-    });
+    window.addEventListener("blur", () => this.#cancelGesture());
     window.addEventListener("keydown", (event) => {
       if (
         !this.#bounds ||
@@ -125,12 +119,14 @@ export class EditorCamera {
           primary,
           selectMultiple: event.shiftKey,
           canDragTrack: primary && event.pointerType === "mouse" && !event.shiftKey,
+          action: primary && hooks.holding() ? "place" : undefined,
         };
       } else if (this.#pointers.size === 2) {
         const initial = this.#pair();
         if (!initial || !this.#bounds) return;
         if (this.#gesture?.action === "drag")
           hooks.endDrag(this.world(initial.mid.x, initial.mid.y), true);
+        if (this.#gesture?.action === "place") hooks.clearHover();
         this.#gesture = undefined;
         this.#pinch = {
           distance: initial.distance,
@@ -146,9 +142,10 @@ export class EditorCamera {
           !this.#pointers.size &&
           event.pointerType === "mouse" &&
           event.buttons === 0 &&
-          !host.hasAttribute("data-space-pan")
+          !host.hasAttribute("data-space-pan") &&
+          event.target instanceof Element
         )
-          hooks.hover(event);
+          hooks.hover(event, event.target);
         return;
       }
       const point = { x: event.clientX, y: event.clientY };
@@ -159,6 +156,12 @@ export class EditorCamera {
       }
       const gesture = this.#gesture;
       if (!gesture) return;
+      if (gesture.action === "place") {
+        const target = document.elementFromPoint(point.x, point.y);
+        if (target && host.contains(target)) hooks.hover(event, target);
+        else hooks.clearHover();
+        return;
+      }
       if (!gesture.action) {
         if (Math.hypot(point.x - gesture.first.x, point.y - gesture.first.y) < 5) return;
         gesture.action = gesture.canDragTrack
@@ -182,6 +185,14 @@ export class EditorCamera {
       if (!gesture) return;
       const { clientX, clientY } = event;
       const point = this.world(clientX, clientY);
+      if (gesture.action === "place") {
+        // Captured events target the host, so look up the rail under the release point.
+        const target = event.type === "pointerup" && document.elementFromPoint(clientX, clientY);
+        if (target && host.contains(target) && hooks.holding())
+          hooks.tap(point, target, gesture.selectMultiple);
+        else hooks.clearHover();
+        return;
+      }
       const rect = host.getBoundingClientRect();
       const inside =
         clientX >= rect.left &&
@@ -292,9 +303,31 @@ export class EditorCamera {
     this.#update();
   }
 
-  reset(): void {
-    this.#angle = 0;
-    this.#bounds = undefined;
+  snapshot(): CameraView | undefined {
+    return this.#bounds ? { ...this.#bounds, angle: this.#angle } : undefined;
+  }
+
+  restore(view: CameraView | undefined): void {
+    this.#cancelGesture();
+    this.#angle = view?.angle ?? 0;
+    this.#bounds = view
+      ? { x: view.x, y: view.y, width: view.width, height: view.height }
+      : undefined;
+  }
+
+  #cancelGesture(): void {
+    const gesture = this.#gesture;
+    this.#gesture = undefined;
+    this.#pinch = undefined;
+    this.#host.removeAttribute("data-space-pan");
+    const pointers = [...this.#pointers.keys()];
+    this.#pointers.clear();
+    for (const id of pointers) {
+      if (this.#host.hasPointerCapture(id)) this.#host.releasePointerCapture(id);
+    }
+    if (gesture?.action === "drag")
+      this.#endDrag(this.world(gesture.first.x, gesture.first.y), true);
+    this.#clearHover();
   }
 
   #turn(point: Point, angle: number): Point {

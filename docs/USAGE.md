@@ -50,9 +50,9 @@ runs straight through. **TJ40** serves one perpendicular spur from either
 end of the inner mainline. **TJ56** demonstrates two perpendicular spurs on
 a private double-track line using a General plan.
 
-Choose a drawing to open it and edit the track. **Close** returns to the
-current plan. If you want to keep edits before opening another example,
-choose **Save track plan** to download your copy.
+Choose a drawing to open it in a new layout tab and edit the track. Opening
+another example keeps your existing layouts open. **Close** leaves the
+gallery and returns to the current layout.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
@@ -60,6 +60,46 @@ choose **Save track plan** to download your copy.
 <!-- screenshots:end -->
 
 [See each example in the editor](SCREENSHOTS.md#straight-examples).
+
+## Work with layout tabs
+
+**New design**, **Open track plan**, templates, examples, and accepted
+BlueBrick imports each open another layout tab above the drawing. Choose a
+tab to switch layouts. Each keeps its edits, Undo/Redo history, pan, zoom,
+and view rotation. Rename the active layout in **Layout name**.
+
+On a keyboard, tab into the layout strip. Arrow keys move between tab names.
+**Home** and **End** reach either end. **Enter** or **Space** opens the focused
+layout. On touch, tap a tab and scroll the strip to reach more layouts.
+Switching layouts cancels an unfinished placement preview.
+
+### Copy between two yards
+
+1. Use **Open track plan** twice to open Yard A and Yard B, or open two examples.
+2. In Yard A, select the track to copy. Use **Shift+click** or **Select multiple**
+   for several pieces. For a complete installed siding, select one piece and
+   choose **Select arrangement**.
+3. Choose **Copy**, switch to Yard B, then choose **Paste**.
+4. Point to a destination to preview the copy, then click or tap to place it.
+   If the track overlaps or extends outside the area, the planner flags it
+   after placement. **Esc** or **Cancel** cancels an unfinished preview.
+
+The source stays intact. A successful placement is one undoable edit. The
+next click selects track and leaves the copy in place. The pieces retain
+their relative positions and internal joints. **Copy** and **Paste** also
+accept **Command+C** and **Command+V** on macOS, or **Ctrl+C** and **Ctrl+V**
+elsewhere. The copied selection remains available after switching layouts
+or closing its source. Choose **Paste** again for another independent copy.
+
+### Compare an edited variant
+
+1. Open the original layout and choose the view you want to compare.
+2. Choose **Duplicate plan**. The new tab includes your unsaved edits and starts
+   at the same view, with a name such as `East yard (copy)`.
+3. Rename the copy in **Layout name**, then edit its track.
+4. Switch between the original and copy to compare. Edits and later view
+   changes in either layout leave the other alone.
+5. Choose **Save track plan** in each layout you want to keep.
 
 ## Add track that solves a layout job
 
@@ -71,6 +111,9 @@ quickest way to add a useful connected build. A **General** layout starts in
 2. Choose **Preview on track**. The preview identifies an aligned replacement
    on the mainline and the storage length that fits your area.
 3. Choose **Add to layout** when the highlighted placement is the one you want.
+   This uses the selected recommendation. You can also click near a suggested
+   fit on the drawing to use it, or click elsewhere to drop the whole preview
+   there while leaving the existing track in place.
 
 ![A siding preview on a 60 by 40 inch straight display with the Add to layout button visible](screenshots/member_parking_siding_preview.webp)
 
@@ -81,13 +124,22 @@ Choose **Single piece** to lay an individual rail. In an empty general layout,
 the default target is the center of the design area; choose **Place at center**
 to start there. Choose **Choose on the drawing** when you want to pick the
 location yourself. When exactly one private rail end is open, it is selected
-for you. Choose **Connect piece** to extend it. Each placement returns you to track selection.
+for you. Choose **Connect piece** to extend it. A single piece or copied
+selection drops once; the next click selects track.
 [Watch the first piece being placed](SCREENSHOTS.md#place-a-single-piece).
 
 The arrangement picker shows the selected kit's footprint and the track it
-needs. A successful preview highlights the changes. If a preview fails,
-the message below **Preview on track** explains what blocked it. Change the
-placement options or the drawing and preview again.
+needs. A connected-fit preview highlights the changes. If no connected fit is
+available, the message below **Preview on track** explains why, and the whole
+kit remains available to place. Click anywhere in the drawing to drop it and
+return to track selection, even without a connected fit. Overlap or track
+outside the area produces a red warning after placement; open **Diagnostics**
+to find the problem. You can also change the placement options and preview
+again.
+
+Connected-fit recommendations keep joined rails at the same height. Free
+placement still lets you put the kit down and flags facing ends at different
+heights for repair.
 
 - **Parking siding** creates a back-out or drive-through place behind the
   mainline.
@@ -137,16 +189,21 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-With a mouse, drag a track piece and release it at a valid position. The
-outline shows where the track will land. You can also select track and choose
-**Move**. Point to a destination to preview it, then click to move the track
-there. On touch, select track, choose **Move**, and tap the destination.
+With a mouse, press a track piece, drag it, and release it at the destination.
+On touch, tap a piece and choose **Move**, then tap the destination or press
+anywhere in the drawing, drag to the destination, and release. Any held copy,
+single part, or kit also goes down with a tap or one-finger drag and release.
+You can put track down even when the destination needs repair.
+You can also select track and choose **Move**, then click the
+destination.
 
 Use **Shift+click** or **Select multiple** to add and remove pieces from the
 selection. For an installed kit, choose one of its pieces and then
 **Select arrangement**. Move the selection together to keep its internal
 joints. The preview marks any joints to stationary track that the move opens.
 Track that carries a named mainline handoff must stay in place.
+Placing other track over that handoff leaves the starter in place and flags
+the conflict for repair in **Diagnostics**.
 
 Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
 Choose **1-stud grid** to make a smaller adjustment for that placement. For a
@@ -156,10 +213,11 @@ offers **Rotate left**, **Rotate right**, **Duplicate**, and **Delete selected
 track** for a single piece. Each rotation is 90 degrees. **Undo** and
 **Redo** apply one design operation at a time.
 
-Choose **Duplicate**, or copy a selected piece with **Command+C** or **Ctrl+C**
-and paste with **Command+V** or **Ctrl+V**. Click or tap a valid destination to
-place the copy. You can paste into another plan opened in the same tab. If a
-move or copy does not fit, choose another destination or use **Cancel**.
+Choose **Duplicate** to copy one selected piece within the current layout.
+Click or tap the destination to place it. Use **Copy** and **Paste** for
+selected pieces or a complete siding, including between layout tabs as
+described above. You can put track down even when it does not fit. Review the
+flagged track, then move or delete it to fix the problem.
 
 To fill a straight gap, choose **Connect two ends** and select two open
 rail ends. The ends need to face each other on the same line and at the
@@ -173,19 +231,25 @@ rail end to snap to it, or on the drawing to use the center of the view.
 Press **Esc** to cancel an active placement.
 
 Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
-or trackpad. On touch, swipe to pan and pinch to zoom. The rotate button
+or trackpad. On touch, when no track is held, drag one finger anywhere in the
+drawing, including over track, to pan. Pinch with two fingers to zoom. The rotate button
 beside **Fit view** turns the view without rotating any track pieces.
 
 The parts panel totals physical pieces in the current design. The findings
-panel reports track outside the design area, protected NILTC mainline findings,
-and imported parts without usable geometry. Open rail ends remain visible as
+panel reports modeled overlaps in ordinary track, including curves, track
+outside the design area, facing rail ends at
+different heights, protected NILTC mainline findings, and imported parts without
+usable geometry. The drawing identifies track that needs attention. Findings
+follow the current layout, including after saving and reopening it, and clear
+when you fix or remove the problem. Open rail ends remain visible as
 connection points while placing or tracing track. A highlighted line or part in
 the route panel explains the selected path.
 
 ## Save and export
 
-**Save track plan** downloads an editable LDraw `.ldr` file. Share that file
-with other LDraw users or use **Open track plan** to continue working on it here.
+**Save track plan** downloads the active layout as an editable LDraw `.ldr`
+file using its layout name. Switch tabs and save each layout you want to keep.
+Share that file with other LDraw users or use **Open track plan** to continue working on it here.
 The planner opens the track files it creates, including its templates.
 **Import BlueBrick** creates a
 reviewable track plan in the current design-area model and identifies any part
@@ -193,4 +257,17 @@ the catalog cannot place.
 
 Choose PNG or WebP for a drawing. Choose PDF for a member build sheet with
 design area dimensions, public edge, assigned mainline, named exits, drawing,
-route information, and parts list.
+route information, and parts list. Exports use the active layout and do not
+save its editable track plan.
+
+**Close layout** closes the active tab. With unsaved changes, choose
+**Keep editing** or press **Esc** to keep it open. **Discard changes** closes
+it. An unchanged file or template closes immediately, as does a layout
+unchanged since its last save. New designs, duplicates, and BlueBrick imports
+need a save to close without that prompt. Closing the last layout returns
+to the start screen.
+
+Open tabs, their views and histories, and the copied selection last only for
+the current planner session. Save every layout you want to keep before
+reloading the page or closing the browser window, then reopen the `.ldr`
+files in a later session.

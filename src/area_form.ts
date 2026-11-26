@@ -6,9 +6,9 @@ export type AreaSetup = {
   fronts: ("north" | "east" | "south" | "west")[];
 };
 
-type Hooks = {
-  create: (setup: AreaSetup) => void;
-  update?: (setup: AreaSetup) => void;
+type AreaEdit = {
+  setup: AreaSetup;
+  update: (setup: AreaSetup) => void;
 };
 
 function required<T extends Element>(id: string, type: { new (): T }): T {
@@ -24,10 +24,9 @@ function selected(name: string): HTMLInputElement {
 }
 
 /** Wires the small area dialog. Project construction stays in the editor. */
-export function setupAreaForm(hooks: Hooks): {
+export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
   start: () => void;
-  open: (existing?: AreaSetup) => void;
-  read: () => AreaSetup;
+  open: (edit?: AreaEdit) => void;
 } {
   const dialog = required("area-dialog", HTMLDialogElement);
   const startup = required("startup-form", HTMLElement);
@@ -46,14 +45,13 @@ export function setupAreaForm(hooks: Hooks): {
   const otherDepth = required("area-other-depth", HTMLInputElement);
   const name = required("area-name", HTMLInputElement);
   const curveOptions = required("area-curve", HTMLFieldSetElement);
-  const rightCurve = form.querySelector<HTMLInputElement>(
-    'input[name="curve-side"][value="east"]',
-  )!;
+  const assignments = form.querySelectorAll<HTMLInputElement>('input[name="assignment"]');
   const error = required("area-error", HTMLElement);
   const title = required("area-form-title", HTMLElement);
   const intro = required("area-form-intro", HTMLElement);
   const submit = required("create-area", HTMLButtonElement);
-  let editing: AreaSetup | undefined;
+  const cancel = required("cancel-area", HTMLButtonElement);
+  let editing: AreaEdit | undefined;
 
   const updateDimensions = (): void => {
     other.hidden = width.value !== "other" && depth.value !== "other";
@@ -93,7 +91,7 @@ export function setupAreaForm(hooks: Hooks): {
       depth: measuredDepth * 3.2,
       assignment,
       fronts:
-        editing?.fronts ??
+        editing?.setup.fronts ??
         (assignment === "corner"
           ? ["north", selected("curve-side").value === "west" ? "west" : "east"]
           : assignment === "straight"
@@ -101,22 +99,24 @@ export function setupAreaForm(hooks: Hooks): {
             : []),
     };
   };
-  const start = (): void => {
+  const prepare = (edit?: AreaEdit): void => {
+    form.reset();
     error.textContent = "";
-    editing = undefined;
+    editing = edit;
+    for (const choice of assignments) choice.disabled = Boolean(edit);
+  };
+  const start = (): void => {
+    prepare();
     form.dataset["startup"] = "true";
     startup.append(form);
-    required("cancel-area", HTMLButtonElement).hidden = true;
+    cancel.hidden = true;
     submit.textContent = "Create track plan";
     updateDimensions();
     updateAssignment();
   };
-  const open = (existing?: AreaSetup): void => {
-    error.textContent = "";
-    editing = existing;
-    for (const choice of document.querySelectorAll<HTMLInputElement>('input[name="assignment"]')) {
-      choice.disabled = Boolean(existing);
-    }
+  const open = (edit?: AreaEdit): void => {
+    prepare(edit);
+    const existing = edit?.setup;
     if (existing) {
       name.value = existing.name;
       width.value = String(existing.width);
@@ -129,27 +129,12 @@ export function setupAreaForm(hooks: Hooks): {
         depth.value = "other";
         otherDepth.value = String(existing.depth / 3.2);
       }
-      const assignment = existing.assignment;
-      const choice = document.querySelector<HTMLInputElement>(
-        `input[name="assignment"][value="${assignment}"]`,
-      );
-      if (choice) choice.checked = true;
-    } else {
-      name.value = "My NILTC layout";
-      width.value = "192";
-      depth.value = "128";
-      otherWidth.value = "60";
-      otherDepth.value = "40";
-      const straight = document.querySelector<HTMLInputElement>(
-        'input[name="assignment"][value="straight"]',
-      );
-      if (straight) straight.checked = true;
-      rightCurve.checked = true;
+      for (const choice of assignments) choice.checked = choice.value === existing.assignment;
     }
     updateDimensions();
     updateAssignment();
     form.dataset["startup"] = "false";
-    required("cancel-area", HTMLButtonElement).hidden = false;
+    cancel.hidden = false;
     title.textContent = existing ? "Edit your design area" : "Start a new design";
     intro.textContent = existing
       ? "The current track stays in place while you adjust the available space."
@@ -161,21 +146,23 @@ export function setupAreaForm(hooks: Hooks): {
 
   width.addEventListener("change", updateDimensions);
   depth.addEventListener("change", updateDimensions);
-  for (const choice of document.querySelectorAll<HTMLInputElement>('input[name="assignment"]')) {
+  for (const choice of assignments) {
     choice.addEventListener("change", updateAssignment);
   }
-  required("cancel-area", HTMLButtonElement).addEventListener("click", () => dialog.close());
-  dialog.addEventListener("close", () => startup.append(form));
+  cancel.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    if (!dialog.open) start();
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     try {
       const setup = read();
-      if (editing && hooks.update) hooks.update(setup);
+      if (editing) editing.update(setup);
       else hooks.create(setup);
       if (form.dataset["startup"] !== "true") dialog.close();
     } catch (reason) {
       error.textContent = reason instanceof Error ? reason.message : String(reason);
     }
   });
-  return { start, open, read };
+  return { start, open };
 }

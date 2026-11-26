@@ -66,7 +66,21 @@
           </select>
         </div>
       </div>
-      <div class="workspace">
+      <div id="layout-tabs" class="layout-tabs">
+        <div id="layout-tab-rail" class="layout-tab-rail">
+          <div
+            id="layout-tablist"
+            role="tablist"
+            aria-label="Open layouts"
+            focusgroup="tablist nomemory"
+          ></div>
+        </div>
+        <div class="layout-tab-actions">
+          <button type="button" id="duplicate-plan">Duplicate plan</button>
+          <button type="button" id="close-layout">Close layout</button>
+        </div>
+      </div>
+      <div id="layout-panel" class="workspace" role="tabpanel">
         <aside class="panel library" aria-labelledby="library-title">
           <div class="panel-head">
             <h2 id="library-title" tabindex="-1">Add track</h2>
@@ -191,6 +205,8 @@
                 <span class="track-action-label">Rotate right</span>
               </button>
               <button type="button" id="duplicate-track" disabled>Duplicate</button>
+              <button type="button" id="copy-track" disabled>Copy</button>
+              <button type="button" id="paste-track" disabled>Paste</button>
               <button
                 type="button"
                 id="remove-piece"
@@ -226,8 +242,9 @@
             <p id="camera-hint" class="screen-reader">
               Drag track with a mouse, or use Move and choose a destination. Drag open space to
               pan. Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise.
-              Press Enter to select a focused piece or choose a highlighted rail end. For Move,
-              Duplicate, or Paste, press Enter on the drawing to place at the center of the view.
+              Press Enter to select a focused piece or choose a highlighted rail end. When
+              choosing a placement on the drawing, press Enter on the drawing to place at the
+              center of the view.
             </p>
             <div class="zoom-controls" aria-label="Canvas view">
               <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
@@ -244,7 +261,7 @@
             </div>
           </div>
           <div class="canvas-footer">
-            <span id="fit-status" aria-live="polite"></span>
+            <span id="fit-status"></span>
           </div>
         </section>
         <aside class="panel inspector" aria-label="Layout inspector">
@@ -357,6 +374,18 @@
       </section>
     </main>
     <p id="status" role="status" class="status">Loading track geometry&hellip;</p>
+    <dialog
+      id="close-layout-dialog"
+      aria-labelledby="close-layout-title"
+      aria-describedby="close-layout-message"
+    >
+      <h2 id="close-layout-title">Discard unsaved changes?</h2>
+      <p id="close-layout-message" class="dialog-intro"></p>
+      <form method="dialog" class="dialog-actions">
+        <button value="keep" autofocus>Keep editing</button>
+        <button value="discard" class="danger">Discard changes</button>
+      </form>
+    </dialog>
     <dialog id="area-dialog" aria-labelledby="area-form-title">
       <div class="dialog-heading">
         <h2 id="area-form-title">Set up your design area</h2>

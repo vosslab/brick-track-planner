@@ -7,6 +7,38 @@ the reasoning a later reader needs. Guidance Neil Voss states belongs in
 `docs/active_plans/decisions/`. [PROPAGATED HEADER - ENTRIES BELOW ARE YOURS]
 <!-- VENDORED HEADER: END -->
 
+### Keep layouts in session tabs
+
+**Decision.** Keep independent layout states and views in named tabs above
+one shared drawing. Opening a design adds a tab. Duplicating includes unsaved
+edits and the current view. Save and explicit close belong to the active layout.
+
+**Why.** Members can transfer track between yards and compare a variant with
+its original without replacing their work or managing several planner windows.
+
+**Consequence.** Switching cancels outgoing previews and restores the selected
+layout's view and history. Only explicit close asks to discard unsaved work.
+Tabs last for the current session. Save each layout you want to keep as LDraw.
+
+**Owner.** [main.ts](../src/main.ts), [editor_tabs.ts](../src/editor_tabs.ts),
+[editor_files.ts](../src/editor_files.ts)
+
+### Copy independent track selections
+
+**Decision.** Capture selected track and its internal joints in a shared
+session clipboard. Paste the complete selection as one undoable
+placement with fresh piece and group identities.
+
+**Why.** A copied siding must keep its geometry while remaining independent
+of its source and of later copies, even after the source layout closes.
+
+**Consequence.** Complete copied arrangements retain their kit identity.
+Fragments become ordinary track. Geometric problems become findings on the
+placed copy. Switching cancels an unfinished preview while keeping the clipboard.
+
+**Owner.** [editor_track.ts](../src/editor_track.ts),
+[editor_placement.ts](../src/editor_placement.ts)
+
 ### Build and upload with Pages
 
 **Decision.** The GitHub Pages workflow builds and uploads the site for
@@ -129,20 +161,37 @@ accidentally moved away from track.
 
 ### Place track in one action
 
-**Decision.** Commit a valid move on drag release. For Move, Duplicate, and
-paste, commit a valid placement on the destination click, tap, or keyboard
+**Decision.** Commit a move on drag release. For Move, Duplicate, and
+paste, commit placement on the destination click, tap, or keyboard
 activation. Keep explicit confirmation for a straight gap or a new arrangement.
 
 **Why.** The destination gesture completes an ordinary drawing edit. A gap
 fill or arrangement calls for a review of the parts the planner proposes.
 
 **Consequence.** Hover previews placement with a mouse. Each input uses the
-same validation, snapping, and history. A successful placement is one undoable
-edit. A blocked destination leaves the plan unchanged.
+same snapping and history. Placement is one undoable edit. Structural limits
+and named mainline handoffs remain protected.
 
 **Owner.** [src/editor_track.ts](../src/editor_track.ts),
 [src/editor_placement.ts](../src/editor_placement.ts),
 [src/editor_arrangements.ts](../src/editor_arrangements.ts)
+
+### Place track and flag problems
+
+**Decision.** Let members put down ordinary track with overlaps, track outside
+the design area, or facing rail ends at different heights. Derive findings
+from the current project and identify the affected track in the drawing.
+
+**Why.** A member can finish a gesture and then repair the layout without
+remaining stuck in a placement preview.
+
+**Consequence.** Moving, deleting, or undoing the problem clears its finding.
+Save/reopen and tab changes recompute the same findings. Open rail ends remain
+ordinary connection points. Guided arrangement search still helps find a fit.
+The project format and editing modes stay unchanged.
+
+**Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md),
+[editor_placement.ts](../src/editor_placement.ts)
 
 ### Treat routes as catalog data
 

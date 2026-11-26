@@ -5,8 +5,8 @@ import { expect, test as base } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
 import catalog from "../../data/catalog.json" with { type: "json" };
-import { openTrackPlan } from "../../src/ldraw";
-import type { Catalog, Project } from "../../src/project";
+import { openTrackPlan, saveTrackPlan } from "../../src/ldraw";
+import type { Catalog, Project, TrackItem } from "../../src/project";
 
 // The propagated JS path anchor has no TypeScript declaration.
 // @ts-expect-error JavaScript path anchor
@@ -93,4 +93,61 @@ export async function saveProject(page: Page): Promise<{ path: string; project: 
   const path = await download.path();
   const project = openTrackPlan(await readFile(path, "utf8"), catalog as Catalog);
   return { path, project };
+}
+
+type Pixel = { x: number; y: number };
+
+export function drawingPoint(
+  canvas: Locator,
+  x: number,
+  y: number,
+): Promise<{ screen: Pixel; position: Pixel }> {
+  return canvas.evaluate(
+    (element, { x, y }) => {
+      const matrix = element.querySelector<SVGGElement>("[data-scene-drawing]")!.getScreenCTM()!;
+      const screen = new DOMPoint(x, y).matrixTransform(matrix);
+      const { left, top } = element.getBoundingClientRect();
+      return {
+        screen: { x: screen.x, y: screen.y },
+        position: { x: screen.x - left, y: screen.y - top },
+      };
+    },
+    { x, y },
+  );
+}
+
+export function straight(id: string, x: number, y: number, angle = 0, heightPlates = 0): TrackItem {
+  return { id, x, y, angle, kind: "track", partId: "lego:rc-s16", layerId: "layout", heightPlates };
+}
+
+export async function pickDrawing(
+  canvas: Locator,
+  hasTouch: boolean,
+  x: number,
+  y: number,
+): Promise<void> {
+  await canvas.scrollIntoViewIfNeeded();
+  const { screen } = await drawingPoint(canvas, x, y);
+  if (hasTouch) await canvas.page().touchscreen.tap(Math.round(screen.x), Math.round(screen.y));
+  else await canvas.page().mouse.click(screen.x, screen.y);
+}
+
+export async function openEditingPlan(
+  page: Page,
+  items: TrackItem[],
+  name = "Editing test yard",
+): Promise<Project> {
+  const project: Project = {
+    version: 3,
+    name,
+    area: { width: 128, depth: 192, fronts: [], exits: [] },
+    layers: [{ id: "layout", name: "Layout", visible: true }],
+    items,
+  };
+  await page.locator("#project-file").setInputFiles({
+    name: "yard.ldr",
+    mimeType: "text/plain",
+    buffer: Buffer.from(saveTrackPlan(project, catalog as Catalog)),
+  });
+  return project;
 }

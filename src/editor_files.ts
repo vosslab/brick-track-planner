@@ -49,14 +49,24 @@ export function setupFiles(
   catalog: Catalog,
   hooks: {
     analysis: () => Analysis;
-    open: (project: Project) => void;
+    beginOpen: () => number;
+    open: (project: Project, saved: boolean, intent: number) => void;
+    saved: (project: Project) => void;
     notice: (message: string, error?: boolean) => void;
   },
 ): void {
   let importReview: ImportReview | undefined;
-  let revision = 0;
+  let importing = false;
+  const importButton = button("import-project");
   const preview = dialog("import-preview");
-  const previewImport = (result: ImportReview): void => {
+  const previewImport = async (result: ImportReview): Promise<void> => {
+    while (true) {
+      const modal = document.querySelector("dialog:modal");
+      if (!modal) break;
+      await new Promise<void>((resolve) => {
+        modal.addEventListener("close", () => resolve(), { once: true });
+      });
+    }
     importReview = result;
     const { area, items } = result.project;
     const track = items.filter(({ kind }) => kind === "track").length;
@@ -73,6 +83,8 @@ export function setupFiles(
 
   preview.addEventListener("close", () => {
     importReview = undefined;
+    importing = false;
+    importButton.disabled = false;
   });
   button("cancel-import").addEventListener("click", () => {
     preview.close();
@@ -81,10 +93,10 @@ export function setupFiles(
   button("confirm-import").addEventListener("click", () => {
     if (!importReview) return;
     try {
-      hooks.open(importReview.project);
+      hooks.open(importReview.project, false, hooks.beginOpen());
       preview.close();
     } catch (error) {
-      hooks.notice(errorMessage(error), true);
+      element("import-error").textContent = errorMessage(error);
     }
   });
 
@@ -92,7 +104,15 @@ export function setupFiles(
     const file = fileInput.files?.[0];
     fileInput.value = "";
     if (!file) return;
-    const version = ++revision;
+    if (bluebrick && importing) {
+      hooks.notice("Finish reviewing the current BlueBrick import first.", true);
+      return;
+    }
+    const intent = hooks.beginOpen();
+    if (bluebrick) {
+      importing = true;
+      importButton.disabled = true;
+    }
     try {
       if (bluebrick && file.size > MAX_BLUEBRICK_FILE_BYTES) {
         throw new Error("BlueBrick files must be 8 MiB or smaller.");
@@ -101,11 +121,14 @@ export function setupFiles(
         throw new Error("Track plan files must be 8 MiB or smaller.");
       }
       const content = await file.text();
-      if (version !== revision) return;
-      if (bluebrick) previewImport(importBlueBrick(content, catalog));
-      else hooks.open(openTrackPlan(content, catalog));
+      if (bluebrick) await previewImport(importBlueBrick(content, catalog));
+      else hooks.open(openTrackPlan(content, catalog), true, intent);
     } catch (error) {
-      if (version === revision) hooks.notice(errorMessage(error), true);
+      if (bluebrick) {
+        importing = false;
+        importButton.disabled = false;
+      }
+      hooks.notice(`${file.name}: ${errorMessage(error)}`, true);
     }
   };
 
@@ -115,7 +138,7 @@ export function setupFiles(
   input("project-file").addEventListener("change", () => {
     void processFile(input("project-file"), false);
   });
-  button("import-project").addEventListener("click", () => input("import-file").click());
+  importButton.addEventListener("click", () => input("import-file").click());
   input("import-file").addEventListener("change", () => {
     void processFile(input("import-file"), true);
   });
@@ -127,7 +150,8 @@ export function setupFiles(
         new Blob([saveTrackPlan(project, catalog)], { type: "text/plain" }),
         `${filename(project)}.ldr`,
       );
-      hooks.notice("Track plan downloaded.");
+      hooks.saved(project);
+      hooks.notice(`${project.name}: track plan downloaded.`);
     } catch (error) {
       hooks.notice(errorMessage(error), true);
     }
@@ -144,13 +168,12 @@ export function setupFiles(
     return project;
   };
   const openTemplate = async (template: Template): Promise<void> => {
-    const version = ++revision;
+    const intent = hooks.beginOpen();
     try {
       const project = await loadTemplate(template);
-      if (version !== revision) return;
-      hooks.open(project);
+      hooks.open(project, true, intent);
     } catch (error) {
-      if (version === revision) hooks.notice(errorMessage(error), true);
+      hooks.notice(`${template.name}: ${errorMessage(error)}`, true);
     }
   };
 
@@ -249,6 +272,7 @@ export function setupFiles(
       const format = exportFormat.value;
       const analysis = hooks.analysis();
       const { project } = analysis;
+      const name = filename(project);
       exportButton.disabled = true;
       try {
         if (format === "png" || format === "webp" || format === "pdf") {
@@ -256,11 +280,11 @@ export function setupFiles(
             rasterResolution: rasterResolution.value === "high" ? "high" : "standard",
             pdfMode: pdfMode.value === "color" ? "color" : "grayscale",
           });
-          downloadBlob(blob, `${filename(project)}.${format}`);
+          downloadBlob(blob, `${name}.${format}`);
         }
-        hooks.notice(`${format.toUpperCase()} downloaded.`);
+        hooks.notice(`${project.name}: ${format.toUpperCase()} downloaded.`);
       } catch (error) {
-        hooks.notice(errorMessage(error), true);
+        hooks.notice(`${project.name}: ${errorMessage(error)}`, true);
       } finally {
         exportButton.disabled = false;
       }

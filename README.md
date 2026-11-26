@@ -4,7 +4,7 @@ Design your LEGO train club display around the tracks it must connect to. Start 
 
 [Open the hosted planner](https://vosslab.github.io/brick-track-planner/).
 
-This pre-production browser editor plans one member display at a time. The
+This pre-production browser editor keeps member layouts in tabs with one drawing visible. The
 hosted editor follows the deployed revision. Use the local build to try this
 checkout.
 

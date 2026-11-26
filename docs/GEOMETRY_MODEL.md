@@ -56,6 +56,27 @@ The R104 and R120 NILTC curve records use 11.25-degree sections. Four sections
 make a 45-degree bend and eight make a 90-degree bend. The source measurements
 and product links live in [`../data/CATALOG_SOURCES.md`](../data/CATALOG_SOURCES.md).
 
+## Placement findings
+
+Ordinary track drops commit even when track overlaps, lies outside the design
+area, or has facing rail ends at different heights. Analysis derives these
+findings from the current project, so editing, Undo/Redo, reopening a saved
+file, and switching layout tabs keep the drawing and findings in agreement.
+Findings identify affected track and clear when the geometry is repaired.
+An ordinary open rail end is a connection point, not a placement problem.
+
+Overlap findings use modeled footprints for ordinary straights and curves,
+and routed paths for molded parts and adapters. Angled straight beds allow
+half a stud of modeled corner intrusion to accommodate valid kit contacts;
+centerline crossings still produce findings. Matching facing catalog
+connectors, including adapters, produce height findings when their heights
+differ. These checks describe the current modeled geometry, not physical
+clearance.
+
+Guided arrangement search continues to look for a fit before proposing parts.
+File validation, supported coordinate and item limits, and named mainline
+handoff protection remain enforced.
+
 ## Limits
 
 Stored coordinates are individually limited to +/-100,000 studs. The planner

@@ -2,13 +2,42 @@
 
 ## 2026-11-26
 
+### Additions and New Features
+
+- Keep multiple layouts in named tabs above one drawing, each with its own
+  edits, history, and view. Open designs, examples, templates, and imports in
+  new tabs. Duplicate a plan with its unsaved edits to compare variants.
+- Copy selected track or a complete arrangement between layout tabs with
+  visible Copy and Paste buttons or keyboard shortcuts. Preserve internal
+  joints and make each placed copy independent of its source.
+
 ### Behavior or Interface Changes
 
+- Let ordinary track drops finish even with overlaps, track outside the area,
+  or facing rail ends at different heights. Flag the affected track and report
+  the problem until it is fixed or removed, including after save/reopen.
+  Check modeled overlap for ordinary straight and curved track.
+- Save and close the active layout. Ask before discarding unsaved changes
+  on close, and return to setup when the last layout closes. Switching tabs
+  cancels unfinished previews and keeps the copied selection available.
 - Place pasted, duplicated, or explicitly moved track with one click or tap.
-  Preview the destination with a mouse and undo the placement as one edit.
+  Also hold track with a mouse or one finger, drag, and release to put it down.
+  Keep camera gestures and undo the placement as one edit.
+- Place an entire catalog siding with one click or tap when no connected fit
+  is available. Keep connected-fit recommendations valid for rail height.
 
 ### Fixes and Maintenance
 
+- Record the place-and-flag follow-on plan and replace valid-only drop
+  instructions with the drop-and-repair workflow. Keep focused permanent
+  behavior checks; use broad example, geometry, and gesture scans as one-time
+  implementation evidence.
+- Keep a delayed template in the background while editing a Design area.
+- Document copying between yards, comparing variants, per-layout saves, and
+  the session lifetime of tabs and copied track. Correct the gallery's old
+  replacement instructions and the README's single-layout description.
+- Plan layout tabs for copying track between open yards and comparing an
+  edited variant with its original. Record the close behavior and priorities.
 - Build and upload the site in GitHub Actions. Run the critical release checks,
   including Playwright, locally. Push only after all local checks pass.
 - Target the canvas directly in touch editing tests and verify the saved copy

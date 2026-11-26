@@ -12,6 +12,7 @@
 		"test:playwright": "playwright test"
 	},
 	"dependencies": {
+		"@microsoft/focusgroup-polyfill": ">=1.6.0",
 		"jspdf": ">=4.2.1"
 	},
 	"devDependencies": {

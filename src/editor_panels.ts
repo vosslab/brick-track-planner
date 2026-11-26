@@ -1,4 +1,5 @@
-import { choice, container, control, element, textNode } from "./editor_dom";
+import type { PlacementWarning } from "./arrangements";
+import { action, choice, container, control, element, textNode } from "./editor_dom";
 import type { Analysis } from "./engine";
 import type { BallastStyle, Catalog, Project, TrackItem } from "./project";
 import { recipeFor } from "./show_inventory";
@@ -9,7 +10,7 @@ const ballastStyles = [
   ["pennlug", "PennLUG-style"],
 ] satisfies [BallastStyle, string][];
 
-export type Diagnostic = { message: string; targetId?: string };
+export type Diagnostic = { message: string; targetId?: string; placementWarning?: true };
 
 function exitFor(
   analysis: Analysis,
@@ -38,6 +39,7 @@ export function diagnosticsFor(analysis: Analysis): Diagnostic[] {
       message:
         "This track extends outside the assigned design area. Move it inside or choose a layout that fits.",
       targetId: pieceId,
+      placementWarning: true,
     });
   }
   for (const issue of analysis.niltcIssues) {
@@ -97,25 +99,44 @@ export function diagnosticsFor(analysis: Analysis): Diagnostic[] {
   return checks;
 }
 
-export function renderDiagnostics(analysis: Analysis, pick: (id: string) => void): void {
-  const rows = diagnosticsFor(analysis).map(({ message, targetId }) => {
-    if (!targetId || !analysis.project.items.some(({ id }) => id === targetId))
-      return container("list-row", textNode("small", message));
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "list-row";
-    row.textContent = message;
-    row.addEventListener("click", () => pick(targetId));
-    return row;
-  });
+export function renderDiagnostics(
+  analysis: Analysis,
+  placementWarnings: readonly PlacementWarning[],
+  pick: (id: string) => void,
+): void {
+  const visibleLayers = new Set(
+    analysis.project.layers.filter(({ visible }) => visible).map(({ id }) => id),
+  );
+  const visibleItems = new Set(
+    analysis.project.items.filter(({ layerId }) => visibleLayers.has(layerId)).map(({ id }) => id),
+  );
+  const warnings: Diagnostic[] = placementWarnings
+    .filter(({ kind }) => kind !== "outside-area")
+    .map(({ message, pieceIds }) => ({
+      message,
+      targetId: pieceIds.find((id) => visibleItems.has(id)),
+      placementWarning: true,
+    }));
+  const rows = [...warnings, ...diagnosticsFor(analysis)].map(
+    ({ message, targetId, placementWarning }) => {
+      const row =
+        targetId && visibleItems.has(targetId)
+          ? action(message, () => pick(targetId))
+          : container("list-row", textNode("small", message));
+      row.className = "list-row";
+      row.toggleAttribute("data-placement-warning", Boolean(placementWarning));
+      return row;
+    },
+  );
   element("diagnostics").replaceChildren(
     ...(rows.length ? rows : [textNode("p", "No fit or route issues.")]),
   );
   const fit = element("fit-status");
-  fit.textContent = analysis.overhangs.length
-    ? `${analysis.overhangs.length} outside the design area`
+  const count = warnings.length + analysis.overhangs.length;
+  fit.textContent = count
+    ? `${count} placement ${count === 1 ? "warning" : "warnings"}. See Diagnostics.`
     : "Fits design area";
-  fit.classList.toggle("bad-status", analysis.overhangs.length > 0);
+  fit.classList.toggle("bad-status", count > 0);
 }
 
 /** Shows the build finish controls for the selected track. */
