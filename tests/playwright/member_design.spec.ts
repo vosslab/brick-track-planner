@@ -19,6 +19,7 @@ test("members can open every packaged NILTC template", async ({ planner }) => {
     ["Member corner", "NILTC 60 \u00d7 40 in"],
     ["Member R104 right yard", "Member R104 right yard"],
     ["Member R40 left yard", "Member R40 left yard"],
+    ["Member R24 staging yard", "Member R24 staging yard"],
     ["R104 semicircle return", "R104 semicircle return"],
     ["R120 corner return", "R120 corner return"],
     ["Joel's 10-to-0 mainline", "Joel's 10-to-0 mainline"],

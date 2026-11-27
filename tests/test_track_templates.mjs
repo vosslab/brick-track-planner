@@ -89,6 +89,29 @@ test("the 100 by 40 R40 left yard reaches six storage tracks with standard LEGO 
   }
 });
 
+test("the compact R24 staging yard keeps six inset sidings off the straight through routes", () => {
+  const result = evaluate(template("member-r24-staging-yard"));
+  const { area } = result.project;
+  assert.deepEqual([area.width, area.depth, area.niltc], [240, 128, "straight"]);
+  assertFits(result, result.project.name);
+
+  const [west, east] = area.exits;
+  for (const lane of ["outer", "inner"]) {
+    const mainline = traceRoute(result.routes, west[lane], east[lane]);
+    assert.ok(mainline?.every(({ radius }) => radius === undefined));
+  }
+  const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+  assert.equal(open.length, 10);
+  const sidings = open.filter(({ y }) => y > 30).sort((first, second) => first.y - second.y);
+  assert.equal(sidings.length, 6);
+  for (const [index, end] of sidings.entries()) {
+    assert.ok(Math.hypot(end.x - 4, end.y - (40 + 16 * index)) < 0.05);
+    assert.deepEqual([end.angle, end.heightPlates], [180, 2]);
+    const stagingRoute = traceRoute(result.routes, end, east.inner);
+    assert.ok(stagingRoute?.some(({ radius }) => radius === 24));
+  }
+});
+
 test("return templates join the 8- and 24-stud lanes with no curves tighter than R104", () => {
   for (const [file, width, depth, edge] of [
     ["r104-semicircle-return", 416, 224, "east"],

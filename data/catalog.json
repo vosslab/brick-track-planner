@@ -7967,6 +7967,218 @@
           ]
         }
       ]
+    },
+    {
+      "id": "trixbrix:r24-curve",
+      "browse": { "category": "curves", "label": "Curve R24 (22.5 degrees)", "order": 24, "advanced": true, "description": "Tight curve for compact staging." },
+      "brand": "TrixBrix",
+      "name": "Curve R24",
+      "radius": 24,
+      "sweep": 22.5,
+      "ports": [
+        { "id": "a", "x": -5.25, "y": -0.75, "angle": 180, "type": "regular" },
+        { "id": "b", "x": 3.934402377, "y": 1.07689122, "angle": 22.5, "type": "regular" }
+      ],
+      "paths": [
+        [
+          { "x": -5.25, "y": -0.75 },
+          { "x": -2.117371426, "y": -0.544676696 },
+          { "x": 0.961657082, "y": 0.067780169 },
+          { "x": 3.934402377, "y": 1.07689122 }
+        ]
+      ],
+      "routes": [{ "from": "a", "to": "b", "path": 0, "radius": 24, "event": "curve" }],
+      "footprint": [
+        { "x": -5.625, "y": -5.0625 },
+        { "x": 0.375, "y": -4.4375 },
+        { "x": 6.125, "y": -2.6875 },
+        { "x": 3, "y": 4.9375 },
+        { "x": -5.625, "y": 3.1875 }
+      ],
+      "aliases": [
+        {
+          "key": "tb ct r24.8",
+          "sourceHull": [
+            { "x": -5.625, "y": -5.0625 },
+            { "x": 0.375, "y": -4.4375 },
+            { "x": 6.125, "y": -2.6875 },
+            { "x": 3, "y": 4.9375 },
+            { "x": -5.625, "y": 3.1875 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trixbrix:r24-left-switch",
+      "browse": { "category": "switches", "label": "Left switch (R24)", "order": 24, "advanced": true, "approach": "common", "description": "Tight switch for compact staging." },
+      "brand": "TrixBrix",
+      "name": "Left switch R24",
+      "radius": 24,
+      "ports": [
+        { "id": "common", "x": 2.9375, "y": 10, "angle": 90, "type": "regular" },
+        { "id": "branch", "x": -4.091937252, "y": -6.970562748, "angle": -135, "type": "regular" },
+        { "id": "through", "x": 2.9375, "y": -10, "angle": -90, "type": "regular" }
+      ],
+      "paths": [
+        [{ "x": 2.9375, "y": 10 }, { "x": 2.9375, "y": -10 }],
+        [
+          { "x": 2.9375, "y": 10 },
+          { "x": 2.732176673, "y": 6.867371387 },
+          { "x": 2.119719831, "y": 3.788342918 },
+          { "x": 1.11060878, "y": 0.815597623 },
+          { "x": -0.277890309, "y": -2 },
+          { "x": -2.022019833, "y": -4.610274296 },
+          { "x": -4.091937252, "y": -6.970562748 }
+        ]
+      ],
+      "routes": [
+        { "from": "common", "to": "through", "path": 0, "event": "switch" },
+        { "from": "common", "to": "branch", "path": 1, "radius": 24, "event": "switch" }
+      ],
+      "footprint": [
+        { "x": 6.9375, "y": -10.625 },
+        { "x": -1.4375, "y": -10.625 },
+        { "x": -7.4375, "y": -4.5 },
+        { "x": -4.5625, "y": -1 },
+        { "x": -1.8125, "y": 5.875 },
+        { "x": -5.1875, "y": 5.875 },
+        { "x": -5.1875, "y": 9 },
+        { "x": -1.1875, "y": 9 },
+        { "x": -1.1875, "y": 10.5 },
+        { "x": 6.9375, "y": 10.5 }
+      ],
+      "aliases": [
+        {
+          "key": "tb switch r24 left.8",
+          "sourceHull": [
+            { "x": 6.9375, "y": -10.625 },
+            { "x": -1.4375, "y": -10.625 },
+            { "x": -7.4375, "y": -4.5 },
+            { "x": -4.5625, "y": -1 },
+            { "x": -1.8125, "y": 5.875 },
+            { "x": -5.1875, "y": 5.875 },
+            { "x": -5.1875, "y": 9 },
+            { "x": -1.1875, "y": 9 },
+            { "x": -1.1875, "y": 10.5 },
+            { "x": 6.9375, "y": 10.5 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trixbrix:r24-right-switch",
+      "browse": { "category": "switches", "label": "Right switch (R24)", "order": 24, "advanced": true, "approach": "common", "description": "Tight switch for compact staging." },
+      "brand": "TrixBrix",
+      "name": "Right switch R24",
+      "radius": 24,
+      "ports": [
+        { "id": "common", "x": -2.9375, "y": 10, "angle": 90, "type": "regular" },
+        { "id": "branch", "x": 4.091937252, "y": -6.970562748, "angle": -45, "type": "regular" },
+        { "id": "through", "x": -2.9375, "y": -10, "angle": -90, "type": "regular" }
+      ],
+      "paths": [
+        [{ "x": -2.9375, "y": 10 }, { "x": -2.9375, "y": -10 }],
+        [
+          { "x": -2.9375, "y": 10 },
+          { "x": -2.732176673, "y": 6.867371387 },
+          { "x": -2.119719831, "y": 3.788342918 },
+          { "x": -1.11060878, "y": 0.815597623 },
+          { "x": 0.277890309, "y": -2 },
+          { "x": 2.022019833, "y": -4.610274296 },
+          { "x": 4.091937252, "y": -6.970562748 }
+        ]
+      ],
+      "routes": [
+        { "from": "common", "to": "through", "path": 0, "event": "switch" },
+        { "from": "common", "to": "branch", "path": 1, "radius": 24, "event": "switch" }
+      ],
+      "footprint": [
+        { "x": -6.9375, "y": -10.625 },
+        { "x": 1.5625, "y": -10.625 },
+        { "x": 7.3125, "y": -4.5 },
+        { "x": 4.4375, "y": -1 },
+        { "x": 1.3125, "y": 5.875 },
+        { "x": 5.0625, "y": 5.875 },
+        { "x": 5.0625, "y": 9 },
+        { "x": 1.0625, "y": 9 },
+        { "x": 1.0625, "y": 10.5 },
+        { "x": -6.9375, "y": 10.5 }
+      ],
+      "aliases": [
+        {
+          "key": "tb switch r24 right.8",
+          "sourceHull": [
+            { "x": -6.9375, "y": -10.625 },
+            { "x": 1.5625, "y": -10.625 },
+            { "x": 7.3125, "y": -4.5 },
+            { "x": 4.4375, "y": -1 },
+            { "x": 1.3125, "y": 5.875 },
+            { "x": 5.0625, "y": 5.875 },
+            { "x": 5.0625, "y": 9 },
+            { "x": 1.0625, "y": 9 },
+            { "x": 1.0625, "y": 10.5 },
+            { "x": -6.9375, "y": 10.5 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trixbrix:r24-left-connector",
+      "browse": { "category": "connectors", "label": "R24 rail-yard connector, left", "order": 24, "advanced": true },
+      "brand": "TrixBrix",
+      "name": "R24 left rail-yard connector",
+      "ports": [
+        { "id": "a", "x": -0.970562748, "y": -1.029437252, "angle": -135, "type": "regular" },
+        { "id": "b", "x": 0.970562748, "y": 1.029437252, "angle": 45, "type": "regular" }
+      ],
+      "paths": [[{ "x": -0.970562748, "y": -1.029437252 }, { "x": 0.970562748, "y": 1.029437252 }]],
+      "routes": [{ "from": "a", "to": "b", "path": 0 }],
+      "footprint": [
+        { "x": -4.25, "y": 1.4375 },
+        { "x": 1.5, "y": -4.3125 },
+        { "x": 4.125, "y": -1.4375 },
+        { "x": -1.625, "y": 4.1875 }
+      ],
+      "aliases": [
+        {
+          "key": "tb connector r24 left.8",
+          "sourceHull": [
+            { "x": -4.25, "y": 1.4375 },
+            { "x": 1.5, "y": -4.3125 },
+            { "x": 4.125, "y": -1.4375 },
+            { "x": -1.625, "y": 4.1875 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trixbrix:r24-right-connector",
+      "browse": { "category": "connectors", "label": "R24 rail-yard connector, right", "order": 24, "advanced": true },
+      "brand": "TrixBrix",
+      "name": "R24 right rail-yard connector",
+      "ports": [
+        { "id": "a", "x": 0.970562748, "y": -1.029437252, "angle": -45, "type": "regular" },
+        { "id": "b", "x": -0.970562748, "y": 1.029437252, "angle": 135, "type": "regular" }
+      ],
+      "paths": [[{ "x": 0.970562748, "y": -1.029437252 }, { "x": -0.970562748, "y": 1.029437252 }]],
+      "routes": [{ "from": "a", "to": "b", "path": 0 }],
+      "footprint": [
+        { "x": 4.125, "y": 1.4375 },
+        { "x": 1.5, "y": 4.1875 },
+        { "x": -4.25, "y": -1.4375 },
+        { "x": -1.625, "y": -4.3125 }
+      ],
+      "aliases": [
+        {
+          "key": "tb connector r24 right.8",
+          "sourceHull": [
+            { "x": 4.125, "y": 1.4375 },
+            { "x": 1.5, "y": 4.1875 },
+            { "x": -4.25, "y": -1.4375 },
+            { "x": -1.625, "y": -4.3125 }
+          ]
+        }
+      ]
     }
   ],
   "kits": [

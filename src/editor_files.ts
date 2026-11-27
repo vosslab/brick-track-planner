@@ -38,6 +38,11 @@ const templates: readonly Template[] = [
     purpose: "100 by 40 inch LEGO R40 yard with six storage tracks reaching the left edge.",
   },
   {
+    file: "member-r24-staging-yard.ldr",
+    name: "Member R24 staging yard",
+    purpose: "75 by 40 inch hand-push staging yard with six sidings and two straight mainlines.",
+  },
+  {
     file: "r104-semicircle-return.ldr",
     name: "R104 semicircle return",
     purpose: "A 130 by 70 inch turnaround with an R104 semicircle and a long diagonal.",

@@ -262,6 +262,7 @@ direction. [Download the editable track plan](../templates/r104-three-quarter-re
 Open these plans from **Other templates** on the start screen or from **File**
 in the editor. You can also download the [R104 right yard](../templates/member-yard.ldr),
 [LEGO R40 left yard](../templates/member-r40-left-yard.ldr),
+[R24 staging yard](../templates/member-r24-staging-yard.ldr),
 [R104 semicircle return](../templates/r104-semicircle-return.ldr), or
 [R120 corner return](../templates/r120-corner-return.ldr) and use
 **Open track plan** in the planner.
@@ -292,6 +293,17 @@ pieces. Where space permits, the rear row is a single 16-stud straight.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A 100 by 40 inch LEGO R40 left yard with two mainlines and six storage tracks reaching the left edge](screenshots/member_r40_left_yard.webp)
+<!-- screenshots:end -->
+
+### Member R24 staging yard
+
+This 75 by 40 inch template has six sidings for staging cars and pushing
+them by hand onto the inner mainline. The TrixBrix R24 ladder spans every
+baseplate column. Both mainlines run straight through, and the staging
+tracks end four studs inside the west edge.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 75 by 40 inch R24 staging yard with a compact ladder and six sidings set back from the west edge](screenshots/member_r24_staging_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return

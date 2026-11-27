@@ -4,6 +4,9 @@
 
 ### Additions and New Features
 
+- Add the 75 by 40 inch Member R24 staging yard with six inset sidings for
+  pushing cars onto the inner mainline by hand. The TrixBrix R24 ladder spans
+  every baseplate column.
 - Add the 100 by 40 inch Member R40 left yard template. Six storage tracks
   reach the left edge using LEGO RC/PF switches, full curves, and S16 straights.
 - Add the editable 100 by 70 inch R104 three-quarter return to **Browse examples**

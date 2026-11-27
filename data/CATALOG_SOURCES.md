@@ -21,7 +21,7 @@ available for repair work. The metadata does not change placement geometry, inve
 | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | [BlueBrick 1.9.2](https://bluebrick.lswproject.com/download/BlueBrick.1.9.2.zip)         | LEGO `parts/Track/` records `2865.8`, `2867.8`, `2861.8`, and `2859.8`                                                                        | `0121736cf112ce8ae322164536f53f38` |
 | [BrickTracks 1.1](https://bluebrick.lswproject.com/download/package/BrickTracks.1.1.zip) | `BT S04.8`, `BT S08.8`, `BT R104.8`, `BT R120.8`, separate R104A/R104B records, each turnout body, its stand, and four stand-placement groups | `1ad967b0410498543794e7ded11c3e0d` |
-| [TrixBrix 1.8.6](https://bluebrick.lswproject.com/download/package/TrixBrix.1.8.6.zip)   | `tb st8.8`, `tb st32.8`, `tb ct r104.8`, `tb ct r120.8`, and left/right R104 assembled and component records                                  | `b8f3656361628792afb57f2852389a3d` |
+| [TrixBrix 1.8.6](https://bluebrick.lswproject.com/download/package/TrixBrix.1.8.6.zip)   | `tb st8.8`, `tb st32.8`, `tb ct r104.8`, `tb ct r120.8`, R24 curves, R24 switch and connector records, and left/right R104 assembled and component records | `b8f3656361628792afb57f2852389a3d` |
 
 The source XML provides connector positions and angles. Its hull points are pixel centers, converted
 with eight pixels per stud relative to the image center. Each alias with a custom XML hull keeps
@@ -175,6 +175,10 @@ different standalone `tb crossing r40.8` curved-cross product for this center.
 [TrixBrix R40 double crossover](https://trixbrix.eu/en/p/track/switches-and-crossovers/crossover-r40/9903-crossover-r40)
 
 The R56 double pass-through keeps the center line isolated and connects only the two outer lines, as specified by [TrixBrix](https://trixbrix.eu/en/p/track/switches-and-crossovers/double-pass-through-crossover-r56/11096-double-pass-through-crossover-r56).
+
+The R24 left and right switches use a matching handed connector and two 22.5-degree
+R24 curves to shift a staging track 36 studs along and 16 studs across. The compact
+transition is intended for pushing stock into or out of staging.
 
 The BlueBrick R40 triple-switch source provides only the complete installed record,
 whose four rail ends and three routes are measured directly. TrixBrix lists that

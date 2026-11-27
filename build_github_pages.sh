@@ -20,6 +20,7 @@ required_templates=(
 	templates/member-corner.ldr
 	templates/member-yard.ldr
 	templates/member-r40-left-yard.ldr
+	templates/member-r24-staging-yard.ldr
 	templates/r104-semicircle-return.ldr
 	templates/r120-corner-return.ldr
 	templates/joel-mainline-offset.ldr
