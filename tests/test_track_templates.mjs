@@ -129,6 +129,38 @@ test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", (
   }
 });
 
+test("Joel's stepped template connects both lanes across a 10-inch offset", () => {
+  const project = template("joel-mainline-offset");
+  const [west, east] = project.area.exits;
+  assert.deepEqual([project.area.width, project.area.depth], [256, 192]);
+  assert.deepEqual(project.area.outline.slice(3), [
+    { x: 128, y: 192 },
+    { x: 128, y: 128 },
+    { x: 0, y: 128 },
+  ]);
+  const result = evaluate(project);
+  assert.deepEqual(result.overhangs, []);
+  assert.deepEqual(result.niltcIssues, []);
+  assertCollisionFree(project, project.name);
+
+  const open = result.ports.filter(({ joined, type }) => !joined && type === "regular");
+  assert.equal(open.length, 4);
+  for (const [lane, offset] of [
+    ["outer", 8],
+    ["inner", 24],
+  ]) {
+    const start = open.find((port) => endpointKey(port) === endpointKey(west[lane]));
+    const end = open.find((port) => endpointKey(port) === endpointKey(east[lane]));
+    assert.ok(Math.hypot(start.x, start.y - (offset + 32)) < 0.05);
+    assert.ok(Math.hypot(end.x - 256, end.y - offset) < 0.05);
+    assert.deepEqual(
+      [start.angle, end.angle, start.heightPlates, end.heightPlates],
+      [180, 0, 2, 2],
+    );
+    assert.ok(reaches(result.routes, west[lane], east[lane]));
+  }
+});
+
 test("an outline edit holds the track fixed and keeps the public reference on untouched frontage", () => {
   const project = template("member-straight");
   for (const [edge, dimension] of [

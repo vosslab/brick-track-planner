@@ -25,6 +25,8 @@ R104 yard with three 128-stud storage tracks, the 130 by 70 inch R104 semicircle
 return, and the 120 by 90 inch R120 corner return with a 30 by 30 inch
 corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
+Joel's 10-to-0 mainline shows how two tracks can shift 10 inches between
+handoffs on a stepped footprint. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
 
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan

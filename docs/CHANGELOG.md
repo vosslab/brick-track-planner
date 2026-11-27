@@ -4,6 +4,9 @@
 
 ### Additions and New Features
 
+- Add Joel's Rockford-inspired 10-to-0 mainline as an editable template and
+  screenshot. Two parallel S-bends shift the track 10 inches on a stepped
+  80 by 60 inch footprint.
 - Edit the design-area outline in place. Extend or trim full NILTC edges in
   10-inch steps, or shift a span in 5-inch steps so its two edges move together.
   Preview track overhang and handoff changes. Save the outline with the layout.

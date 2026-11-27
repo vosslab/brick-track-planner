@@ -24,6 +24,7 @@ test("members can open each packaged track template", async ({ planner }) => {
     ["Member yard", "Member R104 right yard"],
     ["R104 semicircle return", "R104 semicircle return"],
     ["R120 corner return", "R120 corner return"],
+    ["Joel's 10-to-0 mainline", "Joel's 10-to-0 mainline"],
   ] as const;
   for (const [option, name] of templates) {
     await planner.getByLabel("Track templates").selectOption({ label: option });

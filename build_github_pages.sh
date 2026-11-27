@@ -20,6 +20,7 @@ required_templates=(
 	templates/member-yard.ldr
 	templates/r104-semicircle-return.ldr
 	templates/r120-corner-return.ldr
+	templates/joel-mainline-offset.ldr
 )
 while IFS= read -r template; do
 	required_templates+=("templates/$template")

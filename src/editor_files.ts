@@ -43,6 +43,11 @@ const templates: readonly Template[] = [
     purpose:
       "A 120 by 90 inch turnaround with a 30 by 30 inch corner cutout and an R120 quarter-turn.",
   },
+  {
+    file: "joel-mainline-offset.ldr",
+    name: "Joel's 10-to-0 mainline",
+    purpose: "Two parallel mainlines shift 10 inches across the deeper half of a stepped display.",
+  },
 ];
 
 export function setupFiles(

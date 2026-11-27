@@ -94,6 +94,8 @@ original outline. The opposite edge moves inward by the same amount.
 ![A 5-inch bump-out along the north edge and a matching inset on the south edge, with both mainlines in place](screenshots/member_table_shift.webp)
 <!-- screenshots:end -->
 
+When the rail handoffs themselves are offset, see [Joel's 10-to-0 mainline](#joels-10-to-0-mainline).
+
 ## Straight examples
 
 Open these plans with **Browse straight examples**. Both collections use
@@ -247,6 +249,17 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A 120 by 90 inch turnaround with an R120 quarter-turn and a stepped corner cutout](screenshots/r120_corner_return.webp)
+<!-- screenshots:end -->
+
+### Joel's 10-to-0 mainline
+
+Based on the January 2024 Rockford show drawing, this [editable template](../templates/joel-mainline-offset.ldr)
+uses an 80 by 60 inch footprint with a shallower 40-inch-deep half. A pair of
+R104 and R120 S-bends shifts both mainlines 10 inches toward the front along
+the deeper half. Both tracks keep their 16-stud spacing at the handoffs.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Two mainlines across a stepped display, with matching S-bends between the 10-inch offset and standard handoffs](screenshots/joel_mainline_offset.webp)
 <!-- screenshots:end -->
 
 ## Recapture the collection
