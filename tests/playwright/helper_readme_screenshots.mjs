@@ -6,9 +6,8 @@
  *   node tests/playwright/helper_readme_screenshots.mjs \
  *     http://127.0.0.1:4173/ /private/tmp/brick-track-planner-readme
  */
-import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import { expect } from "@playwright/test";
@@ -28,18 +27,6 @@ await mkdir(output, { recursive: true });
 const desktopViewport = { width: 1600, height: 1000 };
 const phoneViewport = { width: 390, height: 844 };
 const screenshotOptions = { animations: "disabled", caret: "hide" };
-async function verifyTemplate(page, file) {
-  const template = new URL(`../../templates/${file}`, import.meta.url);
-  const [response, source] = await Promise.all([
-    page.waitForResponse(new URL(`templates/${file}`, page.url()).href),
-    readFile(template),
-  ]);
-  assert.ok(
-    response.ok() && (await response.body()).equals(source),
-    `Served template ${file} differs from the checkout. Rebuild the local Pages site.`,
-  );
-}
-
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({ viewport: desktopViewport });
@@ -109,16 +96,9 @@ try {
   }
 
   await page.setViewportSize({ width: 1920, height: 2700 });
-  await Promise.all([
-    ...trackExamples.map(({ file }) => verifyTemplate(page, file)),
-    page.locator("#start-browse-examples").click(),
-  ]);
+  await page.locator("#start-browse-examples").click();
   const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
   await expect(gallery.getByRole("button").locator("svg")).toHaveCount(trackExamples.length);
-  const collections = gallery.locator("#template-gallery-sections");
-  await expect
-    .poll(() => collections.evaluate((groups) => groups.scrollHeight - groups.clientHeight))
-    .toBe(0);
   await capture("straight_examples", gallery, "css");
   await gallery.getByRole("button", { name: "Close", exact: true }).click();
   await page.setViewportSize(desktopViewport);
@@ -224,10 +204,7 @@ try {
     const templatePage = await browser.newPage({ viewport: desktopViewport });
     try {
       await start(templatePage);
-      await Promise.all([
-        verifyTemplate(templatePage, file),
-        templatePage.getByLabel("Start from a template").selectOption(file),
-      ]);
+      await templatePage.getByLabel("Start from a template").selectOption(file);
       await expect(templatePage.locator("#tabletop [data-kind=track]").first()).toBeVisible();
       await fit(templatePage);
       const name =

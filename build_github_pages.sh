@@ -40,13 +40,6 @@ if [ ! -s "$required_reference" ]; then
 	exit 1
 fi
 
-# Soft-warn if index.html does not reference main.js as an ES module.
-if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.html; then
-	echo "WARNING: src/index.html does not appear to load main.js as an ES module." >&2
-	echo "  Expected tag: <script type=\"module\" src=\"main.js\"></script>" >&2
-	echo "  Build will proceed; the page may render but main.js will not run." >&2
-fi
-
 if ! command -v wasm-pack >/dev/null 2>&1; then
 	echo "ERROR: wasm-pack not found on PATH. Install wasm-pack before building." >&2
 	exit 1

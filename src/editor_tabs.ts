@@ -7,12 +7,6 @@ type TabControls = {
   confirmClose: (name: string) => Promise<boolean>;
 };
 
-async function enableFocusgroup(list: HTMLElement): Promise<void> {
-  if ("focusGroup" in HTMLElement.prototype || "focusgroup" in HTMLElement.prototype) return;
-  const { polyfill } = await import("@microsoft/focusgroup-polyfill/shadowless");
-  polyfill(list);
-}
-
 export function setupTabs(hooks: TabHooks): TabControls {
   const list = element("layout-tablist");
   const rail = element("layout-tab-rail");
@@ -49,17 +43,32 @@ export function setupTabs(hooks: TabHooks): TabControls {
   });
   list.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-    // When focus is already at the requested end, the browser can scroll the page.
-    if (
-      (event.key === "Home" && event.target === list.firstElementChild) ||
-      (event.key === "End" && event.target === list.lastElementChild)
-    ) {
-      event.preventDefault();
+    if (!(event.target instanceof HTMLButtonElement)) return;
+    const tabs = [...tabButtons.values()];
+    const index = tabs.indexOf(event.target);
+    if (index < 0) return;
+    let next: number;
+    switch (event.key) {
+      case "ArrowLeft":
+        next = (index + tabs.length - 1) % tabs.length;
+        break;
+      case "ArrowRight":
+        next = (index + 1) % tabs.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = tabs.length - 1;
+        break;
+      default:
+        return;
     }
+    event.preventDefault();
+    tabs[next]?.focus({ preventScroll: true });
   });
   list.addEventListener("scroll", showOverflow);
   new ResizeObserver(showOverflow).observe(list);
-  void enableFocusgroup(list);
 
   function render(tabs: readonly TabLabel[], activeId: string | undefined, focus: boolean): void {
     const currentIds = new Set(tabs.map((tab) => tab.id));
@@ -93,7 +102,7 @@ export function setupTabs(hooks: TabHooks): TabControls {
       }
       const selected = id === activeId;
       tabButton.setAttribute("aria-selected", String(selected));
-      tabButton.toggleAttribute("focusgroupstart", selected);
+      tabButton.tabIndex = selected ? 0 : -1;
     }
     const active = activeId === undefined ? undefined : tabButtons.get(activeId);
     if (active) {

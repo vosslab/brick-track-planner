@@ -13,74 +13,29 @@ import {
   test,
 } from "./helper_planner";
 
-test("members can open every packaged NILTC template", async ({ planner }) => {
-  const templates = [
-    ["Member straight", "Member 60 x 40 straight"],
-    ["Member corner", "NILTC 60 \u00d7 40 in"],
-    ["Member R104 right yard", "Member R104 right yard"],
-    ["Member R40 left yard", "Member R40 left yard"],
-    ["Member R24 staging yard", "Member R24 staging yard"],
-    ["R104 semicircle return", "R104 semicircle return"],
-    ["R120 corner return", "R120 corner return"],
-    ["Joel's 10-to-0 mainline", "Joel's 10-to-0 mainline"],
-  ] as const;
-  for (const [option, name] of templates) {
-    await openEditorMenu(planner, "File");
-    await planner.getByLabel("Track templates").selectOption({ label: option });
-    await expect(planner.getByLabel("Layout name")).toHaveValue(name);
-  }
-});
-
-test("members can use a color-coded track view without changing their layout", async ({
-  planner,
-  hasTouch,
-}) => {
+test("members can connect a switch to an ordinary boundary rail end", async ({ planner }) => {
   await openEditorMenu(planner, "File");
-  await planner.getByLabel("Track templates").selectOption({ label: "Joel's 10-to-0 mainline" });
+  await planner.getByLabel("Track templates").selectOption({ label: "Member straight" });
+  await planner.getByRole("radio", { name: "Track parts", exact: true }).check();
+  await planner.getByRole("radio", { name: "Switches", exact: true }).check();
+  await planner
+    .getByRole("radio", {
+      name: /Right switch \(R40\).*RC\/PF right switch R40/,
+    })
+    .check();
+  await planner.getByLabel("Place at", { exact: true }).selectOption('["outer-12","b"]');
+  const connect = planner.getByRole("button", { name: "Connect part", exact: true });
+  await expect(connect).toBeEnabled();
+  await connect.click();
+  await expect(planner.locator("#status")).toContainText("Snapped to the rail end.");
 
-  const tabs = planner.getByRole("tablist", { name: "Open layouts" });
-  const joel = tabs.getByRole("tab", { name: "Joel's 10-to-0 mainline", exact: true });
-  const original = tabs.getByRole("tab", { name: "My NILTC layout", exact: true });
-  const colorTrack = planner.locator("#track-colors");
-  const scene = planner.locator("#tabletop > svg");
-  const saved = (await saveProject(planner)).project;
-  const viewBox = await scene.getAttribute("viewBox");
-  const toggleColorTrack = async (): Promise<void> => {
-    await openEditorMenu(planner, "Layout");
-    if (hasTouch) await colorTrack.tap();
-    else await colorTrack.click();
-  };
-
-  await openEditorMenu(planner, "Layout");
-  await expect(colorTrack).toHaveAccessibleName("Color-coded track");
-  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
-  await expect(scene).not.toHaveAttribute("data-track-view");
-
-  await toggleColorTrack();
-  await expect(colorTrack).toHaveAttribute("aria-pressed", "true");
-  await expect(scene).toHaveAttribute("data-track-view", "coded");
-  await expect(scene).toHaveAttribute("viewBox", viewBox!);
-  for (const code of ["R104", "R120", "S32"]) {
-    const label = scene.locator(`text[data-track-code="${code}"]`).first();
-    await expect(label).toBeAttached();
-    if (!hasTouch) await expect(label).toBeVisible();
-  }
-  expect((await saveProject(planner)).project).toEqual(saved);
-
-  await toggleColorTrack();
-  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
-  await expect(scene).not.toHaveAttribute("data-track-view");
-
-  await toggleColorTrack();
-  if (hasTouch) await original.tap();
-  else await original.click();
-  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
-  await expect(scene).not.toHaveAttribute("data-track-view");
-
-  if (hasTouch) await joel.tap();
-  else await joel.click();
-  await expect(colorTrack).toHaveAttribute("aria-pressed", "true");
-  await expect(scene).toHaveAttribute("data-track-view", "coded");
+  const saved = await saveProject(planner);
+  const switchTrack = saved.project.items.find(
+    (item) => item.kind === "track" && item.partId === "lego:rc-r40-right-switch",
+  );
+  expect(switchTrack).toBeDefined();
+  await chooseEditorFile(planner, saved.path);
+  await expect(planner.locator(`#scene-item-${switchTrack!.id}`)).toBeAttached();
 });
 
 test("members can save, reopen, and undo a five-inch design-area bump", async ({ planner }) => {
@@ -118,20 +73,12 @@ test("members can browse mainline loops and train yards in the gallery", async (
   const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
   const loops = gallery.getByRole("region", { name: "Mainline loops", exact: true });
   const yards = gallery.getByRole("region", { name: "Train yards", exact: true });
-  for (const name of [
-    "Open R104R · R104 3/4-circle return",
-    "Open R104S · R104 semicircle return",
-    "Open R120R · R120 corner return",
-  ])
-    await expect(loops.getByRole("button", { name, exact: true })).toBeVisible();
-  for (const name of [
-    "Open 4TRY · Four-track right yard",
-    "Open 8TRY · Eight-track switch yard",
-    "Open Y104 · Member R104 right yard",
-    "Open Y40 · Member R40 left yard",
-    "Open Y24 · Member R24 staging yard",
-  ])
-    await expect(yards.getByRole("button", { name, exact: true })).toBeVisible();
+  await expect(
+    loops.getByRole("button", { name: "Open R104R · R104 3/4-circle return", exact: true }),
+  ).toBeVisible();
+  await expect(
+    yards.getByRole("button", { name: "Open Y104 · Member R104 right yard", exact: true }),
+  ).toBeVisible();
 
   await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
   await expect(gallery).toBeHidden();
@@ -140,30 +87,12 @@ test("members can browse mainline loops and train yards in the gallery", async (
 
   await openEditorMenu(page, "File");
   await page.getByRole("button", { name: "Browse examples", exact: true }).click();
-  const mirrored = gallery.getByRole("button", {
-    name: "Open MSBC \u00b7 Mirrored S-bend crossings",
-  });
-  await expect(mirrored).toHaveAccessibleDescription(
-    /60 × 40 in design area.*about 20 inches deep/,
-  );
-  await mirrored.click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("Mirrored S-bend crossings");
-  await expect(page.locator("#design-size")).toContainText("60 \u00d7 40");
-
-  await openEditorMenu(page, "File");
-  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
-  await gallery.getByRole("button", { name: "Open R104R \u00b7 R104 3/4-circle return" }).click();
-  await expect(page.getByLabel("Layout name")).toHaveValue("R104 3/4-circle return");
-  await expect(page.locator("#design-size")).toContainText("100 \u00d7 70");
-
-  await openEditorMenu(page, "File");
-  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
   await yards.getByRole("button", { name: "Open Y104 · Member R104 right yard" }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Member R104 right yard");
   await expect(page.locator("#design-size")).toContainText("100 \u00d7 40");
 });
 
-test("members can move track in a rotated view and undo it", async ({ page, hasTouch }) => {
+test("[touch] members can move track in a rotated view and undo it", async ({ page, hasTouch }) => {
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "general", width: "128", depth: "192" });
   await page.getByRole("button", { name: "Place at center", exact: true }).click();
@@ -230,34 +159,6 @@ test("track part browsing keeps a chosen variant and saves the part it places", 
   ).toEqual(["trixbrix:s16"]);
 });
 
-test("deleting selected pieces leaves nearby track and undoes in one step", async ({
-  page,
-  hasTouch,
-}) => {
-  await boot(page, { startProject: false });
-  const original = await openEditingPlan(page, [
-    straight("west", 32, 48),
-    straight("middle", 48, 48),
-    straight("east", 96, 84),
-  ]);
-  const west = page.locator("#scene-item-west");
-  const middle = page.locator("#scene-item-middle");
-  if (hasTouch) {
-    await openEditorMenu(page, "Tools");
-    await page.getByRole("button", { name: "Select multiple" }).tap();
-    await west.tap();
-    await middle.tap();
-    await page.getByRole("button", { name: "Delete selected track" }).tap();
-  } else {
-    await west.click();
-    await middle.click({ modifiers: [process.platform === "darwin" ? "Meta" : "Control"] });
-    await page.keyboard.press("Delete");
-  }
-  expect((await saveProject(page)).project.items).toEqual([original.items[2]]);
-  await page.getByRole("button", { name: "Undo", exact: true }).click();
-  expect((await saveProject(page)).project.items).toEqual(original.items);
-});
-
 test("Connect two ends fills an aligned gap in one undoable edit", async ({ page }) => {
   await boot(page, { startProject: false });
   const original = await openEditingPlan(page, [
@@ -277,53 +178,10 @@ test("Connect two ends fills an aligned gap in one undoable edit", async ({ page
   expect((await saveProject(page)).project.items).toEqual(original.items);
 });
 
-test("phone editor opens with a reachable drawing and panels", async ({ browser, baseURL }) => {
-  const context = await browser.newContext({
-    baseURL,
-    hasTouch: true,
-    isMobile: true,
-    viewport: { width: 390, height: 844 },
-  });
-  try {
-    const page = await context.newPage();
-    await boot(page, { startProject: false });
-    const dimensions = await page.locator("#area-width, #area-depth").evaluateAll((elements) =>
-      elements.map((element) => {
-        const bounds = element.getBoundingClientRect();
-        return { top: bounds.top, width: bounds.width };
-      }),
-    );
-    expect(dimensions[0]!.width).toBeGreaterThan(300);
-    expect(dimensions[1]!.width).toBeGreaterThan(300);
-    expect(dimensions[1]!.top).toBeGreaterThan(dimensions[0]!.top);
-
-    await createProject(page);
-    const canvas = page.locator("#tabletop");
-    await expect(canvas).toBeInViewport({ ratio: 0.8 });
-    await page.getByRole("button", { name: "Add track", exact: true }).click();
-    await expect
-      .poll(() =>
-        page.getByRole("heading", { name: "Add track", exact: true }).evaluate((element) => {
-          const bounds = element.getBoundingClientRect();
-          return bounds.top >= 0 && bounds.bottom <= window.innerHeight;
-        }),
-      )
-      .toBe(true);
-    await page.getByRole("button", { name: "Inspector", exact: true }).click();
-    await expect
-      .poll(() =>
-        page.getByRole("heading", { name: "Inspector", exact: true }).evaluate((element) => {
-          const bounds = element.getBoundingClientRect();
-          return bounds.top >= 0 && bounds.bottom <= window.innerHeight;
-        }),
-      )
-      .toBe(true);
-  } finally {
-    await context.close();
-  }
-});
-
-test("free placement flags a siding that does not fit the display", async ({ page, hasTouch }) => {
+test("[touch] free placement flags a siding that does not fit the display", async ({
+  page,
+  hasTouch,
+}) => {
   await boot(page, { startProject: false });
   await createProject(page, { assignment: "corner", width: "128", depth: "192" });
   const original = (await saveProject(page)).project;

@@ -32,7 +32,7 @@ TypeScript tooling. `Cargo.toml` defines the Rust/Wasm crate.
   templates. [`../src/share_pdf.ts`](../src/share_pdf.ts) produces build sheets.
 - [`../rust/model.rs`](../rust/model.rs), [`../rust/ports.rs`](../rust/ports.rs),
   [`../rust/routes.rs`](../rust/routes.rs), [`../rust/coverage.rs`](../rust/coverage.rs),
-  and [`../rust/niltc.rs`](../rust/niltc.rs) evaluate the project model.
+  and [`../rust/evaluation.rs`](../rust/evaluation.rs) evaluate the project model.
 
 ## Documentation map
 

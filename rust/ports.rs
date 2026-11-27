@@ -17,7 +17,6 @@ pub(crate) struct WorldPort<'a> {
     pub angle: f64,
     #[serde(rename = "type")]
     pub connector_type: &'a str,
-    pub height_plates: i64,
     pub joined: bool,
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub ambiguous: bool,
@@ -30,7 +29,6 @@ impl WorldPort<'_> {
         Alignment {
             gap: self.position.distance_to(other.position),
             angle: turn_between(self.angle, other.angle + 180.0).abs(),
-            height: self.height_plates.abs_diff(other.height_plates),
         }
     }
 
@@ -54,12 +52,7 @@ pub(crate) fn world_ports<'a>(
         .iter()
         .filter(|item| layout.visible(&item.layer_id))
     {
-        let ItemKind::Track {
-            part_id,
-            height_plates,
-            ..
-        } = &item.kind
-        else {
+        let ItemKind::Track { part_id, .. } = &item.kind else {
             continue;
         };
         let Some(part) = catalog.part(part_id) else {
@@ -73,7 +66,6 @@ pub(crate) fn world_ports<'a>(
                 position: world.position,
                 angle: world.angle,
                 connector_type: &port.connector_type,
-                height_plates: *height_plates,
                 joined: false,
                 ambiguous: false,
                 joined_to: None,
@@ -87,44 +79,33 @@ pub(crate) fn world_ports<'a>(
 struct Alignment {
     gap: f64,
     angle: f64,
-    height: u64,
 }
 
-fn candidates(ports: &[WorldPort<'_>], group: impl Fn(&str) -> bool) -> Vec<(usize, usize)> {
+fn candidates(ports: &[WorldPort<'_>]) -> Vec<(usize, usize)> {
     // A join can only cross into one of the eight neighboring tolerance-sized
     // cells. Indexing as we walk the stable port order keeps output deterministic
     // and avoids comparing every connector in a large, sparse plan.
-    let mut cells: HashMap<(i64, i64, &str, i64, bool), Vec<usize>> = HashMap::new();
+    let mut cells: HashMap<(i64, i64, &str), Vec<usize>> = HashMap::new();
     let mut matches = Vec::new();
     for (b, port) in ports.iter().enumerate() {
-        let group = group(port.piece_id);
         let cell_x = (port.position.x / JOIN_GAP).floor() as i64;
         let cell_y = (port.position.y / JOIN_GAP).floor() as i64;
         for x in (cell_x - 1)..=(cell_x + 1) {
             for y in (cell_y - 1)..=(cell_y + 1) {
-                let key = (x, y, port.connector_type, port.height_plates, group);
+                let key = (x, y, port.connector_type);
                 for &a in cells.get(&key).into_iter().flatten() {
                     if !ports[a].matches(port) {
                         continue;
                     }
                     let alignment = ports[a].alignment(&ports[b]);
-                    if alignment.gap <= JOIN_GAP
-                        && alignment.angle <= JOIN_ANGLE
-                        && alignment.height == 0
-                    {
+                    if alignment.gap <= JOIN_GAP && alignment.angle <= JOIN_ANGLE {
                         matches.push((a, b));
                     }
                 }
             }
         }
         cells
-            .entry((
-                cell_x,
-                cell_y,
-                port.connector_type,
-                port.height_plates,
-                group,
-            ))
+            .entry((cell_x, cell_y, port.connector_type))
             .or_default()
             .push(b);
     }
@@ -132,8 +113,8 @@ fn candidates(ports: &[WorldPort<'_>], group: impl Fn(&str) -> bool) -> Vec<(usi
     matches
 }
 
-pub(crate) fn recognize_joins(ports: &mut [WorldPort<'_>], group: impl Fn(&str) -> bool) {
-    let matches = candidates(ports, group);
+pub(crate) fn recognize_joins(ports: &mut [WorldPort<'_>]) {
+    let matches = candidates(ports);
     let mut degree = vec![0; ports.len()];
     for &(a, b) in &matches {
         degree[a] += 1;
@@ -172,7 +153,6 @@ mod tests {
             position: Point { x, y },
             angle,
             connector_type: "regular",
-            height_plates: 0,
             joined: false,
             ambiguous: false,
             joined_to: None,
@@ -185,7 +165,7 @@ mod tests {
             port("left", 0.049, 0.0, 0.0),
             port("right", 0.051, 0.0, 180.0),
         ];
-        recognize_joins(&mut ports, |_| false);
+        recognize_joins(&mut ports);
         assert!(ports.iter().all(|port| port.joined));
         assert_eq!(join_links(&ports), vec![(0, 1)]);
     }
@@ -197,9 +177,8 @@ mod tests {
             port("one", 0.01, 0.0, 180.0),
             port("two", 0.02, 0.0, 180.0),
         ];
-        recognize_joins(&mut ports, |_| false);
+        recognize_joins(&mut ports);
         assert!(ports.iter().all(|port| port.ambiguous && !port.joined));
         assert!(join_links(&ports).is_empty());
     }
-
 }

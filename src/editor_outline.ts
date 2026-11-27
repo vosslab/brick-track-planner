@@ -127,18 +127,12 @@ export function setupOutlineEditor(
     preview.replaceChildren(scene);
     const { area } = checked.project;
     const overhangs = proposed ? checked.overhangs.length : 0;
-    const ends = proposed
-      ? checked.niltcIssues.filter(
-          ({ kind }) => kind === "exit-off-standard" || kind === "exit-away-from-boundary",
-        ).length
-      : 0;
     const summary = proposed
       ? [
           `${inches(area.width)} \u00d7 ${inches(area.depth)} in overall`,
           ...(overhangs
             ? [`${overhangs} ${overhangs === 1 ? "piece" : "pieces"} past the edge`]
             : []),
-          ...(ends ? [`${ends} handoff ${ends === 1 ? "end needs" : "ends need"} attention`] : []),
         ].join(" \u00b7 ")
       : "";
     if (status.textContent !== summary) status.textContent = summary;

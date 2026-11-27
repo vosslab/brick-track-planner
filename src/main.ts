@@ -25,7 +25,6 @@ import { withParkingKits } from "./parking";
 import { ensureVisibleWorkingLayer, newProject, projectId } from "./project";
 import type { Catalog, Point, Project } from "./project";
 import { createScene, drawEditPreview } from "./scene";
-import { traceRoute } from "./route_trace";
 import { showInventory } from "./show_inventory";
 
 type LayoutTab = {
@@ -52,7 +51,7 @@ function start(setup: AreaSetup, catalog: Catalog): Project {
   }
   const project = newProject();
   project.name = setup.name;
-  project.area = { width: setup.width, depth: setup.depth, fronts: [], exits: [] };
+  project.area = { width: setup.width, depth: setup.depth, fronts: [] };
   return project;
 }
 
@@ -130,7 +129,7 @@ class Planner {
         }
         this.#tracks.addToSelection(ids);
       },
-      beginDrag: (point, target, clientPoint): "drag" | "pan" | "blocked" =>
+      beginDrag: (point, target, clientPoint): "drag" | "pan" =>
         this.#tracks.beginMove(point, target, this.#trackStack(clientPoint, target)),
       drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
       endDrag: (point, cancelled): void =>
@@ -151,21 +150,6 @@ class Planner {
     this.#arrangements = new ArrangementTools(catalog, {
       project: (): Project => this.#requireState().project,
       selection: (): string[] => [...this.#tracks.selection],
-      mainlineIds: (): string[] => {
-        const { project, routes } = this.#requireState().analysis;
-        const [a, b] = project.area.exits;
-        if (!a || !b) return [];
-        return [
-          ...new Set(
-            (["outer", "inner"] as const).flatMap((lane) =>
-              (traceRoute(routes, a[lane], b[lane]) ?? []).flatMap((link) => [
-                link.from.pieceId,
-                link.to.pieceId,
-              ]),
-            ),
-          ),
-        ];
-      },
       beginPreview: (): void => {
         this.#camera.cancelGesture();
         this.#tracks.stopPicking();
@@ -259,6 +243,18 @@ class Planner {
       if (shortcut && key === "z") {
         event.preventDefault();
         this.#history(event.shiftKey ? "redo" : "undo");
+      } else if (
+        shortcut &&
+        !event.altKey &&
+        !event.shiftKey &&
+        !event.isComposing &&
+        key === "a"
+      ) {
+        event.preventDefault();
+        this.#camera.cancelGesture();
+        this.#tracks.selectAll();
+        window.getSelection()?.removeAllRanges();
+        if (!tabletop.contains(document.activeElement)) tabletop.focus({ preventScroll: true });
       } else if (shortcut && !event.altKey && !event.shiftKey && key === "c") {
         if (window.getSelection()?.isCollapsed !== false && this.#tracks.copy())
           event.preventDefault();

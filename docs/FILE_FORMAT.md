@@ -10,9 +10,12 @@ plan in the browser. Saving downloads the member's copy. The
 
 Each catalog track piece has a standard LDraw type-1 reference. Its translation
 and rotation place it in the model. Moving a reference moves the track. One
-stud is 20 LDraw units (LDU) and one plate is 8 LDU. The planner's right and
-down on the drawing map to LDraw +X and -Z. Raising track moves it toward -Y.
-For example, this is the first outer straight in the 60 by 40 inch template.
+stud is 20 LDraw units (LDU). The planner's right and down on the drawing map
+to LDraw +X and -Z. Each catalog part uses its fixed LDraw baseline. For
+example, this is the first outer straight in the 60 by 40 inch template.
+
+That baseline preserves the part model's own geometry, such as sleepers and
+rails. It is not layout elevation and cannot be changed in the planner.
 
 ```text
 1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
@@ -32,13 +35,18 @@ its embedded model remains its measured footprint.
 
 Lines starting with `0 !BRICKTRACK` identify planner files and store the data
 needed to continue editing. These include the design name, width and depth,
-public edges, straight or corner assignment, and named inner and outer
-mainline exits. Rectangular plans anchored at the drawing origin can use
-`FORMAT 1`. Custom footprints use `FORMAT 2`. The `OUTLINE` record follows
-`AREA` and lists 4 to 256 clockwise X/Y pairs in studs, with an implicit
-closing segment. `AREA` records the outline's overall width and depth. A
+public edges, and straight or corner assignment. The optional `OUTLINE` record
+follows `AREA` and lists 4 to 256 clockwise X/Y pairs in studs, with an
+implicit closing segment. Without `OUTLINE`, the area is the rectangle from
+`(0, 0)` to its saved width and depth. `AREA` records the outline's overall
+width and depth. A
 `FRONT_LINE` record gives the signed stud coordinate of each public edge,
 as in `0 !BRICKTRACK FRONT_LINE @north -16`.
+
+The planner recognizes `PROJECT`, `AREA`, optional `OUTLINE`, `FRONT`,
+`FRONT_LINE`, `LAYER`, `TRACK`, and `UNRESOLVED` metadata records. A `TRACK`
+record is followed by its LDraw type-1 placement. Embedded LDraw submodels
+carry catalog parts without a published library model.
 
 Each track reference has a stable item ID, catalog part ID and
 layer. Saving includes track on hidden layers. The planner restores their
@@ -46,7 +54,8 @@ visibility on open, while LDraw viewers can display the whole model. Grouping
 and ballast settings stay with the item. The automatically tiled baseplate
 surface is clipped to the area outline.
 
-Track geometry, handoff checks and inventory come from the planner's catalog.
+Track geometry, ordinary fit diagnostics, and inventory come from the
+planner's catalog.
 An unresolved BlueBrick record retains its source ID, description and bounds
 for the member to review. A third-party LDraw editor may discard application
 metadata on save. Keep the planner-written original for further editing here.
@@ -74,10 +83,9 @@ rail geometry, and the on-screen tally and PDF use the component quantities.
 
 ## Imports and exports
 
-BlueBrick Map v9 import supports the documented XML subset in
-[`src/project_files.ts`](../src/project_files.ts). The importer transfers track
-geometry into one design area. It never creates physical table records. Imported
-9V parts remain unresolved because the planner does not substitute a different
-electrical track system.
+BlueBrick import reads `Map` XML with `Layers`, `Bricks`, and part placement
+fields. The importer transfers track geometry into one flat design area. It
+warns when the source uses elevation and keeps mapped track in the top-down
+plan. [BlueBrick importer](../src/project_files.ts)
 
 PNG and WebP export the visible drawing. PDF exports the member build sheet.

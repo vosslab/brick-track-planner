@@ -2,277 +2,274 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Member%20R104%20right%20yard
 0 !BRICKTRACK AREA 320 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
-0 !BRICKTRACK EXIT @exit-east @east%20exit @east @outer-20 @b @inner-20 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-2 @layout @lego%3Arc-s16 - - - -
-1 72 480 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 480 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-3 @layout @lego%3Arc-s16 - - - -
-1 72 800 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 800 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-4 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1120 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-6 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1760 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-7 @layout @lego%3Arc-s16 - - - -
-1 72 2080 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2080 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-9 @layout @lego%3Arc-s16 - - - -
-1 72 2720 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2720 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-10 @layout @lego%3Arc-s16 - - - -
-1 72 3040 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-11 @layout @lego%3Arc-s16 - - - -
-1 72 3360 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-12 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-13 @layout @lego%3Arc-s16 - - - -
-1 72 4000 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4000 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-14 @layout @lego%3Arc-s16 - - - -
-1 72 4320 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4320 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-15 @layout @lego%3Arc-s16 - - - -
-1 72 4640 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-16 @layout @lego%3Arc-s16 - - - -
-1 72 4960 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-17 @layout @lego%3Arc-s16 - - - -
-1 72 5280 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-18 @layout @lego%3Arc-s16 - - - -
-1 72 5600 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-19 @layout @lego%3Arc-s16 - - - -
-1 72 5920 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-20 @layout @lego%3Arc-s16 - - - -
-1 72 6240 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-12 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-13 @layout @lego%3Arc-s16 - - - -
-1 72 4000 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4000 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-14 @layout @lego%3Arc-s16 - - - -
-1 72 4320 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4320 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-15 @layout @lego%3Arc-s16 - - - -
-1 72 4640 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-16 @layout @lego%3Arc-s16 - - - -
-1 72 4960 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-17 @layout @lego%3Arc-s16 - - - -
-1 72 5280 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-18 @layout @lego%3Arc-s16 - - - -
-1 72 5600 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-19 @layout @lego%3Arc-s16 - - - -
-1 72 5920 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-20 @layout @lego%3Arc-s16 - - - -
-1 72 6240 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-1 @layout @trixbrix%3Ar104-right-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 480 -24 -520 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-base.dat
+1 72 480 -8 -520 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-base.dat
 0 !BRICKTRACK TRACK @r104-yard-2 @layout @trixbrix%3Ar104-right-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 760 -24 -517.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-detach-1.dat
+1 72 760 -8 -517.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-3 @layout @trixbrix%3Ar104-right-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1005 -24 -595 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-detach-2.dat
+1 72 1005 -8 -595 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r104-right-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-4 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1040 -24 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 1040 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-5 @layout @trixbrix%3Ar104-left-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1283.1280625 -24 -664.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
+1 72 1283.1280625 -8 -664.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
 0 !BRICKTRACK TRACK @r104-yard-6 @layout @trixbrix%3Ar104-left-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1540.85762302 -24 -773.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
+1 72 1540.85762302 -8 -773.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-7 @layout @trixbrix%3Ar104-left-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1796.8660745 -24 -795.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
+1 72 1796.8660745 -8 -795.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-8 @layout @trixbrix%3Arc1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1728.005257773871 -24 -891.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
+1 72 1728.005257773871 -8 -891.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
 0 !BRICKTRACK TRACK @r104-yard-9 @layout @trixbrix%3Ar104-left-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2055.67640246 -24 -984.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
+1 72 2055.67640246 -8 -984.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
 0 !BRICKTRACK TRACK @r104-yard-10 @layout @trixbrix%3Ar104-left-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2313.40596298 -24 -1093.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
+1 72 2313.40596298 -8 -1093.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-11 @layout @trixbrix%3Ar104-left-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2569.41441446 -24 -1115.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
+1 72 2569.41441446 -8 -1115.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-12 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2557.74160336 -24 -1235.5320713 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
+1 72 2557.74160336 -8 -1235.5320713 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-13 @layout @trixbrix%3Ar104 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5170.38454108 -24 -2300.23124558 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r104.dat
+1 72 5170.38454108 -8 -2300.23124558 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r104.dat
 0 !BRICKTRACK TRACK @r104-yard-14 @layout @trixbrix%3Ar104-ballast-curve @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5572.99017532 -24 -2381.68395964 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-r104-ballast-curve.dat
+1 72 5572.99017532 -8 -2381.68395964 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-r104-ballast-curve.dat
 0 !BRICKTRACK TRACK @r104-yard-15 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1818.637977349547 -24 -929.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
+1 72 1818.637977349547 -8 -929.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-16 @layout @trixbrix%3Arc1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2648.37432294 -24 -1273.07337294 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
+1 72 2648.37432294 -8 -1273.07337294 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
 0 !BRICKTRACK TRACK @r104-yard-17 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5796.71600532 -24 -2399.18395964 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
+1 72 5796.71600532 -8 -2399.18395964 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-18 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5824.16766532 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5824.16766532 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-19 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2706.60714514 -24 -1118.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
+1 72 2706.60714514 -8 -1118.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-20 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2800.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 2800.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-21 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1200 -24 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 1200 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-22 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1440 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 1440 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-23 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 1760 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 1760 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-24 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2080 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 2080 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-25 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2400 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 2400 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-26 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2720 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 2720 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-27 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3040 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 3040 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-28 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3360 -24 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 3360 -8 -480 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-29 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2080.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2080.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-30 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2400.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-31 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2720.33297518 -24 -798.3260207 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 2720.33297518 -8 -798.3260207 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-32 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3040.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-33 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3360.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-34 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3040.33297514 -24 -1118.32602068 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 3040.33297514 -8 -1118.32602068 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-35 @layout @lego%3Arc-s16 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3360.33297514 -24 -1118.32602068 -1 0 0 0 1 0 0 0 -1 53401.dat
+1 72 3360.33297514 -8 -1118.32602068 -1 0 0 0 1 0 0 0 -1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-1 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 3680.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-2 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4000.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4000.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-3 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4320.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4320.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-4 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4640.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4960.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-6 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5280.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-7 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5600.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-8 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5920.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-2-9 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.33297518 -24 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.33297518 -8 -798.3260207 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-1 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 3680.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-2 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4000.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4000.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-3 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4320.332975140001 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4320.332975140001 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-4 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4640.332975140001 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640.332975140001 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4960.332975140001 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960.332975140001 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-6 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5280.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-7 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5600.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-8 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5920.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-storage-3-9 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.33297514 -24 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.33297514 -8 -1118.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-9 @layout @trixbrix%3Ar104-left-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 2828.22474242 -24 -1304.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
+1 72 2828.22474242 -8 -1304.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-10 @layout @trixbrix%3Ar104-left-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3085.95430294 -24 -1413.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
+1 72 3085.95430294 -8 -1413.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-11 @layout @trixbrix%3Ar104-left-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3341.96275442 -24 -1435.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
+1 72 3341.96275442 -8 -1435.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-12 @layout @trixbrix%3Arc1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3273.101937693871 -24 -1531.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
+1 72 3273.101937693871 -8 -1531.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-16 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3363.734657269547 -24 -1569.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
+1 72 3363.734657269547 -8 -1569.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-19 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3479.1554851 -24 -1438.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
+1 72 3479.1554851 -8 -1438.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-1-20 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3506.6071451 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 3506.6071451 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-9 @layout @trixbrix%3Ar104-left-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3600.77308238 -24 -1624.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
+1 72 3600.77308238 -8 -1624.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-10 @layout @trixbrix%3Ar104-left-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 3858.5026429 -24 -1733.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
+1 72 3858.5026429 -8 -1733.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-11 @layout @trixbrix%3Ar104-left-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4114.51109438 -24 -1755.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
+1 72 4114.51109438 -8 -1755.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-12 @layout @trixbrix%3Arc1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4045.650277653871 -24 -1851.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
+1 72 4045.650277653871 -8 -1851.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-16 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4136.282997229548 -24 -1889.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
+1 72 4136.282997229548 -8 -1889.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-19 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4251.70382506 -24 -1758.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
+1 72 4251.70382506 -8 -1758.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-2-20 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4279.15548506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 4279.15548506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-9 @layout @trixbrix%3Ar104-left-base @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4373.32142234 -24 -1944.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
+1 72 4373.32142234 -8 -1944.27416788 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-base.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-10 @layout @trixbrix%3Ar104-left-detach-1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4631.05098286 -24 -2053.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
+1 72 4631.05098286 -8 -2053.73522778 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-11 @layout @trixbrix%3Ar104-left-detach-2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4887.05943434 -24 -2075.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
+1 72 4887.05943434 -8 -2075.89200494 -0.382683432365 0 0.923879532511 0 1 0 -0.923879532511 0 -0.382683432365 bricktrack-trixbrix-r104-left-detach-2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-12 @layout @trixbrix%3Arc1 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4818.19861761387 -24 -2171.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
+1 72 4818.19861761387 -8 -2171.844023764588 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-rc1.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-16 @layout @trixbrix%3As08 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 4908.831337189547 -24 -2209.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
+1 72 4908.831337189547 -8 -2209.385325407591 0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 0.923879532511 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-19 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5024.25216502 -24 -2078.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
+1 72 5024.25216502 -8 -2078.32602068 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @r104-yard-step-3-20 @layout @trixbrix%3Arc2 @r104-right-yard @trixbrix%3Ar104-right-yard-4 - -
-1 72 5051.70382502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5051.70382502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-3-1 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 3680.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-2 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4000.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4000.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-3 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4320.332975099999 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4320.332975099999 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-4 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4640.332975099999 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640.332975099999 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4960.332975099999 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960.332975099999 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-6 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5280.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-7 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5600.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-8 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5920.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-3-9 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.3329751 -24 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.3329751 -8 -1438.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-1 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 4306.607145059999 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 4306.607145059999 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-4-2 @layout @trixbrix%3As08 @r104-yard-storage - - -
-1 72 4400.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 4400.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @yard-rear-4-3 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4640.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4640.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-4 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 4960.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 4960.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5280.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-6 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5600.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-7 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5920.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-4-8 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.33297506 -24 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.33297506 -8 -1758.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-5-1 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 5079.15548502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5079.15548502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-5-2 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 5106.60714502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5106.60714502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-5-3 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5280.33297502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5280.33297502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-5-4 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5600.33297502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5600.33297502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-5-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 5920.33297502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 5920.33297502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-5-6 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.33297502 -24 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.33297502 -8 -2078.32602068 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @yard-rear-6-1 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 5851.61932532 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5851.61932532 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-6-2 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 5879.070985320001 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5879.070985320001 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-6-3 @layout @trixbrix%3Arc2 @r104-yard-storage - - -
-1 72 5906.522645320001 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
+1 72 5906.522645320001 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-rc2.dat
 0 !BRICKTRACK TRACK @yard-rear-6-4 @layout @trixbrix%3As08 @r104-yard-storage - - -
-1 72 6000.248475320002 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 6000.248475320002 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @yard-rear-6-5 @layout @lego%3Arc-s16 @r104-yard-storage - - -
-1 72 6240.248475320002 -24 -2399.18395964 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 6240.248475320002 -8 -2399.18395964 1 0 0 0 1 0 0 0 1 53401.dat
 0 FILE bricktrack-trixbrix-r104-right-base.dat
 0 Name: bricktrack-trixbrix-r104-right-base.dat
 0 Brick Track Planner schematic TrixBrix R104 right switch base

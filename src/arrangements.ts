@@ -4,11 +4,13 @@ import {
   angleGap,
   composePose,
   ensureVisibleWorkingLayer,
+  joinAngle,
   projectId,
+  railTolerance,
   validateProject,
   visibleTrackItems,
 } from "./project";
-import type { Catalog, Endpoint, Kit, Part, Point, Pose, Project, TrackItem } from "./project";
+import type { Catalog, Kit, Part, Point, Pose, Project, TrackItem } from "./project";
 
 export type ArrangementIssue = {
   kind: "unknown-kit" | "unknown-part" | "outside-area" | "overlap" | "misaligned";
@@ -17,7 +19,7 @@ export type ArrangementIssue = {
 };
 
 export type PlacementWarning = {
-  kind: "overlap" | "height" | "ambiguous" | "handoff";
+  kind: "overlap" | "ambiguous";
   message: string;
   pieceIds: string[];
 };
@@ -34,7 +36,6 @@ export type ArrangementResult = {
 export type ArrangementRequest = {
   kitId: string;
   pose: Pose;
-  heightPlates?: number;
   /** Existing straight pieces deliberately selected for replacement. */
   replaceIds?: readonly string[];
   groupId?: string;
@@ -152,10 +153,6 @@ type RailShape = {
   segments: RailSegment[];
   straightBounds?: Bounds;
 };
-const railTolerance = 0.05;
-const joinAngle = 0.25;
-const heightMismatchMessage =
-  "These rail ends meet at different heights. Move them apart or use track at a matching height.";
 
 function railSegments(part: Part, track: TrackItem): RailSegment[] {
   return part.paths.flatMap((path) => {
@@ -317,11 +314,7 @@ function railOverlapWarnings(project: Project, catalog: Catalog): PlacementWarni
       if (!second || start(second) > end) break;
       const secondId = second.track.id;
       if (warned.has(firstId) && warned.has(secondId)) continue;
-      if (
-        first.track.heightPlates === second.track.heightPlates &&
-        overlaps(first.bounds, second.bounds) &&
-        railShapesOverlap(first, second, catalog)
-      ) {
+      if (overlaps(first.bounds, second.bounds) && railShapesOverlap(first, second, catalog)) {
         warned.add(firstId);
         warned.add(secondId);
         warnings.push({
@@ -343,67 +336,14 @@ function railPortsAlign(first: Pose, second: Pose): boolean {
   );
 }
 
-function heightWarnings(ports: Analysis["ports"]): PlacementWarning[] {
-  const firstHeight = ports[0]?.heightPlates;
-  if (ports.every(({ heightPlates }) => heightPlates === firstHeight)) return [];
-  const cells = new Map<string, Analysis["ports"]>();
-  const warned = new Set<string>();
-  const warnings: PlacementWarning[] = [];
-  for (const port of ports) {
-    const cellX = Math.floor(port.x / railTolerance);
-    const cellY = Math.floor(port.y / railTolerance);
-    const key = `${cellX},${cellY}`;
-    for (let x = cellX - 1; x <= cellX + 1; x++) {
-      for (let y = cellY - 1; y <= cellY + 1; y++) {
-        for (const neighbor of cells.get(`${x},${y}`) ?? []) {
-          if (
-            neighbor.heightPlates === port.heightPlates ||
-            neighbor.pieceId === port.pieceId ||
-            neighbor.type !== port.type ||
-            (warned.has(neighbor.pieceId) && warned.has(port.pieceId)) ||
-            !railPortsAlign(port, neighbor)
-          )
-            continue;
-          warned.add(neighbor.pieceId);
-          warned.add(port.pieceId);
-          warnings.push({
-            kind: "height",
-            message: heightMismatchMessage,
-            pieceIds: [neighbor.pieceId, port.pieceId],
-          });
-        }
-      }
-    }
-    const occupants = cells.get(key);
-    if (occupants) occupants.push(port);
-    else cells.set(key, [port]);
-  }
-  return warnings;
-}
-
 /** Evaluate the current track placement, including files and undo snapshots. */
 export function placementWarnings(analysis: Analysis, catalog: Catalog): PlacementWarning[] {
   const warnings = railOverlapWarnings(analysis.project, catalog);
-  warnings.push(...heightWarnings(analysis.ports));
 
-  const key = ({ pieceId, portId }: Endpoint): string => JSON.stringify([pieceId, portId]);
-  const handoffs = new Map<string, string>();
-  for (const { outer, inner, name } of analysis.project.area.exits) {
-    const message = `Track occupies the named handoff "${name}". Leave it open for the next display.`;
-    handoffs.set(key(outer), message);
-    handoffs.set(key(inner), message);
-  }
   const ambiguousPieces = new Set<string>();
   for (const port of analysis.ports) {
     if (!port.ambiguous) continue;
     ambiguousPieces.add(port.pieceId);
-    const message = handoffs.get(key(port));
-    if (message)
-      warnings.push({
-        kind: "handoff",
-        message,
-        pieceIds: [port.pieceId],
-      });
   }
   for (const pieceId of ambiguousPieces)
     warnings.push({
@@ -411,26 +351,6 @@ export function placementWarnings(analysis: Analysis, catalog: Catalog): Placeme
       message: "More than one rail end competes for this joint. Move or remove one piece.",
       pieceIds: [pieceId],
     });
-  if (handoffs.size) {
-    const overhanging = new Set(analysis.overhangs.map(({ pieceId }) => pieceId));
-    for (const { kind, from, to } of analysis.routes) {
-      if (kind !== "joint") continue;
-      const fromMessage = handoffs.get(key(from));
-      const toMessage = handoffs.get(key(to));
-      const message = fromMessage ?? toMessage;
-      if (
-        (fromMessage && overhanging.has(to.pieceId)) ||
-        (toMessage && overhanging.has(from.pieceId))
-      )
-        continue;
-      if (message)
-        warnings.push({
-          kind: "handoff",
-          message,
-          pieceIds: [from.pieceId, to.pieceId],
-        });
-    }
-  }
   return warnings;
 }
 
@@ -458,7 +378,6 @@ function tracksForKit(
       kind: "track",
       layerId,
       partId: local.partId,
-      heightPlates: request.heightPlates ?? 0,
       groupId: installationId,
       arrangementId: kit.id,
       ...pose,
@@ -477,7 +396,6 @@ function tracksForKit(
       kind: "track",
       layerId,
       partId: filler.partId,
-      heightPlates: request.heightPlates ?? 0,
       groupId: installationId,
       arrangementId: kit.id,
       ...filler.pose,
@@ -508,70 +426,7 @@ function railEndsAlign(first: TrackItem, second: TrackItem, catalog: Catalog): b
 /** A molded turnout may extend about a stud beyond its rail connector. That
  * small footprint overlap is valid only when two real regular rail ports mate. */
 function joinsAtRailEnd(first: TrackItem, second: TrackItem, catalog: Catalog): boolean {
-  return first.heightPlates === second.heightPlates && railEndsAlign(first, second, catalog);
-}
-
-function endpoint(
-  project: Project,
-  catalog: Catalog,
-  pieceId: string,
-  portId: string,
-): { x: number; y: number; angle: number; height: number } | undefined {
-  const item = project.items.find(
-    (entry): entry is TrackItem => entry.kind === "track" && entry.id === pieceId,
-  );
-  const port =
-    item &&
-    catalog.parts.find(({ id }) => id === item.partId)?.ports.find(({ id }) => id === portId);
-  return item && port ? { ...composePose(port, item), height: item.heightPlates } : undefined;
-}
-
-function rebindEndpoint(
-  old: { x: number; y: number; angle: number; height: number },
-  tracks: readonly TrackItem[],
-  catalog: Catalog,
-): { pieceId: string; portId: string } | undefined {
-  const candidates = tracks
-    .flatMap((track) => {
-      const piece = catalog.parts.find(({ id }) => id === track.partId);
-      return (
-        piece?.ports
-          .filter(({ type }) => type === "regular")
-          .map((port) => ({ track, port, pose: composePose(port, track) })) ?? []
-      );
-    })
-    .filter(({ track }) => track.heightPlates === old.height)
-    .map((candidate) => ({
-      ...candidate,
-      distance: Math.hypot(candidate.pose.x - old.x, candidate.pose.y - old.y),
-      angle: angleGap(candidate.pose.angle, old.angle),
-    }))
-    .filter(({ distance, angle }) => distance <= 0.05 && angle <= 0.25)
-    .sort((first, second) => first.distance - second.distance || first.angle - second.angle);
-  const candidate = candidates[0];
-  return candidate && { pieceId: candidate.track.id, portId: candidate.port.id };
-}
-
-function protectedExitIssues(
-  project: Project,
-  catalog: Catalog,
-  replacement: ReadonlySet<string>,
-  tracks: readonly TrackItem[],
-): ArrangementIssue[] {
-  const issues: ArrangementIssue[] = [];
-  for (const exit of project.area.exits) {
-    for (const endpointRef of [exit.outer, exit.inner]) {
-      if (!replacement.has(endpointRef.pieceId)) continue;
-      const old = endpoint(project, catalog, endpointRef.pieceId, endpointRef.portId);
-      if (!old || !rebindEndpoint(old, tracks, catalog))
-        issues.push({
-          kind: "misaligned",
-          itemId: endpointRef.pieceId,
-          message: `This placement would disconnect protected handoff ${exit.id}.`,
-        });
-    }
-  }
-  return issues;
+  return railEndsAlign(first, second, catalog);
 }
 
 function replacementBoundaryIssues(
@@ -594,14 +449,12 @@ function replacementBoundaryIssues(
             angleGap(oldPort.angle, survivorPort.angle + 180) <= 0.25,
         );
         if (!wasJoined) continue;
-        const replacementAtOriginalPort = tracks.some(
-          (track) =>
-            track.heightPlates === old.heightPlates &&
-            regularPorts(track, catalog).some(
-              (candidatePort) =>
-                Math.hypot(candidatePort.x - oldPort.x, candidatePort.y - oldPort.y) <= 0.05 &&
-                angleGap(candidatePort.angle, oldPort.angle) <= 0.25,
-            ),
+        const replacementAtOriginalPort = tracks.some((track) =>
+          regularPorts(track, catalog).some(
+            (candidatePort) =>
+              Math.hypot(candidatePort.x - oldPort.x, candidatePort.y - oldPort.y) <= 0.05 &&
+              angleGap(candidatePort.angle, oldPort.angle) <= 0.25,
+          ),
         );
         if (!replacementAtOriginalPort) {
           issues.push({
@@ -655,19 +508,6 @@ function physicalTrackIssues(
     for (const placed of existing) {
       const placedPart = catalog.parts.find(({ id }) => id === placed.partId);
       if (!placedPart) continue;
-      if (
-        track.heightPlates !== placed.heightPlates &&
-        part.ports.some((left) =>
-          placedPart.ports.some(
-            (right) =>
-              left.type === right.type &&
-              railPortsAlign(composePose(left, track), composePose(right, placed)),
-          ),
-        )
-      ) {
-        issues.push({ kind: "misaligned", itemId: placed.id, message: heightMismatchMessage });
-        continue;
-      }
       const placedBounds = footprintBounds(placedPart.footprint, placed);
       if (
         overlaps(bounds, placedBounds) &&
@@ -682,7 +522,6 @@ function physicalTrackIssues(
       }
     }
   }
-  issues.push(...protectedExitIssues(project, catalog, replacement, tracks));
   issues.push(...replacementBoundaryIssues(project, catalog, replacement, tracks));
   return issues;
 }
@@ -719,7 +558,7 @@ export function previewArrangement(
     removedIds: [...replacement],
     addedIds: tracks.map(({ id }) => id),
     candidateItems: tracks,
-    project: issues.length ? undefined : replace(working.project, catalog, replacement, tracks),
+    project: issues.length ? undefined : replace(working.project, replacement, tracks),
   };
 }
 
@@ -758,7 +597,7 @@ export function commitItems(
     removedIds: [...replacement],
     addedIds: tracks.map(({ id }) => id),
     candidateItems: tracks,
-    project: issues.length ? undefined : replace(working.project, catalog, replacement, tracks),
+    project: issues.length ? undefined : replace(working.project, replacement, tracks),
   };
 }
 
@@ -787,28 +626,11 @@ export function placeItems(project: Project, items: readonly TrackItem[]): Proje
 
 function replace(
   project: Project,
-  catalog: Catalog,
   replacement: ReadonlySet<string>,
   tracks: readonly TrackItem[],
 ): Project {
-  const exits = project.area.exits.map((exit) => {
-    const outerPose =
-      replacement.has(exit.outer.pieceId) &&
-      endpoint(project, catalog, exit.outer.pieceId, exit.outer.portId);
-    const innerPose =
-      replacement.has(exit.inner.pieceId) &&
-      endpoint(project, catalog, exit.inner.pieceId, exit.inner.portId);
-    const outer = outerPose
-      ? (rebindEndpoint(outerPose, tracks, catalog) ?? exit.outer)
-      : exit.outer;
-    const inner = innerPose
-      ? (rebindEndpoint(innerPose, tracks, catalog) ?? exit.inner)
-      : exit.inner;
-    return { ...exit, outer, inner };
-  });
   return {
     ...project,
-    area: { ...project.area, exits },
     items: [...project.items.filter((item) => !replacement.has(item.id)), ...tracks],
   };
 }

@@ -39,13 +39,11 @@ export default defineConfig({
   },
   projects: [
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     {
       name: "touch",
       use: { ...devices["Pixel 7"] },
-      testMatch: ["**/member_design.spec.ts", "**/layout_tabs.spec.ts"],
+      grep: /\[touch\]/,
     },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
     command: `bash tests/playwright/helper_pages_server.sh ${port}`,

@@ -78,7 +78,7 @@ function uprightTangent(tangent: number, itemAngle: number): number {
 
 /**
  * Appends compact schematic bands and returns the label for the caller to
- * place above the height hatch.
+ * place above the track drawing.
  */
 export function codedTrackDrawing(
   group: SVGGElement,

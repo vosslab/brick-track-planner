@@ -2,7 +2,6 @@
 name = "track_geometry"
 version = "26.11.0"
 edition = "2024"
-rust-version = "1.100"
 license = "AGPL-3.0-only"
 publish = false
 description = "Track geometry and route checks for Brick Track Planner"
@@ -10,10 +9,6 @@ description = "Track geometry and route checks for Brick Track Planner"
 [lib]
 path = "rust/lib.rs"
 crate-type = ["cdylib", "rlib"]
-
-[[example]]
-name = "oracle"
-path = "rust/oracle.rs"
 
 [dependencies]
 geo = { version = "*", default-features = false }

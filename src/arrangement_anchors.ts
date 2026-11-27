@@ -35,7 +35,7 @@ export type ArrangementAnchorSearch = {
   reason?: string;
 };
 
-type WorldPort = Port & { itemId: string; partId: string; heightPlates: number };
+type WorldPort = Port & { itemId: string; partId: string };
 type Bounds = { left: number; right: number; top: number; bottom: number };
 
 function normalize(angle: number): number {
@@ -96,7 +96,6 @@ function projectPorts(project: Project, catalog: Catalog): WorldPort[] {
           type: port.type,
           itemId: item.id,
           partId: item.partId,
-          heightPlates: item.heightPlates,
         });
     }
   }
@@ -193,12 +192,7 @@ function straightRun(
     ids.push(current.itemId);
     length += Math.hypot(next.x - current.x, next.y - current.y);
     if (length + tolerance >= minimum) return { ids, end: next, length };
-    const mate = ports.find(
-      (port) =>
-        port.itemId !== next.itemId &&
-        port.heightPlates === next.heightPlates &&
-        joined(next, port),
-    );
+    const mate = ports.find((port) => port.itemId !== next.itemId && joined(next, port));
     if (!mate || ids.includes(mate.itemId)) return;
     current = mate;
   }
@@ -282,7 +276,6 @@ export function findArrangementAnchors(
   project: Project,
   catalog: Catalog,
   kitId: string,
-  heightPlates = 0,
   targetIds?: ReadonlySet<string>,
 ): ArrangementAnchorSearch {
   const kit = catalog.kits.find((entry) => entry.id === kitId);
@@ -291,7 +284,7 @@ export function findArrangementAnchors(
   const size = footprint(catalog, kit);
   const spaceMessage = `It needs a clear area of ${measurement(size)}.`;
   const local = exposedKitPorts(catalog, kit);
-  const ports = projectPorts(project, catalog).filter((p) => p.heightPlates === heightPlates);
+  const ports = projectPorts(project, catalog);
   const through = throughPairs(local);
   const limits = outlineBounds(outlineOf(project.area));
   const inArea = (box: Bounds): boolean =>
@@ -303,14 +296,9 @@ export function findArrangementAnchors(
   if (track.length && !ports.some(({ itemId }) => !targetIds || targetIds.has(itemId)))
     return {
       anchors: [],
-      reason: `The connection needs a regular rail end at the required ${heightPlates}-plate rail height.`,
+      reason: "The connection needs a regular rail end.",
     };
   if (!track.length) {
-    if (project.area.niltc)
-      return {
-        anchors: [],
-        reason: "The NILTC mainline must stay in place before adding an arrangement.",
-      };
     const center = areaCenter(project.area);
     const anchors = [0, 90, 180, 270].flatMap((angle) => {
       const box = kitBounds(catalog, kit, { x: 0, y: 0, angle });
@@ -321,8 +309,7 @@ export function findArrangementAnchors(
       };
       const fits =
         inArea(kitBounds(catalog, kit, pose)) &&
-        (!project.area.outline ||
-          previewArrangement(project, catalog, { kitId, pose, heightPlates }).ok);
+        (!project.area.outline || previewArrangement(project, catalog, { kitId, pose }).ok);
       return fits
         ? [
             {
@@ -418,7 +405,6 @@ export function findArrangementAnchors(
       pose,
       replaceIds,
       fillers,
-      heightPlates,
     });
     if (!preview.ok) {
       blocked ??= preview.issues[0]?.message;

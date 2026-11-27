@@ -17,7 +17,7 @@ function sameEndpoint(a: RouteEndpoint, b: RouteEndpoint): boolean {
   return a.pieceId === b.pieceId && a.portId === b.portId;
 }
 
-/** Returns the installed route from a mainline port to a selected track port. */
+/** Returns the installed route between two track ports. */
 export function traceRoute(
   links: readonly RouteLink[],
   start: RouteEndpoint,

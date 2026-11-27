@@ -9,8 +9,8 @@ const RAIL_BOTTOM_Y = SLEEPER_TOP_Y;
 // Match the rail crown of the plastic LEGO parts in the same sleeper coordinate system.
 const RAIL_TOP_Y = -16;
 
-function point({ x, y }: Point, altitude: number): string {
-  return `${number(x * LDU_PER_STUD)} ${altitude} ${number(-y * LDU_PER_STUD)}`;
+function point({ x, y }: Point, ldrawY: number): string {
+  return `${number(x * LDU_PER_STUD)} ${ldrawY} ${number(-y * LDU_PER_STUD)}`;
 }
 
 function number(value: number): string {

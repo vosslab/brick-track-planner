@@ -2,43 +2,40 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Compact%20freight%20spur
 0 !BRICKTRACK AREA 128 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
-0 !BRICKTRACK EXIT @exit-east @east%20exit @east @outer-8 @b @inner-8 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-6 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1760 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-7 @layout @lego%3Arc-s16 - - - -
-1 72 2080 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2080 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @arrangement-9fee3f81-561a-4c1b-b62c-8c79482cf485-0 @layout @trixbrix%3Ar40-double-crossover @07-double-crossover @trixbrix%3Ar40-double-crossover-kit - -
-1 72 800 -24 -320 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-double-crossover.dat
+1 72 800 -8 -320 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-double-crossover.dat
 0 !BRICKTRACK TRACK @freight-turnout @layout @trixbrix%3Ar40-right-switch - - - -
-1 72 1920 -24 -542.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 1920 -8 -542.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @freight-1 @layout @trixbrix%3Ar40 - - - -
-1 72 2165.331154026503 -24 -728.66435015528 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 bricktrack-trixbrix-r40.dat
+1 72 2165.331154026503 -8 -728.66435015528 0.831469612303 0 0.55557023302 0 1 0 -0.55557023302 0 0.831469612303 bricktrack-trixbrix-r40.dat
 0 !BRICKTRACK TRACK @freight-2 @layout @trixbrix%3Ar40 - - - -
-1 72 2333.284488756653 -24 -986.974418651376 0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 0.55557023302 bricktrack-trixbrix-r40.dat
+1 72 2333.284488756653 -8 -986.974418651376 0.55557023302 0 0.831469612303 0 1 0 -0.831469612303 0 0.55557023302 bricktrack-trixbrix-r40.dat
 0 !BRICKTRACK TRACK @freight-3 @layout @trixbrix%3Ar40-half - - - -
-1 72 2393.854496253603 -24 -1208.756115316127 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 bricktrack-trixbrix-r40-half.dat
+1 72 2393.854496253603 -8 -1208.756115316127 0.195090322016 0 0.980785280403 0 1 0 -0.980785280403 0 0.195090322016 bricktrack-trixbrix-r40-half.dat
 0 !BRICKTRACK TRACK @freight-4 @layout @lego%3Arc-s16 - - - -
-1 72 2399.999484161522 -24 -1439.9984466871 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2399.999484161522 -8 -1439.9984466871 0 0 1 0 1 0 -1 0 0 53401.dat
 0 !BRICKTRACK TRACK @freight-5 @layout @lego%3Arc-s16 - - - -
-1 72 2399.999484161522 -24 -1759.9984466871 0 0 1 0 1 0 -1 0 0 53401.dat
+1 72 2399.999484161522 -8 -1759.9984466871 0 0 1 0 1 0 -1 0 0 53401.dat
 0 FILE bricktrack-trixbrix-r40-double-crossover.dat
 0 Name: bricktrack-trixbrix-r40-double-crossover.dat
 0 Brick Track Planner schematic TrixBrix Double crossover R40

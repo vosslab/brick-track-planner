@@ -19,8 +19,6 @@ import {
   previewGap,
   previewPlacement,
   previewTranslation,
-  protectedMessage,
-  protectedTrack,
   remapRailGeometry,
   sameDestination,
   translationTargets,
@@ -328,6 +326,14 @@ export class TrackTools {
     this.#hooks.render();
   }
 
+  selectAll(): void {
+    if (!this.selecting) this.cancel();
+    this.#stack = [];
+    this.#selected = new Set(visibleTrackItems(this.#hooks.analysis().project).map(({ id }) => id));
+    this.#selectionInfo();
+    this.#hooks.render();
+  }
+
   copy(): boolean {
     const items = this.#selectedTrack();
     if (!items.length) return false;
@@ -390,11 +396,6 @@ export class TrackTools {
         );
     if (clearSelection) this.#multiple = false;
     const options = new Map<string, string>();
-    for (const exit of analysis.project.area.exits) {
-      for (const lane of ["outer", "inner"] as const) {
-        options.set(key(exit[lane]), `${exit.name} · ${lane} mainline`);
-      }
-    }
     const tracks = new Map(visibleTrackItems(analysis.project).map((item) => [item.id, item]));
     const names = new Map(this.#catalog.parts.map((part) => [part.id, part.name]));
     this.#openEnds = new Map(openRailEnds(analysis).map((port) => [key(port), port]));
@@ -406,12 +407,7 @@ export class TrackTools {
     if (!tracks.size) target.value = "center";
     for (const port of analysis.ports) {
       const item = tracks.get(port.pieceId);
-      if (
-        !port.joined &&
-        port.type === "regular" &&
-        !options.has(key(port)) &&
-        item?.kind === "track"
-      ) {
+      if (!port.joined && port.type === "regular" && item?.kind === "track") {
         const label = `${names.get(item.partId)} · ${port.portId} (${Math.round(port.x)}, ${Math.round(port.y)})`;
         if (this.#openEnds.has(key(port))) target.add(new Option(label, key(port)));
         options.set(key(port), label);
@@ -509,7 +505,7 @@ export class TrackTools {
     this.#hooks.render();
   }
 
-  beginMove(point: Point, target: Element, stack: readonly string[]): "drag" | "pan" | "blocked" {
+  beginMove(point: Point, target: Element, stack: readonly string[]): "drag" | "pan" {
     if (this.#arrangement || this.#interaction.kind !== "select") return "pan";
     const id =
       stack.find((candidate) => this.#selected.has(candidate)) ??
@@ -522,11 +518,6 @@ export class TrackTools {
     if (!this.#selected.has(id)) this.#selected = new Set([id]);
     this.#stack = stack.length > 1 && this.#selected.size === 1 ? stack : [];
     const selected = this.#selectedTrack();
-    if (protectedTrack(project, this.#selected)) {
-      this.#selectionInfo();
-      this.#hooks.render();
-      return "blocked";
-    }
     this.#startTranslation("drag", selected, point, undefined, id);
     return "drag";
   }
@@ -583,7 +574,7 @@ export class TrackTools {
   #startMove(): void {
     const selected = this.#selectedTrack();
     const [first] = selected;
-    if (!first || protectedTrack(this.#hooks.analysis().project, this.#selected)) return;
+    if (!first) return;
     this.#startTranslation("move", selected, first);
   }
 
@@ -592,10 +583,6 @@ export class TrackTools {
     const items = this.#selectedTrack();
     if (!items.length) return false;
     const analysis = this.#hooks.analysis();
-    if (protectedTrack(analysis.project, this.#selected)) {
-      this.#hooks.notice(protectedMessage, true);
-      return true;
-    }
     const context = prepareTranslation(analysis, items);
     const destination = chooseDestination(context, shift, 0, true);
     const receipt =
@@ -796,13 +783,11 @@ export class TrackTools {
       x: centered ? point.x : Math.round(point.x),
       y: centered ? point.y : Math.round(point.y),
       angle: 0,
-      heightPlates: project.area.niltc ? 2 : 0,
     };
     if (target) {
       const snapped = {
         ...item,
         ...poseConnectingPorts(incoming, target),
-        heightPlates: target.heightPlates,
       };
       const preview = previewPlacement(project, project, [snapped], [target]);
       if (
@@ -858,10 +843,6 @@ export class TrackTools {
   #commitTransform(original: TrackItem, item: TrackItem, message: string): void {
     if (original.x === item.x && original.y === item.y && original.angle === item.angle) return;
     const analysis = this.#hooks.analysis();
-    if (protectedTrack(analysis.project, this.#selected)) {
-      this.#hooks.notice(protectedMessage, true);
-      return;
-    }
     this.cancel();
     const context = prepareTranslation(analysis, [original]);
     this.#applyPlacement(previewPlacement(analysis.project, context.stationary, [item]), message);
@@ -911,15 +892,12 @@ export class TrackTools {
   remove(): void {
     if (!this.#selected.size || !this.selecting) return;
     const project = this.#hooks.analysis().project;
-    if (protectedTrack(project, this.#selected)) {
-      this.#hooks.notice(protectedMessage, true);
-      return;
-    }
     const count = this.#selected.size;
     this.#hooks.commit({
       ...project,
       items: project.items.filter(({ id }) => !this.#selected.has(id)),
     });
-    this.#hooks.notice(`Removed ${count === 1 ? "track piece" : `${count} track pieces`}.`);
+    const receipt = `Removed ${count === 1 ? "track piece" : `${count} track pieces`}.`;
+    this.#hooks.notice(receipt);
   }
 }

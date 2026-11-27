@@ -2,73 +2,70 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Drive-through%20siding
 0 !BRICKTRACK AREA 192 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @west @West%20mainline @west @outer-1 @a @inner-west-lead @a
-0 !BRICKTRACK EXIT @east @East%20mainline @east @outer-12 @b @inner-east-lead @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-2 @layout @lego%3Arc-s16 - - - -
-1 72 480 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 480 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-3 @layout @lego%3Arc-s16 - - - -
-1 72 800 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 800 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-4 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1120 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-6 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1760 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-7 @layout @lego%3Arc-s16 - - - -
-1 72 2080 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2080 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-9 @layout @lego%3Arc-s16 - - - -
-1 72 2720 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2720 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-10 @layout @lego%3Arc-s16 - - - -
-1 72 3040 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-11 @layout @lego%3Arc-s16 - - - -
-1 72 3360 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-12 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-west-lead @layout @trixbrix%3As08 - - - -
-1 72 80 -24 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 80 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @inner-east-lead @layout @trixbrix%3As08 - - - -
-1 72 3760 -24 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 3760 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @drive-through-60-1 @layout @lego%3Arc-r40-right-switch @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 498.75 -24 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
+1 72 498.75 -8 -607.5 1 0 0 0 1 0 0 0 1 bricktrack-lego-rc-r40-right-switch.dat
 0 !BRICKTRACK TRACK @drive-through-60-2 @layout @lego%3Arc-r40 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 963.92774194 -24 -784.62782456 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 53400.dat
+1 72 963.92774194 -8 -784.62782456 -0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 -0.980785280403 53400.dat
 0 !BRICKTRACK TRACK @drive-through-60-3 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1280 -24 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1280 -8 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-4 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1600 -24 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1600 -8 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-5 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1920 -24 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1920 -8 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-6 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2240 -24 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2240 -8 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-7 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2560 -24 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2560 -8 -799.9996 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-8 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 960 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 960 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-9 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1280 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1280 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-10 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1600 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1600 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-11 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 1920 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1920 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-12 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2240 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2240 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-13 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2560 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2560 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-14 @layout @lego%3Arc-s16 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2880 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2880 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @drive-through-60-15 @layout @lego%3Arc-r40-left-switch @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 3341.25 -24 -607.5 -1 0 0 0 1 0 0 0 -1 bricktrack-lego-rc-r40-left-switch.dat
+1 72 3341.25 -8 -607.5 -1 0 0 0 1 0 0 0 -1 bricktrack-lego-rc-r40-left-switch.dat
 0 !BRICKTRACK TRACK @drive-through-60-16 @layout @lego%3Arc-r40 @drive-through-60 @parking%3Ar40-drive-through - -
-1 72 2876.071511398622 -24 -784.628198703995 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 53400.dat
+1 72 2876.071511398622 -8 -784.628198703995 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 53400.dat
 0 FILE bricktrack-trixbrix-s08.dat
 0 Name: bricktrack-trixbrix-s08.dat
 0 Brick Track Planner schematic TrixBrix Straight S8

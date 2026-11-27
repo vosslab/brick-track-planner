@@ -44,67 +44,29 @@ test("dragging a track selected in Diagnostics moves only that track at an overl
   ]);
 });
 
-test("Escape cancels a held track before and after the drag threshold", async ({ page }) => {
+test("Escape cancels an active track drag", async ({ page }) => {
   await boot(page, { startProject: false });
   const canvas = page.getByRole("group", { name: "Track plan", exact: true });
   const ghost = canvas.locator('[data-edit-preview] [data-kind="track"]');
   const undo = page.getByRole("button", { name: "Undo", exact: true });
   const placement = page.getByRole("combobox", { name: "Placement", exact: true });
 
-  for (const startedDragging of [false, true]) {
-    await test.step(
-      startedDragging ? "After the drag starts" : "Before the drag starts",
-      async () => {
-        const id = startedDragging ? "active-drag" : "before-drag";
-        const original = await openEditingPlan(page, [straight(id, 76, 64)], id);
-        await expect(canvas.locator(`[data-kind="track"][data-piece-id="${id}"]`)).toBeVisible();
-        await pickDrawing(canvas, false, 76, 64);
-        await placement.selectOption({ label: "1-stud grid" });
-        const start = (await drawingPoint(canvas, 76, 64)).screen;
-        const destination = (await drawingPoint(canvas, 92, 64)).screen;
-        const afterEscape = (await drawingPoint(canvas, 100, 64)).screen;
-        await page.mouse.move(start.x, start.y);
-        await page.mouse.down();
-        if (startedDragging) {
-          await page.mouse.move(destination.x, destination.y);
-          await expect(ghost).toBeVisible();
-        }
-        await page.keyboard.press("Escape");
-        await page.mouse.move(afterEscape.x, afterEscape.y);
-        await page.mouse.up();
-
-        await expect(ghost).toHaveCount(0);
-        await expect(placement).toHaveValue("club");
-        expect((await saveProject(page)).project).toEqual(original);
-        await expect(undo).toBeDisabled();
-      },
-    );
-  }
-});
-
-test("wheel panning refreshes a Move preview and the next click saves its pose", async ({
-  page,
-}) => {
-  await boot(page, { startProject: false });
-  const original = await openEditingPlan(page, [straight("track", 76, 64)]);
-  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
-  await expect(canvas.getByRole("button", { name: "RC/PF straight S16" })).toBeVisible();
+  const original = await openEditingPlan(page, [straight("active-drag", 76, 64)]);
   await pickDrawing(canvas, false, 76, 64);
-  await page.getByRole("button", { name: "Move", exact: true }).click();
+  await placement.selectOption({ label: "1-stud grid" });
+  const start = (await drawingPoint(canvas, 76, 64)).screen;
+  const destination = (await drawingPoint(canvas, 92, 64)).screen;
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(destination.x, destination.y);
+  await expect(ghost).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
 
-  const preview = canvas.locator('[data-edit-preview] [data-kind="track"]');
-  const scene = canvas.locator("svg[data-track-scene]");
-  const pointer = (await drawingPoint(canvas, 100, 64)).screen;
-  const afterPan = (await drawingPoint(canvas, 116, 64)).screen;
-  await page.mouse.move(pointer.x, pointer.y);
-  await expect(preview).toHaveAttribute("transform", "translate(100 64) rotate(0)");
-  const originalBox = (await scene.getAttribute("viewBox"))!;
-  await page.mouse.wheel(Math.round(afterPan.x - pointer.x), 0);
-  await expect(scene).not.toHaveAttribute("viewBox", originalBox);
-  await expect(preview).toHaveAttribute("transform", "translate(116 64) rotate(0)");
-  await page.mouse.click(pointer.x, pointer.y);
-
-  expect((await saveProject(page)).project.items).toEqual([{ ...original.items[0], x: 116 }]);
+  await expect(ghost).toHaveCount(0);
+  await expect(placement).toHaveValue("club");
+  expect((await saveProject(page)).project).toEqual(original);
+  await expect(undo).toBeDisabled();
 });
 
 test("arrow keys nudge selected track and preserve text editing and panning", async ({ page }) => {
@@ -157,4 +119,70 @@ test("arrow keys move a keyboard selection together in a rotated view", async ({
   expect((await saveProject(page)).project.items).toEqual(
     original.items.map((item) => ({ ...item, x: item.x - 1, y: item.y - 1 })),
   );
+});
+
+test("select all track leaves text fields with their native Select All shortcut", async ({
+  page,
+}) => {
+  await boot(page, { startProject: false });
+  await openEditingPlan(page, [
+    straight("first", 52, 64),
+    straight("second", 76, 64),
+    straight("third", 100, 64),
+  ]);
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+
+  await canvas.focus();
+  await page.keyboard.press(`${modifier}+A`);
+  await expect(canvas.locator('[data-kind="track"][aria-pressed="true"]')).toHaveCount(3);
+  expect(await page.evaluate(() => window.getSelection()?.isCollapsed)).toBe(true);
+
+  await page.locator("#layout-menu summary").click();
+  const name = page.getByLabel("Layout name");
+  await name.focus();
+  await page.keyboard.press(`${modifier}+A`);
+  await expect(name).toBeFocused();
+  expect(
+    await name.evaluate((field) => {
+      const input = field as HTMLInputElement;
+      return [input.selectionStart, input.selectionEnd];
+    }),
+  ).toEqual([0, (await name.inputValue()).length]);
+});
+
+test("modified clicks toggle track and a selection box can finish outside the drawing", async ({
+  page,
+}) => {
+  await boot(page, { startProject: false });
+  await openEditingPlan(page, [straight("first", 60, 64), straight("second", 92, 64)]);
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  const first = canvas.locator('[data-kind="track"][data-piece-id="first"]');
+  const second = canvas.locator('[data-kind="track"][data-piece-id="second"]');
+
+  await first.click();
+  await page.keyboard.down(modifier);
+  await second.click();
+  await expect(canvas.locator('[data-kind="track"][aria-pressed="true"]')).toHaveCount(2);
+  await second.click();
+  await expect(canvas.locator('[data-kind="track"][aria-pressed="true"]')).toHaveCount(1);
+
+  const firstBox = (await first.boundingBox())!;
+  const secondBox = (await second.boundingBox())!;
+  const canvasBox = (await canvas.boundingBox())!;
+  const start = { x: Math.min(firstBox.x, secondBox.x) - 8, y: firstBox.y - 8 };
+  const end = {
+    x: canvasBox.x + canvasBox.width + 8,
+    y: Math.max(firstBox.y + firstBox.height, secondBox.y + secondBox.height) + 8,
+  };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(end.x, end.y);
+  await expect(page.locator(".track-selection-box")).toBeVisible();
+  await page.mouse.up();
+  await page.keyboard.up(modifier);
+
+  await expect(canvas.locator(".track-selection-box")).toHaveCount(0);
+  await expect(canvas.locator('[data-kind="track"][aria-pressed="true"]')).toHaveCount(2);
 });

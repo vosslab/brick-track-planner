@@ -2,73 +2,70 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @R40%20right%20pass-through
 0 !BRICKTRACK AREA 192 128 @straight
 0 !BRICKTRACK FRONT @north
-0 !BRICKTRACK EXIT @west @West%20mainline @west @outer-1 @a @inner-1 @a
-0 !BRICKTRACK EXIT @east @East%20mainline @east @outer-12 @b @inner-12 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @outer-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-2 @layout @lego%3Arc-s16 - - - -
-1 72 480 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 480 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-3 @layout @lego%3Arc-s16 - - - -
-1 72 800 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 800 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-4 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1120 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-8 @layout @lego%3Arc-s16 - - - -
-1 72 2400 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2400 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-9 @layout @lego%3Arc-s16 - - - -
-1 72 2720 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2720 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-10 @layout @lego%3Arc-s16 - - - -
-1 72 3040 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-11 @layout @lego%3Arc-s16 - - - -
-1 72 3360 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @outer-12 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-1 @layout @lego%3Arc-s16 - - - -
-1 72 160 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-2 @layout @lego%3Arc-s16 - - - -
-1 72 480 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 480 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-3 @layout @lego%3Arc-s16 - - - -
-1 72 800 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 800 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-4 @layout @lego%3Arc-s16 - - - -
-1 72 1120 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1120 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-5 @layout @lego%3Arc-s16 - - - -
-1 72 1440 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1440 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-6 @layout @lego%3Arc-s16 - - - -
-1 72 1760 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 1760 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-9 @layout @lego%3Arc-s16 - - - -
-1 72 2720 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 2720 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-10 @layout @lego%3Arc-s16 - - - -
-1 72 3040 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-11 @layout @lego%3Arc-s16 - - - -
-1 72 3360 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @inner-12 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -480 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -480 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @rear-3 @layout @lego%3Arc-s16 - - - -
-1 72 3040 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3040 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @rear-4 @layout @lego%3Arc-s16 - - - -
-1 72 3360 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3360 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @rear-5 @layout @lego%3Arc-s16 - - - -
-1 72 3680 -24 -800 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 3680 -8 -800 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @pass-through-1 @layout @trixbrix%3Ar40-right-switch @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2560 -24 -737.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 2560 -8 -737.5 0 0 -1 0 1 0 1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @pass-through-2 @layout @trixbrix%3Ar40-right-switch @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 1920 -24 -222.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
+1 72 1920 -8 -222.5 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-r40-right-switch.dat
 0 !BRICKTRACK TRACK @pass-through-3 @layout @trixbrix%3Acrossing-45-right @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2240 -24 -480 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
+1 72 2240 -8 -480 0 0 1 0 1 0 -1 0 0 bricktrack-trixbrix-crossing-45-right.dat
 0 !BRICKTRACK TRACK @pass-through-4 @layout @trixbrix%3As08 @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2480 -24 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
+1 72 2480 -8 -480 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @pass-through-5 @layout @trixbrix%3As08 @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2000 -24 -480 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-s08.dat
+1 72 2000 -8 -480 -1 0 0 0 1 0 0 0 -1 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @pass-through-6 @layout @trixbrix%3Ar40-pass-through-adapter @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2401.09928464 -24 -644.10564452 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
+1 72 2401.09928464 -8 -644.10564452 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
 0 !BRICKTRACK TRACK @pass-through-7 @layout @trixbrix%3Ar40-pass-through-adapter @pass-through @trixbrix%3Ar40-right-pass-through - -
-1 72 2078.90071536 -24 -315.89435548 0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
+1 72 2078.90071536 -8 -315.89435548 0.980785280403 0 -0.195090322016 0 1 0 0.195090322016 0 0.980785280403 bricktrack-trixbrix-r40-pass-through-adapter.dat
 0 FILE bricktrack-trixbrix-r40-right-switch.dat
 0 Name: bricktrack-trixbrix-r40-right-switch.dat
 0 Brick Track Planner schematic TrixBrix Right switch R40

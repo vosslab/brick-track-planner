@@ -22,8 +22,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7
         with:
-          # Update this after local maintenance validates a newer Node major.
-          node-version: 26
+          node-version: lts/*
           cache: npm
       - name: Install Rust and wasm-pack
         run: |

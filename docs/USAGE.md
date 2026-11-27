@@ -31,7 +31,7 @@ semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
 inch corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#mainline-loops).
 Joel's 10-to-0 mainline adapts the Rockford offset to a 60 by 40 inch table
-with a 10-inch shift between handoffs. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
+with a 10-inch shift between its two display edges. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
 
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan
@@ -124,7 +124,7 @@ span's start from the left of a horizontal edge or the top of a vertical edge.
 General layouts can also extend or trim a span on one side, to the nearest stud.
 
 The preview shows the old outline and highlights track that would extend past
-the new edge. It also reports rail ends that need attention at a named handoff.
+the new edge. Ordinary diagnostics remain available after the outline changes.
 Choose **Apply outline** to make one undoable edit with the track in place.
 The drawing's overall dimensions include bump-outs. Save the layout to keep
 the outline with the track plan.
@@ -178,9 +178,8 @@ return to track selection, even without a connected fit. Overlapping pieces
 appear in red after placement. Open **Diagnostics** to find the problem.
 You can also change the placement options and preview again.
 
-Connected-fit recommendations keep joined rails at the same height. Free
-placement still lets you put the kit down and flags facing ends at different
-heights for repair.
+Connected-fit recommendations align compatible rail ends. Free placement still
+lets you put the kit down; overlap findings remain available for repair.
 
 - **Parking siding** creates a back-out or drive-through place behind the
   mainline.
@@ -221,10 +220,11 @@ turn where no rail joins.
 
 ## Build to the club mainline
 
-NILTC starters use the club's 8- and 24-stud lane positions and +2-plate rail
-height. Mainline checks cover the assigned exits, R104/R120 curve requirement,
-and required straight track between curves, switches, and bridges. Yard checks
-remain advisory because the member is free to choose a compact private design.
+NILTC starters use the club's 8- and 24-stud lane positions. They are useful
+starting geometry, not a requirement that restricts
+editing. Every plan uses the same ordinary fit diagnostics, and General layouts
+have no required mainlines. Members remain free to choose a compact private
+yard design.
 
 The mainline assignment comes from Roger. The planner designs a buildable
 version of that assignment inside the member's display area.
@@ -250,18 +250,22 @@ end and keep the pointer close to it; the nearest end guides the joint preview.
 If equally close valid rail snaps compete, the preview falls back to the grid
 and reports the ambiguity.
 
-Hold **Command** on Mac or **Ctrl** elsewhere and click to add or remove
-individual pieces. Hold the same key and drag a box that fully encloses
-several pieces to add them together. **Shift+click** and **Select multiple**
-under **Tools** also work for individual pieces. For an installed kit, choose
-one of its pieces, then open **Tools** and choose **Select arrangement**.
+Press **Command+A** on Mac or **Ctrl+A** elsewhere to select all visible track
+in the current layout. With a text field focused, the shortcut selects its text.
+Hold **Command** or **Ctrl** and click to toggle one piece. Keep the mouse
+button down and drag to draw a selection box. Release to add the fully enclosed
+pieces to the selection, including when you release beyond the drawing edge.
+**Shift+click** and **Select multiple** under **Tools** also work for individual
+pieces. For an installed kit, choose one of its pieces, then open **Tools** and
+choose **Select arrangement**.
 
 Choose **Move** to move the selection together and keep its internal joints.
 The preview marks any joints to stationary track that the move opens.
-Choose **Delete** or press **Delete** to remove the selection
-in one edit. Deselect any piece carrying a named mainline handoff before
-moving or deleting the rest of the selection. Track can extend through a
-handoff to connect to the next display.
+Choose **Delete** or press **Delete** to remove the selection in one edit.
+Boundary track uses the same **Track parts**, **Move**, **Rotate**, and
+**Delete** tools as all other track. To replace a rail with a switch or another
+part, select the part and place it normally. Track can extend past the border
+to connect to the next display.
 
 Before a drag, use **Rail ends or 8-stud grid** or **1-stud grid** to choose
 how the next translation moves; the same control is available for **Move**.
@@ -284,8 +288,8 @@ described above. You can put track down even when it does not fit. Review the
 flagged track, then move or delete it to fix the problem.
 
 To fill a straight gap, open **Tools**, choose **Connect two ends**, and select two open
-rail ends. The ends need to face each other on the same line and at the
-same height. Review the gap length and parts, then choose **Place**. To add
+rail ends. The ends need to face each other on the same line. Review the gap
+length and parts, then choose **Place**. To add
 a larger component for a turn or branch, preview it in **Arrangement** and
 choose **Add to layout**.
 
@@ -311,8 +315,7 @@ or select a part to see its full name in **Inspector**. Colors follow the
 Each open layout remembers its view while the editor is open.
 
 The parts panel totals physical pieces in the current design. **Diagnostics**
-reports overlaps, facing rail ends at different heights, protected NILTC
-mainline findings, and imported parts without usable geometry. Track may
+reports overlaps and imported parts without usable geometry. Track may
 extend past the design-area border. Findings follow the current layout,
 including after saving and reopening, and clear when you fix the problem.
 Open rail ends mark connection points while placing or tracing track. The
@@ -325,11 +328,11 @@ file using its layout name. Switch tabs and save each layout you want to keep.
 Share that file with other LDraw users or open **File** and use **Open track plan** to continue working on it here.
 The planner opens the track files it creates, including its templates.
 **Import BlueBrick** on the start screen or under **File** creates a
-reviewable track plan in the current design-area model and identifies any part
-the catalog cannot place.
+reviewable flat track plan in the current design-area model and identifies any
+part the catalog cannot place. Source elevations do not create elevated track.
 
 Open **File** to choose PNG or WebP for a drawing, or PDF for a member build sheet with
-design area dimensions, public edge, assigned mainline, named exits, drawing,
+design area dimensions, public edge, assigned mainline, drawing,
 route information, and parts list. Exports use the active layout and do not
 save its editable track plan. PDF export preserves the layout's colors. Use
 the printer's black-and-white setting when a monochrome handout is needed.

@@ -2,7 +2,6 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Eight-track%20switch%20yard
 0 !BRICKTRACK AREA 192 128 -
 0 !BRICKTRACK LAYER @layout @Layout 1

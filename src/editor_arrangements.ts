@@ -13,7 +13,6 @@ type PreviewHooks = {
   notice: (message: string, error?: boolean) => void;
   noticePlacement?: (receipt: string, pieceIds: readonly string[]) => void;
   selection?: () => readonly string[];
-  mainlineIds?: () => readonly string[];
   beginPreview?: () => void;
 };
 
@@ -158,7 +157,6 @@ export class ArrangementTools {
         y: point.y,
         angle: this.#candidates[this.#candidateIndex]?.pose.angle ?? 0,
       },
-      heightPlates: project.area.niltc ? 2 : 0,
     });
     if (!result.candidateItems?.length) return true;
     try {
@@ -208,12 +206,10 @@ export class ArrangementTools {
 
   #showPreview(pose: Pose, message: string, candidate?: ArrangementAnchor): void {
     const project = this.hooks.project();
-    const heightPlates = project.area.niltc ? 2 : 0;
     const catalog = this.#catalogFor(this.#storageStuds);
     const result = previewArrangement(project, catalog, {
       kitId: this.#choice.value,
       pose,
-      heightPlates,
       replaceIds: candidate?.replaceIds,
       fillers: candidate?.fillers,
     });
@@ -245,27 +241,18 @@ export class ArrangementTools {
   #fittingAnchors(): { storageStuds: number; candidates: ArrangementAnchor[]; reason: string } {
     const requested = this.#anchor.value;
     const targetIds =
-      requested === "selected"
-        ? new Set(this.hooks.selection?.() ?? [])
-        : requested === "mainline"
-          ? new Set(this.hooks.mainlineIds?.() ?? [])
-          : undefined;
+      requested === "selected" ? new Set(this.hooks.selection?.() ?? []) : undefined;
     if (targetIds?.size === 0) {
-      const reason =
-        requested === "selected"
-          ? "Select a track piece on the drawing, or choose Best connected fit."
-          : "There is no continuous protected mainline to connect to. Try Best connected fit.";
+      const reason = "Select a track piece on the drawing, or choose Best connected fit.";
       return { storageStuds: 0, candidates: [], reason };
     }
     const project = this.hooks.project();
-    const heightPlates = project.area.niltc ? 2 : 0;
     let reason = "No connected fit was found.";
     for (const storageStuds of this.#storageChoices()) {
       const result = findArrangementAnchors(
         project,
         this.#catalogFor(storageStuds),
         this.#choice.value,
-        heightPlates,
         targetIds,
       );
       if (result.anchors.length) return { storageStuds, candidates: result.anchors, reason: "" };

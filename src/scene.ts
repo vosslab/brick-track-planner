@@ -4,7 +4,6 @@ import { defaultBaseplateColor } from "./appearance";
 import {
   edgeCoordinate,
   frontCoordinate,
-  horizontalEdge,
   moveEdgePoint,
   outlineBounds,
   outlineEdges,
@@ -34,7 +33,6 @@ import {
   rectangle,
   selectionInk,
   svg,
-  unit,
   warningInk,
 } from "./scene_drawing";
 import type { Bounds } from "./scene_drawing";
@@ -156,7 +154,6 @@ function trackDrawing(
     item,
     part,
     selected || preview,
-    item.heightPlates - (item.heightPlates === 2 ? 2 : 0),
     layers.trackColors,
     interaction !== undefined,
   );
@@ -341,19 +338,6 @@ function drawArea(
         longest = length;
         label = moveEdgePoint({ x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, side, 5);
       }
-      for (const offset of [8, 24]) {
-        const extent = horizontalEdge(side) ? area.depth : area.width;
-        if (offset >= extent) continue;
-        surface.append(
-          line(moveEdgePoint(start, side, -offset), moveEdgePoint(end, side, -offset), {
-            stroke: "#76523b",
-            "stroke-width": 0.38,
-            "stroke-dasharray": "3 2",
-            opacity: 0.8,
-            "data-mainline-guide": String(offset),
-          }),
-        );
-      }
     }
     if (label)
       layers.labels.append(
@@ -380,49 +364,6 @@ function drawArea(
       }),
     );
   layers.area.replaceChildren(group);
-}
-
-function drawExits(
-  project: Project,
-  analysis: Analysis,
-  bounds: Bounds,
-  labels: SVGGElement,
-): void {
-  const ports = new Map(
-    analysis.ports.map((port) => [JSON.stringify([port.pieceId, port.portId]), port]),
-  );
-  const edges = outlineEdges(outlineOf(project.area));
-  for (const exit of project.area.exits) {
-    const candidates = [exit.outer, exit.inner]
-      .map((endpoint) => ports.get(JSON.stringify([endpoint.pieceId, endpoint.portId])))
-      .filter((port): port is ScenePort => Boolean(port));
-    const nearest = edges
-      .filter(({ side }) => side === exit.edge)
-      .map(({ start, end }) => {
-        const tangent = unit(start, end);
-        const length = Math.hypot(end.x - start.x, end.y - start.y);
-        const average = candidates.length
-          ? candidates.reduce(
-              (sum, port) => sum + (port.x - start.x) * tangent.x + (port.y - start.y) * tangent.y,
-              0,
-            ) / candidates.length
-          : length / 2;
-        const distance = Math.max(0, Math.min(length, average));
-        const point = { x: start.x + tangent.x * distance, y: start.y + tangent.y * distance };
-        const score = candidates.length
-          ? candidates.reduce(
-              (sum, port) => sum + Math.hypot(port.x - point.x, port.y - point.y),
-              0,
-            )
-          : -length;
-        return { point, score };
-      })
-      .sort((a, b) => a.score - b.score)[0]!;
-    const at = moveEdgePoint(nearest.point, exit.edge, -10);
-    labels.append(
-      boundedLabel(bounds, at, exit.name, 2.5, { "data-exit-label": exit.id, "font-weight": 650 }),
-    );
-  }
 }
 
 function drawRouteOverlays(
@@ -690,7 +631,6 @@ export function createScene(
   drawRouteOverlays(options, drawn, layers.overlays);
   drawTrace(options, project, partById, layers.overlays);
   layers.overlays.append(...warningOutlines);
-  drawExits(project, analysis, bounds, layers.labels);
   const ports: SVGElement[] = [];
   for (const port of analysis.ports) {
     if (options.sharing && port.joined) continue;

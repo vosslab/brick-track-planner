@@ -8,7 +8,6 @@ import {
   preferredTranslationEnd,
   prepareTranslation,
   previewTranslation,
-  sameDestination,
 } from "../src/editor_placement.ts";
 import { evaluate } from "../src/engine.ts";
 import { newProject } from "../src/project.ts";
@@ -26,7 +25,6 @@ function straight(id, x, y) {
     kind: "track",
     partId: "lego:rc-s16",
     layerId: "layout",
-    heightPlates: 0,
   };
 }
 
@@ -58,55 +56,6 @@ test("a blocked nearest join falls back unless the user chose that exact target"
   const alternateEnd = endpointKey({ pieceId: "alternate", portId: "a" });
   const explicitAlternate = preview(chooseDestination(context, intended, 1, false, alternateEnd));
   assert.equal(explicitAlternate.snap?.to.pieceId, "alternate");
-});
-
-test("valid snaps within the tie distance place on the grid", () => {
-  const { context, preview } = setup(
-    [straight("moving", 40, 40)],
-    [straight("lower", 72, 43), straight("higher", 72, 53)],
-  );
-  const destination = (y) =>
-    chooseDestination(context, { x: 16, y }, 6, false, undefined, { tieDistance: 0.25 });
-  const tiedAtLimit = destination(7.875);
-  const untied = destination(7.75);
-  assert.ok(sameDestination(tiedAtLimit, destination(7.9375)));
-  assert.ok(!sameDestination(tiedAtLimit, untied));
-  assert.equal(preview(untied).snap?.to.pieceId, "lower");
-
-  const tied = preview(tiedAtLimit);
-  assert.equal(tied.placement, "grid");
-  assert.equal(tied.gridFallback, "tie");
-  assert.equal(tied.items[0].y, 48);
-  assert.match(tied.message, /equally close/);
-});
-
-test("one translation can produce multiple joints without a tie", () => {
-  const { context, preview } = setup(
-    [straight("moving1", 40, 40), straight("moving2", 40, 56), straight("moving3", 40, 72)],
-    [
-      straight("ambiguous", 72, 40),
-      straight("competing", 72.02, 40),
-      straight("joint2", 72, 56),
-      straight("joint3", 72, 72),
-    ],
-  );
-  const destination = chooseDestination(context, { x: 16, y: 0 }, 2, false, undefined, {
-    tieDistance: 0.25,
-  });
-  const result = preview(destination);
-  assert.equal(result.placement, "rail");
-  assert.equal(result.items[0].x, 56);
-  assert.ok(["joint2", "joint3"].includes(result.snap?.to.pieceId));
-
-  const decimal = setup(
-    [straight("moving1", 40.1, 40), straight("moving2", 10.1, 56)],
-    [straight("joint1", 72.1, 40), straight("joint2", 42.1, 56)],
-  );
-  const decimalResult = decimal.preview(
-    chooseDestination(decimal.context, { x: 16, y: 0 }, 2, false, undefined, { tieDistance: 0.25 }),
-  );
-  assert.equal(decimalResult.placement, "rail");
-  assert.equal(decimalResult.items[0].x, 56.1);
 });
 
 test("the grabbed rail end takes priority if it can join", () => {

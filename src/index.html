@@ -60,7 +60,6 @@
               id="layout-tablist"
               role="tablist"
               aria-label="Open layouts"
-              focusgroup="tablist nomemory"
             ></div>
           </div>
           <details id="layout-menu" class="editor-disclosure">
@@ -251,14 +250,16 @@
               aria-label="Track plan"
               tabindex="0"
               aria-describedby="camera-hint"
+              aria-keyshortcuts="Meta+A Control+A"
             ></div>
             <p id="translation-feedback" aria-live="polite" aria-atomic="true"></p>
             <p id="camera-hint" class="screen-reader">
               Drag track with a mouse, or use Move and choose a destination. Drag open space to pan.
               Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise. Press
-              Enter to select a focused piece or choose a highlighted rail end. Arrow keys move
-              selected track one stud. When choosing a placement on the drawing, press Enter on
-              the drawing to place at the center of the view.
+              Enter to select a focused piece or choose a highlighted rail end. Command+A or
+              Control+A selects all visible track. Hold Command or Control and drag to select
+              several pieces. Arrow keys move selected track one stud. When choosing a placement
+              on the drawing, press Enter on the drawing to place at the center of the view.
             </p>
           </div>
         </section>
@@ -322,7 +323,6 @@
                     <select id="anchor">
                       <option value="center">Best connected fit</option>
                       <option value="selected">Selected track</option>
-                      <option value="mainline">Mainline only</option>
                     </select>
                     <label for="storage-length">Extra storage track</label>
                     <select id="storage-length">
@@ -447,12 +447,6 @@
               <section class="panel-section">
                 <div class="panel-head"><h2>Diagnostics</h2></div>
                 <div id="diagnostics" class="panel-content"></div>
-                <section
-                  id="niltc-issues"
-                  class="panel-content"
-                  aria-label="NILTC checks"
-                  hidden
-                ></section>
                 <div class="panel-content inspector-controls">
                   <label class="screen-reader" for="trace-from">Trace a train route from</label>
                   <select id="trace-from">
@@ -462,14 +456,6 @@
                   <p id="route-info" aria-live="polite"></p>
                 </div>
               </section>
-              <details class="panel-section layer-panel">
-                <summary>Mainline handoffs</summary>
-                <section
-                  id="handoff-panel"
-                  class="panel-content"
-                  aria-label="Mainline handoffs"
-                ></section>
-              </details>
               <details class="panel-section layer-panel">
                 <summary>Show inventory</summary>
                 <section

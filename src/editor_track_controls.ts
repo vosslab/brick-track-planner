@@ -1,6 +1,5 @@
 import { button, element, input } from "./editor_dom";
 import { renderBallast } from "./editor_panels";
-import { protectedTrack } from "./editor_placement";
 import type { EditPreview } from "./editor_placement";
 import { visibleTrackItems } from "./project";
 import type { Catalog, Project, TrackItem } from "./project";
@@ -80,16 +79,7 @@ export function renderEditControls({
         ? "Click or tap to place the copy."
         : "Click or tap to move the selection.";
   else if (kind === "drag") hint.textContent = "Release to place.";
-  else if (protectedTrack(getProject(), selected)) {
-    const handoff = getProject().area.exits.find(
-      ({ outer, inner }) => selected.has(outer.pieceId) || selected.has(inner.pieceId),
-    );
-    const message =
-      selected.size > 1
-        ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Deselect that protected piece before moving or deleting the other pieces.`
-        : "This track carries a named mainline exit and cannot be moved or deleted.";
-    hint.textContent = stack ? `${stack}. ${message}` : message;
-  } else if (stack) hint.textContent = stack;
+  else if (stack) hint.textContent = stack;
   else if (multiple)
     hint.textContent = `${selected.size} selected. Pick pieces to add or remove them.`;
   else if (selected.size)
@@ -137,11 +127,10 @@ export function renderSelectionInfo(
     selected.size > 1
       ? `${selected.size} track pieces selected.`
       : (name ?? "Select a track piece in the drawing.");
-  const protectedExit = protectedTrack(project, selected);
-  button("remove-piece").disabled = !selected.size || protectedExit;
-  const movable = item?.kind === "track" && !protectedExit;
+  button("remove-piece").disabled = !selected.size;
+  const movable = item?.kind === "track";
   const hasTrack = visibleTrackItems(project).some(({ id }) => selected.has(id));
-  button("move-track").disabled = protectedExit || !hasTrack;
+  button("move-track").disabled = !hasTrack;
   button("copy-track").disabled = !hasTrack;
   button("rotate-track-left").disabled = !movable;
   button("rotate-track-right").disabled = !movable;

@@ -16,18 +16,13 @@ export const maxPlanarStuds = 100_000;
 export const maxDesignAreaStuds = 4_096;
 const maxLayers = 1_000;
 export const maxItems = 10_000;
+export const railTolerance = 0.05;
+export const joinAngle = 0.25;
 export type Edge = (typeof edges)[number];
 export type NiltcMode = (typeof niltcModes)[number];
 export type BallastStyle = (typeof ballastStyles)[number];
 export type Layer = { id: string; name: string; visible: boolean };
 export type Endpoint = { pieceId: string; portId: string };
-export type SectionExit = {
-  id: string;
-  name: string;
-  edge: Edge;
-  outer: Endpoint;
-  inner: Endpoint;
-};
 export type DesignArea = {
   width: number;
   depth: number;
@@ -35,13 +30,11 @@ export type DesignArea = {
   frontLines?: Partial<Record<Edge, number>>;
   fronts: Edge[];
   niltc?: NiltcMode;
-  exits: SectionExit[];
 };
 export type ItemBase = Pose & { id: string; layerId: string };
 export type TrackItem = ItemBase & {
   kind: "track";
   partId: string;
-  heightPlates: number;
   groupId?: string;
   arrangementId?: string;
   ballast?: BallastStyle;
@@ -53,12 +46,10 @@ export type UnresolvedItem = ItemBase & {
   name: string;
   width: number;
   depth: number;
-  altitude?: number;
   reason: string;
 };
 export type Item = TrackItem | UnresolvedItem;
 export type Project = {
-  version: 3;
   name: string;
   area: DesignArea;
   layers: Layer[];
@@ -101,7 +92,6 @@ export type PartAlias = {
   offsetX?: number;
   offsetY?: number;
   angle?: number;
-  preferredY?: number;
   sourceHull?: Point[];
 };
 export type InventoryComponent = { id: string; name: string; quantity: number };
@@ -206,11 +196,6 @@ function edge(value: unknown, path: string): number {
   expect(index >= 0, path, "north, east, south, or west");
   return index;
 }
-function hasEndpoint(value: unknown, path: string): void {
-  const endpoint = record(value, path);
-  string(endpoint.pieceId, `${path}.pieceId`, true);
-  string(endpoint.portId, `${path}.portId`, true);
-}
 function validateGroup(
   value: unknown,
   group: string,
@@ -226,12 +211,6 @@ function validateGroup(
     validate(data, path, id);
   });
   return ids;
-}
-function validateExit(exit: Record<string, unknown>, path: string): void {
-  string(exit.name, `${path}.name`, true);
-  edge(exit.edge, `${path}.edge`);
-  hasEndpoint(exit.outer, `${path}.outer`);
-  hasEndpoint(exit.inner, `${path}.inner`);
 }
 function validateArea(value: unknown): void {
   const area = record(value, "project.area");
@@ -258,7 +237,6 @@ function validateArea(value: unknown): void {
     "project.area.fronts",
     `${expectedFronts} public edge(s) for this assignment`,
   );
-  validateGroup(area.exits, "project.area.exits", validateExit);
   if (area.outline === undefined && area.frontLines === undefined) return;
   const vertices = list(area.outline, "project.area.outline");
   expect(vertices.length <= maxOutlineVertices, "project.area.outline", "at most 256 vertices");
@@ -304,11 +282,6 @@ function validateItem(item: Record<string, unknown>, path: string): void {
         `${path}.partId`,
         "a catalog track part",
       );
-      expect(
-        Number.isSafeInteger(item.heightPlates),
-        `${path}.heightPlates`,
-        "a whole plate count",
-      );
       if (item.groupId !== undefined) string(item.groupId, `${path}.groupId`, true);
       if (item.arrangementId !== undefined)
         string(item.arrangementId, `${path}.arrangementId`, true);
@@ -327,47 +300,13 @@ function validateItem(item: Record<string, unknown>, path: string): void {
       string(item.name, `${path}.name`, true);
       string(item.reason, `${path}.reason`, true);
       hasDimensions(item, path);
-      if (item.altitude !== undefined) numeric(item.altitude, `${path}.altitude`);
       return;
     default:
       expect(false, `${path}.kind`, "track or unresolved");
   }
 }
-function validateExitEndpoints(project: Record<string, unknown>): void {
-  const area = record(project.area, "project.area");
-  const items = new Map(
-    list(project.items, "project.items").map((value) => {
-      const item = record(value, "project.items[]");
-      return [item.id as string, item];
-    }),
-  );
-  for (const [index, value] of list(area.exits, "project.area.exits").entries()) {
-    const exit = record(value, `project.area.exits[${index}]`);
-    const endpoints = new Map<string, Record<string, unknown>>();
-    for (const side of ["outer", "inner"] as const) {
-      const endpoint = record(exit[side], `project.area.exits[${index}].${side}`);
-      endpoints.set(side, endpoint);
-      const endpointPath = `project.area.exits[${index}].${side}`;
-      const item = items.get(endpoint.pieceId as string);
-      expect(item !== undefined, `${endpointPath}.pieceId`, "an existing track item");
-      expect(item.kind === "track", `${endpointPath}.pieceId`, "a track item");
-      const part = catalog.parts.find(({ id }) => id === item.partId);
-      const port = part?.ports.find(({ id }) => id === endpoint.portId);
-      expect(Boolean(port), `${endpointPath}.portId`, "a port on its track part");
-      expect(port?.type === "regular", `${endpointPath}.portId`, "a regular-gauge track port");
-    }
-    const outer = endpoints.get("outer");
-    const inner = endpoints.get("inner");
-    expect(
-      outer?.pieceId !== inner?.pieceId || outer?.portId !== inner?.portId,
-      `project.area.exits[${index}]`,
-      "different outer and inner endpoints",
-    );
-  }
-}
 export function validateProject(value: unknown): asserts value is Project {
   const project = record(value, "project");
-  expect(project.version === 3, "project.version", "3");
   string(project.name, "project.name");
   validateArea(project.area);
   const layerIds = validateGroup(project.layers, "project.layers", (layer, path) => {
@@ -393,13 +332,11 @@ export function validateProject(value: unknown): asserts value is Project {
     hasPose(item, path);
     validateItem(item, path);
   });
-  validateExitEndpoints(project);
 }
 export function newProject(): Project {
   return {
-    version: 3,
     name: "Untitled layout",
-    area: { width: 192, depth: 128, fronts: [], exits: [] },
+    area: { width: 192, depth: 128, fronts: [] },
     layers: [{ id: "layout", name: "Layout", visible: true }],
     items: [],
   };

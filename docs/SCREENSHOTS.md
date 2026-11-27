@@ -130,7 +130,7 @@ same amount.
 ![A 5-inch bump-out along the north edge and a matching inset on the south edge, with both mainlines in place](screenshots/member_table_shift.webp)
 <!-- screenshots:end -->
 
-When the rail handoffs themselves are offset, see [Joel's 10-to-0 mainline](#joels-10-to-0-mainline).
+When the mainline rails themselves are offset, see [Joel's 10-to-0 mainline](#joels-10-to-0-mainline).
 
 ## Track examples
 
@@ -213,7 +213,7 @@ Roger's January 2024 Rockford drawing shows the mainline offset at Joel's
 display. The [editable 60 by 40 inch template](../templates/joel-mainline-offset.ldr)
 uses centered S-bends to shift both mainlines 10 inches, with R104 on the inside
 of each bend and R120 on the outside. The lanes are 16 studs apart at both
-handoffs. The planner chose the individual curves and straight lengths for
+display edges. The planner chose the individual curves and straight lengths for
 this template. The Rockford drawing leaves those parts unspecified.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
@@ -387,8 +387,7 @@ node tests/playwright/helper_readme_screenshots.mjs \
   http://127.0.0.1:4173/brick-track-planner/ /tmp/brick-track-planner-readme
 ```
 
-The capture checks the served templates against the working tree. Inspect
-each affected view and replace its WebP in `docs/screenshots/` with the
+Inspect each affected view and replace its WebP in `docs/screenshots/` with the
 verified capture alongside the layout or interface change.
 
 The desktop frames are 1600 by 1000 CSS pixels. The phone setup and editor

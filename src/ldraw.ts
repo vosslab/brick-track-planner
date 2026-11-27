@@ -69,7 +69,7 @@ function catalogPart(parts: Map<string, Part>, id: string): Part {
   return part;
 }
 
-function partReference(pose: Pose, heightPlates: number, mapping: Mapping): string {
+function partReference(pose: Pose, mapping: Mapping): string {
   const origin = composePose(mapping.origin, pose);
   const radians = (origin.angle % 360) * (Math.PI / 180);
   const cos = Math.cos(radians);
@@ -77,7 +77,7 @@ function partReference(pose: Pose, heightPlates: number, mapping: Mapping): stri
   // LDraw top view has +X right and +Z up. The planner's downward Y maps to -Z.
   const transform = [
     origin.x * 20,
-    mapping.baseY - 8 * heightPlates,
+    mapping.baseY,
     -origin.y * 20,
     cos,
     0,
@@ -138,7 +138,7 @@ function ldrawNumber(value: number): string {
   return result === "-0" ? "0" : result;
 }
 
-type TrackPose = Pick<TrackItem, "x" | "y" | "angle" | "heightPlates">;
+type TrackPose = Pick<TrackItem, "x" | "y" | "angle">;
 
 function readReference(line: string, mapping: Mapping): TrackPose {
   const fields = line.trim().split(/\s+/);
@@ -174,9 +174,8 @@ function readReference(line: string, mapping: Mapping): TrackPose {
   const angle = origin.angle - mapping.origin.angle;
   const radians = (angle * Math.PI) / 180;
   const offset = mapping.origin;
-  const heightPlates = (mapping.baseY - y) / 8;
-  if (!Number.isSafeInteger(heightPlates))
-    throw new Error("Brick Track placement height must be a whole number of plates.");
+  if (Math.abs(mapping.baseY - y) > tolerance)
+    throw new Error("Brick Track placements must be flat.");
   // Inverting the calibrated part origin can move a coordinate a few ULPs past a legal boundary.
   const px = origin.x - (offset.x * Math.cos(radians) - offset.y * Math.sin(radians));
   const py = origin.y - (offset.x * Math.sin(radians) + offset.y * Math.cos(radians));
@@ -184,7 +183,6 @@ function readReference(line: string, mapping: Mapping): TrackPose {
     x: Number(px.toFixed(9)),
     y: Number(py.toFixed(9)),
     angle: Number(angle.toFixed(9)),
-    heightPlates,
   };
 }
 function record(fields: string[], expected: number, kind: string): void {
@@ -205,7 +203,6 @@ export function saveTrackPlan(project: Project, catalog: Catalog): string {
     "0 Brick Track Planner track plan",
     "0 Name: brick-track-plan.ldr",
     "0 Author: Brick Track Planner",
-    `${format} FORMAT ${project.area.outline ? 2 : 1}`,
     `${format} PROJECT ${text(project.name)}`,
     `${format} AREA ${project.area.width} ${project.area.depth} ${text(project.area.niltc)}`,
   ];
@@ -217,11 +214,6 @@ export function saveTrackPlan(project: Project, catalog: Catalog): string {
   for (const front of project.area.fronts) lines.push(`${format} FRONT ${text(front)}`);
   for (const [edge, coordinate] of Object.entries(project.area.frontLines ?? {}))
     lines.push(`${format} FRONT_LINE ${text(edge)} ${coordinate}`);
-  for (const exit of project.area.exits) {
-    lines.push(
-      `${format} EXIT ${text(exit.id)} ${text(exit.name)} ${text(exit.edge)} ${text(exit.outer.pieceId)} ${text(exit.outer.portId)} ${text(exit.inner.pieceId)} ${text(exit.inner.portId)}`,
-    );
-  }
   for (const layer of project.layers) {
     lines.push(`${format} LAYER ${text(layer.id)} ${text(layer.name)} ${layer.visible ? 1 : 0}`);
   }
@@ -233,10 +225,10 @@ export function saveTrackPlan(project: Project, catalog: Catalog): string {
       const part = catalogPart(parts, item.partId);
       const model = modelFor(part);
       if (model.submodel) submodels.set(model.filename, model.submodel);
-      lines.push(partReference(item, item.heightPlates, model));
+      lines.push(partReference(item, model));
     } else {
       lines.push(
-        `${format} UNRESOLVED ${text(item.id)} ${text(item.layerId)} ${text(item.sourceId)} ${text(item.name)} ${item.x} ${item.y} ${item.angle} ${item.width} ${item.depth} ${item.altitude ?? absent} ${text(item.reason)}`,
+        `${format} UNRESOLVED ${text(item.id)} ${text(item.layerId)} ${text(item.sourceId)} ${text(item.name)} ${item.x} ${item.y} ${item.angle} ${item.width} ${item.depth} ${text(item.reason)}`,
       );
     }
   }
@@ -262,7 +254,6 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
   let ended = false;
   let name: string | undefined;
   let area: Project["area"] | undefined;
-  let formatVersion: string | undefined;
   const layers: Layer[] = [];
   const items: Item[] = [];
   for (let index = 1; index < lines.length; index += 1) {
@@ -293,13 +284,6 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
     const fields = line.split(/\s+/);
     const kind = fields[2]!;
     switch (kind) {
-      case "FORMAT":
-        record(fields, 4, kind);
-        if (formatVersion) throw new Error("Brick Track LDraw file has duplicate format metadata.");
-        formatVersion = fields[3]!;
-        if (formatVersion !== "1" && formatVersion !== "2")
-          throw new Error("Unsupported Brick Track LDraw format.");
-        break;
       case "PROJECT":
         record(fields, 4, kind);
         if (name !== undefined)
@@ -314,7 +298,6 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
           width: numeric(fields[3]!, "area width"),
           depth: numeric(fields[4]!, "area depth"),
           fronts: [],
-          exits: [],
         };
         const niltc = readText(fields[5]!, "area assignment");
         if (niltc !== undefined) area.niltc = niltc as Project["area"]["niltc"];
@@ -328,7 +311,6 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
       case "OUTLINE": {
         const count = (fields.length - 3) / 2;
         if (
-          formatVersion !== "2" ||
           !area ||
           area.outline ||
           !Number.isInteger(count) ||
@@ -354,23 +336,6 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
         (area.frontLines ??= {})[front] = numeric(fields[4]!, "front line coordinate");
         break;
       }
-      case "EXIT":
-        record(fields, 10, kind);
-        if (!area) throw new Error("Brick Track exits must follow the area.");
-        area.exits.push({
-          id: requiredText(fields[3]!, "exit id"),
-          name: requiredText(fields[4]!, "exit name"),
-          edge: requiredText(fields[5]!, "exit edge") as Edge,
-          outer: {
-            pieceId: requiredText(fields[6]!, "outer item"),
-            portId: requiredText(fields[7]!, "outer port"),
-          },
-          inner: {
-            pieceId: requiredText(fields[8]!, "inner item"),
-            portId: requiredText(fields[9]!, "inner port"),
-          },
-        });
-        break;
       case "LAYER":
         record(fields, 6, kind);
         layers.push({
@@ -406,7 +371,7 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
         break;
       }
       case "UNRESOLVED":
-        record(fields, 14, kind);
+        record(fields, 13, kind);
         items.push({
           id: requiredText(fields[3]!, "unresolved id"),
           layerId: requiredText(fields[4]!, "unresolved layer"),
@@ -418,20 +383,17 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
           angle: numeric(fields[9]!, "unresolved angle"),
           width: numeric(fields[10]!, "unresolved width"),
           depth: numeric(fields[11]!, "unresolved depth"),
-          ...(fields[12]! === absent
-            ? {}
-            : { altitude: numeric(fields[12]!, "unresolved altitude") }),
-          reason: requiredText(fields[13]!, "unresolved reason"),
+          reason: requiredText(fields[12]!, "unresolved reason"),
         });
         break;
       default:
         throw new Error("Unsupported Brick Track metadata.");
     }
   }
-  if (!formatVersion || name === undefined || !area || (formatVersion === "2" && !area.outline))
+  if (name === undefined || !area)
     throw new Error("Brick Track LDraw file is missing project metadata.");
   if (!ended || expectedSubfiles.size) throw new Error("Brick Track LDraw file is incomplete.");
-  const project: Project = { version: 3, name, area, layers, items };
+  const project: Project = { name, area, layers, items };
   validateProject(project);
   return project;
 }

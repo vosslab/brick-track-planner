@@ -12,7 +12,7 @@ type SourceBrick = {
   center: Pose;
   width: number;
   depth: number;
-  altitude?: number;
+  elevated: boolean;
 };
 
 type PartAlias = NonNullable<Part["aliases"]>[number];
@@ -73,13 +73,13 @@ function readBrick(element: Element, id: string, layerId: string): SourceBrick {
   const width = parseNumber(xmlField(display, "Width"), "DisplayArea width");
   const depth = parseNumber(xmlField(display, "Height"), "DisplayArea height");
   const angle = parseNumber(xmlField(element, "Orientation"), "orientation");
-  const rawAltitude = xmlField(element, "Altitude");
-  const altitude = rawAltitude === undefined ? undefined : parseNumber(rawAltitude, "altitude");
+  const altitude = Number(xmlField(element, "Altitude") ?? 0);
+  const elevated = Number.isFinite(altitude) && altitude !== 0;
   const center = { x: x + width / 2, y: y + depth / 2, angle: angle % 360 };
   if (width <= 0 || depth <= 0 || !Number.isFinite(center.x) || !Number.isFinite(center.y)) {
     throw new Error(`Invalid BlueBrick DisplayArea for ${sourceId}.`);
   }
-  return { id, layerId, sourceId, center, width, depth, altitude };
+  return { id, layerId, sourceId, center, width, depth, elevated };
 }
 
 function aliases(catalog: Catalog): Map<string, AliasTarget> {
@@ -97,13 +97,8 @@ function aliases(catalog: Catalog): Map<string, AliasTarget> {
   return targets;
 }
 
-function heightInPlates(altitude: number | undefined, preferredY = 0): number {
-  // LDraw Y increases downwards. BlueBrick reserves zero for the part's natural height.
-  return altitude ? (preferredY - altitude) / 8 : 0;
-}
-
 function unresolved(brick: SourceBrick, reason: string): Item {
-  const { id, layerId, sourceId, center, width, depth, altitude } = brick;
+  const { id, layerId, sourceId, center, width, depth } = brick;
   return {
     id,
     layerId,
@@ -113,14 +108,8 @@ function unresolved(brick: SourceBrick, reason: string): Item {
     ...center,
     width,
     depth,
-    altitude,
     reason,
   };
-}
-
-/** BlueBrick part IDs for the retired electrically-powered 9V track family. */
-function isNineVoltTrack(sourceId: string): boolean {
-  return /^(?:2861|2865|2866|2867|2868|5306|5307|5308)(?:\.\d+)?$/i.test(sourceId);
 }
 
 function transformedHull(pose: Pose, hull: readonly Point[]): Point[] {
@@ -164,9 +153,6 @@ function readMap(xml: string): Element {
     doc.querySelector("parsererror")
   ) {
     throw new Error("Expected a plain BlueBrick Map XML document.");
-  }
-  if (xmlField(root, "Version") !== "9") {
-    throw new Error("Expected BlueBrick Map version 9.");
   }
   return root;
 }
@@ -225,16 +211,15 @@ export function importBlueBrick(
     project.layers.push({ id: "layer-1", name: "Layout", visible: true });
   }
   const targets = aliases(catalog);
+  let flattenedElevation = false;
   for (const brick of bricks) {
     const key = asciiUpper(brick.sourceId);
-    const nineVolt = isNineVoltTrack(key);
-    const target = nineVolt ? undefined : targets.get(key);
+    const target = targets.get(key);
     const baseplate = key === "3811" || key.startsWith("3811.");
     const displayArea = key.startsWith("TABLE");
-    const preferredY = target && "part" in target ? target.alias.preferredY : undefined;
-    const heightPlates = heightInPlates(brick.altitude, preferredY);
     const { id, layerId, center } = brick;
-    if (target && Number.isSafeInteger(heightPlates)) {
+    if (brick.elevated) flattenedElevation = true;
+    if (target) {
       if ("part" in target) {
         const { alias, part } = target;
         const pose = composePose(
@@ -247,7 +232,6 @@ export function importBlueBrick(
           kind: "track",
           partId: part.id,
           ...pose,
-          heightPlates,
         };
         project.items.push(item);
       } else {
@@ -263,7 +247,6 @@ export function importBlueBrick(
             kind: "track",
             partId: child.partId,
             ...pose,
-            heightPlates,
             groupId,
             arrangementId: target.kit.id,
           };
@@ -275,11 +258,7 @@ export function importBlueBrick(
         `${brick.sourceId} on "${project.layers.find((layer) => layer.id === layerId)?.name}": skipped non-track layout item.`,
       );
     } else {
-      const reason = nineVolt
-        ? "Unsupported 9V track"
-        : target
-          ? `Unsupported altitude ${brick.altitude} LDU`
-          : "Unknown BlueBrick part";
+      const reason = "Unknown BlueBrick part";
       const item = unresolved(brick, reason);
       project.items.push(item);
       warnings.push(
@@ -290,6 +269,8 @@ export function importBlueBrick(
       throw new Error(`Expanded BlueBrick maps can contain up to ${MAX_BRICKS} items.`);
     }
   }
+  if (flattenedElevation)
+    warnings.push("BlueBrick altitude was ignored because track plans are flat.");
   fitImportArea(project, catalog);
   return { project, warnings };
 }

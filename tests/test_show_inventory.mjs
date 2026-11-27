@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import catalog from "../data/catalog.json" with { type: "json" };
-import { openTrackPlan, saveTrackPlan } from "../src/ldraw.ts";
 import { newProject } from "../src/project.ts";
 import { diagnosticsFor } from "../src/editor_panels.ts";
 import { recipeFor, showInventory } from "../src/show_inventory.ts";
@@ -16,7 +15,6 @@ function track(id, partId, groupId) {
     x: 0,
     y: 0,
     angle: 0,
-    heightPlates: 0,
     groupId,
   };
 }
@@ -37,7 +35,7 @@ test("member inventory counts only visible physical track and keeps an arrangeme
   assert.deepEqual(report.buildReferences, []);
 });
 
-test("unknown imports and missing ballast recipes remain visible in the member handoff", () => {
+test("unknown imports and missing ballast recipes remain visible in the member inventory", () => {
   const project = newProject();
   const straight = catalog.parts.find((part) => part.ports.length === 2);
   assert.ok(straight);
@@ -61,74 +59,17 @@ test("unknown imports and missing ballast recipes remain visible in the member h
     assert.ok(report.unknown.some((row) => row.key.startsWith("recipe:")));
 });
 
-test("inventory survives saving and reopening the track plan", () => {
+test("diagnostics report imported track without usable geometry", () => {
   const project = newProject();
-  const straight = catalog.parts.find((part) => part.ports.length === 2);
-  assert.ok(straight);
-  project.items.push(track("one", straight.id, "yard"));
-  assert.deepEqual(
-    showInventory(openTrackPlan(saveTrackPlan(project, catalog), catalog), catalog),
-    showInventory(project, catalog),
-  );
-});
-
-test("L-Gauge right switch references attach only to the genuine LEGO return arrangement", () => {
-  const project = newProject();
-  const straight = catalog.parts.find((part) => part.ports.length === 2);
-  assert.ok(straight);
-  project.items.push({
-    ...track("switch-return", straight.id, "return"),
-    arrangementId: "lego:rc-r40-right-switch-return",
-  });
-  const report = showInventory(project, catalog);
-  assert.deepEqual(
-    report.buildReferences.map(({ title }) => title),
-    ["L-Gauge Ballasted Right Switch", "L-Gauge Ballasted Right Switch Return Curve"],
-  );
-  project.items[0].arrangementId = "trixbrix:r104-right-yard-4";
-  assert.deepEqual(showInventory(project, catalog).buildReferences, []);
-});
-
-test("member diagnostics explain protected handoffs without raw issue codes", () => {
-  const project = newProject();
-  project.area.niltc = "corner";
-  project.area.fronts = ["north", "west"];
-  project.area.exits = [
-    {
-      id: "east",
-      name: "East handoff",
-      edge: "east",
-      outer: { pieceId: "missing", portId: "a" },
-      inner: { pieceId: "missing", portId: "b" },
-    },
-  ];
   const messages = diagnosticsFor({
     project,
     ports: [],
     routes: [],
     overhangs: [],
-    unresolved: [],
-    niltcIssues: [
-      { kind: "missing-mainline", lane: "outer" },
-      { kind: "exit-off-standard", lane: "inner", exitId: "east" },
-      {
-        kind: "mainline-event-spacing",
-        lane: "outer",
-        previousItemId: "first",
-        itemId: "second",
-        requiredStuds: 16,
-        actualStuds: 16,
-      },
-    ],
+    unresolved: [{ id: "imported", name: "Unknown switch", sourceId: "vendor:unknown" }],
   });
-  assert.match(messages[0].message, /continuous route/);
-  assert.match(messages[0].message, /R120 outside and R104 inside/);
-  assert.match(messages[1].message, /East handoff/);
-  assert.match(messages[2].message, /16 studs/);
-  assert.match(messages[2].message, /private yard routes/);
-  assert.doesNotMatch(
-    messages.map(({ message }) => message).join("\n"),
-    /missing-mainline|exit-off-standard/,
-  );
-  assert.equal(messages[1].targetId, "missing");
+  assert.equal(messages.length, 1);
+  assert.match(messages[0].message, /Unknown switch/);
+  assert.match(messages[0].message, /vendor:unknown/);
+  assert.equal(messages[0].targetId, "imported");
 });

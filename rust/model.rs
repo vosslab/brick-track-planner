@@ -103,7 +103,6 @@ pub(crate) struct Route {
 
 #[derive(Deserialize)]
 pub(crate) struct Project {
-    pub version: u32,
     #[serde(rename = "name")]
     pub _name: String,
     pub area: DesignArea,
@@ -122,8 +121,6 @@ pub(crate) struct DesignArea {
     #[serde(default)]
     pub fronts: Vec<Edge>,
     pub niltc: Option<NiltcKind>,
-    #[serde(default)]
-    pub exits: Vec<SectionExit>,
 }
 
 impl DesignArea {
@@ -144,14 +141,6 @@ impl DesignArea {
             },
         ]
     }
-
-    pub fn front_line(&self, edge: Edge) -> f64 {
-        self.front_lines.get(&edge).copied().unwrap_or(match edge {
-            Edge::North | Edge::West => 0.0,
-            Edge::East => self.width,
-            Edge::South => self.depth,
-        })
-    }
 }
 
 pub(crate) fn outline_segments(
@@ -161,6 +150,13 @@ pub(crate) fn outline_segments(
         .iter()
         .copied()
         .zip(points.iter().copied().cycle().skip(1))
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum NiltcKind {
+    Straight,
+    Corner,
 }
 
 #[derive(Deserialize)]
@@ -201,29 +197,6 @@ impl Edge {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub(crate) enum NiltcKind {
-    Straight,
-    Corner,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct SectionExit {
-    pub id: String,
-    pub edge: Edge,
-    pub outer: Endpoint,
-    pub inner: Endpoint,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Endpoint {
-    pub piece_id: String,
-    pub port_id: String,
-}
-
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Item {
@@ -244,7 +217,6 @@ pub(crate) struct Item {
 pub(crate) enum ItemKind {
     Track {
         part_id: String,
-        height_plates: i64,
         #[serde(default, rename = "groupId")]
         _group_id: Option<String>,
     },

@@ -5,29 +5,6 @@ import init, {
 } from "../generated/wasm/track_geometry.js";
 import type { Catalog, Point, Project } from "./project";
 
-export type NiltcIssue =
-  | { kind: "missing-mainline"; lane: "outer" | "inner" }
-  | { kind: "mainline-height"; lane: "outer" | "inner"; itemId: string }
-  | { kind: "exit-off-standard"; lane: "outer" | "inner"; exitId: string }
-  | { kind: "exit-away-from-boundary"; lane: "outer" | "inner"; exitId: string }
-  | {
-      kind: "mainline-radius";
-      lane: "outer" | "inner";
-      itemId: string;
-      expectedRadius: number;
-      actualRadius: number;
-      minimumRadius: boolean;
-    }
-  | { kind: "mainline-curve-sweep"; lane: "outer" | "inner"; actualDegrees: number }
-  | {
-      kind: "mainline-event-spacing";
-      lane: "outer" | "inner";
-      previousItemId: string;
-      itemId: string;
-      requiredStuds: number;
-      actualStuds: number;
-    };
-
 export type Analysis = {
   project: Project;
   ports: {
@@ -37,7 +14,6 @@ export type Analysis = {
     y: number;
     angle: number;
     type: string;
-    heightPlates: number;
     joined: boolean;
     ambiguous?: boolean;
   }[];
@@ -52,7 +28,6 @@ export type Analysis = {
     event?: "switch" | "curve" | "crossing";
   }[];
   overhangs: { pieceId: string; rings: Point[][] }[];
-  niltcIssues: NiltcIssue[];
   unresolved: { id: string; name: string; sourceId: string }[];
 };
 

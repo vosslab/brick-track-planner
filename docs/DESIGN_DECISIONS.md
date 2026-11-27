@@ -58,13 +58,14 @@ build and that the required files are present.
 ### Keep one design area per project
 
 **Decision.** A native project has one `area` with dimensions, public edge or
-corner, NILTC assignment, and named boundary exits.
+corner, and an optional NILTC starter assignment.
 
 **Why.** A member owns a display space and track inside it. Physical table maps
 and show-wide placement are owned outside this application.
 
 **Consequence.** Items use area coordinates directly. Tables, sections, seams,
-venue placement, members, and movable baseplates are absent from version 3.
+venue placement, members, and movable baseplates are absent from the project
+model.
 
 **Owner.** [FILE_FORMAT.md](FILE_FORMAT.md)
 
@@ -109,11 +110,9 @@ by 70 inch rectangle and a 120 by 90 inch outline with a 30 by 30 inch cutout.
 **Why.** The 180-degree bend and diagonal return are a different layout from
 the mixed-radius loop. Both return trains to the other lane at one boundary.
 
-**Consequence.** Use General plans with a named handoff for each pair of lanes.
-The openings follow the 8- and 24-stud offsets at +2 plates within the
-planner's connector tolerance. The show drawings provide the reference
-shapes and original dimensions. The bundled plans fit the stock-part
-reconstructions into compact outlines.
+**Consequence.** Use General plans without club-mainline requirements. The
+show drawings provide the reference shapes and original dimensions. The bundled
+plans fit the stock-part reconstructions into compact outlines.
 
 **Owner.** [templates](../templates/), [editor_files.ts](../src/editor_files.ts)
 
@@ -135,7 +134,7 @@ and eight-track yards. The semicircle and corner returns, three member yards,
 and Joel's mainline offset also appear in Other templates.
 PFS, 4TRY, and PFS40 use a west crossover to serve every storage track from
 both mainlines while keeping both through routes. TJ56 uses a General plan
-because the R40&ndash;R56 assembly has less than the NILTC-required spacing between
+because the R40&ndash;R56 assembly has less than the usual NILTC spacing between
 the inner switches and the crossing.
 
 **Owner.** [track_examples.json](../data/track_examples.json)
@@ -144,7 +143,7 @@ the inner switches and the crossing.
 
 **Decision.** Use the same LDraw format for member downloads and bundled
 templates. Track placement belongs in LDraw part references. Planner metadata
-holds the design area, handoffs, and other editing details.
+holds the design area and other editing details.
 
 **Why.** Members can share their track with other LDraw tools and reopen it
 here without a second project file. The editor can stay focused on track.
@@ -174,8 +173,8 @@ edges of a NILTC span together when offsetting part of a table.
 **Why.** Members can fit a design to the available space and keep the depth
 of each shifted table span.
 
-**Consequence.** The preview identifies exposed pieces and handoff changes
-before the member applies the outline. The saved outline drives the same
+**Consequence.** The preview identifies exposed pieces before the member
+applies the outline. The saved outline drives the same
 drawing and fit checks after reopening.
 
 **Owner.** [area_outline.ts](../src/area_outline.ts),
@@ -191,8 +190,9 @@ activation. Keep explicit confirmation for a straight gap or a new arrangement.
 fill or arrangement calls for a review of the parts the planner proposes.
 
 **Consequence.** Hover previews placement with a mouse. Each input uses the
-same snapping and history. Placement is one undoable edit. Structural limits
-and named mainline handoffs remain protected.
+same snapping and history. Placement is one undoable edit. Boundary track uses
+the same edit tools as every other piece. Guided arrangements check their
+connections before offering a fit.
 
 **Owner.** [src/editor_track.ts](../src/editor_track.ts),
 [src/editor_placement.ts](../src/editor_placement.ts),
@@ -224,8 +224,8 @@ cancellation, or tab change. Normal placement warnings still allow the drop.
 
 ### Place track and flag problems
 
-**Decision.** Let members put down ordinary track with overlaps, track outside
-the design area, or facing rail ends at different heights. Derive findings
+**Decision.** Let members put down ordinary track with overlaps or track outside
+the design area. Derive findings
 from the current project and identify the affected track in the drawing.
 
 **Why.** A member can finish a gesture and then repair the layout without
@@ -247,20 +247,10 @@ routes, independent of its visible rail paths and footprint.
 **Why.** A track drawing alone cannot tell whether a train can take a turnout,
 cross a double crossover, or reach a storage track.
 
-**Consequence.** The route graph can trace real travel paths, validate mainline
-handoffs, and keep isolated crossing lines isolated.
+**Consequence.** The route graph can trace real travel paths and keep isolated
+crossing lines isolated.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
-
-### Compare rendered control geometry
-
-**Decision.** Check control alignment from rendered CSS-pixel rectangles
-and save screenshots and measurements with each browser test run.
-
-**Why.** Rectangle comparisons catch small shifts in edges and spacing
-across browsers. Screenshots show what a member sees in the same state.
-
-**Owner.** [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md#control-alignment)
 
 ### Expand arrangements into physical parts
 
@@ -286,15 +276,30 @@ fit one plan while an obstruction or incompatible rail blocks another.
 
 **Owner.** [src/arrangement_anchors.ts](../src/arrangement_anchors.ts)
 
-### Keep standards checks on the protected mainline
+### Keep club starters flexible
 
-**Decision.** Apply NILTC lane, height, radius, and event-spacing checks to
-the named mainline paths. Treat private-yard feedback as advisory.
+**Decision.** Use the usual NILTC lane positions and curve radii as starting
+geometry. Members can edit those pieces like any other flat track.
 
-**Why.** Club handoffs need consistent geometry while members need room for
-compact and creative storage track.
+**Why.** Club starters give members a familiar beginning while members need
+room for compact and creative storage track.
 
 **Consequence.** R40 and R56 catalog pieces remain available for yards and
-general layouts without changing the required R104/R120 mainline geometry.
+general layouts. Members may also change a starter's R104/R120 geometry.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
+
+### Keep plans flat
+
+**Decision.** Model all track in one plane. The part picker excludes
+elevation-changing parts, and the project format carries no track height.
+
+**Why.** NILTC layouts use flat track. A single planar model keeps placement,
+snapping, routing, import, and export straightforward.
+
+**Consequence.** A BlueBrick import warns when its source uses elevation and
+projects mapped track into the plan view. LDraw output uses every part's fixed
+baseline.
+
+**Owner.** [project.ts](../src/project.ts), [ldraw.ts](../src/ldraw.ts),
+[project_files.ts](../src/project_files.ts)

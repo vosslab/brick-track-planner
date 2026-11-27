@@ -10,7 +10,7 @@ type Gesture = {
   selectMultiple: boolean;
   canDragTrack: boolean;
   canBoxSelect: boolean;
-  action?: "drag" | "pan" | "blocked" | "place" | "box";
+  action?: "drag" | "pan" | "place" | "box";
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
@@ -21,7 +21,11 @@ const arrowShifts = new Map<string, Point>([
   ["ArrowUp", { x: 0, y: -1 }],
 ]);
 
-function rectangleBetween(first: Point, last: Point): DOMRect {
+function selectionRectangle(first: Point, end: Point, canvas: DOMRectReadOnly): DOMRect {
+  const last = {
+    x: Math.max(canvas.left, Math.min(end.x, canvas.right)),
+    y: Math.max(canvas.top, Math.min(end.y, canvas.bottom)),
+  };
   return new DOMRect(
     Math.min(first.x, last.x),
     Math.min(first.y, last.y),
@@ -58,7 +62,7 @@ export class EditorCamera {
       nudge: (shift: Point, target: EventTarget | null) => boolean;
       selecting: () => boolean;
       selectBox: (box: DOMRectReadOnly) => void;
-      beginDrag: (point: Point, target: Element, clientPoint: Point) => "drag" | "pan" | "blocked";
+      beginDrag: (point: Point, target: Element, clientPoint: Point) => "drag" | "pan";
       drag: (point: Point) => void;
       endDrag: (point: Point, cancelled: boolean) => void;
     },
@@ -75,7 +79,9 @@ export class EditorCamera {
       if (!entry) return;
       const { width, height } = entry.contentRect;
       if (width === this.#viewport.width && height === this.#viewport.height) return;
-      if (this.#gesture?.canDragTrack && this.#gesture.action !== "pan") this.cancelGesture();
+      const gesture = this.#gesture;
+      if ((gesture?.canDragTrack || gesture?.canBoxSelect) && gesture.action !== "pan")
+        this.cancelGesture();
       this.#viewport = entry.contentRect;
       this.#updateDetail();
       this.#refreshHover(this.#mouse);
@@ -219,8 +225,8 @@ export class EditorCamera {
         }
       }
       if (gesture.action === "box") {
-        const box = rectangleBetween(gesture.first, point);
         const canvas = host.getBoundingClientRect();
+        const box = selectionRectangle(gesture.first, point, canvas);
         const { style } = this.#selectionBox;
         style.left = `${box.left - canvas.left}px`;
         style.top = `${box.top - canvas.top}px`;
@@ -233,7 +239,6 @@ export class EditorCamera {
         hooks.drag(this.world(point.x, point.y));
         return;
       }
-      if (gesture.action === "blocked") return;
       const old = this.#view(before.x, before.y);
       const next = this.#view(point.x, point.y);
       this.#pan(old.x - next.x, old.y - next.y);
@@ -256,7 +261,10 @@ export class EditorCamera {
       }
       if (gesture.action === "box") {
         this.#selectionBox.remove();
-        if (target) hooks.selectBox(rectangleBetween(gesture.first, clientPoint));
+        if (event.type === "pointerup")
+          hooks.selectBox(
+            selectionRectangle(gesture.first, clientPoint, host.getBoundingClientRect()),
+          );
         return;
       }
       if (gesture.action === "drag") hooks.endDrag(point, !target);

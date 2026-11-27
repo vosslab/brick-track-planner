@@ -12,7 +12,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   tables, room layout, and deciding who gets a curve are outside its scope.
 - Baseplates always cover NILTC and general train layout areas. They are the
   surface for track planning, not editable LEGO building pieces.
-- Prioritize connecting track: NILTC dual mainline handoffs, parking behind a
+- Prioritize connecting track: NILTC dual mainlines, parking behind a
   display, and yards that store and dispatch trains.
 - Roger chooses whether a member gets a straight or curve assignment. The
   software needs to design a complete buildable track plan for either one.
@@ -27,6 +27,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Name turnarounds for their shape and track parts.
 - Include the 100 by 70 inch R104 three-quarter return in the main example gallery.
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
+- Plan flat track only. Elevation-changing parts and vertical layout edits are
+  outside this planner's scope.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.
 - Use 10-inch multiples for template and NILTC table dimensions. A 5-inch
@@ -72,7 +74,10 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Make track editing feel like LibreOffice Draw or Inkscape. Keep moved,
   pasted, or duplicated track on the destination click or tap.
 - Let members delete a selection of several objects. Support Command-click
-  and Command-drag for selecting track on Mac.
+  and Command-drag for selecting track on Mac. Use Command+A to select all
+  track in the drawing.
+- Treat continuation at a club layout edge as part of the rail geometry, not a
+  separate editing concept.
 - Users get frustrated when they hold a piece and cannot put it down.
   Implement place-and-flag: let them drop the track, show what needs fixing,
   and keep the solution simple.
@@ -89,6 +94,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Keep blocking checks tied to meaningful failures with a concrete recovery
   action. Use temporary checks for implementation evidence and keep only
   permanent tests that earn their upkeep.
+- Ground thresholds, equivalence checks, test matrices, and tool-version
+  requirements in demonstrated product or compatibility needs.
 - Use the GitHub Pages workflow to build and upload the site. Run critical
   tests, including Playwright, locally. Push to GitHub only after all local
   checks pass.

@@ -4,7 +4,7 @@
 
 The browser planner designs one member's track plan inside one assigned display
 area. TypeScript owns project editing and rendering. Rust/Wasm evaluates track
-geometry, physical joins, routes, NILTC constraints, and area coverage.
+geometry, physical joins, routes, and area coverage.
 
 ## Major components
 
@@ -19,7 +19,7 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
   reads and writes editable LDraw track plans.
 - [`../src/area_form.ts`](../src/area_form.ts) and
   [`../src/niltc_starters.ts`](../src/niltc_starters.ts) create a member's
-  assigned area and protected straight or corner mainline.
+  assigned area and editable straight or corner mainline.
 - [`../src/editor_track.ts`](../src/editor_track.ts) and
   [`../src/editor_arrangements.ts`](../src/editor_arrangements.ts) place
   physical parts and complete track arrangements.
@@ -37,8 +37,8 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
   [`../src/scene_drawing.ts`](../src/scene_drawing.ts) draw the design area,
   derived baseplate grid, track, routes, and diagnostics.
 - [`../rust/lib.rs`](../rust/lib.rs) exposes the Rust evaluator. Its model,
-  ports, routes, coverage, and NILTC modules implement the authoritative
-  geometry checks.
+  ports, routes, and coverage modules implement the authoritative geometry
+  checks.
 - [`../data/catalog.json`](../data/catalog.json) supplies part geometry,
   connector ports, internal rail routes, and expandable kits.
 
@@ -48,15 +48,14 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 2. Editor tools add individual physical track items in area coordinates.
 3. [`../src/engine.ts`](../src/engine.ts) sends the project and catalog to the
    Rust/Wasm evaluator.
-4. The evaluator returns joins, collisions, routes, NILTC findings, and
-   inventory data.
+4. The evaluator returns joins, collisions, routes, and inventory data.
 5. The scene, diagnostics, parts list, PDF, image exporters, and LDraw writer consume
    that same placed-track representation.
 
 ## Testing and verification
 
-- [`../tests`](../tests) contains Node tests for the project contract,
-  arrangements, catalog, route tracing, and exports.
+- [`../tests`](../tests) contains focused Node tests for the project contract,
+  placement, arrangements, route tracing, and exports.
 - [`../tests/playwright`](../tests/playwright) covers the member workflow in a
   staged browser build.
 - [`../check_codebase.sh`](../check_codebase.sh) runs the repository checks.
@@ -78,8 +77,8 @@ Run `npm run setup:playwright` once to install the local browsers. Use
 | Pages build | Fix the reported compile error or missing asset before packaging the site. |
 | Browser workflows | Use the failure report and trace to reproduce the broken flow or correct invalid test input. |
 
-Chromium and WebKit run the browser suite. The touch project exercises the
-member editor flows. Use [check_codebase.sh](../check_codebase.sh),
+Firefox runs the browser suite. The touch project exercises selected member
+editor flows. Use [check_codebase.sh](../check_codebase.sh),
 `cargo fmt --check`, and `cargo clippy --locked --all-targets` for development
 checks. Use screenshots and measurements for visual review while adjusting
 the layout.
@@ -92,5 +91,5 @@ the layout.
 - Add a reusable arrangement as a placement of those parts in
   [`../src/arrangements.ts`](../src/arrangements.ts), with focused geometry
   tests in [`../tests`](../tests).
-- Keep new checks in the Rust evaluator when they affect geometry, connectivity,
-  routes, or NILTC compliance.
+- Keep new checks in the Rust evaluator when they affect planar geometry,
+  connectivity, or routes.

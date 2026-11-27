@@ -144,7 +144,6 @@ export function partInstance(
   item: TrackItem,
   part: Part,
   selected: boolean,
-  heightOffset: number,
   trackColors: boolean,
   interactive: boolean,
 ): void {
@@ -212,25 +211,6 @@ export function partInstance(
     );
   }
 
-  // Height stays legible above bare or ballasted track at every scale.
-  if (heightOffset !== 0) {
-    const hatch = `url(#${prefix}-${heightOffset > 0 ? "raised" : "lowered"})`;
-    group.append(
-      hasRails
-        ? svg("use", {
-            href: routeHref,
-            stroke: hatch,
-            "stroke-width": 3.4,
-            "stroke-linejoin": "round",
-            "pointer-events": "none",
-          })
-        : svg("path", {
-            d: partGeometry(part).footprint,
-            fill: hatch,
-            "pointer-events": "none",
-          }),
-    );
-  }
   if (codeLabel) group.append(codeLabel);
 }
 

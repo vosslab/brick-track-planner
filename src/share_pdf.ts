@@ -86,7 +86,7 @@ function rowText(row: RequiredRow): string {
 }
 
 function areaDescription(project: Project): string {
-  const { fronts, niltc, exits } = project.area;
+  const { fronts, niltc } = project.area;
   const signup = areaToSignupDimensions(project.area, fronts);
   const kind =
     niltc === "corner"
@@ -103,7 +103,7 @@ function areaDescription(project: Project): string {
     : fronts.length
       ? `Width along track: ${inches(signup.width)} in (${signup.width} studs)  |  Depth from public edge: ${inches(signup.depth)} in (${signup.depth} studs)`
       : `Area width: ${inches(signup.width)} in (${signup.width} studs)  |  Area depth: ${inches(signup.depth)} in (${signup.depth} studs)`;
-  return `${kind}  |  ${size}  |  ${edge}  |  ${exits.length} named mainline connection${exits.length === 1 ? "" : "s"}`;
+  return `${kind}  |  ${size}  |  ${edge}`;
 }
 
 function diagram(pdf: jsPDF, canvas: HTMLCanvasElement, sceneWidth: number, top: number): void {
@@ -157,16 +157,11 @@ export async function sharePdf(
   const top = title(pdf, font, name, areaDescription(project));
   diagram(pdf, await rasterize(scene), scene.viewBox.baseVal.width, top);
   const inventory = showInventory(project, catalog);
-  const exits = project.area.exits.map(
-    ({ name: exitName, edge, outer, inner }) =>
-      `${exitName} (${edge} edge) - outside: ${outer.pieceId}/${outer.portId}; inside: ${inner.pieceId}/${inner.portId}`,
-  );
   const checks = diagnosticsFor(analysis).map(({ message }) => message);
   printBlocks(
     pdf,
     font,
     [
-      { title: "Mainline connections", rows: exits },
       ...(checks.length ? [{ title: "Layout checks to resolve", rows: checks }] : []),
       { title: "Track required", rows: inventory.track.map(rowText) },
       ...(inventory.ballast.length
@@ -195,7 +190,7 @@ export async function sharePdf(
       {
         title: "Build notes",
         rows: [
-          "Track shown is positioned in this design area. Keep the named mainline connections clear for the neighboring layout.",
+          "Track shown is positioned in this design area. Confirm physical clearance before building.",
         ],
       },
     ],

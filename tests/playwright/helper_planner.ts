@@ -125,8 +125,8 @@ export function drawingPoint(
   );
 }
 
-export function straight(id: string, x: number, y: number, angle = 0, heightPlates = 0): TrackItem {
-  return { id, x, y, angle, kind: "track", partId: "lego:rc-s16", layerId: "layout", heightPlates };
+export function straight(id: string, x: number, y: number, angle = 0): TrackItem {
+  return { id, x, y, angle, kind: "track", partId: "lego:rc-s16", layerId: "layout" };
 }
 
 export async function pickDrawing(
@@ -147,9 +147,8 @@ export async function openEditingPlan(
   name = "Editing test yard",
 ): Promise<Project> {
   const project: Project = {
-    version: 3,
     name,
-    area: { width: 128, depth: 192, fronts: [], exits: [] },
+    area: { width: 128, depth: 192, fronts: [] },
     layers: [{ id: "layout", name: "Layout", visible: true }],
     items,
   };

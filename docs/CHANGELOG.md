@@ -4,13 +4,24 @@
 
 ### Behavior or Interface Changes
 
+- Keep every track plan flat. Remove track-height data, height findings, and
+  height-based placement rules. BlueBrick imports project source track onto
+  the drawing and report when they ignore elevation.
+- Simplify the planner file contract by removing retired format records,
+  handoff metadata, and version migration support. Trim browser and Node tests
+  to focused user and geometry behavior, with Firefox as the desktop browser.
+- Treat club starters as editable track. Remove named handoffs, lane guides,
+  club-specific rail checks, and the retired `EXIT` file metadata. Refresh the
+  affected screenshots.
+- Select all visible track with **Command+A** or **Ctrl+A**. Finish a
+  modifier-drag selection box even when the mouse releases outside the drawing.
 - Group **Browse examples** into display-size collections, Mainline loops,
   and Train yards. Add the bundled returns, yards, and Joel's mainline to the
   gallery, and show each card's design-area dimensions.
 - Move selected track one stud at a time with the arrow keys, including in
   rotated views. Each step can be undone.
-- Run the local Playwright suite in Firefox too; install Firefox, Chromium, and
-  WebKit with `npm run setup:playwright`.
+- Run desktop Playwright tests in Firefox and focused touch tests in Chromium.
+  Install both with `npm run setup:playwright`.
 - Make mouse editing easier on overlapping track: click selects the top piece,
   **Next track here** cycles the stack, and dragging moves the current piece or
   selection. Visible rails and ballast select track; dragging from the empty

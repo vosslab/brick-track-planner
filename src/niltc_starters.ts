@@ -1,5 +1,5 @@
 import { composePose, newProject, poseConnectingPorts } from "./project";
-import type { Catalog, Edge, Part, Pose, Project, SectionExit } from "./project";
+import type { Catalog, Edge, Part, Pose, Project } from "./project";
 
 export type SignupDimensions = { width: number; depth: number };
 export type NiltcStarterOptions = {
@@ -42,12 +42,7 @@ function port(part: Part, id: string): Part["ports"][number] {
   return connector;
 }
 
-function addLane(
-  project: Project,
-  name: string,
-  start: Pose,
-  parts: Part[],
-): { first: string; last: string } {
+function addLane(project: Project, name: string, start: Pose, parts: Part[]): void {
   let end = start;
   for (const [index, part] of parts.entries()) {
     const pose = poseConnectingPorts(port(part, "a"), end);
@@ -56,22 +51,10 @@ function addLane(
       id: `${name}-${index + 1}`,
       partId: part.id,
       layerId: "layout",
-      heightPlates: 2,
       ...pose,
     });
     end = composePose(port(part, "b"), pose);
   }
-  return { first: `${name}-1`, last: `${name}-${parts.length}` };
-}
-
-function exit(id: string, name: string, edge: Edge, first: string): SectionExit {
-  return {
-    id,
-    name,
-    edge,
-    outer: { pieceId: `outer-${first}`, portId: first },
-    inner: { pieceId: `inner-${first}`, portId: first },
-  };
 }
 
 function assertNiltcArea({ width, depth, mode, fronts }: NiltcStarterOptions): void {
@@ -128,20 +111,13 @@ function cornerRotation(fronts: Edge[]): number {
   );
 }
 
-function rotateCornerProject(
+function rotateCornerTracks(
   project: Project,
   width: number,
   depth: number,
   rotation: number,
 ): void {
   for (const item of project.items) Object.assign(item, rotatedPoint(item, width, depth, rotation));
-  const all: Edge[] = ["north", "east", "south", "west"];
-  for (const value of project.area.exits) {
-    const edge = all[(all.indexOf(value.edge) + rotation / 90) % all.length]!;
-    value.edge = edge;
-    value.id = `exit-${edge}`;
-    value.name = `${edge[0]!.toUpperCase()}${edge.slice(1)} exit`;
-  }
 }
 
 /** Build both required mainlines for the member's assigned design area. */
@@ -155,7 +131,6 @@ export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOption
     depth: options.depth,
     fronts: options.fronts,
     niltc: options.mode,
-    exits: [],
   };
 
   if (options.mode === "straight") {
@@ -175,23 +150,8 @@ export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOption
         ? { ...start, x: front === "east" ? options.width - offset : offset }
         : { ...start, y: front === "south" ? options.depth - offset : offset };
     const run = straightRunParts(catalog, length);
-    const outer = addLane(project, "outer", laneStart(8), run);
-    const inner = addLane(project, "inner", laneStart(24), run);
-    const edges: [Edge, Edge] = vertical
-      ? reverse
-        ? ["south", "north"]
-        : ["north", "south"]
-      : reverse
-        ? ["east", "west"]
-        : ["west", "east"];
-    const [startEdge, endEdge] = edges;
-    const startExit = exit(`exit-${startEdge}`, `${startEdge} exit`, startEdge, "a");
-    const endExit = exit(`exit-${endEdge}`, `${endEdge} exit`, endEdge, "b");
-    startExit.outer.pieceId = outer.first;
-    startExit.inner.pieceId = inner.first;
-    endExit.outer.pieceId = outer.last;
-    endExit.inner.pieceId = inner.last;
-    project.area.exits = [startExit, endExit];
+    addLane(project, "outer", laneStart(8), run);
+    addLane(project, "inner", laneStart(24), run);
     return project;
   }
 
@@ -212,14 +172,6 @@ export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOption
     ];
     addLane(project, lane, { x: offset, y: canonicalDepth, angle: 270 }, parts);
   }
-  const total = leading.length + 8 + trailing.length;
-  const southExit = exit("exit-south", "South exit", "south", "a");
-  const eastExit = exit("exit-east", "East exit", "east", "b");
-  southExit.outer.pieceId = "outer-1";
-  southExit.inner.pieceId = "inner-1";
-  eastExit.outer.pieceId = `outer-${total}`;
-  eastExit.inner.pieceId = `inner-${total}`;
-  project.area.exits = [southExit, eastExit];
-  rotateCornerProject(project, options.width, options.depth, rotation);
+  rotateCornerTracks(project, options.width, options.depth, rotation);
   return project;
 }

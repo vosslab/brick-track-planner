@@ -1,8 +1,6 @@
 use serde::Serialize;
 
-use std::collections::{HashMap, VecDeque, hash_map::Entry};
-
-use crate::model::{Catalog, Endpoint, ItemKind, Layout, Project};
+use crate::model::{Catalog, ItemKind, Layout, Project};
 use crate::ports::{self, WorldPort};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize)]
@@ -36,38 +34,6 @@ pub(crate) struct RoutePath<'a> {
     turn: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     event: Option<&'a str>,
-}
-
-pub(crate) struct DirectedRoute<'route, 'data> {
-    pub path: &'route RoutePath<'data>,
-    pub reversed: bool,
-}
-
-impl<'route, 'data> DirectedRoute<'route, 'data> {
-    pub(crate) fn is_internal(&self) -> bool {
-        self.path.kind == RouteKind::Internal
-    }
-
-    pub(crate) fn item_id(&self) -> &'data str {
-        self.path.from.piece_id
-    }
-
-    pub(crate) fn length(&self) -> f64 {
-        self.path.length.unwrap_or(0.0)
-    }
-
-    pub(crate) fn radius(&self) -> Option<f64> {
-        self.path.radius
-    }
-
-    pub(crate) fn event(&self) -> Option<&'data str> {
-        self.path.event
-    }
-
-    pub(crate) fn turn(&self) -> f64 {
-        let turn = self.path.turn.unwrap_or(0.0);
-        if self.reversed { -turn } else { turn }
-    }
 }
 
 fn turn_between(from: f64, to: f64) -> f64 {
@@ -142,135 +108,4 @@ pub(crate) fn trace<'a>(
         });
     }
     routes
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-struct TraceState<'a> {
-    endpoint: EndpointRef<'a>,
-    last_kind: Option<RouteKind>,
-}
-
-/// A train must cross a joint between two internal routes through track parts.
-pub(crate) fn trace_path<'route, 'data>(
-    paths: &'route [RoutePath<'data>],
-    start: &Endpoint,
-    target: &Endpoint,
-) -> Vec<DirectedRoute<'route, 'data>> {
-    let start = TraceState {
-        endpoint: endpoint(&start.piece_id, &start.port_id),
-        last_kind: None,
-    };
-    let target = endpoint(&target.piece_id, &target.port_id);
-    if start.endpoint == target {
-        return Vec::new();
-    }
-    let mut neighbors = HashMap::new();
-    for path in paths {
-        neighbors
-            .entry(path.from)
-            .or_insert_with(Vec::new)
-            .push(path);
-        neighbors.entry(path.to).or_default().push(path);
-    }
-    let mut pending = VecDeque::from([start]);
-    let mut previous = HashMap::new();
-    while let Some(current) = pending.pop_front() {
-        if current.endpoint == target {
-            let mut result = Vec::new();
-            let mut cursor = current;
-            while let Some((parent, step)) = previous.remove(&cursor) {
-                result.push(step);
-                cursor = parent;
-            }
-            result.reverse();
-            return result;
-        }
-        for &path in neighbors.get(&current.endpoint).into_iter().flatten() {
-            if current.last_kind == Some(path.kind) {
-                continue;
-            }
-            let reversed = current.endpoint == path.to;
-            let next = TraceState {
-                endpoint: if reversed { path.from } else { path.to },
-                last_kind: Some(path.kind),
-            };
-            if let Entry::Vacant(entry) = previous.entry(next) {
-                entry.insert((current, DirectedRoute { path, reversed }));
-                pending.push_back(next);
-            }
-        }
-    }
-    Vec::new()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn link(
-        from: (&'static str, &'static str),
-        to: (&'static str, &'static str),
-        kind: RouteKind,
-    ) -> RoutePath<'static> {
-        RoutePath {
-            from: endpoint(from.0, from.1),
-            to: endpoint(to.0, to.1),
-            kind,
-            path: None,
-            length: None,
-            radius: None,
-            turn: None,
-            event: None,
-        }
-    }
-
-    #[test]
-    fn does_not_turn_between_two_internal_turnout_routes() {
-        let links = vec![
-            link(("main", "west"), ("switch", "left"), RouteKind::Joint),
-            link(
-                ("switch", "left"),
-                ("switch", "common"),
-                RouteKind::Internal,
-            ),
-            link(
-                ("switch", "common"),
-                ("switch", "right"),
-                RouteKind::Internal,
-            ),
-            link(("switch", "right"), ("yard", "east"), RouteKind::Joint),
-        ];
-        let start = Endpoint {
-            piece_id: "main".into(),
-            port_id: "west".into(),
-        };
-        let end = Endpoint {
-            piece_id: "yard".into(),
-            port_id: "east".into(),
-        };
-        assert!(trace_path(&links, &start, &end).is_empty());
-    }
-
-    #[test]
-    fn reconstructs_a_route_in_travel_order_with_each_steps_direction() {
-        let links = [
-            link(("first", "a"), ("first", "b"), RouteKind::Internal),
-            link(("second", "b"), ("first", "b"), RouteKind::Joint),
-            link(("second", "a"), ("second", "b"), RouteKind::Internal),
-        ];
-        let start = Endpoint {
-            piece_id: "first".into(),
-            port_id: "a".into(),
-        };
-        let end = Endpoint {
-            piece_id: "second".into(),
-            port_id: "a".into(),
-        };
-        let route = trace_path(&links, &start, &end);
-        let steps: Vec<_> = route
-            .iter()
-            .map(|step| (step.path.from.port_id, step.reversed))
-            .collect();
-        assert_eq!(steps, [("a", false), ("b", true), ("a", true)]);
-    }
 }

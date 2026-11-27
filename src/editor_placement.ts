@@ -2,7 +2,14 @@ import { straightFillers } from "./arrangement_anchors";
 import { commitItems, placeItems } from "./arrangements";
 import { evaluate } from "./engine";
 import type { Analysis } from "./engine";
-import { angleGap, composePose, maxItems, projectId } from "./project";
+import {
+  angleGap,
+  composePose,
+  joinAngle,
+  maxItems,
+  projectId,
+  railTolerance as joinGap,
+} from "./project";
 import type { Catalog, Endpoint, Point, Project, TrackItem } from "./project";
 
 type RailEnd = Analysis["ports"][number];
@@ -42,10 +49,6 @@ export type Destination = {
   tiedThrough: readonly number[];
 };
 
-const protectedMessage =
-  "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.";
-const joinGap = 0.05;
-const joinAngle = 0.25;
 const translationTolerance = 1e-8;
 
 export function endpointKey(endpoint: Endpoint): string {
@@ -65,23 +68,8 @@ export function hasRailJoint(analysis: Analysis, from: Endpoint, to: Endpoint): 
   return analysis.routes.some((route) => route.kind === "joint" && jointKey(route) === key);
 }
 
-function handoffs(project: Project): Endpoint[] {
-  return project.area.exits.flatMap(({ outer, inner }) => [outer, inner]);
-}
-
-export function protectedTrack(project: Project, ids: ReadonlySet<string>): boolean {
-  return handoffs(project).some(({ pieceId }) => ids.has(pieceId));
-}
-
-export function openRailEnds({ project, ports }: Analysis): RailEnd[] {
-  const reserved = new Set(handoffs(project).map(endpointKey));
-  return ports.filter(
-    (port) =>
-      port.type === "regular" &&
-      !port.joined &&
-      !port.ambiguous &&
-      !reserved.has(endpointKey(port)),
-  );
+export function openRailEnds({ ports }: Analysis): RailEnd[] {
+  return ports.filter((port) => port.type === "regular" && !port.joined && !port.ambiguous);
 }
 
 export function captureRailGeometry(analysis: Analysis, items: readonly TrackItem[]): RailGeometry {
@@ -144,7 +132,7 @@ export function prepareTranslation(
 }
 
 function facing(from: RailEnd, to: RailEnd): boolean {
-  return from.heightPlates === to.heightPlates && angleGap(from.angle, to.angle + 180) <= joinAngle;
+  return angleGap(from.angle, to.angle + 180) <= joinAngle;
 }
 
 export function translationTargets(context: Translation): RailEnd[] {
@@ -403,8 +391,6 @@ export function previewGap(
     angleGap(from.angle, to.angle + 180) > joinAngle
   )
     return blockedEdit("Choose two facing rail ends on the same straight line.", [], marks);
-  if (from.heightPlates !== to.heightPlates)
-    return blockedEdit("Choose two rail ends at the same height.", [], marks);
   const fillers = straightFillers(catalog, from, from.angle, forward);
   if (!fillers?.length)
     return blockedEdit("The catalog straight pieces cannot fill this gap exactly.", [], marks);
@@ -416,7 +402,6 @@ export function previewGap(
     kind: "track",
     layerId,
     partId,
-    heightPlates: from.heightPlates,
   }));
   let previous: Endpoint = from;
   const joints: Joint[] = [];
@@ -444,12 +429,6 @@ export function previewGap(
   if (!result.project)
     return blockedEdit(result.issues[0]?.message ?? "Track does not fit here.", items, marks);
   const next = evaluate(result.project);
-  const reserved = new Set(handoffs(analysis.project).map(endpointKey));
-  for (const port of analysis.ports) {
-    if (port.joined) reserved.delete(endpointKey(port));
-  }
-  if (next.ports.some((port) => port.joined && reserved.has(endpointKey(port))))
-    return blockedEdit("This connection would occupy a named mainline handoff.", items, marks);
   const previousAmbiguous = new Set(
     analysis.ports.filter(({ ambiguous }) => ambiguous).map(endpointKey),
   );
@@ -466,5 +445,3 @@ export function previewGap(
     message: `${Number(forward.toFixed(2))} studs · ${[...counts].map(([name, count]) => `${count} × ${name}`).join(", ")}`,
   };
 }
-
-export { protectedMessage };
