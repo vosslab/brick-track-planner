@@ -98,10 +98,14 @@ or drag it with a mouse.
 Hold **Command** on Mac or **Ctrl** elsewhere and drag a box that fully
 encloses the pieces. Hold the same key and click to add or remove one
 piece. On touch, choose **Select multiple** and tap the pieces. Choose
-**Move** or **Delete selected track** to act on the whole selection.
+**Move** or **Delete selected track** to act on the whole selection. Click
+overlapping track to select the top piece, then choose **Next track here** to
+cycle the stack. Drag the selected piece or selection, even when another piece
+covers it. The placement grid control sets the step for the next drag or Move.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Two highlighted track pieces with Delete selected track available in the toolbar](screenshots/select_multiple_track.webp)
+![Overlapping track pieces with Next track here and the placement grid control visible](screenshots/mouse_overlap_selection.webp)
 <!-- screenshots:end -->
 
 ## Compare two versions

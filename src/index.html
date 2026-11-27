@@ -207,6 +207,9 @@
           hidden
         >
           <button type="button" id="move-track" disabled>Move</button>
+          <button type="button" id="next-track-here" aria-describedby="track-edit-hint" hidden>
+            Next track here
+          </button>
           <button type="button" id="copy-track" disabled>Copy</button>
           <button type="button" id="paste-track" disabled>Paste</button>
           <button
@@ -219,6 +222,11 @@
             Delete
           </button>
         </div>
+        <label class="screen-reader" for="placement-grid">Placement</label>
+        <select id="placement-grid" hidden>
+          <option value="club">Rail ends or 8-stud grid</option>
+          <option value="fine">1-stud grid</option>
+        </select>
         <div
           class="toolbar-group"
           id="placement-actions"
@@ -226,11 +234,6 @@
           aria-label="Placement"
           hidden
         >
-          <label class="screen-reader" for="placement-grid">Placement</label>
-          <select id="placement-grid" hidden>
-            <option value="club">Rail ends or 8-stud grid</option>
-            <option value="fine">1-stud grid</option>
-          </select>
           <button type="button" id="place-edit" class="primary" disabled>Place</button>
           <button type="button" id="cancel-edit">Cancel</button>
         </div>
@@ -249,6 +252,7 @@
               tabindex="0"
               aria-describedby="camera-hint"
             ></div>
+            <p id="translation-feedback" aria-live="polite" aria-atomic="true"></p>
             <p id="camera-hint" class="screen-reader">
               Drag track with a mouse, or use Move and choose a destination. Drag open space to pan.
               Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise. Press

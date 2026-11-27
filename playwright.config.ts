@@ -38,6 +38,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     {
       name: "touch",

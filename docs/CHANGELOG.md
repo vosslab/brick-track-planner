@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-11-27
+
+### Behavior or Interface Changes
+
+- Run the local Playwright suite in Firefox too; install Firefox, Chromium, and
+  WebKit with `npm run setup:playwright`.
+- Make mouse editing easier on overlapping track: click selects the top piece,
+  **Next track here** cycles the stack, and dragging moves the current piece or
+  selection. Visible rails and ballast select track; dragging from the empty
+  space between crossover routes pans the drawing.
+- Keep modifier-key selection, desktop panning, and touch gestures. Escape
+  cancels a drag at any point; releasing a direct drag outside cancels it,
+  while explicit **Move** stays ready to retry. Refresh previews after camera
+  movement and show grid feedback when valid rail snaps compete.
+- Expose **Rail ends or 8-stud grid** and **1-stud grid** before a drag and for
+  **Move**. The selected step applies to the next translation and resets when
+  the edit finishes, is canceled, or the layout tab changes. The 1-stud grid
+  bypasses rail-end snaps; nearest-end guidance applies only while close, and
+  equally close valid snaps fall back to the grid.
+
 ## 2026-11-26
 
 ### Additions and New Features

@@ -18,6 +18,7 @@ const curveColors: Partial<Record<number, string>> = {
 type RouteMeasure = { path: readonly Point[]; length: number };
 
 const otherTrack = { code: "TRK", color: "#53616d" };
+export const codedTrackWidth = 8.8;
 
 function measuredRoutes(part: Part): RouteMeasure[] {
   return part.paths
@@ -76,8 +77,8 @@ function uprightTangent(tangent: number, itemAngle: number): number {
 }
 
 /**
- * Appends compact schematic bands. The caller keeps the normal transparent
- * footprint and appends the returned label after its height hatch.
+ * Appends compact schematic bands and returns the label for the caller to
+ * place above the height hatch.
  */
 export function codedTrackDrawing(
   group: SVGGElement,
@@ -104,7 +105,7 @@ export function codedTrackDrawing(
       href: routeHref,
       fill: "none",
       stroke: selected ? "#f5ce40" : "var(--track-code-outline, #f8fafc)",
-      "stroke-width": selected ? 10.3 : 8.8,
+      "stroke-width": selected ? 10.3 : codedTrackWidth,
       "stroke-linecap": "butt",
       "stroke-linejoin": "round",
       "data-coded-track": "outline",

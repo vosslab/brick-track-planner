@@ -247,10 +247,10 @@ try {
     }
   }
 
-  const startBlank = async (target = page) => {
+  const startBlank = async (target = page, name = "My general layout") => {
     await start(target);
     await target.getByRole("radio", { name: /General/ }).check();
-    await target.getByLabel("Design name").fill("My general layout");
+    await target.getByLabel("Design name").fill(name);
     await create(target);
     await expect(target.getByRole("radio", { name: "Track parts" })).toBeChecked();
     await expect(target.getByRole("button", { name: "Place at center" })).toBeEnabled();
@@ -332,6 +332,45 @@ try {
   const reduced = await browser.newPage({ viewport: demoViewport, reducedMotion: "reduce" });
   await startBlank(reduced);
   await demonstratePlacement(reduced);
+
+  await page.setViewportSize(desktopViewport);
+  await startBlank(page, "Overlapping straight track");
+  await choosePartCategory(page, "Straights", "RC/PF straight S16");
+  const placeCentered = page.getByRole("button", { name: "Place at center", exact: true });
+  await placeCentered.click();
+  await expect(track).toHaveCount(1);
+  const lower = track.and(page.locator('[transform$="rotate(90)"]'));
+  const upper = track.and(page.locator('[transform$="rotate(0)"]'));
+  const tools = await openMenu(page, "Tools");
+  await tools.getByRole("button", { name: "Rotate right", exact: true }).click();
+  await closeMenu(tools);
+  await expect(lower).toHaveCount(1);
+  await page.getByLabel("Place at", { exact: true }).selectOption("center");
+  await placeCentered.click();
+  await expect(track).toHaveCount(2);
+  await fit();
+  const zoomIn = page.getByRole("button", { name: "Zoom in", exact: true });
+  for (let step = 0; step < 4; step++) await zoomIn.click();
+  await page.getByRole("button", { name: "Inspector", exact: true }).click();
+
+  const intersection = await lower.evaluate((piece) => {
+    const { x, y } = new DOMPoint().matrixTransform(piece.getScreenCTM());
+    return { x, y };
+  });
+  await page.mouse.click(intersection.x, intersection.y);
+  const nextTrack = page.getByRole("button", { name: "Next track here", exact: true });
+  await expect(upper).toHaveAttribute("aria-pressed", "true");
+  await expect(lower).toHaveAttribute("aria-pressed", "false");
+  await nextTrack.click();
+  await expect(upper).toHaveAttribute("aria-pressed", "false");
+  await expect(lower).toHaveAttribute("aria-pressed", "true");
+  const placement = page.getByRole("combobox", { name: "Placement", exact: true });
+  await placement.selectOption("fine");
+  await expect(placement).toHaveValue("fine");
+  await expect(nextTrack).toBeVisible();
+  await expect(page.locator("#track-edit-hint")).toContainText("Track 2 of 2");
+  await page.mouse.move(0, 0);
+  await capture("mouse_overlap_selection");
 } finally {
   await browser.close();
 }

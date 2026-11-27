@@ -193,6 +193,30 @@ and named mainline handoffs remain protected.
 [src/editor_placement.ts](../src/editor_placement.ts),
 [src/editor_arrangements.ts](../src/editor_arrangements.ts)
 
+### Make mouse editing predictable
+
+**Decision.** Select the top track under the pointer, and let **Next track
+here** cycle overlapping pieces. Drag the selected piece or selection. Keep
+modifier-key box selection, desktop panning, and touch gestures. Let Escape
+cancel a drag at any point; an outside direct drag cancels, while explicit
+Move remains ready to retry. Refresh the preview after camera movement.
+
+**Why.** Visible rails and ballast provide usable selection targets, including
+when pieces overlap. Empty space between crossover routes remains available
+for panning.
+
+**Consequence.** For rail-end snapping, grab near an exposed rail end and keep
+the pointer close; prefer the nearest exposed end when choosing a valid joint.
+Show grid feedback when distinct, equally close valid snaps compete, and fall
+back to the grid. Expose **Rail ends or 8-stud grid** and **1-stud grid** before
+dragging and for Move; the 1-stud grid bypasses automatic rail-end snapping.
+Apply the choice to the next translation and reset it after finish,
+cancellation, or tab change. Normal placement warnings still allow the drop.
+
+**Owner.** [src/main.ts](../src/main.ts),
+[src/editor_track.ts](../src/editor_track.ts),
+[src/editor_placement.ts](../src/editor_placement.ts)
+
 ### Place track and flag problems
 
 **Decision.** Let members put down ordinary track with overlaps, track outside

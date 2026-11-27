@@ -23,7 +23,7 @@ import {
 } from "./niltc_starters";
 import { withParkingKits } from "./parking";
 import { ensureVisibleWorkingLayer, newProject, projectId } from "./project";
-import type { Catalog, Project } from "./project";
+import type { Catalog, Point, Project } from "./project";
 import { createScene, drawEditPreview } from "./scene";
 import { traceRoute } from "./route_trace";
 import { showInventory } from "./show_inventory";
@@ -78,14 +78,26 @@ class Planner {
     this.#closeMenus = setupEditorControls();
     const tabletop = element("tabletop");
     this.#camera = new EditorCamera(tabletop, {
-      tap: (point, target, multiple): void => {
+      tap: (point, target, multiple, clientPoint): void => {
         if (this.#preview) this.#arrangements.pick(point);
-        else this.#tracks.pick(point, target, this.#camera.snapRadius, multiple);
+        else
+          this.#tracks.pick(
+            point,
+            target,
+            this.#camera.snapRadius,
+            multiple,
+            clientPoint && !multiple && this.#tracks.selecting
+              ? this.#trackStack(clientPoint, target)
+              : undefined,
+          );
       },
-      hover: (event, target): void => {
+      hover: (clientPoint, target): void => {
         if (!this.#tracks.pickingDestination) return;
-        const point = this.#camera.world(event.clientX, event.clientY);
-        this.#tracks.move(point, this.#camera.snapRadius, target);
+        this.#tracks.move(
+          this.#camera.world(clientPoint.x, clientPoint.y),
+          this.#camera.snapRadius,
+          target,
+        );
       },
       clearHover: (): void => this.#tracks.clearHover(),
       holding: (): boolean => Boolean(this.#preview || this.#tracks.pickingDestination),
@@ -108,14 +120,15 @@ class Planner {
         }
         this.#tracks.addToSelection(ids);
       },
-      beginDrag: (point, target): "drag" | "pan" | "blocked" =>
-        this.#tracks.beginMove(point, target),
+      beginDrag: (point, target, clientPoint): "drag" | "pan" | "blocked" =>
+        this.#tracks.beginMove(point, target, this.#trackStack(clientPoint, target)),
       drag: (point): void => this.#tracks.move(point, this.#camera.snapRadius),
       endDrag: (point, cancelled): void =>
         this.#tracks.endMove(point, this.#camera.snapRadius, cancelled),
     });
     this.#tracks = new TrackTools(catalog, {
       analysis: (): Analysis => this.#requireState().analysis,
+      studsPerPixel: (): number => this.#camera.studsPerPixel,
       commit: (project): void => this.#commit(project),
       render: (): void => this.#draw(),
       renderPreview: (): void => this.#drawEditPreview(),
@@ -143,7 +156,10 @@ class Planner {
           ),
         ];
       },
-      beginPreview: (): void => this.#tracks.stopPicking(),
+      beginPreview: (): void => {
+        this.#camera.cancelGesture();
+        this.#tracks.stopPicking();
+      },
       preview: (result): void => {
         if (this.#preview === result) return;
         this.#preview = result;
@@ -208,14 +224,18 @@ class Planner {
     input("project-name").onchange = (): void => this.#commitName();
     document.addEventListener("keydown", (event) => {
       if (!this.#active || event.defaultPrevented || document.querySelector("dialog[open]")) return;
-      if (event.key === "Escape" && this.#camera.cancelBoxSelection()) {
-        event.preventDefault();
-        return;
-      }
-      if (event.key === "Escape" && this.#tracks.pickingDestination) {
-        event.preventDefault();
-        this.#tracks.cancel();
-        return;
+      if (event.key === "Escape") {
+        const cancelledGesture = this.#camera.cancelGesture();
+        if (this.#tracks.pickingDestination || (cancelledGesture && this.#preview)) {
+          event.preventDefault();
+          this.#tracks.cancel();
+          return;
+        }
+        if (cancelledGesture) {
+          event.preventDefault();
+          if (this.#tracks.selecting) this.#tracks.cancel();
+          return;
+        }
       }
       if (
         event.target instanceof HTMLInputElement ||
@@ -233,7 +253,10 @@ class Planner {
         if (window.getSelection()?.isCollapsed !== false && this.#tracks.copy())
           event.preventDefault();
       } else if (shortcut && !event.altKey && !event.shiftKey && key === "v") {
-        if (this.#tracks.startPaste()) event.preventDefault();
+        if (this.#tracks.startPaste()) {
+          this.#camera.cancelGesture();
+          event.preventDefault();
+        }
       } else if (event.key === "Escape") {
         if (!this.#tracks.cancel()) this.#reset(false, true);
       } else if (["Backspace", "Delete"].includes(event.key) && this.#tracks.selection.size) {
@@ -419,6 +442,7 @@ class Planner {
   }
 
   #reset(fit = false, clearSelection = false): void {
+    this.#camera.cancelGesture();
     this.#preview = undefined;
     const state = this.#requireState();
     const { project, analysis } = state;
@@ -493,6 +517,17 @@ class Planner {
 
   #drawEditPreview(): void {
     if (this.#scene) drawEditPreview(this.#scene, this.#tracks.editPreview);
+  }
+
+  #trackStack(point: Point, target: Element): string[] {
+    if (!this.#scene || target.closest('[data-kind="unresolved"]')) return [];
+    const ids = new Set<string>();
+    for (const hit of document.elementsFromPoint(point.x, point.y)) {
+      const track = hit.closest<SVGGElement>('[data-kind="track"][role="button"]');
+      const id = track?.dataset["pieceId"];
+      if (track && id && this.#scene.contains(track)) ids.add(id);
+    }
+    return [...ids];
   }
 }
 

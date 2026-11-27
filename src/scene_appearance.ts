@@ -1,7 +1,7 @@
 import trackArtwork from "../data/ldraw/track_artwork.json" with { type: "json" };
 import type { Catalog, TrackItem } from "./project";
 import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
-import { codedTrackDrawing } from "./scene_track_colors";
+import { codedTrackDrawing, codedTrackWidth } from "./scene_track_colors";
 
 type Part = Catalog["parts"][number];
 type Ballast = NonNullable<TrackItem["ballast"]>;
@@ -17,6 +17,7 @@ const geometries = new WeakMap<Part, PartGeometry>();
 const modelDrawings = new Map<string, Readonly<Record<string, string>>>(
   Object.entries(trackArtwork),
 );
+const ballastWidths = { bare: 7.5, gray: 10.5, pennlug: 13 };
 
 export function partGeometry(part: Part): PartGeometry {
   let geometry = geometries.get(part);
@@ -61,13 +62,12 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
   const artwork = modelDrawings.get(part.id);
   const schematic = svg("g", {
     style: artwork ? "display: var(--track-compact, inline)" : "",
-    "pointer-events": "none",
   });
   schematic.append(
     svg("use", {
       href: `#${id}-route`,
       style: "display: var(--track-compact, inline); stroke: var(--track-bed, #93948f)",
-      "stroke-width": 7.5,
+      "stroke-width": ballastWidths.bare,
     }),
     svg("path", {
       d: geometry.ties,
@@ -93,12 +93,15 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
       style: detailStyle,
     }),
   );
-  shape.append(svg("path", { d: geometry.footprint, fill: "transparent" }), schematic);
+  // Keep the whole part's bounds available to marquee selection.
+  shape.append(
+    svg("path", { d: geometry.footprint, fill: "transparent", "pointer-events": "none" }),
+    schematic,
+  );
   if (artwork) {
     const model = svg("g", {
       "data-track-model": part.id,
       "fill-rule": "evenodd",
-      "pointer-events": "none",
       style: "display: var(--track-sleepers, none)",
     });
     // The silhouette under the visible faces keeps adjoining colors from revealing the grid.
@@ -130,8 +133,6 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
   defs.append(route, shape);
 }
 
-const ballastWidths = { bare: 7.5, gray: 10.5, pennlug: 13 };
-
 export function trackHalfWidth(ballast: Ballast): number {
   return ballastWidths[ballast] / 2;
 }
@@ -145,6 +146,7 @@ export function partInstance(
   selected: boolean,
   heightOffset: number,
   trackColors: boolean,
+  interactive: boolean,
 ): void {
   const ballast = item.ballast ?? "bare";
   group.setAttribute("data-ballast", ballast);
@@ -162,7 +164,6 @@ export function partInstance(
     const shoulder = svg("g", {
       "data-ballast-shoulder": ballast,
       "stroke-linejoin": "round",
-      "pointer-events": "none",
     });
     shoulder.append(
       svg("use", {
@@ -186,10 +187,29 @@ export function partInstance(
   }
   let codeLabel: SVGTextElement | undefined;
   if (trackColors && hasRails) {
-    group.append(svg("path", { d: partGeometry(part).footprint, fill: "transparent" }));
+    group.append(
+      svg("path", {
+        d: partGeometry(part).footprint,
+        fill: "transparent",
+        "pointer-events": "none",
+      }),
+    );
     codeLabel = codedTrackDrawing(group, routeHref, item, part, selected);
   } else {
     group.append(svg("use", { href: `#${id}` }));
+  }
+
+  if (interactive && hasRails) {
+    group.append(
+      svg("use", {
+        href: routeHref,
+        stroke: "transparent",
+        "stroke-width": trackColors ? codedTrackWidth : ballastWidths[ballast],
+        "stroke-linecap": "butt",
+        "stroke-linejoin": "round",
+        "aria-hidden": "true",
+      }),
+    );
   }
 
   // Height stays legible above bare or ballasted track at every scale.

@@ -227,13 +227,24 @@ version of that assignment inside the member's display area.
 
 ## Edit and inspect
 
-With a mouse, press a track piece, drag it, and release it at the destination.
-On touch, tap a piece and choose **Move**, then tap the destination or press
-anywhere in the drawing, drag to the destination, and release. Any held copy,
-single part, or kit also goes down with a tap or one-finger drag and release.
-You can put track down even when the destination needs repair.
-You can also select track and choose **Move**, then click the
-destination.
+With a mouse, click a visible rail or ballast area to select the top track
+piece. If pieces overlap, choose **Next track here** to cycle through them
+([see the controls](SCREENSHOTS.md#select-several-pieces)).
+Drag the selected piece or selection to move it, including a piece underneath
+another. Starting a drag in the empty space between crossover routes pans the
+drawing. On touch, tap a piece and choose **Move**, then tap the destination or
+press anywhere in the drawing, drag to the destination, and release. Any held
+copy, single part, or kit also goes down with a tap or one-finger drag and
+release. You can put track down even when the destination needs repair. You
+can also select track and choose **Move**, then click the destination.
+
+Press **Esc** at any point in a drag to cancel. Releasing a direct drag outside
+the drawing cancels it; an explicit **Move** stays ready so you can try again.
+After panning the view with the mouse wheel, the preview refreshes at the
+pointer's current position. For rail-end snapping, grab near an exposed rail
+end and keep the pointer close to it; the nearest end guides the joint preview.
+If equally close valid rail snaps compete, the preview falls back to the grid
+and reports the ambiguity.
 
 Hold **Command** on Mac or **Ctrl** elsewhere and click to add or remove
 individual pieces. Hold the same key and drag a box that fully encloses
@@ -248,8 +259,12 @@ in one edit. Deselect any piece carrying a named mainline handoff before
 moving or deleting the rest of the selection. Track can extend through a
 handoff to connect to the next display.
 
-Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
-Choose **1-stud grid** to make a smaller adjustment for that placement. For a
+Before a drag, use **Rail ends or 8-stud grid** or **1-stud grid** to choose
+how the next translation moves; the same control is available for **Move**.
+The choice resets after a move finishes or is canceled, and when you change
+layout tabs. By default, moves snap to compatible open rail ends and otherwise
+shift in 8-stud steps. **1-stud grid** bypasses automatic rail-end snapping
+and moves in 1-stud steps. For a
 single part you can enter X and Y in studs under **Exact position** in the
 inspector. On desktop, use the **Inspector** sidebar switch. On phones, choose
 **Inspector** in the toolbar to jump to the panel below the drawing. X

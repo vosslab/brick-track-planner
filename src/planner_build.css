@@ -83,7 +83,29 @@
 }
 
 #placement-grid {
+  min-width: 0;
   max-width: 100%;
+}
+#translation-feedback {
+  position: absolute;
+  inset-block-end: 0.5rem;
+  inset-inline-start: 0.5rem;
+  max-inline-size: calc(100% - 1rem);
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+#translation-feedback:empty {
+  padding: 0;
+  border: 0;
+}
+#translation-feedback[data-error] {
+  color: var(--warning);
 }
 .track-action-short {
   display: none;

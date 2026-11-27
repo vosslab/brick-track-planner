@@ -8,6 +8,7 @@ import type { Catalog, Project, TrackItem } from "./project";
 type EditControlsState = Readonly<{
   kind: "select" | "extend" | "trace" | "drag" | "move" | "duplicate" | "connect";
   preview?: Readonly<Pick<EditPreview, "kind" | "message">>;
+  stack?: string;
   hasFirstRailEnd: boolean;
   arrangement: boolean;
   multiple: boolean;
@@ -18,6 +19,7 @@ type EditControlsState = Readonly<{
 export function renderEditControls({
   kind,
   preview,
+  stack,
   hasFirstRailEnd,
   arrangement,
   multiple,
@@ -39,13 +41,15 @@ export function renderEditControls({
       );
   }
   button("move-track").hidden = !selectingTrack;
+  button("next-track-here").hidden = !selectingTrack || !stack;
   button("copy-track").hidden = !selectingTrack;
   button("remove-piece").hidden = !selectingTrack;
   button("paste-track").hidden = !selecting || !pasteAvailable;
   element("selection-actions").hidden = !selecting || (!selectingTrack && !pasteAvailable);
   transformActions.toggleAttribute("hidden", !selectingTrack);
   element("placement-actions").hidden = selecting;
-  element("placement-grid").hidden = !translation;
+  element("placement-grid").hidden =
+    !translation && (!selectingTrack || button("move-track").disabled);
   button("place-edit").hidden = kind !== "connect";
   button("place-edit").disabled = !(kind === "connect" && preview?.kind === "ready");
   button("select-multiple").setAttribute("aria-pressed", String(multiple));
@@ -80,15 +84,40 @@ export function renderEditControls({
     const handoff = getProject().area.exits.find(
       ({ outer, inner }) => selected.has(outer.pieceId) || selected.has(inner.pieceId),
     );
-    hint.textContent =
+    const message =
       selected.size > 1
         ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Deselect that protected piece before moving or deleting the other pieces.`
         : "This track carries a named mainline exit and cannot be moved or deleted.";
-  } else if (multiple)
+    hint.textContent = stack ? `${stack}. ${message}` : message;
+  } else if (stack) hint.textContent = stack;
+  else if (multiple)
     hint.textContent = `${selected.size} selected. Pick pieces to add or remove them.`;
   else if (selected.size)
     hint.textContent = `${selected.size} selected. Drag track or choose Move.`;
   else hint.textContent = "Select a track piece to edit it.";
+}
+
+export function renderTranslationFeedback(preview: EditPreview | undefined, fine: boolean): void {
+  const feedback = element("translation-feedback");
+  let message = "";
+  if (preview) {
+    if (preview.kind === "blocked") message = preview.message;
+    else if (preview.placement === "rail" && preview.snap)
+      message = `Rail joint · ${preview.snap.from.portId} to ${preview.snap.to.portId}.`;
+    else if (preview.placement === "grid") {
+      const grid = fine ? "1-stud grid" : "8-stud grid";
+      if (preview.gridFallback === "tie")
+        message = `Multiple rail snaps are equally close. Using the ${grid}.`;
+      else if (preview.gridFallback === "missed")
+        message = `Could not snap to the rail end. Using the ${grid}.`;
+      else message = `Using the ${grid}.`;
+    }
+    const opened = preview.opened?.length;
+    if (opened)
+      message += ` Opens ${opened} ${opened === 1 ? "joint" : "joints"} to track outside the selection.`;
+  }
+  if (feedback.textContent !== message) feedback.textContent = message;
+  feedback.toggleAttribute("data-error", preview?.kind === "blocked");
 }
 
 export function renderSelectionInfo(

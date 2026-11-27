@@ -16,6 +16,9 @@ export type EditPreview = {
   items: readonly TrackItem[];
   marks: readonly Point[];
   opened?: readonly Point[];
+  placement?: "rail" | "grid";
+  gridFallback?: "missed" | "tie";
+  snap?: { from: RailEnd; to: RailEnd };
   message: string;
 } & ({ kind: "ready"; project: Project } | { kind: "blocked" });
 
@@ -26,16 +29,24 @@ type Translation = {
   outside: Joint[];
 };
 
+type SnapCandidate = NonNullable<EditPreview["snap"]> & {
+  shift: Point;
+  distance: number;
+  preferred: boolean;
+};
+
 export type Destination = {
   grid: Point;
-  missedSnap?: boolean;
-  snap?: { from: RailEnd; to: RailEnd };
+  missedSnap: boolean;
+  candidates: readonly SnapCandidate[];
+  tiedThrough: readonly number[];
 };
 
 const protectedMessage =
   "This piece carries a named mainline exit. Use a connected replacement to keep the handoff.";
 const joinGap = 0.05;
 const joinAngle = 0.25;
+const translationTolerance = 1e-8;
 
 export function endpointKey(endpoint: Endpoint): string {
   return JSON.stringify([endpoint.pieceId, endpoint.portId]);
@@ -142,32 +153,86 @@ export function translationTargets(context: Translation): RailEnd[] {
   );
 }
 
+export function preferredTranslationEnd(
+  context: Translation,
+  pieceId: string,
+  point: Point,
+  radius: number,
+): string | undefined {
+  let nearest: RailEnd | undefined;
+  let closest = Infinity;
+  for (const from of context.moving) {
+    if (from.pieceId !== pieceId) continue;
+    const distance = Math.hypot(from.x - point.x, from.y - point.y);
+    if (distance > radius || distance >= closest) continue;
+    nearest = from;
+    closest = distance;
+  }
+  return nearest && endpointKey(nearest);
+}
+
 export function chooseDestination(
   context: Translation,
   shift: Point,
   radius: number,
   fine: boolean,
   explicitEnd?: string,
+  options?: { preferredSourceEnd?: string; tieDistance?: number },
 ): Destination {
   const step = fine ? 1 : 8;
   const grid = { x: Math.round(shift.x / step) * step, y: Math.round(shift.y / step) * step };
-  let snap: Destination["snap"];
-  let nearest = Infinity;
+  const candidates: SnapCandidate[] = [];
   if (!fine || explicitEnd) {
+    const preferred = options?.preferredSourceEnd;
+    const preferredPort =
+      preferred && context.moving.find((port) => endpointKey(port) === preferred);
     for (const to of context.targets) {
       if (explicitEnd && endpointKey(to) !== explicitEnd) continue;
       for (const from of context.moving) {
         const x = to.x - from.x;
         const y = to.y - from.y;
         const distance = Math.hypot(x - shift.x, y - shift.y);
-        if ((!explicitEnd && distance > radius) || distance >= nearest || !facing(from, to))
-          continue;
-        nearest = distance;
-        snap = { from, to };
+        if ((!explicitEnd && distance > radius) || !facing(from, to)) continue;
+        candidates.push({ from, to, shift: { x, y }, distance, preferred: from === preferredPort });
       }
     }
   }
-  return { grid, snap, missedSnap: Boolean(explicitEnd && !snap) };
+  candidates.sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.distance - b.distance);
+  const tiedThrough = [];
+  const tieDistance = options?.tieDistance;
+  if (tieDistance !== undefined) {
+    // Record the end of each tie window so pointer motion can reuse the preview.
+    let end = 0;
+    for (const [index, candidate] of candidates.entries()) {
+      end = Math.max(end, index + 1);
+      for (let other = candidates[end]; other; other = candidates[end]) {
+        if (
+          other.preferred !== candidate.preferred ||
+          other.distance - candidate.distance > tieDistance
+        )
+          break;
+        end++;
+      }
+      tiedThrough.push(end - 1);
+    }
+  }
+  return { grid, candidates, tiedThrough, missedSnap: Boolean(explicitEnd && !candidates.length) };
+}
+
+export function sameDestination(previous: Destination | undefined, next: Destination): boolean {
+  return (
+    previous !== undefined &&
+    previous.grid.x === next.grid.x &&
+    previous.grid.y === next.grid.y &&
+    previous.missedSnap === next.missedSnap &&
+    previous.candidates.length === next.candidates.length &&
+    previous.candidates.every(
+      ({ from, to }, index) =>
+        from === next.candidates[index]?.from &&
+        to === next.candidates[index]?.to &&
+        (previous.tiedThrough[index] ?? index) === (next.tiedThrough[index] ?? index),
+    )
+  );
 }
 
 export function blockedEdit(
@@ -209,34 +274,94 @@ export function previewTranslation(
   items: readonly TrackItem[],
   destination: Destination,
 ): EditPreview {
-  const { grid, snap } = destination;
-  function translated(shift: Point, marks: readonly Point[] = []): EditPreview {
-    if (context.stationary !== analysis.project && Math.hypot(shift.x, shift.y) < 1e-8)
-      return { kind: "ready", project: analysis.project, items: [], marks, message: "" };
+  function translated(shift: Point): EditPreview {
+    if (
+      context.stationary !== analysis.project &&
+      Math.hypot(shift.x, shift.y) < translationTolerance
+    )
+      return { kind: "ready", project: analysis.project, items: [], marks: [], message: "" };
     const placed = items.map((item) => ({ ...item, x: item.x + shift.x, y: item.y + shift.y }));
-    return previewPlacement(analysis.project, context.stationary, placed, marks);
+    return previewPlacement(analysis.project, context.stationary, placed);
   }
-  let message = destination.missedSnap ? missedSnapMessage : "";
-  if (snap) {
-    const { from, to } = snap;
-    const preview = translated({ x: to.x - from.x, y: to.y - from.y }, [to]);
-    if (preview.kind === "ready") {
-      const next = preview.project === analysis.project ? analysis : evaluate(preview.project);
-      if (hasRailJoint(next, from, to))
-        return describeTranslation(analysis, next, context, preview, "Snapped to the rail end.");
+  function analyzed(project: Project): Analysis {
+    return project === analysis.project ? analysis : evaluate(project);
+  }
+  const { candidates, tiedThrough, grid, missedSnap } = destination;
+  const shiftKey = ({ x, y }: Point): string => `${x},${y}`;
+  const pairsByShift = new Map<string, SnapCandidate[] | SnapCandidate | undefined>();
+  for (const candidate of candidates) {
+    const key = shiftKey(candidate.shift);
+    const pairs = pairsByShift.get(key);
+    if (Array.isArray(pairs)) pairs.push(candidate);
+    else pairsByShift.set(key, [candidate]);
+  }
+  let gridFallback: EditPreview["gridFallback"] =
+    missedSnap || candidates.length ? "missed" : undefined;
+  let winner:
+    | {
+        candidate: SnapCandidate;
+        preview: Extract<EditPreview, { kind: "ready" }>;
+        next: Analysis;
+        through: number;
+      }
+    | undefined;
+  for (const [index, candidate] of candidates.entries()) {
+    if (winner && index > winner.through) break;
+    const key = shiftKey(candidate.shift);
+    const pairs = pairsByShift.get(key);
+    let preview: EditPreview | undefined;
+    let next: Analysis | undefined;
+    if (Array.isArray(pairs)) {
+      preview = translated(candidate.shift);
+      const evaluated = preview.kind === "ready" ? analyzed(preview.project) : undefined;
+      const firstValid =
+        evaluated && pairs.find(({ from, to }) => hasRailJoint(evaluated, from, to));
+      // Only the first valid pair for a displacement can affect the ranking.
+      pairsByShift.set(key, firstValid);
+      if (candidate !== firstValid) continue;
+      next = evaluated;
+    } else if (candidate !== pairs) continue;
+    if (winner) {
+      const { shift } = winner.candidate;
+      if (
+        Math.hypot(candidate.shift.x - shift.x, candidate.shift.y - shift.y) < translationTolerance
+      )
+        continue;
+      gridFallback = "tie";
+      winner = undefined;
+      break;
     }
-    message = missedSnapMessage;
+    preview ??= translated(candidate.shift);
+    if (preview.kind !== "ready") continue;
+    next ??= analyzed(preview.project);
+    winner = { candidate, preview, next, through: tiedThrough[index] ?? index };
   }
-  const preview = translated(grid);
-  if (preview.kind === "ready") {
-    if (context.outside.length && preview.project !== analysis.project)
-      return describeTranslation(analysis, evaluate(preview.project), context, preview, message);
-    preview.message = message;
+  if (winner) {
+    const { candidate, preview, next } = winner;
+    const { from, to } = candidate;
+    const landed = next.ports.find(
+      (port) => port.pieceId === from.pieceId && port.portId === from.portId,
+    );
+    const snap = { from: landed ?? { ...from, x: to.x, y: to.y }, to };
+    return describeTranslation(
+      analysis,
+      next,
+      context,
+      { ...preview, marks: [to], placement: "rail", snap },
+      "Snapped to the rail end.",
+    );
   }
-  return preview;
+  const preview = { ...translated(grid), placement: "grid" as const };
+  if (preview.kind === "blocked") return preview;
+  const message = gridFallback === "tie" ? tiedSnapMessage : gridFallback ? missedSnapMessage : "";
+  const ready = { ...preview, gridFallback, message };
+  if (context.outside.length && preview.project !== analysis.project)
+    return describeTranslation(analysis, analyzed(preview.project), context, ready, message);
+  return ready;
 }
 
 export const missedSnapMessage = "Could not snap to the rail end. Placed on the grid.";
+const tiedSnapMessage = "Multiple rail snaps are equally close. Placed on the grid.";
 
 function describeTranslation(
   analysis: Analysis,

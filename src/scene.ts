@@ -158,6 +158,7 @@ function trackDrawing(
     selected || preview,
     item.heightPlates - (item.heightPlates === 2 ? 2 : 0),
     layers.trackColors,
+    interaction !== undefined,
   );
   if (preview) group.setAttribute("opacity", "0.62");
   return { key: JSON.stringify([item, selected, preview, interaction]), node: group, bounds };
@@ -607,12 +608,16 @@ export function createScene(
       ? [options.reuse, prior]
       : newScene(catalog, options);
   const title = `Top-down layout of ${project.name}`;
+  const interaction = options.sharing ? undefined : options.interaction;
+  const pointerEvents = interaction ? "auto" : "none";
+  layers.tracks.setAttribute("pointer-events", pointerEvents);
+  layers.ports.setAttribute("pointer-events", pointerEvents);
   layers.trackColors = options.trackColors ?? false;
   if (layers.trackColors) scene.setAttribute("data-track-view", "coded");
   else scene.removeAttribute("data-track-view");
   layers.title.textContent = title;
   scene.setAttribute("aria-label", title);
-  scene.setAttribute("role", options.interaction ? "group" : "img");
+  scene.setAttribute("role", interaction ? "group" : "img");
   const bounds = emptyBounds();
   layers.labels.replaceChildren();
   drawArea(project, bounds, layers, options);
@@ -629,8 +634,8 @@ export function createScene(
     const part = item.kind === "track" ? partById.get(item.partId) : undefined;
     const drawing =
       item.kind === "track"
-        ? trackDrawing(item, part, selected, preview, itemBounds, layers, options.interaction)
-        : unresolvedDrawing(item, selected, itemBounds, options.interaction);
+        ? trackDrawing(item, part, selected, preview, itemBounds, layers, interaction)
+        : unresolvedDrawing(item, selected, itemBounds, interaction);
     drawn.set(item.id, drawing);
     if (part && item.kind === "track" && options.placementWarnings?.has(item.id)) {
       drawing.node.setAttribute("data-placement-warning", "true");

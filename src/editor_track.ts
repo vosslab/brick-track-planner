@@ -1,7 +1,11 @@
 import { button, element, input, select, toCanvas } from "./editor_dom";
 import { areaCenter } from "./area_outline";
 import { setupPartPicker } from "./editor_part_picker";
-import { renderEditControls, renderSelectionInfo } from "./editor_track_controls";
+import {
+  renderEditControls,
+  renderSelectionInfo,
+  renderTranslationFeedback,
+} from "./editor_track_controls";
 import {
   blockedEdit,
   captureRailGeometry,
@@ -10,6 +14,7 @@ import {
   hasRailJoint,
   missedSnapMessage,
   openRailEnds,
+  preferredTranslationEnd,
   prepareTranslation,
   previewGap,
   previewPlacement,
@@ -17,6 +22,7 @@ import {
   protectedMessage,
   protectedTrack,
   remapRailGeometry,
+  sameDestination,
   translationTargets,
 } from "./editor_placement";
 import type { Destination, EditPreview, RailGeometry } from "./editor_placement";
@@ -29,6 +35,7 @@ import type { RouteLink } from "./route_trace";
 
 type Hooks = {
   analysis: () => Analysis;
+  studsPerPixel: () => number;
   commit: (project: Project) => void;
   render: () => void;
   renderPreview: () => void;
@@ -53,6 +60,7 @@ type TranslationEdit = PointerPlacement & {
   items: readonly TrackItem[];
   origin: Point;
   geometry: ReturnType<typeof prepareTranslation>;
+  preferredSourceEnd?: string;
   targets: Map<string, RailEnd>;
   destination?: Destination;
 };
@@ -76,6 +84,7 @@ export class TrackTools {
   #selectedPartId = defaultPartId;
   #interaction: Interaction = { kind: "select" };
   #selected = new Set<string>();
+  #stack: readonly string[] = [];
   #multiple = false;
   #arrangement = false;
   #copied: TrackCopy | undefined;
@@ -117,6 +126,12 @@ export class TrackTools {
     select("trace-from").addEventListener("change", () => this.#armTrace());
     button("remove-piece").addEventListener("click", () => this.remove());
     button("move-track").addEventListener("click", () => this.#startMove());
+    button("next-track-here").addEventListener("click", () => {
+      const [id] = this.#selected;
+      if (!id || !this.selecting || this.#stack.length < 2) return;
+      const next = this.#stack[(this.#stack.indexOf(id) + 1) % this.#stack.length];
+      if (next) this.selectPiece(next);
+    });
     button("rotate-track-left").addEventListener("click", () => this.#rotate(-90));
     button("rotate-track-right").addEventListener("click", () => this.#rotate(90));
     button("duplicate-track").addEventListener("click", () => {
@@ -127,6 +142,7 @@ export class TrackTools {
     button("paste-track").addEventListener("click", () => this.startPaste());
     button("select-multiple").addEventListener("click", () => {
       this.cancel();
+      this.#stack = [];
       this.#multiple = !this.#multiple;
       this.#editControls();
     });
@@ -140,6 +156,7 @@ export class TrackTools {
       this.#hooks.render();
       if (edit.last) {
         const { point, radius, end } = edit.last;
+        edit.destination = undefined;
         this.#updateTranslation(edit, point, radius, end);
       }
       this.#editControls();
@@ -269,6 +286,7 @@ export class TrackTools {
   stopPicking(): void {
     this.#cancelTranslationFrame();
     this.#interaction = { kind: "select" };
+    this.#stack = [];
     select("placement-grid").value = "club";
     this.#route = [];
     element("route-info").textContent = "";
@@ -278,17 +296,24 @@ export class TrackTools {
 
   cancel(): boolean {
     const active = this.#arrangement || this.#interaction.kind !== "select";
-    if (!active) return false;
-    const focused = element("placement-actions").contains(document.activeElement);
+    if (!active) {
+      select("placement-grid").value = "club";
+      return false;
+    }
+    const focused = document.activeElement;
+    const focusedAction = element("placement-actions").contains(focused);
+    const grid = select("placement-grid");
     this.#hooks.cancelArrangement();
     this.stopPicking();
     this.#hooks.render();
-    if (focused) element("tabletop").focus({ preventScroll: true });
+    if (focusedAction || (focused === grid && grid.hidden))
+      element("tabletop").focus({ preventScroll: true });
     return true;
   }
 
   selectPiece(id: string): void {
-    this.cancel();
+    if (!this.selecting) this.cancel();
+    if (!this.#stack.includes(id)) this.#stack = [];
     this.#selected = new Set([id]);
     this.#selectionInfo();
     this.#hooks.render();
@@ -296,6 +321,7 @@ export class TrackTools {
 
   addToSelection(ids: readonly string[]): void {
     if (!this.selecting || !ids.length) return;
+    this.#stack = [];
     if (this.#selectedTrack().length !== this.#selected.size) this.#selected.clear();
     for (const id of ids) this.#selected.add(id);
     this.#selectionInfo();
@@ -402,7 +428,13 @@ export class TrackTools {
     this.#selectionInfo();
   }
 
-  pick(point: Point, target: Element, radius: number, multiple = false): void {
+  pick(
+    point: Point,
+    target: Element,
+    radius: number,
+    multiple = false,
+    trackStack?: readonly string[],
+  ): void {
     const hit = target.closest<SVGElement>("[data-piece-id]");
     const id = hit?.dataset["pieceId"];
     const portId = hit?.dataset["portId"];
@@ -423,6 +455,7 @@ export class TrackTools {
       return;
     }
     if (edit.kind === "select") {
+      this.#stack = [];
       if (this.#multiple || multiple) {
         if (
           id &&
@@ -436,7 +469,11 @@ export class TrackTools {
             this.#selected.add(id);
           }
         }
-      } else this.#selected = new Set(id ? [id] : []);
+      } else {
+        const top = trackStack?.[0] ?? id;
+        if (trackStack && trackStack.length > 1) this.#stack = trackStack;
+        this.#selected = new Set(top ? [top] : []);
+      }
       this.#selectionInfo();
       this.#hooks.render();
       return;
@@ -472,21 +509,25 @@ export class TrackTools {
     this.#hooks.render();
   }
 
-  beginMove(point: Point, target: Element): "drag" | "pan" | "blocked" {
+  beginMove(point: Point, target: Element, stack: readonly string[]): "drag" | "pan" | "blocked" {
     if (this.#arrangement || this.#interaction.kind !== "select") return "pan";
-    const id = target.closest<SVGElement>("[data-piece-id]")?.dataset["pieceId"];
+    const id =
+      stack.find((candidate) => this.#selected.has(candidate)) ??
+      stack[0] ??
+      target.closest<SVGElement>("[data-piece-id]")?.dataset["pieceId"];
     if (!id) return "pan";
     const project = this.#hooks.analysis().project;
     const item = project.items.find((entry) => entry.id === id);
     if (!item || item.kind !== "track") return "pan";
     if (!this.#selected.has(id)) this.#selected = new Set([id]);
+    this.#stack = stack.length > 1 && this.#selected.size === 1 ? stack : [];
     const selected = this.#selectedTrack();
     if (protectedTrack(project, this.#selected)) {
       this.#selectionInfo();
       this.#hooks.render();
       return "blocked";
     }
-    this.#startTranslation("drag", selected, point);
+    this.#startTranslation("drag", selected, point, undefined, id);
     return "drag";
   }
 
@@ -517,6 +558,7 @@ export class TrackTools {
     if (!edit.preview) return;
     if (edit.kind !== "extend") edit.destination = undefined;
     edit.preview = undefined;
+    renderTranslationFeedback(undefined, this.#fine);
     this.#hooks.renderPreview();
   }
 
@@ -590,14 +632,18 @@ export class TrackTools {
     items: readonly TrackItem[],
     origin: Point,
     copied?: RailGeometry,
+    grabbedId?: string,
   ): void {
-    this.cancel();
+    if (!this.selecting) this.cancel();
     const geometry = prepareTranslation(this.#hooks.analysis(), items, copied);
     this.#interaction = {
       kind,
       items,
       origin,
       geometry,
+      preferredSourceEnd: grabbedId
+        ? preferredTranslationEnd(geometry, grabbedId, origin, 12 * this.#hooks.studsPerPixel())
+        : undefined,
       targets: new Map(translationTargets(geometry).map((port) => [key(port), port])),
     };
     this.#selectionInfo();
@@ -614,16 +660,9 @@ export class TrackTools {
       radius,
       this.#fine,
       this.#fine ? undefined : end,
+      { preferredSourceEnd: edit.preferredSourceEnd, tieDistance: this.#hooks.studsPerPixel() },
     );
-    const previous = edit.destination;
-    if (
-      previous?.grid.x === destination.grid.x &&
-      previous.grid.y === destination.grid.y &&
-      previous.snap?.from === destination.snap?.from &&
-      previous.snap?.to === destination.snap?.to &&
-      previous.missedSnap === destination.missedSnap
-    )
-      return;
+    if (sameDestination(edit.destination, destination)) return;
     edit.destination = destination;
     edit.preview = previewTranslation(
       this.#hooks.analysis(),
@@ -631,11 +670,7 @@ export class TrackTools {
       edit.items,
       destination,
     );
-    if (
-      edit.kind === "drag" ||
-      (edit.preview.kind === "ready" && element("track-edit-hint").hasAttribute("data-error"))
-    )
-      this.#editControls();
+    renderTranslationFeedback(edit.preview, this.#fine);
     this.#hooks.renderPreview();
   }
 
@@ -645,6 +680,7 @@ export class TrackTools {
     const group = visibleTrackItems(this.#hooks.analysis().project).filter(
       (candidate) => candidate.groupId === item.groupId,
     );
+    this.#stack = [];
     this.#selected = new Set(group.map(({ id }) => id));
     this.#selectionInfo();
     this.#hooks.render();
@@ -818,9 +854,18 @@ export class TrackTools {
     const edit = this.#interaction;
     // Canvas coordinates for a direct drag depend on the control geometry at pointer-down.
     if (edit.kind === "drag") return;
+    if (edit.kind !== "move" && edit.kind !== "duplicate")
+      renderTranslationFeedback(undefined, this.#fine);
+    const [id] = this.#selected;
+    const stackIndex = edit.kind === "select" && id ? this.#stack.indexOf(id) : -1;
+    const item = stackIndex >= 0 ? this.#selectedTrack()[0] : undefined;
+    const stack = item
+      ? `Track ${stackIndex + 1} of ${this.#stack.length} · ${this.#catalog.parts.find(({ id }) => id === item.partId)?.name ?? item.partId}`
+      : undefined;
     renderEditControls({
       kind: edit.kind,
-      preview: "preview" in edit ? edit.preview : undefined,
+      preview: edit.kind === "connect" || edit.kind === "extend" ? edit.preview : undefined,
+      stack,
       hasFirstRailEnd: edit.kind === "connect" && Boolean(edit.first),
       arrangement: this.#arrangement,
       multiple: this.#multiple,
