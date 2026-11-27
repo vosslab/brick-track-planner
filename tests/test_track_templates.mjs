@@ -6,8 +6,9 @@ import test from "node:test";
 import catalog from "../data/catalog.json" with { type: "json" };
 import straightExamples from "../data/straight_examples.json" with { type: "json" };
 import { findArrangementAnchors } from "../src/arrangement_anchors.ts";
+import { moveOutlineEdge, outlineSupports, shiftOutlineSpan } from "../src/area_outline.ts";
 import { commitItems, placementWarnings, previewArrangement } from "../src/arrangements.ts";
-import { openTrackPlan } from "../src/ldraw.ts";
+import { openTrackPlan, saveTrackPlan } from "../src/ldraw.ts";
 import { newProject } from "../src/project.ts";
 import { showInventory } from "../src/show_inventory.ts";
 
@@ -91,17 +92,25 @@ test("the Rust route graph reaches the inner mainline and each full-length yard 
 
 test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", () => {
   for (const [file, width, depth, edge] of [
-    ["r104-semicircle-return", 416, 256, "east"],
-    ["r120-corner-return", 384, 320, "west"],
+    ["r104-semicircle-return", 416, 224, "east"],
+    ["r120-corner-return", 384, 288, "west"],
   ]) {
     const project = template(file);
     assert.deepEqual([project.area.width, project.area.depth], [width, depth]);
     assert.equal(project.area.niltc, undefined);
+    if (edge === "west") {
+      assert.deepEqual(project.area.outline?.slice(3), [
+        { x: 96, y: 288 },
+        { x: 96, y: 192 },
+        { x: 0, y: 192 },
+      ]);
+    }
     assert.equal(project.area.exits.length, 1);
     const [handoff] = project.area.exits;
     assert.equal(handoff.edge, edge);
     const result = evaluate(project);
     assert.deepEqual(result.overhangs, []);
+    assert.deepEqual(result.niltcIssues, []);
     assert.deepEqual(result.unresolved, []);
     const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
     assert.equal(open.length, 2);
@@ -118,6 +127,68 @@ test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", (
     assert.ok(reaches(result.routes, handoff.outer, handoff.inner));
     assertCollisionFree(project, file);
   }
+});
+
+test("an outline edit holds the track fixed and keeps the public reference on untouched frontage", () => {
+  const project = template("member-straight");
+  for (const [edge, dimension] of [
+    [0, "depth"],
+    [1, "width"],
+    [2, "depth"],
+    [3, "width"],
+  ]) {
+    for (const delta of [-32, 32]) {
+      const area = moveOutlineEdge(project.area, edge, delta);
+      assert.equal(area[dimension], project.area[dimension] + delta);
+      const reopened = openTrackPlan(saveTrackPlan({ ...project, area }, catalog), catalog);
+      assert.deepEqual(reopened.area, area);
+      assert.deepEqual(reopened.items, project.items);
+    }
+  }
+  const partial = shiftOutlineSpan(project.area, 0, 16, { offset: 32, length: 64 });
+  assert.ok(partial.outline.some(({ x, y }) => x === 32 && y === -16));
+  assert.ok(partial.outline.some(({ x, y }) => x === 32 && y === project.area.depth - 16));
+  assert.equal(partial.frontLines.north, 0);
+  assert.deepEqual(evaluate({ ...project, area: partial }).niltcIssues, []);
+  const full = moveOutlineEdge(project.area, 0, 32);
+  assert.equal(full.frontLines.north, -32);
+  assert.equal(
+    evaluate({ ...project, area: full }).niltcIssues.filter(
+      ({ kind }) => kind === "exit-off-standard",
+    ).length,
+    4,
+  );
+  assert.throws(() => moveOutlineEdge(project.area, 2, -project.area.depth), /continuous table/);
+});
+
+test("a notch exposes a straight that bridges it, even with supported corners", () => {
+  const project = newProject();
+  project.area = moveOutlineEdge(project.area, 2, -32, { offset: 72, length: 16 });
+  project.items = [
+    {
+      kind: "track",
+      id: "bridge",
+      layerId: "layout",
+      partId: "trixbrix:s32",
+      x: 80,
+      y: 112,
+      angle: 0,
+      heightPlates: 0,
+    },
+  ];
+  assert.equal(
+    outlineSupports(project.area, [
+      { x: 64, y: 108 },
+      { x: 96, y: 108 },
+      { x: 96, y: 116 },
+      { x: 64, y: 116 },
+    ]),
+    false,
+  );
+  assert.deepEqual(
+    evaluate(project).overhangs.map(({ pieceId }) => pieceId),
+    ["bridge"],
+  );
 });
 
 test("every straight example fits and connects the intended routes", () => {

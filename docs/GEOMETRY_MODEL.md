@@ -6,15 +6,17 @@ connectors, clearance, and routes.
 
 ## Coordinates and coverage
 
-The design area begins at `(0, 0)`. X increases right and Y increases down. A
-track pose is `(x, y, angle)` in studs and degrees. Track height is a signed
-whole number of plates. One plate equals 3.2 mm.
+New rectangles begin at `(0, 0)`. Footprint edits can extend to signed
+coordinates while keeping the track origin fixed. X increases right and Y
+increases down. A track pose is `(x, y, angle)` in studs and degrees. Track
+height is a signed whole number of plates. One plate equals 3.2 mm.
 
 Every design area is covered by derived 32 by 32 stud baseplate cells. The
 tiled grid scales with the area and is a visual and build-planning surface, not
-track geometry or a collection of movable objects. The area rectangle guides
+track geometry or a collection of movable objects. The area outline guides
 arrangement recommendations and provides the boundary for named handoffs.
-The engine measures footprint overhang relative to that rectangle.
+It is a single clockwise right-angle ring. The engine measures track
+overhang against the ring with a 0.05-stud edge tolerance.
 
 ## Mainline assignments
 
@@ -27,6 +29,9 @@ An area records named boundary exits for both lanes. An exit contains the
 physical piece ID and port ID, plus the boundary edge it reaches. It is the
 member's handoff to the neighboring club display, so checking follows the
 actual assembled track instead of a drawn guide.
+
+A partial shift keeps the public reference line where frontage remains. Moving
+the whole frontage moves the line, so existing rails can need realignment.
 
 NILTC checks apply to those protected mainline routes. They validate lane
 position, height, connector alignment, minimum curve radius, and straight

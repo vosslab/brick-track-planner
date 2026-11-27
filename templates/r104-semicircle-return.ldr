@@ -4,7 +4,7 @@
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @R104%20semicircle%20return
-0 !BRICKTRACK AREA 416 256 -
+0 !BRICKTRACK AREA 416 224 -
 0 !BRICKTRACK EXIT @east @East%20handoff @east @track-1 @a @track-46 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @track-1 @layout @trixbrix%3As32 - - - -

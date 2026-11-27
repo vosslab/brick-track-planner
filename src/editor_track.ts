@@ -1,4 +1,5 @@
 import { button, element, input, select } from "./editor_dom";
+import { areaCenter } from "./area_outline";
 import { renderBallast } from "./editor_panels";
 import {
   blockedEdit,
@@ -209,7 +210,7 @@ export class TrackTools {
     this.#applyPiece(
       this.#previewPiece(
         id,
-        { x: area.width / 2, y: area.depth / 2 },
+        areaCenter(area),
         0,
         target === "center" ? undefined : target,
         target === "center",

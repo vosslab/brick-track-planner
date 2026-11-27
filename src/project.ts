@@ -1,4 +1,11 @@
 import catalog from "../data/catalog.json" with { type: "json" };
+import {
+  edgeCoordinate,
+  maxOutlineVertices,
+  outlineBounds,
+  outlineEdges,
+  validOutline,
+} from "./area_outline";
 
 export type Point = { x: number; y: number };
 export type Pose = Point & { angle: number };
@@ -24,6 +31,8 @@ export type SectionExit = {
 export type DesignArea = {
   width: number;
   depth: number;
+  outline?: Point[];
+  frontLines?: Partial<Record<Edge, number>>;
   fronts: Edge[];
   niltc?: NiltcMode;
   exits: SectionExit[];
@@ -230,6 +239,42 @@ function validateArea(value: unknown): void {
     `${expectedFronts} public edge(s) for this assignment`,
   );
   validateGroup(area.exits, "project.area.exits", validateExit);
+  if (area.outline === undefined && area.frontLines === undefined) return;
+  const vertices = list(area.outline, "project.area.outline");
+  expect(vertices.length <= maxOutlineVertices, "project.area.outline", "at most 256 vertices");
+  const outline = vertices.map((value, index) => {
+    const path = `project.area.outline[${index}]`;
+    const point = record(value, path);
+    hasPoint(point, path);
+    return point as Point;
+  });
+  expect(validOutline(outline), "project.area.outline", "one clockwise right-angle outline");
+  const { left, right, top, bottom } = outlineBounds(outline);
+  expect(
+    Math.abs(right - left - (area.width as number)) < 1e-8 &&
+      Math.abs(bottom - top - (area.depth as number)) < 1e-8,
+    "project.area.outline",
+    "bounds matching the area dimensions",
+  );
+  const lines =
+    area.frontLines === undefined ? {} : record(area.frontLines, "project.area.frontLines");
+  expect(
+    Object.keys(lines).length === fronts.length,
+    "project.area.frontLines",
+    "one line per public edge",
+  );
+  const segments = outlineEdges(outline);
+  for (const [side, coordinate] of Object.entries(lines)) {
+    expect(
+      fronts.includes(side) &&
+        segments.some(
+          (segment) =>
+            segment.side === side && edgeCoordinate(segment.start, segment.side) === coordinate,
+        ),
+      `project.area.frontLines.${side}`,
+      "a matching public boundary segment",
+    );
+  }
 }
 function validateItem(item: Record<string, unknown>, path: string): void {
   switch (item.kind) {

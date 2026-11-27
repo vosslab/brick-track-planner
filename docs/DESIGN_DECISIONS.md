@@ -103,15 +103,17 @@ checks.
 **Decision.** The R104 semicircle return follows the 130 by 80 inch west-end
 return in the November 2026 Downers Grove drawing. The R120 corner return
 follows the 120 by 100 inch east-end return shown there and in the March
-2026 Aurora drawing. Rebuild both shapes from catalog curves and straights.
+2026 Aurora drawing. The compact templates keep both catalog routes in a 130
+by 70 inch rectangle and a 120 by 90 inch outline with a 30 by 30 inch cutout.
 
 **Why.** The 180-degree bend and diagonal return are a different layout from
 the mixed-radius loop. Both return trains to the other lane at one boundary.
 
 **Consequence.** Use General plans with a named handoff for each pair of lanes.
 The openings follow the 8- and 24-stud offsets at +2 plates within the
-planner's connector tolerance. The show drawings provide the footprint and
-shape. The bundled plans use a fitted stock-part reconstruction.
+planner's connector tolerance. The show drawings provide the reference
+shapes and original dimensions. The bundled plans fit the stock-part
+reconstructions into compact outlines.
 
 **Owner.** [templates](../templates/), [editor_files.ts](../src/editor_files.ts)
 
@@ -158,6 +160,21 @@ does not depend on individual baseplate objects.
 accidentally moved away from track.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
+
+### Edit outlines around fixed track
+
+**Decision.** Keep track in place when changing a display outline. Move both
+edges of a NILTC span together when offsetting part of a table.
+
+**Why.** Members can fit a design to the available space and keep the depth
+of each shifted table span.
+
+**Consequence.** The preview identifies exposed pieces and handoff changes
+before the member applies the outline. The saved outline drives the same
+drawing and fit checks after reopening.
+
+**Owner.** [area_outline.ts](../src/area_outline.ts),
+[FILE_FORMAT.md](FILE_FORMAT.md)
 
 ### Place track in one action
 

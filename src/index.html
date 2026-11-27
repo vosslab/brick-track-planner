@@ -388,6 +388,52 @@
         <p id="area-form-intro" class="dialog-intro"></p>
       </div>
     </dialog>
+    <dialog id="outline-dialog" aria-labelledby="outline-title">
+      <h2 id="outline-title">Edit your design area</h2>
+      <form id="outline-form" aria-labelledby="outline-title">
+        <p id="outline-increment" class="dialog-intro" hidden>
+          Resize full edges in 10-inch steps. Shift a span in 5-inch steps to move both sides together.
+        </p>
+        <div class="field-grid">
+          <label for="outline-edge">Table edge
+            <select id="outline-edge" name="edge" autofocus></select>
+          </label>
+          <label for="outline-operation">Edge movement
+            <select id="outline-operation" name="operation">
+              <option value="extend">Extend outward</option>
+              <option value="trim">Trim inward</option>
+            </select>
+          </label>
+          <label for="outline-span">Edge length to change
+            <select id="outline-span" name="span">
+              <option value="full">Full edge</option>
+              <option value="partial" id="outline-partial-option">Part of edge</option>
+            </select>
+          </label>
+          <label for="outline-distance">Distance (in)
+            <input id="outline-distance" name="distance" type="number" inputmode="decimal" aria-describedby="outline-increment"
+              min="0.3125" max="1280" step="any" value="10" required />
+          </label>
+        </div>
+        <div id="outline-partial" class="field-grid" hidden>
+          <label for="outline-start"><span id="outline-start-label">Start from left (in)</span>
+            <input id="outline-start" name="start" type="number" inputmode="decimal"
+              min="0" max="1280" step="any" value="0" required />
+          </label>
+          <label for="outline-length">Length along edge (in)
+            <input id="outline-length" name="length" type="number" inputmode="decimal"
+              min="0.3125" max="1280" step="any" value="20" required />
+          </label>
+        </div>
+        <div id="outline-preview" aria-hidden="true"></div>
+        <p id="outline-status" role="status"></p>
+        <p id="outline-error" data-dialog-error role="alert" tabindex="-1"></p>
+        <div class="dialog-actions">
+          <button type="submit" id="apply-outline" class="primary">Apply outline</button>
+          <button type="submit" formmethod="dialog" formnovalidate value="cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
     <template id="area-form-template">
       <form id="area-form">
         <label for="area-name">Design name</label>

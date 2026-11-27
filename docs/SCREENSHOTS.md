@@ -3,6 +3,7 @@
 [Start a plan](#start-a-plan) &middot; [Place track](#place-track)
 &middot; [Select several pieces](#select-several-pieces)
 &middot; [Compare two versions](#compare-two-versions)
+&middot; [Change the table outline](#change-the-table-outline)
 &middot; [Straight examples](#straight-examples)
 &middot; [Other templates](#other-templates)
 
@@ -80,6 +81,17 @@ Edit the copy, then click either tab to compare the two versions. Choose
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![The original plan and a practice copy in two layout tabs above the drawing](screenshots/layout_tabs.webp)
+<!-- screenshots:end -->
+
+## Change the table outline
+
+In a Straight plan, choose **Design area**, select the north edge, and choose
+**Shift a span**. Start 10 inches from the left, set the span to 20 inches,
+and move it 5 inches toward the selected edge. The dashed line marks the
+original outline. The opposite edge moves inward by the same amount.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 5-inch bump-out along the north edge and a matching inset on the south edge, with both mainlines in place](screenshots/member_table_shift.webp)
 <!-- screenshots:end -->
 
 ## Straight examples
@@ -228,13 +240,13 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 ### R104 semicircle return
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 130 by 80 inch turnaround with an R104 semicircle and diagonal return](screenshots/r104_semicircle_return.webp)
+![A 130 by 70 inch turnaround with an R104 semicircle and diagonal return](screenshots/r104_semicircle_return.webp)
 <!-- screenshots:end -->
 
 ### R120 corner return
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 120 by 100 inch turnaround with an R120 quarter-turn and a straight between bends](screenshots/r120_corner_return.webp)
+![A 120 by 90 inch turnaround with an R120 quarter-turn and a stepped corner cutout](screenshots/r120_corner_return.webp)
 <!-- screenshots:end -->
 
 ## Recapture the collection

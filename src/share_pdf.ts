@@ -98,9 +98,11 @@ function areaDescription(project: Project): string {
     ? `Public edge${fronts.length === 1 ? "" : "s"}: ${fronts.join(", ")}`
     : "No public edge selected";
   const inches = (studs: number): string => String(Number((studs / 3.2).toFixed(2)));
-  const size = fronts.length
-    ? `Width along track: ${inches(signup.width)} in (${signup.width} studs)  |  Depth from public edge: ${inches(signup.depth)} in (${signup.depth} studs)`
-    : `Area width: ${inches(signup.width)} in (${signup.width} studs)  |  Area depth: ${inches(signup.depth)} in (${signup.depth} studs)`;
+  const size = project.area.outline
+    ? `Overall footprint: ${inches(signup.width)} × ${inches(signup.depth)} in (${signup.width} × ${signup.depth} studs)`
+    : fronts.length
+      ? `Width along track: ${inches(signup.width)} in (${signup.width} studs)  |  Depth from public edge: ${inches(signup.depth)} in (${signup.depth} studs)`
+      : `Area width: ${inches(signup.width)} in (${signup.width} studs)  |  Area depth: ${inches(signup.depth)} in (${signup.depth} studs)`;
   return `${kind}  |  ${size}  |  ${edge}  |  ${exits.length} named mainline connection${exits.length === 1 ? "" : "s"}`;
 }
 

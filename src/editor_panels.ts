@@ -77,6 +77,13 @@ export function diagnosticsFor(analysis: Analysis): Diagnostic[] {
     }
     const exit = exitFor(analysis, issue.exitId);
     const endpoint = exit?.[issue.lane];
+    if (issue.kind === "exit-away-from-boundary") {
+      checks.push({
+        message: `The ${lane} rail end for "${exit?.name ?? issue.exitId}" is away from the ${exit?.edge ?? "table"} edge.`,
+        targetId: endpoint?.pieceId,
+      });
+      continue;
+    }
     checks.push({
       message: `The ${lane} endpoint for named handoff "${exit?.name ?? issue.exitId ?? "unknown"}" is not on the NILTC standard.${mainlineRule(analysis)}`,
       targetId: endpoint?.pieceId,

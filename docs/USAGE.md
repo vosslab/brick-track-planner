@@ -21,9 +21,10 @@ Choose the assigned mainline shape.
 
 Use **Open track plan** to continue an LDraw file saved by this planner.
 **Other templates** includes the 60 by 40 straight, the corner, the larger
-R104 yard with three 128-stud storage tracks, the 130 by 80 inch R104 semicircle
-return, and the 120 by 100 inch R120 corner return. Each turnaround links the
-two approach tracks at the same edge. [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
+R104 yard with three 128-stud storage tracks, the 130 by 70 inch R104 semicircle
+return, and the 120 by 90 inch R120 corner return with a 30 by 30 inch
+corner cutout. Each turnaround links the two approach tracks at the same edge.
+[See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
 
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan
@@ -100,6 +101,23 @@ or closing its source. Choose **Paste** again for another independent copy.
 4. Switch between the original and copy to compare. Edits and later view
    changes in either layout leave the other alone.
 5. Choose **Save track plan** in each layout you want to keep.
+
+## Change the table outline
+
+Choose **Design area** while editing a layout. Pick the edge and enter how far
+to move it. You can extend or trim any side. For a NILTC layout, use 10-inch
+steps to move a full edge, or choose **Shift a span** to offset part of a table
+in 5-inch steps. A 5-inch bump-out on one side moves the opposite edge in by
+5 inches along the same span, keeping the table depth there. Measure the
+span's start from the left of a horizontal edge or the top of a vertical edge.
+General layouts can also extend or trim a span on one side, to the nearest stud.
+
+The preview shows the old outline and highlights track that would extend past
+the new edge. It also reports rail ends that need attention at a named handoff.
+Choose **Apply outline** to make one undoable edit with the track in place.
+The drawing's overall dimensions include bump-outs. Save the layout to keep
+the outline with the track plan.
+[See the paired shift preview](SCREENSHOTS.md#change-the-table-outline).
 
 ## Add track that solves a layout job
 

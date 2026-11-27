@@ -9,6 +9,7 @@ import { button, element, input } from "./editor_dom";
 import { errorMessage, setupFiles } from "./editor_files";
 import { renderInventory } from "./editor_inventory";
 import { renderDiagnostics } from "./editor_panels";
+import { setupOutlineEditor } from "./editor_outline";
 import { EditorState } from "./editor_state";
 import { setupTabs } from "./editor_tabs";
 import { TrackTools } from "./editor_track";
@@ -17,7 +18,6 @@ import type { Analysis } from "./engine";
 import {
   areaToSignupDimensions,
   createNiltcStarter,
-  resizeDesignArea,
   signupToAreaDimensions,
 } from "./niltc_starters";
 import { withParkingKits } from "./parking";
@@ -60,6 +60,7 @@ class Planner {
   readonly #layouts: LayoutTab[] = [];
   readonly #tabs: ReturnType<typeof setupTabs>;
   readonly #areaForm: ReturnType<typeof setupAreaForm>;
+  readonly #outlineEditor: ReturnType<typeof setupOutlineEditor>;
   #active: LayoutTab | undefined;
   #navigation = 0;
   readonly #tracks: TrackTools;
@@ -180,6 +181,7 @@ class Planner {
         this.#open(start(setup, catalog), false, intent);
       },
     });
+    this.#outlineEditor = setupOutlineEditor(catalog);
     button("new-project").onclick = (): void => {
       this.#navigation++;
       this.#areaForm.open();
@@ -279,25 +281,8 @@ class Planner {
     if (!layout) return;
     this.#navigation++;
     this.#commitName();
-    const { name, area } = layout.state.project;
-    this.#areaForm.open({
-      setup: {
-        name,
-        ...areaToSignupDimensions(area, area.fronts),
-        assignment: area.niltc ?? "general",
-        fronts: area.fronts,
-      },
-      update: (setup): void => {
-        const project = resizeDesignArea(layout.state.project, this.#catalog, {
-          ...setup,
-          ...signupToAreaDimensions(setup, setup.fronts),
-        });
-        if (layout === this.#active) this.#commit(project, true);
-        else {
-          layout.state.commit(project);
-          this.#renderTabs();
-        }
-      },
+    this.#outlineEditor(layout.state.analysis, (project) => {
+      this.#commit(project, true);
     });
   }
 
@@ -427,8 +412,10 @@ class Planner {
     input("project-name").value = project.name;
     const inches = (studs: number): string => String(Number(((studs * 10) / 32).toFixed(2)));
     const { width, depth } = areaToSignupDimensions(project.area, project.area.fronts);
-    element("design-size").textContent =
-      `${inches(width)} × ${inches(depth)} in · ${Number((width / 32).toFixed(2))} × ${Number((depth / 32).toFixed(2))} baseplates`;
+    const size = `${inches(width)} × ${inches(depth)} in`;
+    element("design-size").textContent = project.area.outline
+      ? `${size} overall`
+      : `${size} · ${Number((width / 32).toFixed(2))} × ${Number((depth / 32).toFixed(2))} baseplates`;
     element("area-summary").textContent = project.area.niltc
       ? `NILTC ${project.area.niltc === "corner" ? "90° corner" : "straight"} · Plexiglass on the ${project.area.fronts.join(" and ")}`
       : "General track layout";

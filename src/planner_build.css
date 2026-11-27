@@ -356,3 +356,54 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+#outline-form {
+  display: grid;
+  gap: 0.7rem;
+}
+#outline-form .field-grid label {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+#outline-form :is(input, select) {
+  width: 100%;
+}
+#outline-dialog {
+  width: min(33rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overscroll-behavior: contain;
+}
+#outline-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+#outline-preview svg {
+  display: block;
+  width: 100%;
+  height: clamp(6rem, 26dvh, 13rem);
+  border: 1px solid var(--line);
+}
+#outline-status {
+  min-height: 1.35em;
+  margin: 0;
+  font-size: 0.87rem;
+}
+#outline-form :is(input, select, button) {
+  font-size: max(1rem, 1em);
+}
+@media (max-width: 550px) {
+  #outline-form :is([for="outline-edge"], [for="outline-operation"]) {
+    grid-column: 1 / -1;
+  }
+  #outline-preview svg {
+    height: clamp(6rem, 20dvh, 11rem);
+  }
+}
+@media (pointer: coarse) {
+  #outline-form :is(input, select, button) {
+    min-height: 3rem;
+  }
+}

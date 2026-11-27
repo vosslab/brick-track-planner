@@ -1,4 +1,5 @@
 import type { Analysis } from "./engine";
+import { areaEdgeTolerance, outlineSupports } from "./area_outline";
 import {
   angleGap,
   composePose,
@@ -635,12 +636,16 @@ function physicalTrackIssues(
       continue;
     }
     const bounds = footprintBounds(part.footprint, track);
-    if (
-      bounds.left < -0.05 ||
-      bounds.top < -0.05 ||
-      bounds.right > project.area.width + 0.05 ||
-      bounds.bottom > project.area.depth + 0.05
-    ) {
+    const fits = project.area.outline
+      ? outlineSupports(
+          project.area,
+          part.footprint.map((point) => composePose({ ...point, angle: 0 }, track)),
+        )
+      : bounds.left >= -areaEdgeTolerance &&
+        bounds.top >= -areaEdgeTolerance &&
+        bounds.right <= project.area.width + areaEdgeTolerance &&
+        bounds.bottom <= project.area.depth + areaEdgeTolerance;
+    if (!fits) {
       issues.push({
         kind: "outside-area",
         itemId: track.id,

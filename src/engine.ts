@@ -9,6 +9,7 @@ export type NiltcIssue =
   | { kind: "missing-mainline"; lane: "outer" | "inner" }
   | { kind: "mainline-height"; lane: "outer" | "inner"; itemId: string }
   | { kind: "exit-off-standard"; lane: "outer" | "inner"; exitId: string }
+  | { kind: "exit-away-from-boundary"; lane: "outer" | "inner"; exitId: string }
   | {
       kind: "mainline-radius";
       lane: "outer" | "inner";

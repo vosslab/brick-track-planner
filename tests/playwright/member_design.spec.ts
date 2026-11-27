@@ -31,6 +31,57 @@ test("members can open each packaged track template", async ({ planner }) => {
   }
 });
 
+test("the area editor previews a five-inch bump and saves it without shifting track", async ({
+  planner,
+}) => {
+  const page = planner;
+  const original = (await saveProject(page)).project;
+  const edit = page.getByRole("button", { name: "Design area", exact: true });
+  const dialog = page.getByRole("dialog", { name: "Edit your design area" });
+  const size = page.locator("#design-size");
+  await edit.click();
+  await expect(dialog.getByLabel("Table edge")).toBeFocused();
+  await dialog
+    .getByLabel("Table edge")
+    .selectOption({ label: "North \u00b7 0\u201360 in at 0 in" });
+  await dialog.getByLabel("Distance (in)").fill("5");
+  expect(
+    await dialog
+      .getByLabel("Distance (in)")
+      .evaluate((field: HTMLInputElement) => field.validity.valid),
+  ).toBe(false);
+  await dialog.getByLabel("Edge length to change").selectOption("partial");
+  await dialog.getByLabel("Start from left (in)").fill("10");
+  await dialog.getByLabel("Distance (in)").fill("5");
+  await expect(dialog.getByRole("status")).toContainText("60 \u00d7 45 in overall");
+  await dialog.getByRole("button", { name: "Apply outline" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(size).toContainText("60 \u00d7 45 in overall");
+
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(size).toContainText("60 \u00d7 40 in");
+  await page.getByRole("button", { name: "Redo", exact: true }).click();
+  const { path, project } = await saveProject(page);
+  expect(project.items).toEqual(original.items);
+  expect(project.area.outline).toHaveLength(12);
+  expect(project.area.outline).toContainEqual({ x: 32, y: -16 });
+  expect(project.area.outline).toContainEqual({ x: 32, y: 112 });
+  await chooseFile(page, page.getByRole("button", { name: "Open track plan", exact: true }), path);
+  await expect(size).toContainText("60 \u00d7 45 in overall");
+
+  await edit.click();
+  await dialog
+    .getByLabel("Table edge")
+    .selectOption({ label: "North \u00b7 30\u201360 in at 5 in" });
+  await dialog.getByLabel("Edge movement").selectOption("trim");
+  await expect(dialog.getByRole("status")).toContainText("past the edge");
+  await expect(dialog.getByRole("status")).toContainText("2 handoff ends");
+  await expect(dialog.locator("[data-outline-overhang]").first()).toBeVisible();
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  expect((await saveProject(page)).project).toEqual(project);
+});
+
 test("the gallery previews and opens editable straight examples with type codes", async ({
   page,
 }) => {
@@ -54,17 +105,17 @@ test("the gallery previews and opens editable straight examples with type codes"
   );
   expect(clipped).toEqual([]);
   for (const frontage of [60, 40]) {
-    const collection = gallery.getByRole("region", { name: `${frontage} × 40 inches` });
+    const collection = gallery.getByRole("region", { name: `${frontage} \u00d7 40 inches` });
     await expect(collection.locator(".template-card strong")).toHaveText(
       straightExamples
         .filter((example) => example.frontage === frontage)
-        .map(({ code, name }) => `${code} · ${name}`),
+        .map(({ code, name }) => `${code} \u00b7 ${name}`),
     );
   }
-  await gallery.getByText("ML · Mainline only", { exact: true }).click();
+  await gallery.getByText("ML \u00b7 Mainline only", { exact: true }).click();
   await expect(gallery).toBeVisible();
   await expect(
-    gallery.getByRole("button", { name: "Open DCX · Double crossover" }),
+    gallery.getByRole("button", { name: "Open DCX \u00b7 Double crossover" }),
   ).toHaveAccessibleDescription(/^23 track pieces/);
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(gallery).toBeHidden();
@@ -72,15 +123,15 @@ test("the gallery previews and opens editable straight examples with type codes"
   await expect(page.locator("#editor")).toBeHidden();
 
   await browse.click();
-  await gallery.getByRole("button", { name: "Open ML · Mainline only" }).click();
+  await gallery.getByRole("button", { name: "Open ML \u00b7 Mainline only" }).click();
   await expect(gallery).toBeHidden();
   await expect(page.locator("#editor")).toBeVisible();
   await expect(page.getByLabel("Layout name")).toHaveValue("Mainline only");
-  await expect(page.locator("#design-size")).toContainText("60 × 40");
+  await expect(page.locator("#design-size")).toContainText("60 \u00d7 40");
 
   await browse.click();
   await gallery
-    .getByRole("button", { name: "Open PFS · Dual perpendicular freight spurs" })
+    .getByRole("button", { name: "Open PFS \u00b7 Dual perpendicular freight spurs" })
     .click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Dual perpendicular freight spurs");
   expect(
@@ -88,9 +139,9 @@ test("the gallery previews and opens editable straight examples with type codes"
   ).toHaveLength(4);
 
   await browse.click();
-  await gallery.getByRole("button", { name: "Open PFS40 · Compact freight spur" }).click();
+  await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
-  await expect(page.locator("#design-size")).toContainText("40 × 40");
+  await expect(page.locator("#design-size")).toContainText("40 \u00d7 40");
 });
 
 test("closing the example gallery keeps the current editor plan", async ({ planner }) => {
@@ -602,7 +653,7 @@ test("a yard selection snaps as a unit and Connect fills a straight gap", async 
   await expect(place).toBeDisabled();
   await end("east", "a").click();
   await expect(hint).toContainText("32 studs");
-  await expect(hint).toContainText("2 × RC/PF straight S16");
+  await expect(hint).toContainText("2 \u00d7 RC/PF straight S16");
   await place.click();
   const connected = (await saveProject(page)).project;
   expect(connected.items.slice(0, 4)).toEqual(project.items);

@@ -35,13 +35,13 @@ const templates: readonly Template[] = [
   {
     file: "r104-semicircle-return.ldr",
     name: "R104 semicircle return",
-    purpose: "A 130 by 80 inch turnaround with an R104 semicircle and a long diagonal.",
+    purpose: "A 130 by 70 inch turnaround with an R104 semicircle and a long diagonal.",
   },
   {
     file: "r120-corner-return.ldr",
     name: "R120 corner return",
     purpose:
-      "A 120 by 100 inch turnaround with an R120 quarter-turn and a short straight between bends.",
+      "A 120 by 90 inch turnaround with a 30 by 30 inch corner cutout and an R120 quarter-turn.",
   },
 ];
 

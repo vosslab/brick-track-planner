@@ -1,5 +1,12 @@
 import { exposedKitPorts } from "./kit_geometry";
 import { previewArrangement } from "./arrangements";
+import {
+  areaCenter,
+  edgeCoordinate,
+  frontCoordinate,
+  outlineBounds,
+  outlineOf,
+} from "./area_outline";
 import { angleGap, composePose, poseConnectingPorts, visibleTrackItems } from "./project";
 import type { Catalog, Kit, Part, Point, Port, Pose, Project } from "./project";
 
@@ -200,10 +207,8 @@ function straightRun(
 
 function rearScore(project: Project, center: Point): number {
   const distances = project.area.fronts.map((front) => {
-    if (front === "north") return center.y;
-    if (front === "south") return project.area.depth - center.y;
-    if (front === "west") return center.x;
-    return project.area.width - center.x;
+    const offset = edgeCoordinate(center, front) - frontCoordinate(project.area, front);
+    return front === "south" || front === "east" ? -offset : offset;
   });
   return distances.length ? Math.min(...distances) : 0;
 }
@@ -288,11 +293,12 @@ export function findArrangementAnchors(
   const local = exposedKitPorts(catalog, kit);
   const ports = projectPorts(project, catalog).filter((p) => p.heightPlates === heightPlates);
   const through = throughPairs(local);
+  const limits = outlineBounds(outlineOf(project.area));
   const inArea = (box: Bounds): boolean =>
-    box.left >= -tolerance &&
-    box.top >= -tolerance &&
-    box.right <= project.area.width + tolerance &&
-    box.bottom <= project.area.depth + tolerance;
+    box.left >= limits.left - tolerance &&
+    box.top >= limits.top - tolerance &&
+    box.right <= limits.right + tolerance &&
+    box.bottom <= limits.bottom + tolerance;
   const track = visibleTrackItems(project);
   if (track.length && !ports.some(({ itemId }) => !targetIds || targetIds.has(itemId)))
     return {
@@ -305,14 +311,19 @@ export function findArrangementAnchors(
         anchors: [],
         reason: "The NILTC mainline must stay in place before adding an arrangement.",
       };
+    const center = areaCenter(project.area);
     const anchors = [0, 90, 180, 270].flatMap((angle) => {
       const box = kitBounds(catalog, kit, { x: 0, y: 0, angle });
       const pose = {
         angle,
-        x: (project.area.width - box.left - box.right) / 2,
-        y: (project.area.depth - box.top - box.bottom) / 2,
+        x: center.x - (box.left + box.right) / 2,
+        y: center.y - (box.top + box.bottom) / 2,
       };
-      return inArea(kitBounds(catalog, kit, pose))
+      const fits =
+        inArea(kitBounds(catalog, kit, pose)) &&
+        (!project.area.outline ||
+          previewArrangement(project, catalog, { kitId, pose, heightPlates }).ok);
+      return fits
         ? [
             {
               pose,

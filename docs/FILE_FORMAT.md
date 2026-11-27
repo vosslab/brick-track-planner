@@ -33,11 +33,18 @@ its embedded model remains its measured footprint.
 Lines starting with `0 !BRICKTRACK` identify planner files and store the data
 needed to continue editing. These include the design name, width and depth,
 public edges, straight or corner assignment, and named inner and outer
-mainline exits. Each track reference has a stable item ID, catalog part ID and
+mainline exits. Rectangular plans anchored at the drawing origin can use
+`FORMAT 1`. Custom footprints use `FORMAT 2`. The `OUTLINE` record follows
+`AREA` and lists 4 to 256 clockwise X/Y pairs in studs, with an implicit
+closing segment. `AREA` records the outline's overall width and depth. A
+`FRONT_LINE` record gives the signed stud coordinate of each public edge,
+as in `0 !BRICKTRACK FRONT_LINE @north -16`.
+
+Each track reference has a stable item ID, catalog part ID and
 layer. Saving includes track on hidden layers. The planner restores their
 visibility on open, while LDraw viewers can display the whole model. Grouping
 and ballast settings stay with the item. The automatically tiled baseplate
-surface is derived from the area dimensions.
+surface is clipped to the area outline.
 
 Track geometry, handoff checks and inventory come from the planner's catalog.
 An unresolved BlueBrick record retains its source ID, description and bounds

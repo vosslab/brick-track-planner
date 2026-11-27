@@ -118,6 +118,17 @@ fn perpendicular(first: Edge, second: Edge) -> bool {
 fn validate_area(project: &Project) -> Result<(), EvaluationError> {
     let area = &project.area;
     validate_dimensions(area.width, area.depth, MAX_DESIGN_AREA_STUDS, "design area")?;
+    if let Some(outline) = &area.outline {
+        for &point in outline {
+            validate_position(point, "design area outline")?;
+        }
+    }
+    if !coverage::valid_outline(area) {
+        return Err(EvaluationError::Validation(
+            "Use one clockwise right-angle table outline with matching dimensions and public edges"
+                .into(),
+        ));
+    }
     for (index, front) in area.fronts.iter().enumerate() {
         if area.fronts[..index].contains(front) {
             return Err(EvaluationError::Validation(

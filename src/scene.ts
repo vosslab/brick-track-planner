@@ -1,6 +1,15 @@
 import type { Analysis } from "./engine";
 import type { EditPreview } from "./editor_placement";
 import { defaultBaseplateColor } from "./appearance";
+import {
+  edgeCoordinate,
+  frontCoordinate,
+  horizontalEdge,
+  moveEdgePoint,
+  outlineBounds,
+  outlineEdges,
+  outlineOf,
+} from "./area_outline";
 import type { Catalog, Item, Project } from "./project";
 import {
   ballastPattern,
@@ -13,7 +22,6 @@ import {
 import {
   addBounds,
   addShapeBounds,
-  areaEdge,
   boundedLabel,
   detailStyle,
   emptyBounds,
@@ -270,81 +278,86 @@ function drawArea(
   options: SceneOptions,
 ): void {
   const { area } = project;
-  if (!options.cropToTrack) {
-    addBounds(bounds, { x: 0, y: 0 });
-    addBounds(bounds, { x: area.width, y: area.depth });
-  }
+  const outline = outlineOf(area);
+  const edges = outlineEdges(outline);
+  const { left, right, top, bottom } = outlineBounds(outline);
+  if (!options.cropToTrack) includeBounds(bounds, { left, right, top, bottom });
   const group = svg("g", { "data-design-area": "true", "aria-label": "Design area" });
+  const d = pathData(outline, true);
+  const clip = svg("clipPath", { id: `${layers.prefix}-area-clip` });
+  clip.append(svg("path", { d }));
+  const surface = svg("g", { "clip-path": `url(#${layers.prefix}-area-clip)` });
   group.append(
-    svg("rect", {
-      x: 0,
-      y: 0,
-      width: area.width,
-      height: area.depth,
-      fill: defaultBaseplateColor,
-      stroke: "#313b32",
-      "stroke-width": 0.72,
-      "data-baseplate-field": "true",
-    }),
-    svg("rect", {
-      x: 0,
-      y: 0,
-      width: area.width,
-      height: area.depth,
+    clip,
+    svg("path", { d, fill: defaultBaseplateColor, "data-baseplate-field": "true" }),
+    surface,
+    svg("path", { d, fill: "none", stroke: "#313b32", "stroke-width": 0.72 }),
+  );
+  surface.append(
+    svg("path", {
+      d,
       fill: `url(#${layers.prefix}-studs)`,
       style: detailStyle,
       "pointer-events": "none",
     }),
   );
-  for (let x = 32; x < area.width; x += 32)
-    group.append(
-      line(
-        { x, y: 0 },
-        { x, y: area.depth },
-        { stroke: "#203821", "stroke-width": 0.24, opacity: 0.52, "data-baseplate-seam": "true" },
-      ),
+  const seam = {
+    stroke: "#203821",
+    "stroke-width": 0.24,
+    opacity: 0.52,
+    "data-baseplate-seam": "true",
+  };
+  for (let x = Math.floor(left / 32) * 32 + 32; x < right; x += 32)
+    surface.append(line({ x, y: top }, { x, y: bottom }, seam));
+  for (let y = Math.floor(top / 32) * 32 + 32; y < bottom; y += 32)
+    surface.append(line({ x: left, y }, { x: right, y }, seam));
+  for (const side of area.fronts) {
+    const coordinate = frontCoordinate(area, side);
+    const frontage = edges.filter(
+      ({ side: edge, start }) => edge === side && edgeCoordinate(start, side) === coordinate,
     );
-  for (let y = 32; y < area.depth; y += 32)
-    group.append(
-      line(
-        { x: 0, y },
-        { x: area.width, y },
-        { stroke: "#203821", "stroke-width": 0.24, opacity: 0.52, "data-baseplate-seam": "true" },
-      ),
-    );
-  for (const edge of area.fronts) {
-    const [a, b] = areaEdge(area, edge);
-    group.append(line(a, b, { stroke: "#76523b", "stroke-width": 1.35, "data-public-edge": edge }));
-    const horizontal = edge === "north" || edge === "south";
-    const at = horizontal
-      ? { x: area.width / 2, y: edge === "north" ? -5 : area.depth + 5 }
-      : { x: edge === "west" ? -5 : area.width + 5, y: area.depth / 2 };
-    layers.labels.append(
-      boundedLabel(bounds, at, "Plexiglass", 2.8, {
-        "font-weight": 650,
-        "data-public-edge-label": edge,
-      }),
-    );
-    for (const offset of [8, 24]) {
-      const extent = horizontal ? area.depth : area.width;
-      if (offset >= extent) continue;
-      const [start, end] = areaEdge(area, edge, offset);
+    let longest = 0;
+    let label;
+    for (const { start, end } of frontage) {
       group.append(
         line(start, end, {
           stroke: "#76523b",
-          "stroke-width": 0.38,
-          "stroke-dasharray": offset === 8 ? "3 2" : "1 2",
-          opacity: 0.8,
-          "data-mainline-guide": String(offset),
+          "stroke-width": 1.35,
+          "data-public-edge": side,
         }),
       );
+      const length = Math.hypot(end.x - start.x, end.y - start.y);
+      if (length > longest) {
+        longest = length;
+        label = moveEdgePoint({ x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }, side, 5);
+      }
+      for (const offset of [8, 24]) {
+        const extent = horizontalEdge(side) ? area.depth : area.width;
+        if (offset >= extent) continue;
+        surface.append(
+          line(moveEdgePoint(start, side, -offset), moveEdgePoint(end, side, -offset), {
+            stroke: "#76523b",
+            "stroke-width": 0.38,
+            "stroke-dasharray": "3 2",
+            opacity: 0.8,
+            "data-mainline-guide": String(offset),
+          }),
+        );
+      }
     }
+    if (label)
+      layers.labels.append(
+        boundedLabel(bounds, label, "Plexiglass", 2.8, {
+          "font-weight": 650,
+          "data-public-edge-label": side,
+        }),
+      );
   }
   if (options.sidingSpace)
-    group.append(
+    surface.append(
       svg("rect", {
-        x: 4,
-        y: 34,
+        x: left + 4,
+        y: top + 34,
         width: Math.max(0, area.width - 8),
         height: Math.max(0, area.depth - 38),
         rx: 2,
@@ -368,19 +381,34 @@ function drawExits(
   const ports = new Map(
     analysis.ports.map((port) => [JSON.stringify([port.pieceId, port.portId]), port]),
   );
+  const edges = outlineEdges(outlineOf(project.area));
   for (const exit of project.area.exits) {
-    const [start, end] = areaEdge(project.area, exit.edge, 10);
-    const tangent = unit(start, end);
     const candidates = [exit.outer, exit.inner]
       .map((endpoint) => ports.get(JSON.stringify([endpoint.pieceId, endpoint.portId])))
       .filter((port): port is ScenePort => Boolean(port));
-    const distance = candidates.length
-      ? candidates.reduce(
-          (sum, port) => sum + (port.x - start.x) * tangent.x + (port.y - start.y) * tangent.y,
-          0,
-        ) / candidates.length
-      : Math.hypot(end.x - start.x, end.y - start.y) / 2;
-    const at = { x: start.x + tangent.x * distance, y: start.y + tangent.y * distance };
+    const nearest = edges
+      .filter(({ side }) => side === exit.edge)
+      .map(({ start, end }) => {
+        const tangent = unit(start, end);
+        const length = Math.hypot(end.x - start.x, end.y - start.y);
+        const average = candidates.length
+          ? candidates.reduce(
+              (sum, port) => sum + (port.x - start.x) * tangent.x + (port.y - start.y) * tangent.y,
+              0,
+            ) / candidates.length
+          : length / 2;
+        const distance = Math.max(0, Math.min(length, average));
+        const point = { x: start.x + tangent.x * distance, y: start.y + tangent.y * distance };
+        const score = candidates.length
+          ? candidates.reduce(
+              (sum, port) => sum + Math.hypot(port.x - point.x, port.y - point.y),
+              0,
+            )
+          : -length;
+        return { point, score };
+      })
+      .sort((a, b) => a.score - b.score)[0]!;
+    const at = moveEdgePoint(nearest.point, exit.edge, -10);
     labels.append(
       boundedLabel(bounds, at, exit.name, 2.5, { "data-exit-label": exit.id, "font-weight": 650 }),
     );
@@ -650,8 +678,7 @@ export function createScene(
   }
   sync(layers.ports, ports);
   if (!Number.isFinite(bounds.left)) {
-    addBounds(bounds, { x: 0, y: 0 });
-    addBounds(bounds, { x: project.area.width, y: project.area.depth });
+    includeBounds(bounds, outlineBounds(outlineOf(project.area)));
   }
   const x = bounds.left - 8;
   const y = bounds.top - 8;

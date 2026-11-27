@@ -4,6 +4,10 @@
 
 ### Additions and New Features
 
+- Edit the design-area outline in place. Extend or trim full NILTC edges in
+  10-inch steps, or shift a span in 5-inch steps so its two edges move together.
+  Preview track overhang and handoff changes. Save the outline with the layout.
+
 - Keep multiple layouts in named tabs above one drawing, each with its own
   edits, history, and view. Open designs, examples, templates, and imports in
   new tabs. Duplicate a plan with its unsaved edits to compare variants.
@@ -12,6 +16,9 @@
   joints and make each placed copy independent of its source.
 
 ### Behavior or Interface Changes
+
+- Trim the R104 semicircle return to 130 by 70 inches. Give the R120 corner
+  return a 120 by 90 inch footprint with a 30 by 30 inch cutout.
 
 - Use Atkinson Hyperlegible Next for the planner and PDF exports,
   Atkinson Hyperlegible Mono for aligned numbers, and IBM Plex Sans
@@ -36,6 +43,9 @@
   is available. Keep connected-fit recommendations valid for rail height.
 
 ### Fixes and Maintenance
+
+- Refresh the full screenshot collection and capture the paired 5-inch table
+  shift in the documentation screenshot harness.
 
 - Lead the README with an editable example and a first siding walkthrough.
   Refresh the screenshot collection and show how to compare two layout tabs.

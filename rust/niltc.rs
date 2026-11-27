@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::collections::HashSet;
 
-use crate::model::{Edge, Endpoint, ItemKind, NiltcKind, Project};
+use crate::model::{Edge, Endpoint, ItemKind, NiltcKind, Project, outline_segments};
 use crate::ports::WorldPort;
 use crate::routes::{self, RoutePath};
 
@@ -32,6 +32,10 @@ pub(crate) enum NiltcIssue<'a> {
         lane: Lane,
     },
     ExitOffStandard {
+        exit_id: &'a str,
+        lane: Lane,
+    },
+    ExitAwayFromBoundary {
         exit_id: &'a str,
         lane: Lane,
     },
@@ -80,20 +84,23 @@ fn is_perpendicular(first: Edge, second: Edge) -> bool {
 }
 
 fn on_boundary(port: &WorldPort<'_>, project: &Project, edge: Edge) -> bool {
-    match edge {
-        Edge::North => port.position.y.abs() <= TOLERANCE,
-        Edge::East => (port.position.x - project.area.width).abs() <= TOLERANCE,
-        Edge::South => (port.position.y - project.area.depth).abs() <= TOLERANCE,
-        Edge::West => port.position.x.abs() <= TOLERANCE,
-    }
+    let rectangle = project.area.rectangle();
+    let points = project.area.outline.as_deref().unwrap_or(&rectangle);
+    let point = port.position;
+    outline_segments(points).any(|(start, end)| {
+        Edge::of_segment(start, end) == edge
+            && point.x >= start.x.min(end.x) - TOLERANCE
+            && point.x <= start.x.max(end.x) + TOLERANCE
+            && point.y >= start.y.min(end.y) - TOLERANCE
+            && point.y <= start.y.max(end.y) + TOLERANCE
+    })
 }
 
 fn distance_from_front(port: &WorldPort<'_>, project: &Project, front: Edge) -> f64 {
+    let offset = front.coordinate(port.position) - project.area.front_line(front);
     match front {
-        Edge::North => port.position.y,
-        Edge::East => project.area.width - port.position.x,
-        Edge::South => project.area.depth - port.position.y,
-        Edge::West => port.position.x,
+        Edge::North | Edge::West => offset,
+        Edge::East | Edge::South => -offset,
     }
 }
 
@@ -234,7 +241,24 @@ pub(crate) fn diagnose<'a>(
     routes: &[RoutePath<'a>],
 ) -> Vec<NiltcIssue<'a>> {
     if project.area.niltc.is_none() {
-        return Vec::new();
+        return project
+            .area
+            .exits
+            .iter()
+            .flat_map(|exit| {
+                [(Lane::Outer, &exit.outer), (Lane::Inner, &exit.inner)]
+                    .into_iter()
+                    .filter_map(move |(lane, endpoint)| {
+                        let port = find_endpoint(ports, endpoint)?;
+                        (!on_boundary(port, project, exit.edge)).then_some(
+                            NiltcIssue::ExitAwayFromBoundary {
+                                exit_id: &exit.id,
+                                lane,
+                            },
+                        )
+                    })
+            })
+            .collect();
     }
     let mut issues = Vec::new();
     for exit in &project.area.exits {

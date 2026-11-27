@@ -116,11 +116,51 @@ pub(crate) struct Project {
 pub(crate) struct DesignArea {
     pub width: f64,
     pub depth: f64,
+    pub outline: Option<Vec<Point>>,
+    #[serde(default)]
+    pub front_lines: HashMap<Edge, f64>,
     #[serde(default)]
     pub fronts: Vec<Edge>,
     pub niltc: Option<NiltcKind>,
     #[serde(default)]
     pub exits: Vec<SectionExit>,
+}
+
+impl DesignArea {
+    pub fn rectangle(&self) -> [Point; 4] {
+        [
+            Point::ORIGIN,
+            Point {
+                x: self.width,
+                y: 0.0,
+            },
+            Point {
+                x: self.width,
+                y: self.depth,
+            },
+            Point {
+                x: 0.0,
+                y: self.depth,
+            },
+        ]
+    }
+
+    pub fn front_line(&self, edge: Edge) -> f64 {
+        self.front_lines.get(&edge).copied().unwrap_or(match edge {
+            Edge::North | Edge::West => 0.0,
+            Edge::East => self.width,
+            Edge::South => self.depth,
+        })
+    }
+}
+
+pub(crate) fn outline_segments(
+    points: &[Point],
+) -> impl Iterator<Item = (Point, Point)> + Clone + '_ {
+    points
+        .iter()
+        .copied()
+        .zip(points.iter().copied().cycle().skip(1))
 }
 
 #[derive(Deserialize)]
@@ -129,13 +169,36 @@ pub(crate) struct Layer {
     pub visible: bool,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub(crate) enum Edge {
     North,
     East,
     South,
     West,
+}
+
+impl Edge {
+    pub fn of_segment(start: Point, end: Point) -> Self {
+        if start.y == end.y {
+            if start.x < end.x {
+                Self::North
+            } else {
+                Self::South
+            }
+        } else if start.y < end.y {
+            Self::East
+        } else {
+            Self::West
+        }
+    }
+
+    pub fn coordinate(self, point: Point) -> f64 {
+        match self {
+            Self::North | Self::South => point.y,
+            Self::East | Self::West => point.x,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]

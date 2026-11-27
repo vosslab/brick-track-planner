@@ -1,8 +1,7 @@
-import type { Edge, Point, Port, Pose } from "./project";
+import type { Point, Port, Pose } from "./project";
 
 export type Attributes = Record<string, string | number>;
 export type Bounds = { left: number; top: number; right: number; bottom: number };
-export type AreaBounds = { width: number; depth: number };
 
 const svgNamespace = "http://www.w3.org/2000/svg";
 export const paper = "#faf6ee";
@@ -195,29 +194,4 @@ export function boundedLabel(
   addBounds(bounds, { x: at.x - half, y: at.y - size });
   addBounds(bounds, { x: at.x + half, y: at.y + size * 0.3 });
   return label(at, content, size, { "text-anchor": "middle", ...attributes });
-}
-
-export function areaEdge(area: AreaBounds, edge: Edge, inset = 0): [Point, Point] {
-  switch (edge) {
-    case "north":
-      return [
-        { x: 0, y: inset },
-        { x: area.width, y: inset },
-      ];
-    case "east":
-      return [
-        { x: area.width - inset, y: 0 },
-        { x: area.width - inset, y: area.depth },
-      ];
-    case "south":
-      return [
-        { x: 0, y: area.depth - inset },
-        { x: area.width, y: area.depth - inset },
-      ];
-    case "west":
-      return [
-        { x: inset, y: 0 },
-        { x: inset, y: area.depth },
-      ];
-  }
 }

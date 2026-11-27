@@ -1,4 +1,5 @@
 import brickTracksModels from "../data/ldraw/bricktracks_models.json" with { type: "json" };
+import { maxOutlineVertices } from "./area_outline";
 import { composePose, validateProject } from "./project";
 import { fallbackTrackModel, fallbackTrackModelName } from "./ldraw_parts";
 import type { Catalog, Edge, Item, Layer, Part, Pose, Project, TrackItem } from "./project";
@@ -204,11 +205,18 @@ export function saveTrackPlan(project: Project, catalog: Catalog): string {
     "0 Brick Track Planner track plan",
     "0 Name: brick-track-plan.ldr",
     "0 Author: Brick Track Planner",
-    `${format} FORMAT 1`,
+    `${format} FORMAT ${project.area.outline ? 2 : 1}`,
     `${format} PROJECT ${text(project.name)}`,
     `${format} AREA ${project.area.width} ${project.area.depth} ${text(project.area.niltc)}`,
   ];
+  if (project.area.outline) {
+    lines.push(
+      `${format} OUTLINE ${project.area.outline.map(({ x, y }) => `${x} ${y}`).join(" ")}`,
+    );
+  }
   for (const front of project.area.fronts) lines.push(`${format} FRONT ${text(front)}`);
+  for (const [edge, coordinate] of Object.entries(project.area.frontLines ?? {}))
+    lines.push(`${format} FRONT_LINE ${text(edge)} ${coordinate}`);
   for (const exit of project.area.exits) {
     lines.push(
       `${format} EXIT ${text(exit.id)} ${text(exit.name)} ${text(exit.edge)} ${text(exit.outer.pieceId)} ${text(exit.outer.portId)} ${text(exit.inner.pieceId)} ${text(exit.inner.portId)}`,
@@ -254,7 +262,7 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
   let ended = false;
   let name: string | undefined;
   let area: Project["area"] | undefined;
-  let formatSeen = false;
+  let formatVersion: string | undefined;
   const layers: Layer[] = [];
   const items: Item[] = [];
   for (let index = 1; index < lines.length; index += 1) {
@@ -287,9 +295,10 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
     switch (kind) {
       case "FORMAT":
         record(fields, 4, kind);
-        if (formatSeen) throw new Error("Brick Track LDraw file has duplicate format metadata.");
-        formatSeen = true;
-        if (fields[3]! !== "1") throw new Error("Unsupported Brick Track LDraw format.");
+        if (formatVersion) throw new Error("Brick Track LDraw file has duplicate format metadata.");
+        formatVersion = fields[3]!;
+        if (formatVersion !== "1" && formatVersion !== "2")
+          throw new Error("Unsupported Brick Track LDraw format.");
         break;
       case "PROJECT":
         record(fields, 4, kind);
@@ -316,6 +325,35 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
         if (!area) throw new Error("Brick Track fronts must follow the area.");
         area.fronts.push(requiredText(fields[3]!, "front") as Edge);
         break;
+      case "OUTLINE": {
+        const count = (fields.length - 3) / 2;
+        if (
+          formatVersion !== "2" ||
+          !area ||
+          area.outline ||
+          !Number.isInteger(count) ||
+          count < 4 ||
+          count > maxOutlineVertices
+        )
+          throw new Error("Invalid Brick Track area outline.");
+        area.outline = Array.from({ length: count }, (_, vertex) => ({
+          x: numeric(fields[3 + vertex * 2]!, "outline x"),
+          y: numeric(fields[4 + vertex * 2]!, "outline y"),
+        }));
+        break;
+      }
+      case "FRONT_LINE": {
+        record(fields, 5, kind);
+        if (!area?.outline) throw new Error("Brick Track front lines must follow the outline.");
+        const front = requiredText(fields[3]!, "front line") as Edge;
+        if (
+          !area.fronts.includes(front) ||
+          Object.prototype.hasOwnProperty.call(area.frontLines ?? {}, front)
+        )
+          throw new Error("Invalid or duplicate Brick Track front line.");
+        (area.frontLines ??= {})[front] = numeric(fields[4]!, "front line coordinate");
+        break;
+      }
       case "EXIT":
         record(fields, 10, kind);
         if (!area) throw new Error("Brick Track exits must follow the area.");
@@ -390,7 +428,7 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
         throw new Error("Unsupported Brick Track metadata.");
     }
   }
-  if (!formatSeen || name === undefined || !area)
+  if (!formatVersion || name === undefined || !area || (formatVersion === "2" && !area.outline))
     throw new Error("Brick Track LDraw file is missing project metadata.");
   if (!ended || expectedSubfiles.size) throw new Error("Brick Track LDraw file is incomplete.");
   const project: Project = { version: 3, name, area, layers, items };

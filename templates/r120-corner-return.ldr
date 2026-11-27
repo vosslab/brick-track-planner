@@ -2,9 +2,10 @@
 0 Brick Track Planner track plan
 0 Name: brick-track-plan.ldr
 0 Author: Brick Track Planner
-0 !BRICKTRACK FORMAT 1
+0 !BRICKTRACK FORMAT 2
 0 !BRICKTRACK PROJECT @R120%20corner%20return
-0 !BRICKTRACK AREA 384 320 -
+0 !BRICKTRACK AREA 384 288 -
+0 !BRICKTRACK OUTLINE 0 0 384 0 384 288 96 288 96 192 0 192
 0 !BRICKTRACK EXIT @west @West%20handoff @west @track-1 @a @track-46 @b
 0 !BRICKTRACK LAYER @layout @Layout 1
 0 !BRICKTRACK TRACK @track-1 @layout @trixbrix%3As32 - - - -

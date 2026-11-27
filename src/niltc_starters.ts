@@ -1,5 +1,5 @@
-import { angleGap, composePose, newProject, poseConnectingPorts } from "./project";
-import type { Catalog, Edge, Item, Part, Pose, Project, SectionExit } from "./project";
+import { composePose, newProject, poseConnectingPorts } from "./project";
+import type { Catalog, Edge, Part, Pose, Project, SectionExit } from "./project";
 
 export type SignupDimensions = { width: number; depth: number };
 export type NiltcStarterOptions = {
@@ -9,7 +9,6 @@ export type NiltcStarterOptions = {
   fronts: Edge[];
   name?: string;
 };
-export type DesignAreaResize = { width: number; depth: number; name?: string };
 
 /** A straight signup follows its public edge. Corner dimensions follow the drawing axes. */
 export function signupToAreaDimensions(
@@ -223,133 +222,4 @@ export function createNiltcStarter(catalog: Catalog, options: NiltcStarterOption
   project.area.exits = [southExit, eastExit];
   rotateCornerProject(project, options.width, options.depth, rotation);
   return project;
-}
-
-const starterTolerance = 1e-6;
-
-function sameNumber(left: number, right: number): boolean {
-  return Math.abs(left - right) <= starterTolerance;
-}
-
-function sameAngle(left: number, right: number): boolean {
-  return angleGap(left, right) <= starterTolerance;
-}
-
-function sameItem(left: Item, right: Item): boolean {
-  if (
-    left.kind !== right.kind ||
-    left.id !== right.id ||
-    left.layerId !== right.layerId ||
-    !sameNumber(left.x, right.x) ||
-    !sameNumber(left.y, right.y) ||
-    !sameAngle(left.angle, right.angle)
-  )
-    return false;
-  if (left.kind === "track" && right.kind === "track") {
-    return (
-      left.partId === right.partId &&
-      left.heightPlates === right.heightPlates &&
-      left.groupId === right.groupId &&
-      left.arrangementId === right.arrangementId &&
-      left.ballast === right.ballast &&
-      left.countBallast === right.countBallast
-    );
-  }
-  return false;
-}
-
-function sameExit(left: SectionExit, right: SectionExit): boolean {
-  return (
-    left.id === right.id &&
-    left.name === right.name &&
-    left.edge === right.edge &&
-    left.outer.pieceId === right.outer.pieceId &&
-    left.outer.portId === right.outer.portId &&
-    left.inner.pieceId === right.inner.pieceId &&
-    left.inner.portId === right.inner.portId
-  );
-}
-
-function sameStarterItems(left: Project, right: Project): boolean {
-  return (
-    left.items.length === right.items.length &&
-    left.items.every((item, index) => sameItem(item, right.items[index]!)) &&
-    left.area.exits.length === right.area.exits.length &&
-    left.area.exits.every((exit, index) => sameExit(exit, right.area.exits[index]!))
-  );
-}
-
-function safelyExtendEditedStraight(
-  project: Project,
-  resize: DesignAreaResize,
-): Project | undefined {
-  if (project.area.niltc !== "straight") return undefined;
-  const front = project.area.fronts[0];
-  if (!front) return undefined;
-  const vertical = front === "east" || front === "west";
-  const oldAlong = vertical ? project.area.depth : project.area.width;
-  const newAlong = vertical ? resize.depth : resize.width;
-  const oldAcross = vertical ? project.area.width : project.area.depth;
-  const newAcross = vertical ? resize.width : resize.depth;
-  if (newAlong !== oldAlong || newAcross < oldAcross) return undefined;
-
-  const resized = structuredClone(project);
-  const delta = newAcross - oldAcross;
-  resized.area.width = resize.width;
-  resized.area.depth = resize.depth;
-  if (resize.name !== undefined) resized.name = resize.name;
-  if (front === "south") for (const item of resized.items) item.y += delta;
-  if (front === "east") for (const item of resized.items) item.x += delta;
-  return resized;
-}
-
-/** Resize an unedited starter by rebuilding its required mainlines. */
-export function resizeDesignArea(
-  project: Project,
-  catalog: Catalog,
-  resize: DesignAreaResize,
-): Project {
-  if (
-    !Number.isSafeInteger(resize.width) ||
-    !Number.isSafeInteger(resize.depth) ||
-    resize.width <= 0 ||
-    resize.depth <= 0
-  )
-    throw new Error("Design area width and depth must be positive whole studs.");
-  if (resize.width > 4096 || resize.depth > 4096)
-    throw new Error("Design areas are limited to 4096 studs in each direction.");
-  if (!project.area.niltc) {
-    const resized = structuredClone(project);
-    resized.area.width = resize.width;
-    resized.area.depth = resize.depth;
-    if (resize.name !== undefined) resized.name = resize.name;
-    return resized;
-  }
-
-  if (resize.width === project.area.width && resize.depth === project.area.depth) {
-    const resized = structuredClone(project);
-    if (resize.name !== undefined) resized.name = resize.name;
-    return resized;
-  }
-
-  const starter = createNiltcStarter(catalog, {
-    width: project.area.width,
-    depth: project.area.depth,
-    mode: project.area.niltc,
-    fronts: project.area.fronts,
-  });
-  if (!sameStarterItems(project, starter)) {
-    const extended = safelyExtendEditedStraight(project, resize);
-    if (extended) return extended;
-    throw new Error(
-      "This NILTC area has edited track. You can rename it or extend away from the plexiglass without changing its mainline length.",
-    );
-  }
-  return createNiltcStarter(catalog, {
-    width: resize.width,
-    depth: resize.depth,
-    mode: project.area.niltc,
-    fronts: project.area.fronts,
-    name: resize.name ?? project.name,
-  });
 }

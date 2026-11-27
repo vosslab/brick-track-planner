@@ -6,11 +6,6 @@ export type AreaSetup = {
   fronts: ("north" | "east" | "south" | "west")[];
 };
 
-type AreaEdit = {
-  setup: AreaSetup;
-  update: (setup: AreaSetup) => void;
-};
-
 function required<T extends Element>(id: string, type: { new (): T }): T {
   const element = document.getElementById(id);
   if (!(element instanceof type)) throw new Error(`Missing ${id}.`);
@@ -26,7 +21,7 @@ function selected(name: string): HTMLInputElement {
 /** Wires the small area dialog. Project construction stays in the editor. */
 export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
   start: () => void;
-  open: (edit?: AreaEdit) => void;
+  open: () => void;
 } {
   const dialog = required("area-dialog", HTMLDialogElement);
   const startup = required("startup-form", HTMLElement);
@@ -49,9 +44,7 @@ export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
   const error = required("area-error", HTMLElement);
   const title = required("area-form-title", HTMLElement);
   const intro = required("area-form-intro", HTMLElement);
-  const submit = required("create-area", HTMLButtonElement);
   const cancel = required("cancel-area", HTMLButtonElement);
-  let editing: AreaEdit | undefined;
 
   const updateDimensions = (): void => {
     other.hidden = width.value !== "other" && depth.value !== "other";
@@ -62,7 +55,7 @@ export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
   };
   const updateAssignment = (): void => {
     const assignment = selected("assignment").value as AreaSetup["assignment"];
-    curveOptions.hidden = assignment !== "corner" || Boolean(editing);
+    curveOptions.hidden = assignment !== "corner";
     widthLabel.textContent =
       assignment === "corner" ? "Width on the drawing" : "Width along the track";
     depthLabel.textContent =
@@ -91,55 +84,29 @@ export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
       depth: measuredDepth * 3.2,
       assignment,
       fronts:
-        editing?.setup.fronts ??
-        (assignment === "corner"
+        assignment === "corner"
           ? ["north", selected("curve-side").value === "west" ? "west" : "east"]
           : assignment === "straight"
             ? ["north"]
-            : []),
+            : [],
     };
   };
-  const prepare = (edit?: AreaEdit): void => {
+  const prepare = (): void => {
     form.reset();
     error.textContent = "";
-    editing = edit;
-    for (const choice of assignments) choice.disabled = Boolean(edit);
+    updateDimensions();
+    updateAssignment();
   };
   const start = (): void => {
     prepare();
-    form.dataset["startup"] = "true";
     startup.append(form);
     cancel.hidden = true;
-    submit.textContent = "Create track plan";
-    updateDimensions();
-    updateAssignment();
   };
-  const open = (edit?: AreaEdit): void => {
-    prepare(edit);
-    const existing = edit?.setup;
-    if (existing) {
-      name.value = existing.name;
-      width.value = String(existing.width);
-      depth.value = String(existing.depth);
-      if (![...width.options].some((option) => option.value === width.value)) {
-        width.value = "other";
-        otherWidth.value = String(existing.width / 3.2);
-      }
-      if (![...depth.options].some((option) => option.value === depth.value)) {
-        depth.value = "other";
-        otherDepth.value = String(existing.depth / 3.2);
-      }
-      for (const choice of assignments) choice.checked = choice.value === existing.assignment;
-    }
-    updateDimensions();
-    updateAssignment();
-    form.dataset["startup"] = "false";
+  const open = (): void => {
+    prepare();
     cancel.hidden = false;
-    title.textContent = existing ? "Edit your design area" : "Start a new design";
-    intro.textContent = existing
-      ? "The current track stays in place while you adjust the available space."
-      : "Choose a new assigned space and mainline.";
-    submit.textContent = existing ? "Update design area" : "Create track plan";
+    title.textContent = "Start a new design";
+    intro.textContent = "Choose a new assigned space and mainline.";
     dialog.append(form);
     dialog.showModal();
   };
@@ -156,10 +123,8 @@ export function setupAreaForm(hooks: { create: (setup: AreaSetup) => void }): {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     try {
-      const setup = read();
-      if (editing) editing.update(setup);
-      else hooks.create(setup);
-      if (form.dataset["startup"] !== "true") dialog.close();
+      hooks.create(read());
+      if (dialog.open) dialog.close();
     } catch (reason) {
       error.textContent = reason instanceof Error ? reason.message : String(reason);
     }

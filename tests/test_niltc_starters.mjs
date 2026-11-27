@@ -5,11 +5,9 @@ import test from "node:test";
 import {
   areaToSignupDimensions,
   createNiltcStarter,
-  resizeDesignArea,
   signupToAreaDimensions,
 } from "../src/niltc_starters.ts";
-import { openTrackPlan, saveTrackPlan } from "../src/ldraw.ts";
-import { composePose, newProject, validateProject } from "../src/project.ts";
+import { composePose, validateProject } from "../src/project.ts";
 
 const catalog = JSON.parse(readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8"));
 const tolerance = 1e-6;
@@ -148,96 +146,4 @@ test("custom-length track and invalid curve areas", () => {
   assert.throws(() =>
     createNiltcStarter(catalog, { width: 4097, depth: 32, mode: "straight", fronts: ["north"] }),
   );
-});
-
-test("resizing an untouched starter rebuilds mainline legs and exits", () => {
-  const starter = createNiltcStarter(catalog, {
-    width: 192,
-    depth: 128,
-    mode: "corner",
-    fronts: ["north", "west"],
-  });
-  const resized = resizeDesignArea(starter, catalog, {
-    width: 128,
-    depth: 192,
-    name: "Tall corner",
-  });
-  assert.equal(resized.name, "Tall corner");
-  assert.deepEqual([resized.area.width, resized.area.depth], [128, 192]);
-  validateProject(resized);
-  assertJoinedMainlines(resized);
-  assert.equal(resized.items.filter(({ partId }) => partId === "lego:rc-s16").length, 8);
-});
-
-test("resizing accepts a reopened starter's equivalent track poses", () => {
-  const starter = createNiltcStarter(catalog, {
-    width: 192,
-    depth: 128,
-    mode: "corner",
-    fronts: ["north", "west"],
-  });
-  const project = openTrackPlan(saveTrackPlan(starter, catalog), catalog);
-  for (const item of project.items) {
-    item.x += 1e-8;
-    item.y -= 1e-8;
-    item.angle += 360;
-  }
-  const resized = resizeDesignArea(project, catalog, { width: 128, depth: 192 });
-  assert.deepEqual([resized.area.width, resized.area.depth], [128, 192]);
-  assertJoinedMainlines(resized);
-});
-
-test("resizing protects an edited NILTC mainline and keeps general track", () => {
-  const starter = createNiltcStarter(catalog, {
-    width: 192,
-    depth: 128,
-    mode: "straight",
-    fronts: ["north"],
-  });
-  starter.items.push({
-    kind: "track",
-    id: "yard-track",
-    partId: "lego:rc-s16",
-    layerId: "layout",
-    heightPlates: 0,
-    x: 40,
-    y: 64,
-    angle: 0,
-  });
-  assert.throws(
-    () => resizeDesignArea(starter, catalog, { width: 256, depth: 128 }),
-    /edited track/,
-  );
-
-  const general = newProject();
-  general.items.push({ ...starter.items.at(-1), id: "general-track" });
-  const resized = resizeDesignArea(general, catalog, {
-    width: 13,
-    depth: 17,
-    name: "Small sketch",
-  });
-  assert.equal(resized.name, "Small sketch");
-  assert.deepEqual([resized.area.width, resized.area.depth, resized.items.length], [13, 17, 1]);
-});
-
-test("edited straight areas may extend away from the plexiglass", () => {
-  const project = createNiltcStarter(catalog, {
-    width: 192,
-    depth: 128,
-    mode: "straight",
-    fronts: ["east"],
-  });
-  project.items.push({
-    kind: "track",
-    id: "yard-track",
-    partId: "lego:rc-s16",
-    layerId: "layout",
-    heightPlates: 0,
-    x: 20,
-    y: 50,
-    angle: 0,
-  });
-  const extended = resizeDesignArea(project, catalog, { width: 224, depth: 128 });
-  assert.equal(extended.area.width, 224);
-  assert.ok(extended.items.every((item) => item.x >= 32));
 });

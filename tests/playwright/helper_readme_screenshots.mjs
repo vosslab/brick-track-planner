@@ -73,6 +73,20 @@ try {
   await expect(page.locator("#design-size")).toContainText("60 × 40");
   await capture("member_mainline_start");
 
+  await page.getByRole("button", { name: "Design area", exact: true }).click();
+  const outline = page.getByRole("dialog", { name: "Edit your design area" });
+  await outline
+    .getByLabel("Table edge")
+    .selectOption({ label: "North \u00b7 0\u201360 in at 0 in" });
+  await outline.getByLabel("Edge length to change").selectOption("partial");
+  await outline.getByLabel("Start from left (in)").fill("10");
+  await outline.getByLabel("Length along edge (in)").fill("20");
+  await outline.getByLabel("Distance (in)").fill("5");
+  await expect(outline.getByRole("status")).toHaveText("60 \u00d7 45 in overall");
+  await capture("member_table_shift", outline);
+  await outline.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(outline).toBeHidden();
+
   await page.getByRole("button", { name: "Preview on track" }).click();
   await expect(page.getByRole("button", { name: "Add to layout" })).toBeEnabled();
   await capture("member_parking_siding_preview");
