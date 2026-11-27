@@ -29,7 +29,6 @@ export function renderEditControls({
   const selecting = !arrangement && (kind === "select" || kind === "drag");
   const selectingTrack = selecting && selected.size > 0;
   const pasteAvailable = !button("paste-track").disabled;
-  const transformActions = element("track-transform-actions");
   if (kind !== "drag") {
     const [selectedId] = selected.values();
     button("select-arrangement").hidden =
@@ -40,12 +39,14 @@ export function renderEditControls({
       );
   }
   button("move-track").hidden = !selectingTrack;
+  button("rotate-track-left").hidden = !selectingTrack;
+  button("rotate-track-right").hidden = !selectingTrack;
+  button("duplicate-track").hidden = !selectingTrack;
   button("next-track-here").hidden = !selectingTrack || !stack;
   button("copy-track").hidden = !selectingTrack;
   button("remove-piece").hidden = !selectingTrack;
   button("paste-track").hidden = !selecting || !pasteAvailable;
   element("selection-actions").hidden = !selecting || (!selectingTrack && !pasteAvailable);
-  transformActions.toggleAttribute("hidden", !selectingTrack);
   element("placement-actions").hidden = selecting;
   element("placement-grid").hidden =
     !translation && (!selectingTrack || button("move-track").disabled);

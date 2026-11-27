@@ -238,7 +238,7 @@ try {
     const parts = target.locator("#part-results").getByRole("radio");
     const part = partId ? parts.and(target.locator(`[value="${partId}"]`)) : parts.first();
     await expect(part).toBeVisible();
-    await part.check();
+    if (!(await part.isChecked())) await part.press("Space");
     await expect(part).toBeChecked();
   };
   await startBlank();
@@ -264,16 +264,18 @@ try {
   await choosePartCategory(page, "Straights", "lego:rc-s16");
 
   const demonstratePlacement = async (target, frame) => {
-    await target.getByLabel("Place at", { exact: true }).selectOption("drawing");
-    const place = target.getByRole("button", { name: "Place on drawing", exact: true });
-    await place.focus();
+    const card = target.locator('label[for="part-choice-lego-rc-s16"] .part-preview');
+    const canvas = target.getByRole("group", { name: "Track plan", exact: true });
+    await card.hover();
     await frame?.(1000);
-    await place.press("Enter");
+    await card.click();
     await expect(target.locator("#piece-info")).toContainText(
       "Click or tap the drawing to place the part.",
     );
+    await canvas.hover();
+    await expect(canvas.locator("[data-edit-preview] [data-kind=track]")).toBeVisible();
     await frame?.(950);
-    await target.getByRole("group", { name: "Track plan", exact: true }).click();
+    await canvas.click();
     await expect(target.locator("#tabletop [data-kind=track]")).toHaveCount(1);
     await expect(target.getByRole("status")).toContainText("Placed RC/PF straight S16");
     await frame?.(1750);
@@ -317,9 +319,10 @@ try {
   await expect(track).toHaveCount(1);
   const lower = track.and(page.locator('[transform$="rotate(90)"]'));
   const upper = track.and(page.locator('[transform$="rotate(0)"]'));
-  const tools = await openMenu(page, "Tools");
-  await tools.getByRole("button", { name: "Rotate right", exact: true }).click();
-  await closeMenu(tools);
+  await page
+    .getByRole("group", { name: "Selected track actions" })
+    .getByRole("button", { name: "Rotate selected track 90 degrees right" })
+    .click();
   await expect(lower).toHaveCount(1);
   await page.getByLabel("Place at", { exact: true }).selectOption("center");
   await placeCentered.click();

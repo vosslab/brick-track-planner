@@ -71,6 +71,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   and mobile.
 - Use mouse editing on desktop and tap-to-move on mobile. Let members move
   several selected pieces together.
+- Pick up a track part when the member clicks its card, as in BrickLink Studio.
 - Make track editing feel like LibreOffice Draw or Inkscape. Keep moved,
   pasted, or duplicated track on the destination click or tap.
 - Let members delete a selection of several objects. Support Command-click

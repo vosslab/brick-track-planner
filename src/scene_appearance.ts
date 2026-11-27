@@ -61,6 +61,9 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
   const route = svg("path", { id: `${id}-route`, d: geometry.route, fill: "none" });
   const shape = svg("g", { id, fill: "none", "stroke-linejoin": "round" });
   const artwork = modelDrawings.get(part.id);
+  if (artwork && part.browse?.category === "dead-ends") {
+    shape.setAttribute("style", "--track-compact: none; --track-sleepers: inline");
+  }
   const schematic = svg("g", {
     style: artwork ? "display: var(--track-compact, inline)" : "",
   });

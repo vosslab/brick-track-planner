@@ -40,6 +40,7 @@ function trackCode(part: Part, length: number): { code: string; color: string } 
   if (category === "crossings" || part.routes.some((route) => route.event === "crossing"))
     return { code: "X", color: "#62506f" };
   if (category === "connectors") return { code: "CN", color: "#69543e" };
+  if (category === "dead-ends") return { code: "END", color: otherTrack.color };
   if (category === "straights") return { code: `S${Math.round(length)}`, color: "#606060" };
   const radius = part.radius ?? part.routes.find((route) => route.radius !== undefined)?.radius;
   return radius === undefined

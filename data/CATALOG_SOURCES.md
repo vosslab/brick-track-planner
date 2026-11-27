@@ -80,9 +80,16 @@ source source_me.sh && python3 devel/render_track_artwork.py /path/to/ldraw
   [Crossing straight](https://www.bricklink.com/v2/catalog/catalogitem.page?P=2824)
   [Straight with clips](https://www.bricklink.com/v2/catalog/catalogitem.page?P=7442)
   [Schematic data](track_schematics.json)
-- LEGO element 6486315 is an 8-by-12-stud rerailing ramp. Its approach rises
-  to a single standard rail connection, so it falls outside the flat catalog.
+- LEGO element 6486315 is an 8-by-12-stud rerailing ramp with one standard rail
+  connection. The planner uses the model's top-down envelope and ends the
+  track at the ramp.
   [LDraw part geometry](https://library.ldraw.org/parts/25341)
+- The one-piece TrixBrix Buffer Stop (9895) uses a nominal 5-by-8-stud footprint
+  estimated from the stud rows in the vendor's top view. The brick-built set
+  (6356) uses the footprint of its included half straight, 8 by 8 studs.
+  Both connect at their open rail end and use original schematic previews.
+  [One-piece buffer stop](https://trixbrix.eu/en/p/accessories/parts/buffer-stop/9895-buffer-stop)
+  [Brick-built buffer stop](https://trixbrix.eu/en/p/accessories/sets/buffer-stop-6356/11990-buffer-stop)
 - The [right pass-through single crossover R40](https://trixbrix.eu/en/p/track/curved-tracks/right-pass-through-single-crossover-r40/10035-right-pass-through-single-crossover-r40)
   uses the crossing and adapter records from the BlueBrick pass-through set.
   Adapter ends are aligned to nominal 16-stud lane spacing. The set drawing

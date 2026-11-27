@@ -11,5 +11,24 @@
     "body": "M-8 -3.8H8V3.8H2.3V2.9H-2.3V3.8H-8ZM-5 -1.6H-3V1.6H-5ZM3 -1.6H5V1.6H3Z",
     "middle": "M-2.1 -1.85H2.1V1.85H-2.1ZM-2 2.8H-1.25V3.45H-2ZM1.25 2.8H2V3.45H1.25Z",
     "top": "M-8 -2.72H8V-2.28H-8ZM-8 2.28H8V2.72H-8Z"
+  },
+  "trixbrix:buffer-stop": {
+    "outline": "M-2.5 -4H-1.5V-3H0.5V-4H2.5V4H0.5V3H-1.5V4H-2.5ZM-1.5 -2H0.5V2H-1.5Z",
+    "body": "M-2.45 -3.9H-1.55V-3H0.55V-3.9H2.42V3.9H0.55V3H-1.55V3.9H-2.45ZM-1.55 -2H0.55V2H-1.55Z",
+    "middle": "M-1.65 -3H1.65V-2H-1.65ZM-1.65 2H1.65V3H-1.65Z",
+    "top": "M-1.65 -3H-0.85V-2H-1.65ZM-1.65 2H-0.85V3H-1.65Z"
+  },
+  "trixbrix:brick-built-buffer-stop": {
+    "outline": "M-4 -4H4V4H-4Z",
+    "body": "M-4 -3.8H4V3.8H-4Z",
+    "middle": "M-4 -2.8H3.8V-2.2H-4ZM-4 2.2H3.8V2.8H-4ZM2.25 -3.6H4V3.6H2.25Z",
+    "top": "M2.25 -2.9H2.95V-2.1H2.25ZM2.25 2.1H2.95V2.9H2.25Z"
+  },
+  "lego:rc-rerailing-ramp": {
+    "outline": "M-6 -4H6V4H-6Z",
+    "body": "M-6 -3.8H6V3.8H-6Z",
+    "bevel": "M-5.75 -3.2H-3.7L4.8 -2.45L5.6 -1.45V1.45L4.8 2.45L-3.7 3.2H-5.75Z",
+    "middle": "M-5.55 -2.55H-3.45L4.15 -1.9L4.95 -1.1V1.1L4.15 1.9L-3.45 2.55H-5.55Z",
+    "top": "M-6 -2.72H-3.9V-2.28H-6ZM-6 2.28H-3.9V2.72H-6Z"
   }
 }

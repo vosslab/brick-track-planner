@@ -22,7 +22,8 @@ test("members can connect a switch to an ordinary boundary rail end", async ({ p
     .getByRole("radio", {
       name: /Right switch \(R40\).*RC\/PF right switch R40/,
     })
-    .check();
+    .press("Space");
+  await expect(planner.locator("#piece-info")).toBeEmpty();
   await planner.getByLabel("Place at", { exact: true }).selectOption('["outer-12","b"]');
   const connect = planner.getByRole("button", { name: "Connect part", exact: true });
   await expect(connect).toBeEnabled();
@@ -140,8 +141,34 @@ test("[touch] members can move track in a rotated view and undo it", async ({ pa
   expect((await saveProject(page)).project).toEqual(original);
 });
 
+test("[touch] the selected track actions rotate a piece and support undo", async ({
+  page,
+  hasTouch,
+}) => {
+  await boot(page, { startProject: false });
+  const piece = straight("piece", 64, 96);
+  const original = await openEditingPlan(page, [piece]);
+  const actions = page.getByRole("group", { name: "Selected track actions" });
+  const left = actions.getByRole("button", { name: "Rotate selected track 90 degrees left" });
+  const right = actions.getByRole("button", { name: "Rotate selected track 90 degrees right" });
+  await expect(left).toBeHidden();
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  await pickDrawing(canvas, hasTouch, piece.x, piece.y);
+  await expect(actions.getByRole("button", { name: "Move", exact: true })).toBeVisible();
+  await expect(left).toBeVisible();
+
+  if (hasTouch) await right.tap();
+  else await right.click();
+  expect((await saveProject(page)).project.items).toEqual([{ ...piece, angle: 90 }]);
+  if (hasTouch) await left.tap();
+  else await left.click();
+  expect((await saveProject(page)).project).toEqual(original);
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  expect((await saveProject(page)).project.items).toEqual([{ ...piece, angle: 90 }]);
+});
+
 // Picker labels are member-facing catalog names from data/catalog.json.
-test("track part browsing keeps a chosen variant and saves the part it places", async ({
+test("[touch] a part card picks up the piece for placement on the drawing", async ({
   page,
   hasTouch,
 }) => {
@@ -153,14 +180,22 @@ test("track part browsing keeps a chosen variant and saves the part it places", 
   });
   await expect(page.getByRole("radio", { name: "Track parts" })).toBeChecked();
   await expect(legoStraight).toBeChecked();
+  const pressCard = async (id: string): Promise<void> => {
+    const drawing = page.locator(`label[for="${id}"] .part-preview`);
+    if (hasTouch) await drawing.tap();
+    else await drawing.click();
+  };
+  const prompt = page.locator("#piece-info");
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  const preview = canvas.locator("[data-edit-preview] [data-kind=track]");
+  const placed = canvas.locator("[data-piece-id][data-kind=track]");
 
-  await page.getByLabel("Place at", { exact: true }).selectOption("drawing");
-  await page.getByRole("button", { name: "Place on drawing", exact: true }).click();
-  await expect(page.locator("#piece-info")).toContainText("Click or tap the drawing");
+  await pressCard("part-choice-lego-rc-s16");
+  await expect(prompt).toContainText("Click or tap the drawing");
   await page.getByRole("radio", { name: "Straights", exact: true }).focus();
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("radio", { name: "Curves", exact: true })).toBeChecked();
-  await expect(page.locator("#piece-info")).toBeEmpty();
+  await expect(prompt).toBeEmpty();
 
   await page.keyboard.press("ArrowLeft");
   await expect(legoStraight).toBeChecked();
@@ -168,14 +203,29 @@ test("track part browsing keeps a chosen variant and saves the part it places", 
   const trixStraight = page.getByRole("radio", {
     name: /Straight \(16 studs\).*TrixBrix.*Straight S16/,
   });
-  if (hasTouch) await trixStraight.tap();
-  else await trixStraight.check();
+  await pressCard("part-choice-trixbrix-s16");
+  await expect(trixStraight).toBeChecked();
   await expect(page.locator("#selected-part-model")).toHaveText("TrixBrix · Straight S16");
+  await expect(prompt).toContainText("Click or tap the drawing");
+  if (hasTouch) {
+    await page
+      .getByRole("group", { name: "Placement", exact: true })
+      .getByRole("button", { name: "Cancel", exact: true })
+      .tap();
+  } else {
+    await canvas.hover({ position: (await drawingPoint(canvas, 48, 56)).position });
+    await expect(preview).toBeVisible();
+    const firstPosition = await preview.getAttribute("transform");
+    await canvas.hover({ position: (await drawingPoint(canvas, 80, 56)).position });
+    await expect(preview).not.toHaveAttribute("transform", firstPosition!);
+    await page.keyboard.press("Escape");
+    await expect(preview).toHaveCount(0);
+  }
+  await expect(prompt).toBeEmpty();
+  await expect(placed).toHaveCount(0);
 
-  const place = page.getByRole("button", { name: "Place on drawing", exact: true });
-  if (hasTouch) await place.tap();
-  else await place.click();
-  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  await pressCard("part-choice-trixbrix-s16");
+  await expect(prompt).toContainText("Click or tap the drawing");
   if (hasTouch) await canvas.tap();
   else await canvas.click();
   expect(

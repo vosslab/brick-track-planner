@@ -186,8 +186,10 @@ drawing and fit checks after reopening.
 
 ### Place track in one action
 
-**Decision.** Commit a move on drag release. For Move, Duplicate, and
-paste, commit placement on the destination click, tap, or keyboard
+**Decision.** Commit a move on drag release. A click or tap on a track part
+card picks it up for placement on the drawing. Keyboard radio navigation
+chooses the part and leaves placement to the button. For new parts, Move,
+Duplicate, and paste, commit on the destination click, tap, or keyboard
 activation. Keep explicit confirmation for a straight gap or a new arrangement.
 
 **Why.** The destination gesture completes an ordinary drawing edit. A gap
@@ -295,8 +297,9 @@ general layouts. Members may also change a starter's R104/R120 geometry.
 
 ### Keep plans flat
 
-**Decision.** Model all track in one plane. The part picker excludes
-elevation-changing parts, and the project format carries no track height.
+**Decision.** Model all track in one plane. The project format carries no track
+height. A rerailing ramp can terminate a siding with a single standard rail
+connection and a top-down footprint for the ramp itself.
 
 **Why.** NILTC layouts use flat track. A single planar model keeps placement,
 snapping, routing, import, and export straightforward.

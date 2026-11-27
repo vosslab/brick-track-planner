@@ -4,6 +4,9 @@
 
 ### Additions and New Features
 
+- Add a Dead ends category with LEGO's 8-by-12-stud rerailing ramp (6486315)
+  and TrixBrix's one-piece and brick-built buffer stops. Each has one usable
+  rail connection.
 - Add the LEGO S16 crossing straight (6530143) and S16 straight with clips
   (6546033) to Track parts. Both connect to ordinary LEGO train track.
 
@@ -16,6 +19,12 @@
 
 ### Behavior or Interface Changes
 
+- Pick up a track part by clicking or tapping its card. Move over the drawing
+  to preview it, then click or tap to place it.
+- Put the two 90-degree rotation buttons beside Move, Copy, and Paste for a
+  selected track piece.
+- Give track category buttons equal sizes and pair short labels with track
+  icons to leave more room for the part cards.
 - Keep every track plan flat. Remove track-height data, height findings, and
   height-based placement rules. BlueBrick imports project source track onto
   the drawing and report when they ignore elevation.

@@ -101,10 +101,13 @@ export class TrackTools {
     }
     this.#resetParts = setupPartPicker(catalog, {
       selectedId: () => this.#selectedPartId,
-      selectPart: (id) => {
-        this.#selectedPartId = id;
-        this.#showPart();
-        this.#cancelPartPreview();
+      selectPart: (id, place) => {
+        if (id !== this.#selectedPartId) {
+          this.#selectedPartId = id;
+          this.#showPart();
+          if (!place) this.#cancelPartPreview();
+        }
+        if (place) this.#armPiecePlacement();
       },
       browse: () => this.#cancelPartPreview(),
       showArrangements: () => {
@@ -195,13 +198,8 @@ export class TrackTools {
     element("arrangement-tools").hidden = piece;
     element("piece-tools").hidden = !piece;
     const { project } = this.#hooks.analysis();
-    const empty = !visibleTrackItems(project).length;
     element("build-hint").textContent = piece
-      ? empty
-        ? "Choose a track part to start your layout."
-        : this.#openEnds.size
-          ? "Place a part on the drawing or connect it to an open rail end."
-          : "Place a part anywhere on the drawing."
+      ? "Click or tap a part card, then place it on the drawing."
       : project.area.niltc
         ? "To park a train behind your display, preview a siding off the mainline."
         : "Preview a connected group of track pieces in your design area.";
@@ -218,22 +216,15 @@ export class TrackTools {
 
   #placePiece(): void {
     const target = select("piece-target").value;
-    const id = projectId("track");
-    this.cancel();
     if (target === "drawing") {
-      this.#interaction = { kind: "extend", id };
-      const message = "Click or tap the drawing to place the part.";
-      this.#hooks.notice(message);
-      element("piece-info").textContent = message;
-      this.#editControls();
-      this.#hooks.render();
-      toCanvas();
+      this.#armPiecePlacement();
       return;
     }
+    this.cancel();
     const { area } = this.#hooks.analysis().project;
     this.#applyPiece(
       this.#previewPiece(
-        id,
+        projectId("track"),
         areaCenter(area),
         0,
         target === "center" ? undefined : target,
@@ -241,6 +232,21 @@ export class TrackTools {
       ),
     );
   }
+
+  #armPiecePlacement(): void {
+    this.cancel();
+    select("piece-target").value = "drawing";
+    this.#showTool();
+    if (button("extend-piece").disabled) return;
+    this.#interaction = { kind: "extend", id: projectId("track") };
+    const message = "Click or tap the drawing to place the part.";
+    this.#hooks.notice(message);
+    element("piece-info").textContent = message;
+    this.#editControls();
+    this.#hooks.render();
+    toCanvas();
+  }
+
   get route(): RouteLink[] {
     return this.#route;
   }
@@ -283,6 +289,7 @@ export class TrackTools {
 
   stopPicking(): void {
     this.#cancelTranslationFrame();
+    if (this.#interaction.kind === "extend") this.#hooks.notice("");
     this.#interaction = { kind: "select" };
     this.#stack = [];
     select("placement-grid").value = "club";

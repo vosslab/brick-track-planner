@@ -96,6 +96,53 @@
       "routes": [{ "from": "a", "to": "b", "path": 0 }]
     },
     {
+      "id": "trixbrix:buffer-stop",
+      "browse": { "category": "dead-ends", "label": "Buffer stop (5 studs)", "order": 5, "description": "A compact one-piece stop for the end of a siding." },
+      "brand": "TrixBrix",
+      "name": "Buffer Stop (9895)",
+      "ports": [{ "id": "track", "x": -2.5, "y": 0, "angle": 180, "type": "regular" }],
+      "paths": [[{ "x": -2.5, "y": 0 }, { "x": -1.4, "y": 0 }]],
+      "footprint": [
+        { "x": -2.5, "y": -4 },
+        { "x": 2.5, "y": -4 },
+        { "x": 2.5, "y": 4 },
+        { "x": -2.5, "y": 4 }
+      ],
+      "routes": []
+    },
+    {
+      "id": "trixbrix:brick-built-buffer-stop",
+      "browse": { "category": "dead-ends", "label": "Brick-built buffer stop (8 studs)", "order": 8, "description": "A brick-built stop on the included half straight." },
+      "brand": "TrixBrix",
+      "name": "Brick-built Buffer Stop set (6356)",
+      "ports": [{ "id": "track", "x": -4, "y": 0, "angle": 180, "type": "regular" }],
+      "paths": [[{ "x": -4, "y": 0 }, { "x": 3.5, "y": 0 }]],
+      "footprint": [
+        { "x": -4, "y": -4 },
+        { "x": 4, "y": -4 },
+        { "x": 4, "y": 4 },
+        { "x": -4, "y": 4 }
+      ],
+      "routes": []
+    },
+    {
+      "id": "lego:rc-rerailing-ramp",
+      "browse": { "category": "dead-ends", "label": "Rerailing ramp (8 x 12 studs)", "order": 12, "approach": "track", "description": "A one-ended ramp for loading train wheels onto the rails." },
+      "brand": "LEGO",
+      "name": "RC/PF rerailing ramp 8 x 12 (6486315)",
+      "ports": [
+        { "id": "track", "x": -6, "y": 0, "angle": 180, "type": "regular" }
+      ],
+      "paths": [[{ "x": -6, "y": 0 }, { "x": 6, "y": 0 }]],
+      "footprint": [
+        { "x": -6, "y": -4 },
+        { "x": 6, "y": -4 },
+        { "x": 6, "y": 4 },
+        { "x": -6, "y": 4 }
+      ],
+      "routes": []
+    },
+    {
       "id": "lego:rc-r40",
       "browse": { "category": "curves", "label": "Curve R40 (22.5 degrees)", "order": 40 },
       "brand": "LEGO",

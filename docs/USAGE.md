@@ -154,21 +154,30 @@ Open **Placement options** before previewing and choose 32 or 0 studs of
 added straight storage if you want a shorter siding.
 
 Choose **Track parts** to lay an individual rail. Start with the visible
-**Straights**, **Curves**, **Switches**, **Crossings & crossovers**, or
-**Connectors** categories. The selected card names the shape and measurement
-first, then its manufacturer. On a desktop, point at a card to see its exact
-model. The selected-part summary always shows the complete manufacturer and
-model. **Other brands** shows interchangeable alternatives. **More track
-parts** contains replacement sections and specialty connectors. Choose
-**Arrangement** for a complete multipart switch, yard, or junction.
+**Straights**, **Curves**, **Switches**, **Crossings**, **Connectors**, or
+**Dead ends** categories. **Crossings** includes crossovers. The selected card
+names the shape and measurement first, then its manufacturer. On a desktop,
+point at a card to see its exact model. The selected-part summary always shows
+the complete manufacturer and model. **Other brands** shows interchangeable
+alternatives. **More track parts** contains replacement sections and specialty
+connectors. Choose **Arrangement** for a complete multipart switch, yard, or
+junction.
 
-In an empty general layout, the default target is the center of the design
-area. Choose **Place at center** to start there. Choose **Choose on the
-drawing** when you want to pick the location yourself. When exactly one private
-rail end is open, it is selected for you. Choose **Connect part** to extend
-it. A single part or copied selection drops once, then the next click selects
-track. After choosing **Place on drawing**, press **Esc** before the drawing
-click to cancel. [Watch the first part being placed](SCREENSHOTS.md#place-a-track-part).
+Use **Dead ends** to finish a siding with a buffer stop or a rerailing ramp.
+The ramp gives you a place to load cars onto the rails. Its track-facing end
+snaps to a regular rail end and the planner shows its top-down footprint.
+
+Click or tap a part card to pick it up. With a mouse, move over the drawing to
+preview the part and snap it to a nearby open rail end. Click or tap the drawing
+to place it. Press **Esc** or choose **Cancel** to put it back. A single part
+or copied selection drops once, then the next click selects track.
+[Watch the first part being placed](SCREENSHOTS.md#place-a-track-part).
+
+With the keyboard, browse the part cards with the arrow keys. Set **Place at**
+to **Choose on the drawing** and activate **Place on drawing**. Use the arrow
+keys to pan and **Enter** to place at the center of the view. To use a fixed
+starting point, choose the center or an open rail end in **Place at** and use
+the button below it.
 
 The arrangement picker shows the selected kit's footprint and the track it
 needs. A connected-fit preview highlights the changes. If no connected fit is
@@ -277,12 +286,14 @@ single part you can enter X and Y in studs under **Exact position** in the
 inspector. On desktop, use the **Inspector** sidebar switch. On phones, choose
 **Inspector** in the toolbar to jump to the panel below the drawing. X
 increases to the right and Y increases down.
-**Tools** offers **Rotate left**, **Rotate right**, and **Duplicate** for a
-single part. Each rotation is 90 degrees. The Undo and Redo icon buttons show
-their names on hover or keyboard focus and apply one design operation at a time.
 
-Choose **Duplicate** to copy one selected piece within the current layout.
-Click or tap the destination to place it. Use **Copy** and **Paste** for
+Select a single track piece to show the two **90 degree** rotation buttons
+next to **Move**, **Copy**, and **Paste**. The arrows show which way the piece
+will turn. The Undo and Redo icon buttons show their names on hover or keyboard
+focus and apply one design operation at a time.
+
+Choose **Duplicate** under **Tools** to copy one selected piece within the
+current layout. Click or tap the destination to place it. Use **Copy** and **Paste** for
 selected pieces or a complete siding, including between layout tabs as
 described above. You can put track down even when it does not fit. Review the
 flagged track, then move or delete it to fix the problem.

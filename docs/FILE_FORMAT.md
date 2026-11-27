@@ -33,7 +33,8 @@ its embedded model remains its measured footprint.
 
 The LEGO S16 crossing straight and S16 straight with clips use embedded
 schematics. They use standard 16-stud connections and retain their separate
-identities in the planner and parts tally.
+identities in the planner and parts tally. The rerailing ramp and buffer stops
+also use embedded schematics and retain their single connection in the planner.
 [Crossing straight (2824)](https://www.bricklink.com/v2/catalog/catalogitem.page?P=2824)
 [Straight with clips (7442)](https://www.bricklink.com/v2/catalog/catalogitem.page?P=7442)
 

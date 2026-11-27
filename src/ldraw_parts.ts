@@ -26,18 +26,18 @@ export function fallbackTrackModelName(part: Part): string {
 }
 
 /**
- * Draws catalog rail centerlines as simple paired rail strips, or a footprint
- * for an accessory without rails. This keeps uncalibrated parts visible without
- * pretending they have an official DAT.
+ * Draws catalog rail centerlines as simple paired rail strips. Accessories
+ * and dead ends also show their top-down footprint.
  */
 export function fallbackTrackModel(part: Part): string[] {
+  const drawFootprint = !part.paths.length || part.browse?.category === "dead-ends";
   const lines = [
     `0 FILE ${fallbackTrackModelName(part)}`,
     `0 Name: ${fallbackTrackModelName(part)}`,
     `0 Brick Track Planner schematic ${part.brand} ${part.name}`,
   ];
   for (const path of part.paths) {
-    lines.push(...sleeperSlabs(path));
+    if (!drawFootprint) lines.push(...sleeperSlabs(path));
     for (const offset of [-trackRailOffset, trackRailOffset]) {
       const nearEdge = offsetRail(path, offset - RAIL_HALF_WIDTH_STUDS, part.ports);
       const farEdge = offsetRail(path, offset + RAIL_HALF_WIDTH_STUDS, part.ports);
@@ -51,11 +51,12 @@ export function fallbackTrackModel(part: Part): string[] {
       }
     }
   }
-  if (!part.paths.length) {
+  if (drawFootprint) {
+    const plateY = part.paths.length ? SLEEPER_TOP_Y : RAIL_TOP_Y;
     const [first, second, third, fourth] = part.footprint;
     if (first && second && third && fourth && part.footprint.length === 4) {
       lines.push(
-        `4 16 ${point(first, RAIL_TOP_Y)} ${point(second, RAIL_TOP_Y)} ${point(third, RAIL_TOP_Y)} ${point(fourth, RAIL_TOP_Y)}`,
+        `4 16 ${point(first, plateY)} ${point(second, plateY)} ${point(third, plateY)} ${point(fourth, plateY)}`,
       );
     } else {
       for (let index = 2; index < part.footprint.length; index += 1) {
@@ -63,7 +64,7 @@ export function fallbackTrackModel(part: Part): string[] {
         const current = part.footprint[index];
         if (first && previous && current)
           lines.push(
-            `3 16 ${point(first, RAIL_TOP_Y)} ${point(previous, RAIL_TOP_Y)} ${point(current, RAIL_TOP_Y)}`,
+            `3 16 ${point(first, plateY)} ${point(previous, plateY)} ${point(current, plateY)}`,
           );
       }
     }

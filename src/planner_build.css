@@ -107,22 +107,27 @@
 #translation-feedback[data-error] {
   color: var(--warning);
 }
-.track-action-short {
-  display: none;
+.selection-rotate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+.selection-rotate svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.selection-rotate span {
+  font-size: 0.78em;
+  line-height: 1;
 }
 @container (max-width: 31rem) {
   #selection-actions button {
     padding-inline: 0.45rem;
-  }
-  .track-action-label {
-    display: none;
-  }
-  .track-action-short {
-    display: inline;
-  }
-  #selection-actions button[id^="rotate-track"] span {
-    font-size: 1.1rem;
-    line-height: 1;
   }
 }
 #tabletop [data-piece-id][role="button"] {
@@ -732,6 +737,16 @@ body[data-project-open] .app-header {
   }
   .canvas-toolbar > .toolbar-group::after {
     display: none;
+  }
+  .context-toolbar:has(#selection-actions:not([hidden])) {
+    flex-wrap: wrap;
+  }
+  #selection-actions {
+    flex-basis: 100%;
+    gap: 0.3rem;
+  }
+  #selection-actions button {
+    padding-inline: 0.4rem;
   }
   .context-toolbar .edit-hint[data-contextual] {
     padding: 0.1rem 0;

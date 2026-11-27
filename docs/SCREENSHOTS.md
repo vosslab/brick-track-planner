@@ -84,13 +84,13 @@ part or **More track parts** for a replacement section.
 
 ### Place a track part
 
-In the blank General editor, choose **Choose on the drawing** under
-**Place at**. Choose **Place on drawing**, then click or tap the drawing
-once. The piece stays where you put it. Select **Move** to reposition it,
-or drag it with a mouse.
+Click a track part card to pick up the piece. Move the pointer over the
+drawing to see where it will go, then click to place it. On a touch screen,
+tap the card and then tap the drawing. Drag the placed piece or choose
+**Move** to reposition it.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A straight track part appears after choosing Place on drawing and clicking the grid](screenshots/place_single_track_demo.webp)
+![Clicking a straight track card picks it up, then clicking the drawing places it](screenshots/place_single_track_demo.webp)
 <!-- screenshots:end -->
 
 ## Select several pieces

@@ -99,8 +99,9 @@ export const partCategories = [
   "straights",
   "curves",
   "switches",
-  "crossings",
   "connectors",
+  "crossings",
+  "dead-ends",
 ] as const;
 export type PartCategory = (typeof partCategories)[number];
 export type PartBrowse = {
