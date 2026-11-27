@@ -1,6 +1,6 @@
 import { button, element, input, select } from "./editor_dom";
 import { areaCenter } from "./area_outline";
-import { renderBallast } from "./editor_panels";
+import { renderEditControls, renderSelectionInfo } from "./editor_track_controls";
 import {
   blockedEdit,
   captureRailGeometry,
@@ -795,100 +795,31 @@ export class TrackTools {
 
   #editControls(): void {
     const edit = this.#interaction;
-    const translation = edit.kind === "move" || edit.kind === "duplicate";
-    const selecting = !this.#arrangement && (edit.kind === "select" || edit.kind === "drag");
-    if (edit.kind !== "drag") {
-      const [selected] = this.#selected.values();
-      button("select-arrangement").hidden =
-        !selecting ||
-        this.#selected.size !== 1 ||
-        !this.#hooks
-          .analysis()
-          .project.items.some(
-            (item) => item.id === selected && item.kind === "track" && item.groupId,
-          );
-    }
-    element("selection-actions").hidden = !selecting;
-    element("placement-actions").hidden = selecting;
-    element("placement-grid").hidden = !translation;
-    button("place-edit").hidden = edit.kind !== "connect";
-    button("place-edit").disabled = !(edit.kind === "connect" && edit.preview?.kind === "ready");
-    button("select-multiple").setAttribute("aria-pressed", String(this.#multiple));
-    element("tabletop").dataset["editTool"] = selecting ? "selection" : "placement";
-    const hint = element("track-edit-hint");
-    const preview = "preview" in edit ? edit.preview : undefined;
-    hint.toggleAttribute("data-error", preview?.kind === "blocked" && Boolean(preview.message));
-    if (preview?.message && (!translation || preview.kind === "blocked")) {
-      hint.textContent = preview.message;
-      return;
-    }
-    if (this.#arrangement)
-      hint.textContent = "Choose a location for the arrangement, or cancel to edit track.";
-    else if (edit.kind === "extend") hint.textContent = "Choose where to add the track piece.";
-    else if (edit.kind === "trace") hint.textContent = "Choose track to trace the route to.";
-    else if (edit.kind === "connect")
-      hint.textContent = preview
-        ? "Choose Place to keep this position."
-        : edit.first
-          ? "Choose the second open rail end."
-          : "Choose the first open rail end.";
-    else if (translation)
-      hint.textContent =
-        edit.kind === "duplicate"
-          ? "Click or tap to place the copy."
-          : "Click or tap to move the selection.";
-    else if (edit.kind === "drag") hint.textContent = "Release to place.";
-    else if (protectedTrack(this.#hooks.analysis().project, this.#selected)) {
-      const { project } = this.#hooks.analysis();
-      const handoff = project.area.exits.find(
-        ({ outer, inner }) =>
-          this.#selected.has(outer.pieceId) || this.#selected.has(inner.pieceId),
-      );
-      hint.textContent =
-        this.#selected.size > 1
-          ? `Selection includes track at the named mainline handoff ${handoff?.name ?? ""}. Deselect that protected piece before moving or deleting the other pieces.`
-          : "This track carries a named mainline exit and cannot be moved or deleted.";
-    } else if (this.#multiple)
-      hint.textContent = `${this.#selected.size} selected. Pick pieces to add or remove them.`;
-    else if (this.#selected.size)
-      hint.textContent = `${this.#selected.size} selected. Drag track or choose Move.`;
-    else hint.textContent = "Select a track piece to edit it.";
+    renderEditControls({
+      kind: edit.kind,
+      preview: "preview" in edit ? edit.preview : undefined,
+      hasFirstRailEnd: edit.kind === "connect" && Boolean(edit.first),
+      arrangement: this.#arrangement,
+      multiple: this.#multiple,
+      selected: this.#selected,
+      getProject: () => this.#hooks.analysis().project,
+    });
   }
 
   #selectionInfo(): void {
-    const project = this.#hooks.analysis().project;
-    const id = this.#selected.size === 1 ? this.#selected.values().next().value : undefined;
-    const item = project.items.find((item) => item.id === id);
-    const name =
-      item?.kind === "track"
-        ? this.#catalog.parts.find((p) => p.id === item.partId)?.name
-        : item?.name;
-    element("selection-info").textContent =
-      this.#selected.size > 1
-        ? `${this.#selected.size} track pieces selected.`
-        : (name ?? "Select a track piece in the drawing.");
-    const protectedExit = protectedTrack(project, this.#selected);
-    button("remove-piece").disabled = !this.#selected.size || protectedExit;
-    const movable = item?.kind === "track" && !protectedExit;
-    const hasTrack = this.#selectedTrack().length > 0;
-    button("move-track").disabled = protectedExit || !hasTrack;
-    button("copy-track").disabled = !hasTrack;
-    button("rotate-track-left").disabled = !movable;
-    button("rotate-track-right").disabled = !movable;
-    button("duplicate-track").disabled = item?.kind !== "track";
-    button("connect-ends").disabled = this.#openEnds.size < 2;
-    element("track-position").hidden = !movable;
-    if (movable && item.kind === "track") {
-      input("track-x").value = String(item.x);
-      input("track-y").value = String(item.y);
-    }
-    renderBallast(project, this.#catalog, id, (changes) => {
-      if (!item || item.kind !== "track") return;
-      this.#hooks.commit({
-        ...project,
-        items: project.items.map((p) => (p === item ? { ...item, ...changes } : p)),
-      });
-    });
+    const { project } = this.#hooks.analysis();
+    renderSelectionInfo(
+      project,
+      this.#catalog,
+      this.#selected,
+      this.#openEnds.size,
+      (item, changes) => {
+        this.#hooks.commit({
+          ...project,
+          items: project.items.map((p) => (p === item ? { ...item, ...changes } : p)),
+        });
+      },
+    );
     this.#editControls();
   }
 

@@ -22,6 +22,8 @@
 
 ### Behavior or Interface Changes
 
+- Use NILBC blue, cream, and brick yellow across setup, the example gallery,
+  and the track editor.
 - Add three rear storage tracks to the 100 by 40 inch Member R104 right yard
   so all six storage tracks and both mainlines reach the right edge.
 - Extend the Member R104 right yard's three storage tracks to the right edge
@@ -54,6 +56,8 @@
 
 ### Fixes and Maintenance
 
+- Move TrackTools toolbar and inspector rendering into a separate module to keep
+  the controller within the source size guidance.
 - Refresh all 33 documentation screenshots, including the Member R104 right
   yard. During capture, check the layout files served by the Pages build
   against the checkout.
