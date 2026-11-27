@@ -20,7 +20,7 @@
 		"esbuild": ">=0.28.2",
 		"typescript": ">=7.0.2",
 		"oxlint": ">=1.95.0",
-		"oxlint-tsgolint": ">=7.0.2008",
+		"oxlint-tsgolint": ">=7.0.2009",
 		"playwright": ">=1.65.1",
 		"prettier": ">=3.10.1",
 		"tsx": ">=4.23.15",
