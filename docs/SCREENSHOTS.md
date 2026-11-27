@@ -253,13 +253,13 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 
 ### Joel's 10-to-0 mainline
 
-Based on the January 2024 Rockford show drawing, this [editable template](../templates/joel-mainline-offset.ldr)
-uses an 80 by 60 inch footprint with a shallower 40-inch-deep half. A pair of
-R104 and R120 S-bends shifts both mainlines 10 inches toward the front along
-the deeper half. Both tracks keep their 16-stud spacing at the handoffs.
+This [editable template](../templates/joel-mainline-offset.ldr) adapts the
+January 2024 Rockford mainline transition to a standard 60 by 40 inch table.
+R104 and R120 S-bends shift both mainlines 10 inches toward the front.
+The lanes are 16 studs apart at both handoffs.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Two mainlines across a stepped display, with matching S-bends between the 10-inch offset and standard handoffs](screenshots/joel_mainline_offset.webp)
+![Two mainlines shifting 10 inches across a rectangular 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
 <!-- screenshots:end -->
 
 ## Recapture the collection
