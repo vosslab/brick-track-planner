@@ -301,7 +301,7 @@ p {
 }
 #start-screen {
   display: grid;
-  place-items: start center;
+  place-items: safe center center;
   min-height: 0;
   padding: clamp(1.25rem, 6vh, 4.5rem) var(--gutter);
   overflow: auto;

@@ -12,6 +12,10 @@
 
 ### Fixes and Improvements
 
+- Refresh the screenshots that show the new part picker, the overlap warning,
+  and the fitted drawing during multi-selection.
+- Center the startup form vertically when it fits below the header and keep
+  it scrollable in short windows.
 - Simplify release tests around usable startup, saved track and export files,
   and editor behavior. Drop checks tied to response headers, PDF internals,
   and the exact number of arrangement suggestions.
