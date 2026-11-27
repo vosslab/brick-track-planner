@@ -101,6 +101,16 @@ class Planner {
       },
       clearHover: (): void => this.#tracks.clearHover(),
       holding: (): boolean => Boolean(this.#preview || this.#tracks.pickingDestination),
+      nudge: (shift, target): boolean => {
+        const drawingActive =
+          (target === document.body && tabletop.matches(":hover")) ||
+          (target instanceof Element &&
+            (tabletop.contains(target) ||
+              target.closest("#selection-actions button, #diagnostics button")));
+        if (!drawingActive || !this.#tracks.nudge(shift)) return false;
+        if (document.activeElement === document.body) tabletop.focus({ preventScroll: true });
+        return true;
+      },
       selecting: (): boolean => this.#tracks.selecting,
       selectBox: (box): void => {
         const ids: string[] = [];

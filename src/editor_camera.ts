@@ -14,6 +14,13 @@ type Gesture = {
 };
 type Pinch = { distance: number; anchor: Point; bounds: Bounds };
 
+const arrowShifts = new Map<string, Point>([
+  ["ArrowDown", { x: 0, y: 1 }],
+  ["ArrowLeft", { x: -1, y: 0 }],
+  ["ArrowRight", { x: 1, y: 0 }],
+  ["ArrowUp", { x: 0, y: -1 }],
+]);
+
 function rectangleBetween(first: Point, last: Point): DOMRect {
   return new DOMRect(
     Math.min(first.x, last.x),
@@ -48,6 +55,7 @@ export class EditorCamera {
       hover: (clientPoint: Point, target: Element) => void;
       clearHover: () => void;
       holding: () => boolean;
+      nudge: (shift: Point, target: EventTarget | null) => boolean;
       selecting: () => boolean;
       selectBox: (box: DOMRectReadOnly) => void;
       beginDrag: (point: Point, target: Element, clientPoint: Point) => "drag" | "pan" | "blocked";
@@ -108,28 +116,33 @@ export class EditorCamera {
     });
     window.addEventListener("blur", () => this.cancelGesture());
     window.addEventListener("keydown", (event) => {
+      const shift = arrowShifts.get(event.key);
       if (
         !this.#bounds ||
+        !shift ||
         event.defaultPrevented ||
+        event.isComposing ||
         event.ctrlKey ||
         event.metaKey ||
         event.altKey ||
-        !["ArrowDown", "ArrowLeft", "ArrowRight", "ArrowUp"].includes(event.key)
+        document.querySelector("dialog[open]")
       )
         return;
       const target = event.target;
+      if (
+        !this.#pointers.size &&
+        !event.shiftKey &&
+        !host.hasAttribute("data-space-pan") &&
+        hooks.nudge(this.#turn(shift, -this.#angle), target)
+      ) {
+        event.preventDefault();
+        return;
+      }
       if (target !== host && (target !== document.body || !host.matches(":hover"))) return;
       event.preventDefault();
       if (this.#pointers.size) return;
       const distance = 48 / Math.max(this.#pixelsPerStud, 0.01);
-      const move = {
-        ArrowDown: { x: 0, y: distance },
-        ArrowLeft: { x: -distance, y: 0 },
-        ArrowRight: { x: distance, y: 0 },
-        ArrowUp: { x: 0, y: -distance },
-      }[event.key];
-      if (!move) return;
-      this.#pan(move.x, move.y);
+      this.#pan(shift.x * distance, shift.y * distance);
     });
     host.addEventListener("pointerdown", (event) => {
       const target = event.target;

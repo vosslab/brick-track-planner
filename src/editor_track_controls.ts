@@ -93,7 +93,7 @@ export function renderEditControls({
   else if (multiple)
     hint.textContent = `${selected.size} selected. Pick pieces to add or remove them.`;
   else if (selected.size)
-    hint.textContent = `${selected.size} selected. Drag track or choose Move.`;
+    hint.textContent = `${selected.size} selected. Drag or use arrow keys to move.`;
   else hint.textContent = "Select a track piece to edit it.";
 }
 

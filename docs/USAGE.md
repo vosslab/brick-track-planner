@@ -285,7 +285,9 @@ same height. Review the gap length and parts, then choose **Place**. To add
 a larger component for a turn or branch, preview it in **Arrangement** and
 choose **Add to layout**.
 
-With the keyboard, tab to a piece and press **Enter** to select it. After
+With the keyboard, tab to a piece and press **Enter** to select it. Use the
+arrow keys to move selected track one stud per press in the direction shown
+on the drawing. Each step can be undone and bypasses rail-end snapping. After
 choosing **Move**, **Duplicate**, or paste, press **Enter** on a highlighted
 rail end to snap to it, or on the drawing to use the center of the view.
 Press **Esc** to cancel an active placement.

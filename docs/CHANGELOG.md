@@ -4,6 +4,8 @@
 
 ### Behavior or Interface Changes
 
+- Move selected track one stud at a time with the arrow keys, including in
+  rotated views. Each step can be undone.
 - Run the local Playwright suite in Firefox too; install Firefox, Chromium, and
   WebKit with `npm run setup:playwright`.
 - Make mouse editing easier on overlapping track: click selects the top piece,

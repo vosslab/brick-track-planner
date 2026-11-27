@@ -587,6 +587,23 @@ export class TrackTools {
     this.#startTranslation("move", selected, first);
   }
 
+  nudge(shift: Point): boolean {
+    if (!this.selecting || !this.#selected.size) return false;
+    const items = this.#selectedTrack();
+    if (!items.length) return false;
+    const analysis = this.#hooks.analysis();
+    if (protectedTrack(analysis.project, this.#selected)) {
+      this.#hooks.notice(protectedMessage, true);
+      return true;
+    }
+    const context = prepareTranslation(analysis, items);
+    const destination = chooseDestination(context, shift, 0, true);
+    const receipt =
+      items.length === 1 ? "Moved track piece." : `Moved ${items.length} track pieces.`;
+    this.#applyPlacement(previewTranslation(analysis, context, items, destination), receipt);
+    return true;
+  }
+
   #captureCopy(items: readonly TrackItem[]): TrackCopy {
     const analysis = this.#hooks.analysis();
     const ids = new Set(items.map(({ id }) => id));
