@@ -4,11 +4,13 @@
 
 ### Additions and New Features
 
+- Add **Layout > Color-coded track** to label straight lengths and curve
+  radii using the L-Gauge schematic palette for BlueBrick.
 - Add the 60 by 40 inch Mirrored S-bend crossings example. Two pairs of
   tracks swap sides through four factory-made TrixBrix 45-degree crossings.
-- Add the 75 by 40 inch Member R24 staging yard with six inset sidings for
-  pushing cars onto the inner mainline by hand. The TrixBrix R24 ladder spans
-  every baseplate column.
+- Add the 80 by 40 inch Member R24 staging yard with six flush sidings for
+  pushing cars onto the inner mainline by hand. S4 and S8 throat spacers align
+  every LEGO S16 run on the west edge.
 - Add the 100 by 40 inch Member R40 left yard template. Six storage tracks
   reach the left edge using LEGO RC/PF switches, full curves, and S16 straights.
 - Add the editable 100 by 70 inch R104 three-quarter return to **Browse examples**
@@ -90,6 +92,9 @@
   is available. Keep connected-fit recommendations valid for rail height.
 
 ### Fixes and Maintenance
+
+- Add [RELATED_PROJECTS.md](RELATED_PROJECTS.md) with LEGO track planners,
+  file formats, and geometry references from the LEGO UK Railway guide.
 
 - Document the Rockford mainline offset and the planner's choice of track
   parts for the 60 by 40 inch adaptation.

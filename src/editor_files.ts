@@ -40,7 +40,8 @@ const templates: readonly Template[] = [
   {
     file: "member-r24-staging-yard.ldr",
     name: "Member R24 staging yard",
-    purpose: "75 by 40 inch hand-push staging yard with six sidings and two straight mainlines.",
+    purpose:
+      "80 by 40 inch hand-push staging yard with six flush sidings and two straight mainlines.",
   },
   {
     file: "r104-semicircle-return.ldr",

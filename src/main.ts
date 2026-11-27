@@ -32,6 +32,7 @@ type LayoutTab = {
   id: string;
   state: EditorState;
   view: CameraView | undefined;
+  trackColors: boolean;
   savedProject: Project | undefined;
 };
 
@@ -190,6 +191,14 @@ class Planner {
       this.#areaForm.open();
     };
     button("edit-design-area").onclick = (): void => this.#editArea();
+    const trackColors = button("track-colors");
+    trackColors.onclick = (): void => {
+      const layout = this.#active;
+      if (!layout) return;
+      layout.trackColors = !layout.trackColors;
+      trackColors.setAttribute("aria-pressed", String(layout.trackColors));
+      this.#draw();
+    };
     button("undo").onclick = (): void => this.#history("undo");
     button("redo").onclick = (): void => this.#history("redo");
     button("fit-view").onclick = (): void => this.#draw(true);
@@ -295,6 +304,7 @@ class Planner {
       id: projectId("layout"),
       state,
       view,
+      trackColors: false,
       savedProject: saved ? state.project : undefined,
     };
     this.#layouts.push(tab);
@@ -339,6 +349,7 @@ class Planner {
       }
     }
     this.#active = tab;
+    button("track-colors").setAttribute("aria-pressed", String(tab?.trackColors ?? false));
     this.#closeMenus();
     element("editor").hidden = !tab;
     element("editor-controls").hidden = !tab;
@@ -472,6 +483,7 @@ class Planner {
       replacement: new Set(preview?.removedIds),
       addition: new Set(preview?.addedIds),
       placementWarnings: this.#warnedPieces,
+      trackColors: this.#active?.trackColors,
       reuse: this.#scene,
     });
     this.#camera.show(this.#scene, fit);

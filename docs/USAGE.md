@@ -282,6 +282,13 @@ drawing, including over track, to pan. Pinch with two fingers to zoom.
 View rotation turns the drawing while keeping each track piece in place.
 The icons show their names on hover or keyboard focus.
 
+Choose **Layout > Color-coded track** to switch between detailed parts and a
+color-coded drawing. The drawing labels curves by radius (such as R104) and
+straights by length in studs (such as S16). Zoom in to read the smaller labels,
+or select a part to see its full name in **Inspector**. Colors follow the
+[L-Gauge Schematic Color library for BlueBrick](https://l-gauge.org/wiki/index.php/CAD_Tools).
+Each open layout remembers its view while the editor is open.
+
 The parts panel totals physical pieces in the current design. **Diagnostics**
 reports overlaps, facing rail ends at different heights, protected NILTC
 mainline findings, and imported parts without usable geometry. Track may

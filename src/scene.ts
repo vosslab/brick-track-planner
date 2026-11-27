@@ -56,6 +56,7 @@ export type SceneOptions = {
   replacement?: ReadonlySet<string>;
   addition?: ReadonlySet<string>;
   placementWarnings?: ReadonlySet<string>;
+  trackColors?: boolean;
   routes?: readonly SceneRoute[];
   trace?: readonly SceneTrace[];
   grid?: boolean;
@@ -86,6 +87,7 @@ type SceneLayers = {
   ports: SVGGElement;
   itemLabels: SVGGElement;
   labels: SVGGElement;
+  trackColors: boolean;
   parts: Map<Part, string>;
   drawn: Map<string, Drawn>;
 };
@@ -155,6 +157,7 @@ function trackDrawing(
     part,
     selected || preview,
     item.heightPlates - (item.heightPlates === 2 ? 2 : 0),
+    layers.trackColors,
   );
   if (preview) group.setAttribute("opacity", "0.62");
   return { key: JSON.stringify([item, selected, preview, interaction]), node: group, bounds };
@@ -289,18 +292,24 @@ function drawArea(
   const surface = svg("g", { "clip-path": `url(#${layers.prefix}-area-clip)` });
   group.append(
     clip,
-    svg("path", { d, fill: defaultBaseplateColor, "data-baseplate-field": "true" }),
+    svg("path", {
+      d,
+      fill: options.trackColors ? "#e8eee2" : defaultBaseplateColor,
+      "data-baseplate-field": "true",
+    }),
     surface,
     svg("path", { d, fill: "none", stroke: "#313b32", "stroke-width": 0.72 }),
   );
-  surface.append(
-    svg("path", {
-      d,
-      fill: `url(#${layers.prefix}-studs)`,
-      style: detailStyle,
-      "pointer-events": "none",
-    }),
-  );
+  if (!options.trackColors) {
+    surface.append(
+      svg("path", {
+        d,
+        fill: `url(#${layers.prefix}-studs)`,
+        style: detailStyle,
+        "pointer-events": "none",
+      }),
+    );
+  }
   const seam = {
     stroke: "#203821",
     "stroke-width": 0.24,
@@ -508,6 +517,7 @@ function newScene(catalog: Catalog, options: SceneOptions): [SVGSVGElement, Scen
     ports: svg("g"),
     itemLabels: svg("g", { "pointer-events": "none" }),
     labels: svg("g", { "pointer-events": "none" }),
+    trackColors: false,
     parts: new Map(),
     drawn: new Map(),
   };
@@ -597,6 +607,9 @@ export function createScene(
       ? [options.reuse, prior]
       : newScene(catalog, options);
   const title = `Top-down layout of ${project.name}`;
+  layers.trackColors = options.trackColors ?? false;
+  if (layers.trackColors) scene.setAttribute("data-track-view", "coded");
+  else scene.removeAttribute("data-track-view");
   layers.title.textContent = title;
   scene.setAttribute("aria-label", title);
   scene.setAttribute("role", options.interaction ? "group" : "img");
@@ -651,6 +664,7 @@ export function createScene(
       drawing.node.style.setProperty("--track-rail", "#923722");
       drawing.node.style.setProperty("--track-tie", "#c96658");
       drawing.node.style.setProperty("--track-plastic", "9 52%");
+      drawing.node.style.setProperty("--track-code-outline", "#923722");
       drawing.node.setAttribute("data-replacement", "true");
     }
     if (options.addition?.has(item.id) || options.preview?.has(item.id)) {
@@ -658,6 +672,7 @@ export function createScene(
       drawing.node.style.setProperty("--track-rail", "#176f4f");
       drawing.node.style.setProperty("--track-tie", "#6ca980");
       drawing.node.style.setProperty("--track-plastic", "146 49%");
+      drawing.node.style.setProperty("--track-code-outline", "#176f4f");
       drawing.node.setAttribute("data-addition", "true");
     }
     includeBounds(bounds, drawing.bounds);

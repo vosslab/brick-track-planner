@@ -1,6 +1,7 @@
 import trackArtwork from "../data/ldraw/track_artwork.json" with { type: "json" };
 import type { Catalog, TrackItem } from "./project";
 import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
+import { codedTrackDrawing } from "./scene_track_colors";
 
 type Part = Catalog["parts"][number];
 type Ballast = NonNullable<TrackItem["ballast"]>;
@@ -143,6 +144,7 @@ export function partInstance(
   part: Part,
   selected: boolean,
   heightOffset: number,
+  trackColors: boolean,
 ): void {
   const ballast = item.ballast ?? "bare";
   group.setAttribute("data-ballast", ballast);
@@ -156,7 +158,7 @@ export function partInstance(
 
   const hasRails = part.paths.length > 0;
   const routeHref = `#${hasRails ? `${id}-route` : id}`;
-  if (hasRails && ballast !== "bare") {
+  if (!trackColors && hasRails && ballast !== "bare") {
     const shoulder = svg("g", {
       "data-ballast-shoulder": ballast,
       "stroke-linejoin": "round",
@@ -182,7 +184,13 @@ export function partInstance(
     );
     group.append(shoulder);
   }
-  group.append(svg("use", { href: `#${id}` }));
+  let codeLabel: SVGTextElement | undefined;
+  if (trackColors && hasRails) {
+    group.append(svg("path", { d: partGeometry(part).footprint, fill: "transparent" }));
+    codeLabel = codedTrackDrawing(group, routeHref, item, part, selected);
+  } else {
+    group.append(svg("use", { href: `#${id}` }));
+  }
 
   // Height stays legible above bare or ballasted track at every scale.
   if (heightOffset !== 0) {
@@ -203,6 +211,7 @@ export function partInstance(
           }),
     );
   }
+  if (codeLabel) group.append(codeLabel);
 }
 
 export function ballastPattern(prefix: string): SVGPatternElement {
@@ -248,6 +257,9 @@ export function studPattern(id: string, color: string): SVGPatternElement {
 }
 
 export function setSceneDetail(scene: SVGSVGElement, pixelsPerStud: number): void {
+  if (scene.getAttribute("data-track-view") === "coded") {
+    scene.style.setProperty("--track-code-short-labels", pixelsPerStud >= 6 ? "inline" : "none");
+  }
   const value = pixelsPerStud >= 3 ? "close" : pixelsPerStud >= 1 ? "overview" : "thumbnail";
   if (scene.getAttribute("data-scene-detail") === value) return;
   scene.setAttribute("data-scene-detail", value);

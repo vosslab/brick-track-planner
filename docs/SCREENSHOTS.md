@@ -291,6 +291,17 @@ in the editor. You can also download the [R104 right yard](../templates/member-y
 ![A member corner with an R120 outer mainline and an R104 inner mainline](screenshots/member_corner.webp)
 <!-- screenshots:end -->
 
+### Color-coded track view
+
+Open **Layout** and choose **Color-coded track** to switch from detailed track
+artwork to a planning view. The member corner shows the familiar L-Gauge
+colors, including blue R104 and burgundy R120 curves, with each track's type
+printed directly on it.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A member corner in color-coded track view, showing blue R104, burgundy R120, and gray straight sections](screenshots/track_color_view.webp)
+<!-- screenshots:end -->
+
 ### Member R104 right yard
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
@@ -309,13 +320,13 @@ pieces. Where space permits, the rear row is a single 16-stud straight.
 
 ### Member R24 staging yard
 
-This 75 by 40 inch template has six sidings for staging cars and pushing
-them by hand onto the inner mainline. The TrixBrix R24 ladder spans every
-baseplate column. Both mainlines run straight through, and the staging
-tracks end four studs inside the west edge.
+This 80 by 40 inch template has six sidings for staging cars and pushing
+them by hand onto the inner mainline. The TrixBrix R24 ladder uses S4 and S8
+spacers at the throat, so every track reaches the west edge and its LEGO S16
+straight sections line up on the same grid. Both mainlines run straight through.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 75 by 40 inch R24 staging yard with a compact ladder and six sidings set back from the west edge](screenshots/member_r24_staging_yard.webp)
+![An 80 by 40 inch R24 staging yard with a compact ladder and six tracks flush at the west edge](screenshots/member_r24_staging_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return

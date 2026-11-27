@@ -233,6 +233,15 @@ try {
       const name =
         file === "member-yard.ldr" ? "member_r104_yard" : file.slice(0, -4).replaceAll("-", "_");
       await capture(name, templatePage);
+      if (file === "member-corner.ldr") {
+        const layoutMenu = await openMenu(templatePage, "Layout");
+        await layoutMenu.getByRole("button", { name: "Color-coded track", exact: true }).click();
+        await expect(templatePage.locator("#tabletop svg")).toHaveAttribute(
+          "data-track-view",
+          "coded",
+        );
+        await capture("track_color_view", templatePage);
+      }
     } finally {
       await templatePage.close();
     }

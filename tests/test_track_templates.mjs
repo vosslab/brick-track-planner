@@ -89,12 +89,20 @@ test("the 100 by 40 R40 left yard reaches six storage tracks with standard LEGO 
   }
 });
 
-test("the compact R24 staging yard keeps six inset sidings off the straight through routes", () => {
+test("the R24 staging yard aligns six west-edge sidings on the LEGO S16 grid", () => {
   const result = evaluate(template("member-r24-staging-yard"));
-  const { area } = result.project;
-  assert.deepEqual([area.width, area.depth, area.niltc], [240, 128, "straight"]);
+  const { area, items } = result.project;
+  assert.deepEqual([area.width, area.depth, area.niltc], [256, 128, "straight"]);
   assertFits(result, result.project.name);
 
+  const legoStraights = new Set(
+    items.filter(({ partId }) => partId === "lego:rc-s16").map(({ id }) => id),
+  );
+  for (const { pieceId, x } of result.ports) {
+    if (legoStraights.has(pieceId)) {
+      assert.ok(Math.abs(x - 16 * Math.round(x / 16)) < 0.05, `${pieceId} aligns with the grid`);
+    }
+  }
   const [west, east] = area.exits;
   for (const lane of ["outer", "inner"]) {
     const mainline = traceRoute(result.routes, west[lane], east[lane]);
@@ -105,7 +113,8 @@ test("the compact R24 staging yard keeps six inset sidings off the straight thro
   const sidings = open.filter(({ y }) => y > 30).sort((first, second) => first.y - second.y);
   assert.equal(sidings.length, 6);
   for (const [index, end] of sidings.entries()) {
-    assert.ok(Math.hypot(end.x - 4, end.y - (40 + 16 * index)) < 0.05);
+    assert.ok(Math.hypot(end.x, end.y - (40 + 16 * index)) < 0.05);
+    assert.ok(legoStraights.has(end.pieceId));
     assert.deepEqual([end.angle, end.heightPlates], [180, 2]);
     const stagingRoute = traceRoute(result.routes, end, east.inner);
     assert.ok(stagingRoute?.some(({ radius }) => radius === 24));

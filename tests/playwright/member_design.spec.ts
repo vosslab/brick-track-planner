@@ -31,6 +31,58 @@ test("members can open every packaged NILTC template", async ({ planner }) => {
   }
 });
 
+test("members can use a color-coded track view without changing their layout", async ({
+  planner,
+  hasTouch,
+}) => {
+  await openEditorMenu(planner, "File");
+  await planner.getByLabel("Track templates").selectOption({ label: "Joel's 10-to-0 mainline" });
+
+  const tabs = planner.getByRole("tablist", { name: "Open layouts" });
+  const joel = tabs.getByRole("tab", { name: "Joel's 10-to-0 mainline", exact: true });
+  const original = tabs.getByRole("tab", { name: "My NILTC layout", exact: true });
+  const colorTrack = planner.locator("#track-colors");
+  const scene = planner.locator("#tabletop > svg");
+  const saved = (await saveProject(planner)).project;
+  const viewBox = await scene.getAttribute("viewBox");
+  const toggleColorTrack = async (): Promise<void> => {
+    await openEditorMenu(planner, "Layout");
+    if (hasTouch) await colorTrack.tap();
+    else await colorTrack.click();
+  };
+
+  await openEditorMenu(planner, "Layout");
+  await expect(colorTrack).toHaveAccessibleName("Color-coded track");
+  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
+  await expect(scene).not.toHaveAttribute("data-track-view");
+
+  await toggleColorTrack();
+  await expect(colorTrack).toHaveAttribute("aria-pressed", "true");
+  await expect(scene).toHaveAttribute("data-track-view", "coded");
+  await expect(scene).toHaveAttribute("viewBox", viewBox!);
+  for (const code of ["R104", "R120", "S32"]) {
+    const label = scene.locator(`text[data-track-code="${code}"]`).first();
+    await expect(label).toBeAttached();
+    if (!hasTouch) await expect(label).toBeVisible();
+  }
+  expect((await saveProject(planner)).project).toEqual(saved);
+
+  await toggleColorTrack();
+  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
+  await expect(scene).not.toHaveAttribute("data-track-view");
+
+  await toggleColorTrack();
+  if (hasTouch) await original.tap();
+  else await original.click();
+  await expect(colorTrack).toHaveAttribute("aria-pressed", "false");
+  await expect(scene).not.toHaveAttribute("data-track-view");
+
+  if (hasTouch) await joel.tap();
+  else await joel.click();
+  await expect(colorTrack).toHaveAttribute("aria-pressed", "true");
+  await expect(scene).toHaveAttribute("data-track-view", "coded");
+});
+
 test("members can save, reopen, and undo a five-inch design-area bump", async ({ planner }) => {
   const original = (await saveProject(planner)).project;
   await openEditorMenu(planner, "Layout");

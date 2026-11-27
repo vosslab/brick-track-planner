@@ -29,8 +29,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.
-- Use 10-inch multiples for NILTC tables. A 5-inch bump-out shifts the
-  opposite edge by the same amount to keep the table dimension.
+- Use 10-inch multiples for template and NILTC table dimensions. A 5-inch
+  bump-out shifts the opposite edge by the same amount to keep the table
+  dimension.
 - Use complete, practical arrangements such as a double crossover, aligned
   triple switch, double-ended four-track yard, and genuine R104 wye access.
   Do not make members solve the geometry from individual pieces first.
