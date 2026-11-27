@@ -132,7 +132,7 @@ export function renderDiagnostics(
   const count = warnings.length;
   fit.textContent = count
     ? `${count} placement ${count === 1 ? "warning" : "warnings"}. See Diagnostics.`
-    : "No placement warnings";
+    : "";
   fit.classList.toggle("bad-status", count > 0);
 }
 

@@ -26,6 +26,9 @@ export function renderEditControls({
 }: EditControlsState): void {
   const translation = kind === "move" || kind === "duplicate";
   const selecting = !arrangement && (kind === "select" || kind === "drag");
+  const selectingTrack = selecting && selected.size > 0;
+  const pasteAvailable = !button("paste-track").disabled;
+  const transformActions = element("track-transform-actions");
   if (kind !== "drag") {
     const [selectedId] = selected.values();
     button("select-arrangement").hidden =
@@ -35,7 +38,12 @@ export function renderEditControls({
         (item) => item.id === selectedId && item.kind === "track" && item.groupId,
       );
   }
-  element("selection-actions").hidden = !selecting;
+  button("move-track").hidden = !selectingTrack;
+  button("copy-track").hidden = !selectingTrack;
+  button("remove-piece").hidden = !selectingTrack;
+  button("paste-track").hidden = !selecting || !pasteAvailable;
+  element("selection-actions").hidden = !selecting || (!selectingTrack && !pasteAvailable);
+  transformActions.toggleAttribute("hidden", !selectingTrack);
   element("placement-actions").hidden = selecting;
   element("placement-grid").hidden = !translation;
   button("place-edit").hidden = kind !== "connect";
@@ -44,6 +52,10 @@ export function renderEditControls({
   element("tabletop").dataset["editTool"] = selecting ? "selection" : "placement";
   const hint = element("track-edit-hint");
   hint.toggleAttribute("data-error", preview?.kind === "blocked" && Boolean(preview.message));
+  hint.toggleAttribute(
+    "data-contextual",
+    Boolean(preview?.message) || arrangement || kind !== "select" || multiple || selected.size > 0,
+  );
   if (preview?.message && (!translation || preview.kind === "blocked")) {
     hint.textContent = preview.message;
     return;

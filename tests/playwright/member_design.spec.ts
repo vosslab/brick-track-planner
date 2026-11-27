@@ -2,9 +2,10 @@ import { expect } from "@playwright/test";
 
 import {
   boot,
-  chooseFile,
   createProject,
   drawingPoint,
+  chooseEditorFile,
+  openEditorMenu,
   openEditingPlan,
   pickDrawing,
   saveProject,
@@ -22,6 +23,7 @@ test("members can open every packaged NILTC template", async ({ planner }) => {
     ["Joel's 10-to-0 mainline", "Joel's 10-to-0 mainline"],
   ] as const;
   for (const [option, name] of templates) {
+    await openEditorMenu(planner, "File");
     await planner.getByLabel("Track templates").selectOption({ label: option });
     await expect(planner.getByLabel("Layout name")).toHaveValue(name);
   }
@@ -29,6 +31,7 @@ test("members can open every packaged NILTC template", async ({ planner }) => {
 
 test("members can save, reopen, and undo a five-inch design-area bump", async ({ planner }) => {
   const original = (await saveProject(planner)).project;
+  await openEditorMenu(planner, "Layout");
   const edit = planner.getByRole("button", { name: "Design area", exact: true });
   const dialog = planner.getByRole("dialog", { name: "Edit your design area" });
   const size = planner.locator("#design-size");
@@ -51,23 +54,20 @@ test("members can save, reopen, and undo a five-inch design-area bump", async ({
   expect(saved.project.items).toEqual(original.items);
   expect(saved.project.area.outline).toContainEqual({ x: 32, y: -16 });
   expect(saved.project.area.outline).toContainEqual({ x: 32, y: 112 });
-  await chooseFile(
-    planner,
-    planner.getByRole("button", { name: "Open track plan", exact: true }),
-    saved.path,
-  );
+  await chooseEditorFile(planner, saved.path);
   await expect(size).toContainText("60 \u00d7 45 in overall");
 });
 
 test("members can open small and R104 return examples from the gallery", async ({ page }) => {
   await boot(page, { startProject: false });
-  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+  await page.locator("#start-browse-examples").click();
   const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
   await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
   await expect(gallery).toBeHidden();
   await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
   await expect(page.locator("#design-size")).toContainText("40 \u00d7 40");
 
+  await openEditorMenu(page, "File");
   await page.getByRole("button", { name: "Browse examples", exact: true }).click();
   await gallery.getByRole("button", { name: "Open R104R \u00b7 R104 3/4-circle return" }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("R104 3/4-circle return");
@@ -85,18 +85,12 @@ test("members can move track in a rotated view and undo it", async ({ page, hasT
   const canvas = page.locator("#tabletop");
   const movedY = item.y + 16;
   const destination = await drawingPoint(canvas, 0, movedY);
-  if (hasTouch) {
-    await canvas.getByRole("button", { name: "RC/PF straight S16", exact: true }).tap();
-    await page.getByRole("button", { name: "Move", exact: true }).click();
-    await canvas.tap({ position: destination.position });
-  } else {
-    const { screen } = await drawingPoint(canvas, item.x, item.y);
-    await page.mouse.move(screen.x, screen.y);
-    await page.mouse.down();
-    await page.mouse.move(destination.screen.x, destination.screen.y, { steps: 3 });
-    await expect(canvas.locator("[data-edit-preview] > *").first()).toBeVisible();
-    await page.mouse.up();
-  }
+  const track = canvas.getByRole("button", { name: "RC/PF straight S16", exact: true });
+  if (hasTouch) await track.tap();
+  else await track.click();
+  await page.getByRole("button", { name: "Move", exact: true }).click();
+  if (hasTouch) await canvas.tap({ position: destination.position });
+  else await canvas.click({ position: destination.position });
   expect((await saveProject(page)).project.items).toEqual([{ ...item, x: 0, y: movedY }]);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   expect((await saveProject(page)).project).toEqual(original);
@@ -115,6 +109,7 @@ test("deleting selected pieces leaves nearby track and undoes in one step", asyn
   const west = page.locator("#scene-item-west");
   const middle = page.locator("#scene-item-middle");
   if (hasTouch) {
+    await openEditorMenu(page, "Tools");
     await page.getByRole("button", { name: "Select multiple" }).tap();
     await west.tap();
     await middle.tap();
@@ -137,6 +132,7 @@ test("Connect two ends fills an aligned gap in one undoable edit", async ({ page
   ]);
   const from = page.locator('#tabletop [data-piece-id="west"][data-port-id="b"]');
   const to = page.locator('#tabletop [data-piece-id="east"][data-port-id="a"]');
+  await openEditorMenu(page, "Tools");
   await page.getByRole("button", { name: "Connect two ends" }).click();
   await from.press("Enter");
   await to.press("Enter");
@@ -145,6 +141,52 @@ test("Connect two ends fills an aligned gap in one undoable edit", async ({ page
   await expect(to).toHaveAttribute("data-open", "false");
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   expect((await saveProject(page)).project.items).toEqual(original.items);
+});
+
+test("phone editor opens with a reachable drawing and panels", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({
+    baseURL,
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 390, height: 844 },
+  });
+  try {
+    const page = await context.newPage();
+    await boot(page, { startProject: false });
+    const dimensions = await page.locator("#area-width, #area-depth").evaluateAll((elements) =>
+      elements.map((element) => {
+        const bounds = element.getBoundingClientRect();
+        return { top: bounds.top, width: bounds.width };
+      }),
+    );
+    expect(dimensions[0]!.width).toBeGreaterThan(300);
+    expect(dimensions[1]!.width).toBeGreaterThan(300);
+    expect(dimensions[1]!.top).toBeGreaterThan(dimensions[0]!.top);
+
+    await createProject(page);
+    const canvas = page.locator("#tabletop");
+    await expect(canvas).toBeInViewport({ ratio: 0.8 });
+    await page.getByRole("button", { name: "Add track", exact: true }).click();
+    await expect
+      .poll(() =>
+        page.getByRole("heading", { name: "Add track", exact: true }).evaluate((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.top >= 0 && bounds.bottom <= window.innerHeight;
+        }),
+      )
+      .toBe(true);
+    await page.getByRole("button", { name: "Inspector", exact: true }).click();
+    await expect
+      .poll(() =>
+        page.getByRole("heading", { name: "Inspector", exact: true }).evaluate((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.top >= 0 && bounds.bottom <= window.innerHeight;
+        }),
+      )
+      .toBe(true);
+  } finally {
+    await context.close();
+  }
 });
 
 test("free placement flags a siding that does not fit the display", async ({ page, hasTouch }) => {

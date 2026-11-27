@@ -343,9 +343,6 @@ p {
 .file-controls {
   color: var(--ink);
 }
-.project-file-action {
-  display: contents;
-}
 .file-controls .primary:not(:disabled) {
   color: var(--ink);
   background: var(--brick-yellow);
@@ -424,7 +421,6 @@ p {
   gap: 0.42rem;
 }
 .file-controls,
-.project-actions,
 .toolbar-group,
 .dialog-actions {
   display: flex;
@@ -433,26 +429,8 @@ p {
   flex-wrap: wrap;
 }
 .file-controls,
-.project-actions,
 .canvas-toolbar {
   font-size: 0.87rem;
-}
-.project-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 0.55rem 1rem;
-  padding: 0.55rem 0 0.65rem;
-}
-.project-title {
-  display: grid;
-  min-width: 0;
-}
-.project-title :is(label, #design-title) {
-  padding-inline: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 650;
-  color: var(--muted);
 }
 #project-name {
   font-size: clamp(1.15rem, 2vw, 1.55rem);
@@ -774,8 +752,7 @@ dialog h2 {
     height: auto;
     min-height: 100dvh;
   }
-  .app-header,
-  .project-bar {
+  .app-header {
     flex-wrap: wrap;
   }
   input:not([type="checkbox"]),
@@ -843,18 +820,6 @@ dialog h2 {
 @media (max-width: 360px) {
   .file-controls button {
     padding-inline: 0.42rem;
-  }
-  .project-title {
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .project-title :is(label, #design-title) {
-    flex: none;
-  }
-  #project-name {
-    flex: 1;
-    min-width: 0;
   }
 }
 

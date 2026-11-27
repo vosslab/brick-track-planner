@@ -21,6 +21,15 @@ Choose **Curve** to see both corner options.
 ![Curve setup showing mirrored drawings for the top-left and top-right corners](screenshots/member_curve_options.webp)
 <!-- screenshots:end -->
 
+### Phone setup
+
+At phone width, the width and depth choices stack so their complete baseplate
+counts stay visible.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Phone setup with full width and depth baseplate choices](screenshots/mobile_setup.webp)
+<!-- screenshots:end -->
+
 ### Blank General editor
 
 Choose **General** to start with an empty drawing and add the track
@@ -36,6 +45,15 @@ Choose **Straight** to start with the two shared club tracks already in place.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A new 60 by 40 inch Straight assignment with both club mainlines and Arrangement selected](screenshots/member_mainline_start.webp)
+<!-- screenshots:end -->
+
+### Phone editor
+
+The first editor view keeps the drawing dominant. Use **File**, **Layout**, or
+**Tools** for commands that are not needed for the current editing step.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Phone editor with the Back-out siding drawing visible on first open](screenshots/mobile_editor.webp)
 <!-- screenshots:end -->
 
 ## Place track
@@ -75,9 +93,9 @@ piece. On touch, choose **Select multiple** and tap the pieces. Choose
 
 ## Compare two versions
 
-Choose **Duplicate plan** and give the copy a short name in **Layout name**.
-Edit the copy, then click either tab to compare the two versions. Choose
-**Save track plan** from each tab you want to keep.
+Open **Layout**, choose **Duplicate plan**, and give the copy a short name in
+**Layout name**. Edit the copy, then click either tab to compare the two
+versions. Use the direct **Save** button from each tab you want to keep.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![The original plan and a practice copy in two layout tabs above the drawing](screenshots/layout_tabs.webp)
@@ -85,10 +103,11 @@ Edit the copy, then click either tab to compare the two versions. Choose
 
 ## Change the table outline
 
-In a Straight plan, choose **Design area**, select the north edge, and choose
-**Shift a span**. Start 10 inches from the left, set the span to 20 inches,
-and move it 5 inches toward the selected edge. The dashed line marks the
-original outline. The opposite edge moves inward by the same amount.
+In a Straight plan, open **Layout** and choose **Design area**, select the
+north edge, and choose **Shift a span**. Start 10 inches from the left, set
+the span to 20 inches, and move it 5 inches toward the selected edge. The
+dashed line marks the original outline. The opposite edge moves inward by the
+same amount.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A 5-inch bump-out along the north edge and a matching inset on the south edge, with both mainlines in place](screenshots/member_table_shift.webp)
@@ -227,8 +246,8 @@ direction. [Download the editable track plan](../templates/r104-three-quarter-re
 
 ## Other templates
 
-Open these plans from **Other templates** on the start screen or in the editor.
-You can also download the [R104 yard](../templates/member-yard.ldr),
+Open these plans from **Other templates** on the start screen or from **File**
+in the editor. You can also download the [R104 yard](../templates/member-yard.ldr),
 [R104 semicircle return](../templates/r104-semicircle-return.ldr), or
 [R120 corner return](../templates/r120-corner-return.ldr) and use
 **Open track plan** in the planner.
@@ -295,3 +314,6 @@ node tests/playwright/helper_readme_screenshots.mjs \
 The capture checks the served templates against the working tree. Inspect
 each affected view and replace its WebP in `docs/screenshots/` with the
 verified capture alongside the layout or interface change.
+
+The desktop frames are 1600 by 1000 CSS pixels. The phone setup and editor
+captures are 390 by 844 CSS pixels.

@@ -22,6 +22,13 @@
 
 ### Behavior or Interface Changes
 
+- Give the drawing more room with compact File, Layout, and Tools menus and
+  editing actions that appear as needed. Use one desktop sidebar and provide
+  phone shortcuts to Add track and Inspector below the drawing.
+- Give Undo, Redo, and the camera icons square buttons and keyboard and pointer
+  tooltips. Stack Setup's dimension fields at narrow widths so the baseplate
+  counts stay readable. Capture desktop documentation at 1600 by 1000.
+
 - Use NILBC blue, cream, and brick yellow across setup, the example gallery,
   and the track editor.
 - Add three rear storage tracks to the 100 by 40 inch Member R104 right yard

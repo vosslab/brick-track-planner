@@ -75,6 +75,24 @@ export async function chooseFile(page: Page, button: Locator, path: string): Pro
   await chooser.setFiles(path);
 }
 
+export async function openEditorMenu(page: Page, name: "File" | "Layout" | "Tools"): Promise<void> {
+  const menu = page.locator(`#${name.toLowerCase()}-menu`);
+  if (await menu.evaluate((element) => !(element instanceof HTMLDetailsElement) || !element.open)) {
+    await menu.locator("summary").click();
+  }
+  await expect(menu).toHaveAttribute("open", "");
+}
+
+export async function chooseEditorFile(page: Page, path: string): Promise<void> {
+  await openEditorMenu(page, "File");
+  await chooseFile(page, page.getByRole("button", { name: "Open track plan", exact: true }), path);
+}
+
+export async function chooseTrackPlan(page: Page, path: string): Promise<void> {
+  if (await page.locator("#editor").isVisible()) return chooseEditorFile(page, path);
+  await chooseFile(page, page.locator("#start-open-project"), path);
+}
+
 export async function saveProject(page: Page): Promise<{ path: string; project: Project }> {
   const [download] = await Promise.all([
     page.waitForEvent("download"),

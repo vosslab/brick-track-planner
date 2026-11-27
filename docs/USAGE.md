@@ -6,6 +6,10 @@ The first screen starts a member design. Enter the width along the track and
 the depth from the plexiglass. Common values are expressed in inches and
 baseplates, and **Other** accepts a specific size.
 
+The start screen keeps direct **Open track plan**, **Browse examples**,
+**Other templates**, and **Import BlueBrick** choices alongside the new-design
+form.
+
 The default NILTC depth is 40 inches. For a common 60 by 40 inch display,
 choose 60 inches for the width, 40 inches for the depth, and **Straight**,
 then choose **Create track plan**. The editor opens with both mainlines and
@@ -35,7 +39,7 @@ track instead of moving baseplates.
 
 ## Compare track examples
 
-Choose **Browse examples** on the start screen or in the editor. The straight
+Choose **Browse examples** on the start screen or under **File** in the editor. The straight
 collections start with the mainline and back-out siding, then order the plans by
 physical track piece count. Under **100 &times; 70 inches**, choose **R104R** for a
 three-quarter return that connects the two mainlines on the same edge.
@@ -67,9 +71,10 @@ gallery and returns to the current layout.
 ## Work with layout tabs
 
 **New design**, **Open track plan**, templates, examples, and accepted
-BlueBrick imports each open another layout tab above the drawing. Choose a
-tab to switch layouts. Each keeps its edits, Undo/Redo history, pan, zoom,
-and view rotation. Rename the active layout in **Layout name**.
+BlueBrick imports each open another layout tab above the drawing. In the editor,
+find these commands under **File**. Choose a tab to switch layouts. Each keeps
+its edits, Undo/Redo history, pan, zoom, and view rotation. Open **Layout** to
+rename the active layout, change its design area, duplicate it, or close it.
 
 On a keyboard, tab into the layout strip. Arrow keys move between tab names.
 **Home** and **End** reach either end. **Enter** or **Space** opens the focused
@@ -78,10 +83,11 @@ Switching layouts cancels an unfinished placement preview.
 
 ### Copy between two yards
 
-1. Use **Open track plan** twice to open Yard A and Yard B, or open two examples.
+1. Open **File**, then use **Open track plan** twice to open Yard A and Yard B,
+   or open two examples.
 2. In Yard A, select the track to copy. Use **Shift+click** or **Select multiple**
    for several pieces. For a complete installed siding, select one piece and
-   choose **Select arrangement**.
+   open **Tools** and choose **Select arrangement**.
 3. Choose **Copy**, switch to Yard B, then choose **Paste**.
 4. Point to a destination to preview the copy, then click or tap to place it.
    If the track overlaps, the planner flags it after placement. **Esc** or
@@ -97,16 +103,16 @@ or closing its source. Choose **Paste** again for another independent copy.
 ### Compare an edited variant
 
 1. Open the original layout and choose the view you want to compare.
-2. Choose **Duplicate plan**. The new tab includes your unsaved edits and starts
+2. Open **Layout** and choose **Duplicate plan**. The new tab includes your unsaved edits and starts
    at the same view, with a name such as `East yard (copy)`.
-3. Rename the copy in **Layout name**, then edit its track.
+3. Open **Layout**, rename the copy in **Layout name**, then edit its track.
 4. Switch between the original and copy to compare. Edits and later view
    changes in either layout leave the other alone.
-5. Choose **Save track plan** in each layout you want to keep.
+5. Choose **Save** in each layout you want to keep.
 
 ## Change the table outline
 
-Choose **Design area** while editing a layout. Pick the edge and enter how far
+Open **Layout**, then choose **Design area**. Pick the edge and enter how far
 to move it. You can extend or trim any side. For a NILTC layout, use 10-inch
 steps to move a full edge, or choose **Shift a span** to offset part of a table
 in 5-inch steps. A 5-inch bump-out on one side moves the opposite edge in by
@@ -125,7 +131,9 @@ the outline with the track plan.
 
 For a NILTC assignment, **Add track** starts in **Arrangement** mode. It is the
 quickest way to add a useful connected build. A **General** layout starts in
-**Single piece** mode so you can begin its track.
+**Single piece** mode so you can begin its track. On desktop, use the **Add track**
+sidebar switch. On phones, choose **Add track** below the drawing. **Back to drawing**
+returns to the canvas and **Show drawing** brings an active siding preview back into view.
 
 1. Keep **Back-out parking siding** selected.
 2. Choose **Preview on track**. The preview identifies an aligned replacement
@@ -182,7 +190,8 @@ heights for repair.
   Its 32-stud tail fits in a 100 by 60 inch area; use 100 by 70 inches for a
   64-stud tail.
 
-For a 100 by 40 inch example, choose **Member yard** under **Other templates**.
+For a 100 by 40 inch example, open **File**, then choose **Member yard** under
+**Other templates**.
 The inner mainline feeds six parallel storage tracks through the R104 ladder.
 All six storage tracks and both mainlines reach the right edge.
 [See the 100 by 40 inch R104 yard](screenshots/member_r104_yard.webp).
@@ -219,12 +228,12 @@ destination.
 Hold **Command** on Mac or **Ctrl** elsewhere and click to add or remove
 individual pieces. Hold the same key and drag a box that fully encloses
 several pieces to add them together. **Shift+click** and **Select multiple**
-also work for individual pieces. For an installed kit, choose one of its
-pieces and then **Select arrangement**.
+under **Tools** also work for individual pieces. For an installed kit, choose
+one of its pieces, then open **Tools** and choose **Select arrangement**.
 
 Choose **Move** to move the selection together and keep its internal joints.
 The preview marks any joints to stationary track that the move opens.
-Choose **Delete selected track** or press **Delete** to remove the selection
+Choose **Delete** or press **Delete** to remove the selection
 in one edit. Deselect any piece carrying a named mainline handoff before
 moving or deleting the rest of the selection. Track can extend through a
 handoff to connect to the next display.
@@ -232,10 +241,12 @@ handoff to connect to the next display.
 Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
 Choose **1-stud grid** to make a smaller adjustment for that placement. For a
 single piece you can enter X and Y in studs under **Exact position** in the
-inspector. X increases to the right and Y increases down. The toolbar also
-offers **Rotate left**, **Rotate right**, and **Duplicate** for a single
-piece. Each rotation is 90 degrees. **Undo** and **Redo** apply one design
-operation at a time.
+inspector. On desktop, use the **Inspector** sidebar switch. On phones, choose
+**Inspector** in the toolbar to jump to the panel below the drawing. X
+increases to the right and Y increases down.
+**Tools** offers **Rotate left**, **Rotate right**, and **Duplicate** for a
+single piece. Each rotation is 90 degrees. The Undo and Redo icon buttons show
+their names on hover or keyboard focus and apply one design operation at a time.
 
 Choose **Duplicate** to copy one selected piece within the current layout.
 Click or tap the destination to place it. Use **Copy** and **Paste** for
@@ -243,7 +254,7 @@ selected pieces or a complete siding, including between layout tabs as
 described above. You can put track down even when it does not fit. Review the
 flagged track, then move or delete it to fix the problem.
 
-To fill a straight gap, choose **Connect two ends** and select two open
+To fill a straight gap, open **Tools**, choose **Connect two ends**, and select two open
 rail ends. The ends need to face each other on the same line and at the
 same height. Review the gap length and parts, then choose **Place**. To add
 a larger component for a turn or branch, preview it in **Arrangement** and
@@ -257,7 +268,8 @@ Press **Esc** to cancel an active placement.
 Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
 or trackpad. On touch, when no track is held, drag one finger anywhere in the
 drawing, including over track, to pan. Pinch with two fingers to zoom. The rotate button
-beside **Fit view** turns the view without rotating any track pieces.
+beside **Fit view** turns the view without rotating any track pieces. The zoom
+and rotate-view icons show their names on hover or keyboard focus.
 
 The parts panel totals physical pieces in the current design. **Diagnostics**
 reports overlaps, facing rail ends at different heights, protected NILTC
@@ -269,21 +281,21 @@ route panel highlights the selected path.
 
 ## Save and export
 
-**Save track plan** downloads the active layout as an editable LDraw `.ldr`
+**Save** downloads the active layout as an editable LDraw `.ldr`
 file using its layout name. Switch tabs and save each layout you want to keep.
-Share that file with other LDraw users or use **Open track plan** to continue working on it here.
+Share that file with other LDraw users or open **File** and use **Open track plan** to continue working on it here.
 The planner opens the track files it creates, including its templates.
-**Import BlueBrick** creates a
+**Import BlueBrick** on the start screen or under **File** creates a
 reviewable track plan in the current design-area model and identifies any part
 the catalog cannot place.
 
-Choose PNG or WebP for a drawing. Choose PDF for a member build sheet with
+Open **File** to choose PNG or WebP for a drawing, or PDF for a member build sheet with
 design area dimensions, public edge, assigned mainline, named exits, drawing,
 route information, and parts list. Exports use the active layout and do not
 save its editable track plan. PDF export preserves the layout's colors. Use
 the printer's black-and-white setting when a monochrome handout is needed.
 
-**Close layout** closes the active tab. With unsaved changes, choose
+Open **Layout** and choose **Close layout** to close the active tab. With unsaved changes, choose
 **Keep editing** or press **Esc** to keep it open. **Discard changes** closes
 it. An unchanged file or template closes immediately, as does a layout
 unchanged since its last save. New designs, duplicates, and BlueBrick imports

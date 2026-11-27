@@ -5,6 +5,7 @@ import type { ArrangementResult, PlacementWarning } from "./arrangements";
 import { ArrangementTools } from "./editor_arrangements";
 import { EditorCamera } from "./editor_camera";
 import type { CameraView } from "./editor_camera";
+import { setupEditorControls } from "./editor_controls";
 import { button, element, input } from "./editor_dom";
 import { errorMessage, setupFiles } from "./editor_files";
 import { renderInventory } from "./editor_inventory";
@@ -57,6 +58,7 @@ function start(setup: AreaSetup, catalog: Catalog): Project {
 class Planner {
   readonly #catalog: Catalog;
   readonly #camera: EditorCamera;
+  readonly #closeMenus: () => void;
   readonly #layouts: LayoutTab[] = [];
   readonly #tabs: ReturnType<typeof setupTabs>;
   readonly #areaForm: ReturnType<typeof setupAreaForm>;
@@ -72,6 +74,7 @@ class Planner {
 
   constructor(catalog: Catalog) {
     this.#catalog = catalog;
+    this.#closeMenus = setupEditorControls();
     const tabletop = element("tabletop");
     this.#camera = new EditorCamera(tabletop, {
       tap: (point, target, multiple): void => {
@@ -336,10 +339,12 @@ class Planner {
       }
     }
     this.#active = tab;
+    this.#closeMenus();
     element("editor").hidden = !tab;
     element("start-screen").hidden = Boolean(tab);
-    button("open-project").hidden = !tab;
-    element("project-file-actions").hidden = !tab;
+    element("file-menu").hidden = !tab;
+    button("save-project").hidden = !tab;
+    button("start-import-project").hidden = Boolean(tab);
     document.body.toggleAttribute("data-project-open", Boolean(tab));
     if (!tab) {
       this.#renderTabs();
@@ -352,6 +357,7 @@ class Planner {
     this.#arrangements.useDefaults();
     this.#tracks.useDefaultTool();
     this.#reset(false, true);
+    if (!outgoing) window.scrollTo(0, 0);
   }
 
   #duplicate(): void {

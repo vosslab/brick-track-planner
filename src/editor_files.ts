@@ -62,7 +62,10 @@ export function setupFiles(
 ): void {
   let importReview: ImportReview | undefined;
   let importing = false;
-  const importButton = button("import-project");
+  const importButtons = [button("import-project"), button("start-import-project")];
+  function disableImport(disabled: boolean): void {
+    for (const control of importButtons) control.disabled = disabled;
+  }
   const preview = dialog("import-preview");
   const previewImport = async (result: ImportReview): Promise<void> => {
     while (true) {
@@ -89,7 +92,7 @@ export function setupFiles(
   preview.addEventListener("close", () => {
     importReview = undefined;
     importing = false;
-    importButton.disabled = false;
+    disableImport(false);
   });
   button("cancel-import").addEventListener("click", () => {
     preview.close();
@@ -116,7 +119,7 @@ export function setupFiles(
     const intent = hooks.beginOpen();
     if (bluebrick) {
       importing = true;
-      importButton.disabled = true;
+      disableImport(true);
     }
     try {
       if (bluebrick && file.size > MAX_BLUEBRICK_FILE_BYTES) {
@@ -131,7 +134,7 @@ export function setupFiles(
     } catch (error) {
       if (bluebrick) {
         importing = false;
-        importButton.disabled = false;
+        disableImport(false);
       }
       hooks.notice(`${file.name}: ${errorMessage(error)}`, true);
     }
@@ -143,7 +146,9 @@ export function setupFiles(
   input("project-file").addEventListener("change", () => {
     void processFile(input("project-file"), false);
   });
-  importButton.addEventListener("click", () => input("import-file").click());
+  for (const control of importButtons) {
+    control.addEventListener("click", () => input("import-file").click());
+  }
   input("import-file").addEventListener("change", () => {
     void processFile(input("import-file"), true);
   });
@@ -261,9 +266,11 @@ export function setupFiles(
 
   const exportFormat = select("export-format");
   const rasterResolution = select("raster-resolution");
+  const rasterResolutionLabel = element("raster-resolution-label");
   const updateExportOptions = (): void => {
     const format = exportFormat.value;
     rasterResolution.hidden = format !== "png" && format !== "webp";
+    rasterResolutionLabel.hidden = rasterResolution.hidden;
   };
   exportFormat.addEventListener("change", updateExportOptions);
   updateExportOptions();

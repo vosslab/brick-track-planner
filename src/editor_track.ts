@@ -1,4 +1,4 @@
-import { button, element, input, select } from "./editor_dom";
+import { button, element, input, select, toCanvas } from "./editor_dom";
 import { areaCenter } from "./area_outline";
 import { renderEditControls, renderSelectionInfo } from "./editor_track_controls";
 import {
@@ -203,7 +203,7 @@ export class TrackTools {
       element("piece-info").textContent = message;
       this.#editControls();
       this.#hooks.render();
-      element("tabletop").focus({ preventScroll: true });
+      toCanvas();
       return;
     }
     const { area } = this.#hooks.analysis().project;
@@ -298,6 +298,7 @@ export class TrackTools {
     if (!items.length) return false;
     this.#copied = this.#captureCopy(items);
     button("paste-track").disabled = false;
+    this.#editControls();
     this.#hooks.notice("Track copied. Paste to place a duplicate.");
     return true;
   }
@@ -325,6 +326,7 @@ export class TrackTools {
     element("route-info").textContent = instruction;
     this.#editControls();
     this.#hooks.render();
+    toCanvas();
   }
 
   reset(clearSelection = false): void {
@@ -635,7 +637,7 @@ export class TrackTools {
     this.#interaction = { kind: "connect" };
     this.#editControls();
     this.#hooks.render();
-    element("tabletop").focus({ preventScroll: true });
+    toCanvas();
   }
 
   #pickGapEnd(
@@ -795,6 +797,8 @@ export class TrackTools {
 
   #editControls(): void {
     const edit = this.#interaction;
+    // Canvas coordinates for a direct drag depend on the control geometry at pointer-down.
+    if (edit.kind === "drag") return;
     renderEditControls({
       kind: edit.kind,
       preview: "preview" in edit ? edit.preview : undefined,

@@ -25,10 +25,10 @@ return in the gallery. [Screenshot and track plan](docs/SCREENSHOTS.md#r104r---r
 1. Open the planner and choose **Browse examples**.
 2. Under **60 &times; 40 inches**, choose the **BOS** drawing for **Back-out siding**.
    The example opens as an editable drawing. Click a piece to select it.
-3. Choose **Duplicate plan** to experiment in a second layout tab. Click
-   either tab to switch between the two layouts.
-4. Choose **Save track plan** to download the active layout as an editable
-   LDraw (`.ldr`) file. Use **Open track plan** to continue working on it later.
+3. Open **Layout**, then choose **Duplicate plan** to experiment in a second
+   layout tab. Click either tab to switch between the two layouts.
+4. Choose **Save** to download the active layout as an editable LDraw (`.ldr`)
+   file. Open **File** and choose **Open track plan** to continue working on it later.
 
 ## Start with your assigned space
 
@@ -36,8 +36,9 @@ return in the gallery. [Screenshot and track plan](docs/SCREENSHOTS.md#r104r---r
    depth, and track shape. To make a similar plan, use **60 in**,
    **40 in**, and **Straight**, then choose **Create track plan**.
    Both club mainlines appear.
-2. In **Add track**, keep **Arrangement** and **Back-out parking siding**
-   selected. Choose **Preview on track** to see where the siding fits.
+2. In the desktop sidebar, choose **Add track**, then keep **Arrangement** and
+   **Back-out parking siding** selected. On a phone, choose **Add track** below
+   the drawing. Choose **Preview on track** to see where the siding fits.
 3. Choose **Add to layout**. The green preview becomes part of your plan.
    You can now save the plan or share a PDF parts list.
 
@@ -47,16 +48,18 @@ point and how to place your first piece. [docs/SCREENSHOTS.md](docs/SCREENSHOTS.
 
 ## What you can do next
 
-- **Edit a piece.** Select it to move, rotate, or copy it. When holding a piece,
-  click or tap the drawing to put it down. Check **Diagnostics** if it turns red.
+- **Edit a piece.** Select it to move, rotate, or copy it. The relevant commands
+  appear beside the drawing, with more commands under **Tools**. When holding a
+  piece, click or tap the drawing to put it down. Check **Diagnostics** if it turns red.
 - **Edit several pieces together.** Hold **Command** on Mac or **Ctrl**
   elsewhere and drag a box around the pieces. Move or delete them as a group.
-- **Explore other plans.** Try **DTS60** for a drive-through siding or **4TRY**
-  for a small yard. **Other templates** has curve, yard, and turnaround plans.
+- **Explore other plans.** Open **File**, then choose **Browse examples** for
+  **DTS60** or **4TRY**, or use **Other templates** for curve, yard, and
+  turnaround plans.
 - **Check a route and count your parts.** Use **Trace route** to see how a
   train reaches storage. The parts tally counts the actual track pieces.
-- **Share a drawing or build sheet.** Export PNG or WebP for a picture, or PDF
-  for a layout drawing with the club connections and parts list.
+- **Share a drawing or build sheet.** Open **File** and export PNG or WebP for
+  a picture, or PDF for a layout drawing with the club connections and parts list.
 
 ## Run the local editor
 

@@ -24,7 +24,9 @@ if (!baseUrl || !outputDirectory) {
 const output = resolve(outputDirectory);
 await mkdir(output, { recursive: true });
 
-const desktopViewport = { width: 1280, height: 800 };
+// Documentation frames use the repository's 16:10 target at CSS-pixel resolution.
+const desktopViewport = { width: 1600, height: 1000 };
+const phoneViewport = { width: 390, height: 844 };
 const screenshotOptions = { animations: "disabled", caret: "hide" };
 async function verifyTemplate(page, file) {
   const template = new URL(`../../templates/${file}`, import.meta.url);
@@ -40,10 +42,7 @@ async function verifyTemplate(page, file) {
 
 const browser = await chromium.launch({ headless: true });
 try {
-  const page = await browser.newPage({
-    viewport: desktopViewport,
-    deviceScaleFactor: 1.5,
-  });
+  const page = await browser.newPage({ viewport: desktopViewport });
   const start = async (target = page) => {
     await target.goto(baseUrl);
     await expect(
@@ -51,7 +50,7 @@ try {
     ).toBeVisible();
     await target.evaluate(() => document.fonts.ready);
   };
-  const capture = async (name, target = page, scale = "device") => {
+  const capture = async (name, target = page, scale = "css") => {
     execFileSync("cwebp", ["-quiet", "-q", "90", "-o", join(output, `${name}.webp`), "--", "-"], {
       input: await target.screenshot({ ...screenshotOptions, scale }),
     });
@@ -59,14 +58,43 @@ try {
   const track = page.locator("#tabletop [data-kind=track]");
   const fit = (target = page) =>
     target.getByRole("button", { name: "Fit view", exact: true }).click();
+  const openMenu = async (target, name) => {
+    const menu = target.locator("details").filter({ has: target.getByText(name, { exact: true }) });
+    await menu.locator("summary").click();
+    await expect(menu).toHaveAttribute("open", "");
+    return menu;
+  };
+  const closeMenu = async (menu) => {
+    if (await menu.evaluate((element) => element.hasAttribute("open"))) {
+      await menu.locator("summary").click();
+    }
+  };
   const create = (target = page) =>
     target.getByRole("button", { name: "Create track plan", exact: true }).click();
-  const layoutName = page.getByLabel("Layout name");
   await start();
   await capture("member_design_start");
   await page.getByRole("radio", { name: /^Curve/ }).check();
   await capture("member_curve_options");
   await page.getByRole("radio", { name: /^Straight/ }).check();
+
+  const phonePage = await browser.newPage({
+    viewport: phoneViewport,
+    isMobile: true,
+    hasTouch: true,
+  });
+  try {
+    await start(phonePage);
+    await capture("mobile_setup", phonePage);
+    await phonePage.getByRole("button", { name: "Browse examples", exact: true }).click();
+    const phoneGallery = phonePage.getByRole("dialog", { name: "Track examples", exact: true });
+    await phoneGallery
+      .getByRole("button", { name: "Open BOS · Back-out siding", exact: true })
+      .click();
+    await expect(phonePage.getByRole("group", { name: "Track plan", exact: true })).toBeVisible();
+    await capture("mobile_editor", phonePage);
+  } finally {
+    await phonePage.close();
+  }
 
   await page.setViewportSize({ width: 1920, height: 2000 });
   await Promise.all([
@@ -89,7 +117,8 @@ try {
   await expect(page.locator("#design-size")).toContainText("60 × 40");
   await capture("member_mainline_start");
 
-  await page.getByRole("button", { name: "Design area", exact: true }).click();
+  let layoutMenu = await openMenu(page, "Layout");
+  await layoutMenu.getByRole("button", { name: "Design area", exact: true }).click();
   const outline = page.getByRole("dialog", { name: "Edit your design area" });
   await outline
     .getByLabel("Table edge")
@@ -111,11 +140,16 @@ try {
   await fit();
   await capture("member_parking_siding");
 
+  layoutMenu = await openMenu(page, "Layout");
+  const layoutName = layoutMenu.getByLabel("Layout name");
   await layoutName.fill("Parking siding");
   await layoutName.blur();
-  await page.getByRole("button", { name: "Duplicate plan", exact: true }).click();
-  await layoutName.fill("Parking option B");
-  await layoutName.blur();
+  await layoutMenu.getByRole("button", { name: "Duplicate plan", exact: true }).click();
+  layoutMenu = await openMenu(page, "Layout");
+  const copiedLayoutName = layoutMenu.getByLabel("Layout name");
+  await copiedLayoutName.fill("Parking option B");
+  await copiedLayoutName.blur();
+  await closeMenu(layoutMenu);
   const tabs = page.getByRole("tablist", { name: "Open layouts" });
   await expect(tabs.getByRole("tab", { name: "Parking siding", exact: true })).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Parking option B", exact: true })).toHaveAttribute(
@@ -149,10 +183,7 @@ try {
   await capture("select_multiple_track");
 
   for (const { code, name } of trackExamples) {
-    const examplePage = await browser.newPage({
-      viewport: desktopViewport,
-      deviceScaleFactor: 1.5,
-    });
+    const examplePage = await browser.newPage({ viewport: desktopViewport });
     try {
       await start(examplePage);
       await examplePage.locator("#start-browse-examples").click();
@@ -175,15 +206,14 @@ try {
     }
   }
 
-  const templateFiles = await page
+  const fileMenu = await openMenu(page, "File");
+  const templateFiles = await fileMenu
     .getByLabel("Track templates")
     .locator('option[value$=".ldr"]')
     .evaluateAll((entries) => entries.map((entry) => entry.value));
+  await closeMenu(fileMenu);
   for (const file of templateFiles) {
-    const templatePage = await browser.newPage({
-      viewport: desktopViewport,
-      deviceScaleFactor: 1.5,
-    });
+    const templatePage = await browser.newPage({ viewport: desktopViewport });
     try {
       await start(templatePage);
       await Promise.all([

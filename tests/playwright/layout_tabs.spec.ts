@@ -4,7 +4,8 @@ import type { Locator } from "@playwright/test";
 import type { TrackItem } from "../../src/project";
 import {
   boot,
-  chooseFile,
+  chooseEditorFile,
+  openEditorMenu,
   openEditingPlan,
   pickDrawing,
   saveProject,
@@ -46,6 +47,7 @@ test("members can copy a connected siding between two open yards", async ({ page
     canvas.locator(`[data-piece-id="${id}"][data-port-id="${port}"]`);
   await activate(sourceTab, hasTouch);
   await activate(track("siding-west"), hasTouch);
+  await openEditorMenu(page, "Tools");
   await activate(page.getByRole("button", { name: "Select arrangement", exact: true }), hasTouch);
   await activate(page.getByRole("button", { name: "Copy", exact: true }), hasTouch);
   await activate(destinationTab, hasTouch);
@@ -65,15 +67,12 @@ test("members can copy a connected siding between two open yards", async ({ page
     [112, 80],
   ]);
 
-  await chooseFile(
-    page,
-    page.getByRole("button", { name: "Open track plan", exact: true }),
-    flagged.path,
-  );
+  await chooseEditorFile(page, flagged.path);
   await expect(
     tabs.getByRole("tab", { name: "Destination yard (2)", exact: true }),
   ).toHaveAttribute("aria-selected", "true");
   await expect(track("destination-lead")).toHaveAttribute("data-placement-warning");
+  await page.locator(hasTouch ? "#show-inspector" : "#sidebar-inspector").click();
   await expect(
     page
       .locator(placementWarning)
@@ -128,10 +127,12 @@ test("members can compare, save, and close an edited layout variant", async ({
   await test.step("Branch the edited layout and compare both drawings", async () => {
     await expect(originalTab).toHaveAttribute("aria-selected", "true");
     await activate(track, hasTouch);
+    await openEditorMenu(page, "Tools");
     await rotateTrack.click();
     await rotateView.click();
     const originalView = (await scene.getAttribute("viewBox"))!;
     const originalPose = (await track.getAttribute("transform"))!;
+    await openEditorMenu(page, "Layout");
     await page.getByRole("button", { name: "Duplicate plan", exact: true }).click();
     await expect(tabs.getByRole("tab", { name: "Yard plan (copy)", exact: true })).toHaveAttribute(
       "aria-selected",
@@ -141,10 +142,12 @@ test("members can compare, save, and close an edited layout variant", async ({
     await expect(drawing).toHaveAttribute("transform", "rotate(90)");
     await expect(track).toHaveAttribute("transform", originalPose);
 
+    await openEditorMenu(page, "Layout");
     await layoutName.fill("Longer lead");
     await layoutName.blur();
     await expect(variantTab).toHaveAttribute("aria-selected", "true");
     await activate(track, hasTouch);
+    await openEditorMenu(page, "Tools");
     await rotateTrack.click();
     await rotateView.click();
     const variantView = (await scene.getAttribute("viewBox"))!;
@@ -180,6 +183,7 @@ test("members can compare, save, and close an edited layout variant", async ({
     const close = page.getByRole("button", { name: "Close layout", exact: true });
     const keep = page.getByRole("button", { name: "Keep editing", exact: true });
     const dialog = page.getByRole("dialog").filter({ has: keep });
+    await openEditorMenu(page, "Layout");
     await close.click();
     await expect(dialog).toContainText("Longer lead");
     await expect(keep).toBeFocused();
@@ -192,6 +196,7 @@ test("members can compare, save, and close an edited layout variant", async ({
       name: "Longer lead",
       items: [{ ...original.items[0], angle: 180 }],
     });
+    await openEditorMenu(page, "Layout");
     await close.click();
     await expect(variantTab).toHaveCount(0);
     await expect(originalTab).toHaveAttribute("aria-selected", "true");

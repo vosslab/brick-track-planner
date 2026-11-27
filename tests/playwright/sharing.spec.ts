@@ -4,7 +4,15 @@ import { inflateSync } from "node:zlib";
 import { expect } from "@playwright/test";
 import type { Page, TestInfo } from "@playwright/test";
 
-import { boot, chooseFile, saveProject, test, watchErrors } from "./helper_planner";
+import {
+  boot,
+  chooseTrackPlan,
+  chooseFile,
+  openEditorMenu,
+  saveProject,
+  test,
+  watchErrors,
+} from "./helper_planner";
 
 function blueBrickFixture(): string {
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -18,6 +26,7 @@ function blueBrickFixture(): string {
 }
 
 async function importFixture(page: Page, text: string): Promise<void> {
+  await openEditorMenu(page, "File");
   const [chooser] = await Promise.all([
     page.waitForEvent("filechooser"),
     page.getByRole("button", { name: "Import BlueBrick" }).click(),
@@ -33,6 +42,7 @@ async function importFixture(page: Page, text: string): Promise<void> {
 }
 
 async function exportLayout(planner: Page, format: string, info: TestInfo): Promise<Buffer> {
+  await openEditorMenu(planner, "File");
   await planner.getByLabel("Export format").selectOption(format);
   const [download] = await Promise.all([
     planner.waitForEvent("download"),
@@ -79,6 +89,7 @@ test("imports measured external track, preserves it on save and reopens it", asy
 }, info) => {
   const invalidPath = info.outputPath("invalid.bbm");
   await writeFile(invalidPath, "<wrong><Version>9</Version></wrong>");
+  await openEditorMenu(planner, "File");
   await chooseFile(planner, planner.getByRole("button", { name: "Import BlueBrick" }), invalidPath);
   await expect(planner.getByRole("status")).toContainText("Expected a plain BlueBrick Map");
 
@@ -103,11 +114,7 @@ test("imports measured external track, preserves it on save and reopens it", asy
     const reopened = await fresh.newPage();
     const errors = watchErrors(reopened);
     await boot(reopened, { startProject: false });
-    await chooseFile(
-      reopened,
-      reopened.getByRole("button", { name: "Open track plan", exact: true }),
-      saved.path,
-    );
+    await chooseTrackPlan(reopened, saved.path);
     await expect(reopened.locator('[data-kind="unresolved"]')).toHaveCount(1);
     expect((await saveProject(reopened)).project).toEqual(saved.project);
     expect(errors).toEqual([]);
@@ -118,6 +125,7 @@ test("imports measured external track, preserves it on save and reopens it", asy
 
 test("rejects an ordinary LDraw file without replacing the track plan", async ({ planner }) => {
   const before = await saveProject(planner);
+  await openEditorMenu(planner, "File");
   const [chooser] = await Promise.all([
     planner.waitForEvent("filechooser"),
     planner.getByRole("button", { name: "Open track plan", exact: true }).click(),
@@ -138,6 +146,7 @@ test("exports a real PNG layout file", async ({ planner }, info) => {
 });
 
 test("PDF export includes the named NILTC mainline handoffs", async ({ planner }, info) => {
+  await openEditorMenu(planner, "File");
   await planner.getByLabel("Track templates").selectOption({ label: "Member straight" });
   await expect(planner.getByLabel("Layout name")).toHaveValue("Member 60 x 40 straight");
   const pdf = (await exportLayout(planner, "pdf", info)).toString("latin1");
