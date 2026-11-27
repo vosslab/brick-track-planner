@@ -85,7 +85,7 @@ test("the R104 turnback wye is a closed physical two-direction assembly", () => 
   const kit = createTurnbackWye(catalog, 16);
   assert.equal(kit.parts.filter(({ partId }) => partId === "trixbrix:r104").length, 8);
   assert.equal(kit.parts.filter(({ partId }) => partId === "trixbrix:r104y-adapter").length, 2);
-  assert.equal(kit.parts.filter(({ partId }) => partId === "trixbrix:s16").length, 9);
+  assert.equal(kit.parts.filter(({ partId }) => partId === "lego:rc-s16").length, 9);
   const ports = kit.parts.flatMap((placement, piece) =>
     parts
       .get(placement.partId)
@@ -109,7 +109,7 @@ test("the R104 turnback wye is a closed physical two-direction assembly", () => 
   assert.ok(
     ports.some(
       (port) =>
-        port.partId === "trixbrix:s16" &&
+        port.partId === "lego:rc-s16" &&
         port.portId === "b" &&
         Math.abs(port.x) <= tolerance &&
         Math.abs(port.y - 94.5) <= tolerance,
@@ -135,7 +135,7 @@ test("the R104 turnback wye is a closed physical two-direction assembly", () => 
       ({ partId, angle }) =>
         !["trixbrix:r104", "trixbrix:r104-wye", "trixbrix:r104y-adapter", "trixbrix:s01"].includes(
           partId,
-        ) && !(partId === "trixbrix:s16" && Math.abs(angle - 90) <= 0.25),
+        ) && !(partId === "lego:rc-s16" && Math.abs(angle - 90) <= 0.25),
     ),
   };
   const directLeft = direct.parts.findIndex(({ partId }) => partId === "trixbrix:r104-right-base");

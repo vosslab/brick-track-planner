@@ -41,6 +41,7 @@ test("the 100 by 40 R104 yard connects six storage tracks to the east edge", () 
   const result = evaluate(template("member-yard"));
   const { area, items } = result.project;
   assert.deepEqual([area.width, area.depth, area.niltc], [320, 128, "straight"]);
+  assert.ok(items.every(({ partId }) => partId !== "trixbrix:s16"));
   assertFits(result, result.project.name);
   const storageIds = new Set(
     items.filter(({ groupId }) => groupId === "r104-yard-storage").map(({ id }) => id),
@@ -70,6 +71,10 @@ test("return templates join the 8- and 24-stud lanes with no curves tighter than
   ]) {
     const project = template(file);
     assert.deepEqual([project.area.width, project.area.depth], [width, depth]);
+    assert.ok(
+      project.items.every(({ partId }) => partId !== "trixbrix:s16"),
+      file,
+    );
     assert.equal(project.area.exits.length, 1);
     const [handoff] = project.area.exits;
     assert.equal(handoff.edge, edge);

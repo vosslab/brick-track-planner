@@ -19,7 +19,7 @@ export function createDriveThroughYard(catalog: Catalog, storageStuds: number): 
     if (count < 0 || Math.abs(count * 16 - span) > 0.05)
       throw new Error("The yard tracks must close on S16 joints.");
     for (let i = 0; i < count; i++)
-      parts.push({ partId: "trixbrix:s16", x: start.x + 8 + i * 16, y: start.y, angle: 0 });
+      parts.push({ partId: "lego:rc-s16", x: start.x + 8 + i * 16, y: start.y, angle: 0 });
   }
   return {
     id: "parking:r40-four-track-drive-through",

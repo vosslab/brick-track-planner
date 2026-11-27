@@ -22,6 +22,9 @@
 
 ### Behavior or Interface Changes
 
+- Prefer LEGO RC/PF S16 for interchangeable 16-stud straights in generated
+  yards and bundled track plans.
+
 - Combine layout tabs, file commands, history, and view controls in one
   compact desktop row. Reduce button padding and keep view controls above
   the drawing.

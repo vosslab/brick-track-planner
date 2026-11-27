@@ -75,6 +75,11 @@ test("both mainline entrances reach all four tracks in the double-ended yard", (
     const kit = createParkingKits(catalog, length).find(
       (kit) => kit.id === "parking:r40-four-track-drive-through",
     );
+    assert.ok(kit.parts.some(({ partId }) => partId === "lego:rc-s16"));
+    assert.equal(
+      kit.parts.some(({ partId }) => partId === "trixbrix:s16"),
+      false,
+    );
     const { ends, links, ports } = railGraph(kit);
     assert.equal(ends.length, 2);
     assert.ok(Math.abs(ends[0].y - ends[1].y) < 0.05);

@@ -54,7 +54,7 @@ export function createTurnbackWye(catalog: Catalog, storageStuds: number): Kit {
     "trixbrix:r104",
     "trixbrix:s01",
     "trixbrix:s02",
-    "trixbrix:s16",
+    "lego:rc-s16",
   ];
   for (const id of needed) part(catalog, id);
   const parts: Kit["parts"] = [];
@@ -82,11 +82,11 @@ export function createTurnbackWye(catalog: Catalog, storageStuds: number): Kit {
   expand(catalog, parts, "trixbrix:r104-left", { x: 236.49413, y: 41.37655, angle: 180 });
   let mainline: Pose = { x: 87.0309, y: 37.49287, angle: 0 };
   for (let index = 0; index < 8; index += 1)
-    mainline = add(catalog, parts, "trixbrix:s16", "a", mainline);
+    mainline = add(catalog, parts, "lego:rc-s16", "a", mainline);
   add(catalog, parts, "trixbrix:s02", "a", mainline);
   let tail = end(catalog, wye, "common");
   for (let studs = 0; studs < storageStuds; studs += 16) {
-    tail = add(catalog, parts, "trixbrix:s16", "a", tail);
+    tail = add(catalog, parts, "lego:rc-s16", "a", tail);
   }
 
   return {

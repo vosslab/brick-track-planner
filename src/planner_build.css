@@ -417,6 +417,7 @@ body[data-project-open] .status:empty {
   display: none;
 }
 body[data-project-open] .app-header {
+  --project-header-control-size: 2rem;
   position: relative;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
@@ -424,6 +425,23 @@ body[data-project-open] .app-header {
   min-height: 44px;
   padding-block: 0.25rem;
   gap: 0.35rem 0.55rem;
+}
+body[data-project-open] .app-header :is(
+  .file-controls > button,
+  .editor-disclosure > summary,
+  #layout-tablist button,
+  .phone-panel-action,
+  .canvas-toolbar #fit-view
+) {
+  min-block-size: var(--project-header-control-size);
+  padding-block: 0.2rem;
+  line-height: 1;
+}
+body[data-project-open] .app-header .canvas-toolbar .icon-button {
+  inline-size: var(--project-header-control-size);
+  block-size: var(--project-header-control-size);
+  min-inline-size: var(--project-header-control-size);
+  min-block-size: var(--project-header-control-size);
 }
 .editor-controls {
   display: grid;
@@ -468,13 +486,17 @@ body[data-project-open] .app-header {
 }
 .editor-disclosure > summary::after {
   content: "\25be";
+  display: inline-block;
   margin-inline-start: 0.32rem;
   font-size: 0.75em;
 }
 .editor-disclosure[open] > summary {
   color: var(--accent-dark);
   border-color: var(--accent);
-  background: var(--selected);
+  background: var(--accent-soft);
+}
+.editor-disclosure[open] > summary::after {
+  transform: rotate(180deg);
 }
 .editor-menu {
   display: grid;
@@ -563,6 +585,11 @@ body[data-project-open] .app-header {
 }
 .canvas-toolbar .icon-button {
   min-width: 2rem;
+}
+.canvas-toolbar .icon-button:disabled {
+  color: #d5e3f1;
+  border-color: #ffffff55;
+  background: transparent;
 }
 .canvas-toolbar > .toolbar-group::after {
   content: "";
@@ -728,6 +755,9 @@ body[data-project-open] .app-header {
   }
 }
 @media (max-width: 750px), (pointer: coarse) {
+  body[data-project-open] .app-header {
+    --project-header-control-size: 44px;
+  }
   .canvas-toolbar .icon-button {
     inline-size: var(--control-height);
     block-size: var(--control-height);

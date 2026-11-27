@@ -19,8 +19,8 @@
 1 72 2880 -24 -159.9615558 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s32.dat
 0 !BRICKTRACK TRACK @track-6 @layout @trixbrix%3As32 - - - -
 1 72 3520 -24 -159.9615558 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s32.dat
-0 !BRICKTRACK TRACK @track-7 @layout @trixbrix%3As16 - - - -
-1 72 4000 -24 -159.9615558 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s16.dat
+0 !BRICKTRACK TRACK @track-7 @layout @lego%3Arc-s16 - - - -
+1 72 4000 -24 -159.9615558 1 0 0 0 1 0 0 0 1 53401.dat
 0 !BRICKTRACK TRACK @track-8 @layout @trixbrix%3As01 - - - -
 1 72 4170 -24 -159.9615558 1 0 0 0 1 0 0 0 1 bricktrack-trixbrix-s01.dat
 0 !BRICKTRACK TRACK @track-9 @layout @trixbrix%3Ar104-ballast-curve - - - -
@@ -69,8 +69,8 @@
 1 72 2295.530749432604 -16 -3023.150128008085 -0.923879532511 0 0.382683432365 0 1 0 -0.382683432365 0 -0.923879532511 BrickTracksR104.dat
 0 !BRICKTRACK TRACK @track-31 @layout @bricktracks%3Ar104 - - - -
 1 72 2179.443030363755 -16 -2640.460184313701 -0.980785280403 0 0.195090322016 0 1 0 -0.195090322016 0 -0.980785280403 BrickTracksR104.dat
-0 !BRICKTRACK TRACK @track-32 @layout @trixbrix%3As16 - - - -
-1 72 2108.99715708 -24 -2491.3381852 -0.195090322016 0 -0.980785280403 0 1 0 0.980785280403 0 -0.195090322016 bricktrack-trixbrix-s16.dat
+0 !BRICKTRACK TRACK @track-32 @layout @lego%3Arc-s16 - - - -
+1 72 2108.99715708 -24 -2491.3381852 -0.195090322016 0 -0.980785280403 0 1 0 0.980785280403 0 -0.195090322016 53401.dat
 0 !BRICKTRACK TRACK @track-33 @layout @trixbrix%3As08 - - - -
 1 72 2062.17547978 -24 -2255.9497179 -0.195090322016 0 -0.980785280403 0 1 0 0.980785280403 0 -0.195090322016 bricktrack-trixbrix-s08.dat
 0 !BRICKTRACK TRACK @track-34 @layout @trixbrix%3As01 - - - -
@@ -107,20 +107,6 @@
 4 16 -320 -16 -46.4 320 -16 -46.4 320 -16 -53.6 -320 -16 -53.6
 4 16 -320 -16 -46.4 -320 -8 -46.4 320 -8 -46.4 320 -16 -46.4
 4 16 -320 -16 -53.6 320 -16 -53.6 320 -8 -53.6 -320 -8 -53.6
-0 FILE bricktrack-trixbrix-s16.dat
-0 Name: bricktrack-trixbrix-s16.dat
-0 Brick Track Planner schematic TrixBrix Straight S16
-4 16 -164.8 -8 -75 -155.2 -8 -75 -155.2 -8 75 -164.8 -8 75
-4 16 -84.8 -8 -75 -75.2 -8 -75 -75.2 -8 75 -84.8 -8 75
-4 16 -4.8 -8 -75 4.8 -8 -75 4.8 -8 75 -4.8 -8 75
-4 16 75.2 -8 -75 84.8 -8 -75 84.8 -8 75 75.2 -8 75
-4 16 155.2 -8 -75 164.8 -8 -75 164.8 -8 75 155.2 -8 75
-4 16 -160 -16 53.6 160 -16 53.6 160 -16 46.4 -160 -16 46.4
-4 16 -160 -16 53.6 -160 -8 53.6 160 -8 53.6 160 -16 53.6
-4 16 -160 -16 46.4 160 -16 46.4 160 -8 46.4 -160 -8 46.4
-4 16 -160 -16 -46.4 160 -16 -46.4 160 -16 -53.6 -160 -16 -53.6
-4 16 -160 -16 -46.4 -160 -8 -46.4 160 -8 -46.4 160 -16 -46.4
-4 16 -160 -16 -53.6 160 -16 -53.6 160 -8 -53.6 -160 -8 -53.6
 0 FILE bricktrack-trixbrix-s01.dat
 0 Name: bricktrack-trixbrix-s01.dat
 0 Brick Track Planner schematic TrixBrix Straight S1
