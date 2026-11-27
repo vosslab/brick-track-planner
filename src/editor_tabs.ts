@@ -76,6 +76,7 @@ export function setupTabs(hooks: TabHooks): TabControls {
       if (!tabButton) {
         tabButton = action("", () => hooks.activate(id));
         tabButton.id = `layout-tab-${id}`;
+        tabButton.classList.add("command-button");
         tabButton.setAttribute("role", "tab");
         tabButtons.set(id, tabButton);
         list.append(tabButton);

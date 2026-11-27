@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#2768a5" />
     <title>Brick Track Planner</title>
     <link rel="stylesheet" href="./fonts/faces.css" />
+    <link rel="stylesheet" href="./controls.css" />
     <link rel="stylesheet" href="./style.css" />
     <link rel="stylesheet" href="./planner_build.css" />
     <script type="module" src="./main.js"></script>
@@ -19,7 +20,7 @@
       <div class="file-controls" aria-label="Project files">
         <button type="button" id="start-import-project">Import BlueBrick</button>
         <details id="file-menu" class="editor-disclosure" hidden>
-          <summary>File</summary>
+          <summary class="disclosure-button command-button">File</summary>
           <div class="editor-menu">
             <button type="button" id="open-project">Open track plan</button>
             <button type="button" id="import-project">Import BlueBrick</button>
@@ -45,7 +46,9 @@
             </div>
           </div>
         </details>
-        <button type="button" id="save-project" aria-label="Save track plan" hidden>Save</button>
+        <button type="button" id="save-project" class="command-button" aria-label="Save track plan" hidden>
+          Save
+        </button>
         <input id="project-file" type="file" accept=".ldr" hidden />
         <input id="import-file" type="file" accept=".bbm,.xml" hidden />
       </div>
@@ -60,7 +63,7 @@
             ></div>
           </div>
           <details id="layout-menu" class="editor-disclosure">
-            <summary>Layout</summary>
+            <summary class="disclosure-button command-button">Layout</summary>
             <div class="editor-menu">
               <label for="project-name">Layout name</label>
               <input
@@ -76,11 +79,11 @@
               <button type="button" id="close-layout">Close layout</button>
             </div>
           </details>
-          <div class="phone-panel-actions">
+          <div class="phone-panel-actions phone-only">
             <button
               type="button"
               id="show-add-track"
-              class="phone-panel-action"
+              class="command-button"
               aria-controls="library-panel"
             >
               Add track
@@ -88,7 +91,7 @@
             <button
               type="button"
               id="show-inspector"
-              class="phone-panel-action"
+              class="command-button"
               aria-controls="inspector-panel"
             >
               Inspector
@@ -101,7 +104,7 @@
               <button
                 type="button"
                 id="undo"
-                class="icon-button"
+                class="command-button icon-button"
                 aria-label="Undo"
                 aria-keyshortcuts="Control+Z Meta+Z"
                 disabled
@@ -116,7 +119,7 @@
               <button
                 type="button"
                 id="redo"
-                class="icon-button"
+                class="command-button icon-button"
                 aria-label="Redo"
                 aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z"
                 disabled
@@ -128,16 +131,16 @@
               <span class="icon-tooltip" aria-hidden="true">Redo</span>
             </span>
             <span class="icon-control">
-              <button type="button" id="zoom-out" class="icon-button" aria-label="Zoom out">
+              <button type="button" id="zoom-out" class="command-button icon-button" aria-label="Zoom out">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M6 12h12" />
                 </svg>
               </button>
               <span class="icon-tooltip" aria-hidden="true">Zoom out</span>
             </span>
-            <button type="button" id="fit-view">Fit view</button>
+            <button type="button" id="fit-view" class="command-button">Fit view</button>
             <span class="icon-control">
-              <button type="button" id="zoom-in" class="icon-button" aria-label="Zoom in">
+              <button type="button" id="zoom-in" class="command-button icon-button" aria-label="Zoom in">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M6 12h12m-6-6v12" />
                 </svg>
@@ -148,7 +151,7 @@
               <button
                 type="button"
                 id="rotate-view"
-                class="icon-button"
+                class="command-button icon-button"
                 aria-label="Rotate view clockwise"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -159,7 +162,7 @@
             </span>
           </div>
           <details id="tools-menu" class="editor-disclosure">
-            <summary>Tools</summary>
+            <summary class="disclosure-button command-button">Tools</summary>
             <div class="editor-menu">
               <button type="button" id="select-multiple" aria-pressed="false">
                 Select multiple
@@ -273,7 +276,7 @@
           <section id="library-panel" class="panel library" aria-labelledby="library-title">
             <div class="panel-head">
               <h2 id="library-title" tabindex="-1">Add track</h2>
-              <button type="button" class="phone-panel-action" data-return-to-drawing>
+              <button type="button" class="phone-only" data-return-to-drawing>
                 Back to drawing
               </button>
             </div>
@@ -338,7 +341,7 @@
                     </button>
                     <button type="button" id="cancel-arrangement" disabled>Cancel preview</button>
                   </div>
-                  <button type="button" class="phone-panel-action" data-return-to-drawing>
+                  <button type="button" class="phone-only" data-return-to-drawing>
                     Show drawing
                   </button>
                 </div>
@@ -371,7 +374,7 @@
                 <div class="panel-head">
                   <h2 id="inspector-title" tabindex="-1">Inspector</h2>
                   <span class="inspector-caption">Selected track</span>
-                  <button type="button" class="phone-panel-action" data-return-to-drawing>
+                  <button type="button" class="phone-only" data-return-to-drawing>
                     Back to drawing
                   </button>
                 </div>

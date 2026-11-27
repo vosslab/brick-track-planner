@@ -1,0 +1,116 @@
+/* Reusable control shell and state contract. */
+:root {
+  --control-height: 36px;
+  --command-height: 32px;
+}
+
+:where(button, input, select, summary.disclosure-button) {
+  font: inherit;
+  color: inherit;
+}
+:where(button, select, input:not([type="checkbox"]), summary.disclosure-button) {
+  min-block-size: var(--control-height);
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--control-line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+:where(button, select, summary.disclosure-button) {
+  cursor: pointer;
+}
+:where(button, summary.disclosure-button) {
+  font-weight: 650;
+  white-space: nowrap;
+}
+button:hover:not(:disabled),
+summary.disclosure-button:hover {
+  background: var(--accent-soft);
+}
+:is(button, select, input):disabled {
+  color: var(--muted);
+  cursor: default;
+  background: var(--disabled-surface);
+  border-color: var(--line);
+}
+select:hover:not(:disabled) {
+  background-color: var(--accent-soft);
+}
+button.primary:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+button.primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+:is(button[aria-pressed="true"], [role="tab"][aria-selected="true"]):not(:disabled) {
+  color: var(--accent-dark);
+  background: var(--selected) linear-gradient(var(--accent), var(--accent)) center bottom 2px /
+    calc(100% - 0.9rem) 2px no-repeat;
+}
+
+.command-button {
+  --control-height: var(--command-height);
+  min-inline-size: var(--control-height);
+  padding: 0.15rem 0.45rem;
+  line-height: 1.25;
+}
+summary.disclosure-button {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+summary.disclosure-button::-webkit-details-marker {
+  display: none;
+}
+summary.disclosure-button::after {
+  content: "\25be";
+  display: inline-block;
+  margin-inline-start: 0.32rem;
+  font-size: 0.75em;
+}
+details[open] > summary.disclosure-button {
+  color: var(--accent-dark);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+details[open] > summary.disclosure-button::after {
+  transform: rotate(180deg);
+}
+.icon-button {
+  inline-size: var(--control-height);
+  block-size: var(--control-height);
+  min-inline-size: var(--control-height);
+  min-block-size: var(--control-height);
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+.icon-button svg {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (forced-colors: active) {
+  :is(button[aria-pressed="true"], [role="tab"][aria-selected="true"]):not(:disabled) {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@media (max-width: 750px), (pointer: coarse) {
+  :root {
+    --control-height: 44px;
+    --command-height: var(--control-height);
+  }
+}
+@media (max-width: 750px) {
+  .command-button:not(.icon-button) {
+    padding-inline: 0.25rem;
+  }
+}

@@ -22,6 +22,13 @@
 
 ### Behavior or Interface Changes
 
+- Order the Member R104 right yard fillers shortest first after each switch.
+  End every storage track with aligned LEGO RC/PF S16 straights.
+
+- Align editor header controls using one compact button style. Use a bottom
+  indicator for the active layout or panel and distinguish open menus from
+  disabled history actions.
+
 - Prefer LEGO RC/PF S16 for interchangeable 16-stud straights in generated
   yards and bundled track plans.
 

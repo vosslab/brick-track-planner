@@ -6,9 +6,10 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 ENTRY="src/main.ts"
+stylesheets=(src/controls.css src/style.css src/planner_build.css)
 
 # Verify required static assets before any destructive step.
-for required in "$ENTRY" src/index.html src/style.css src/planner_build.css; do
+for required in "$ENTRY" src/index.html "${stylesheets[@]}"; do
 	if [ ! -f "$required" ]; then
 		echo "ERROR: required source file missing: $required" >&2
 		exit 1
@@ -71,9 +72,7 @@ mkdir -p dist/wasm dist/templates dist/examples dist/references
 	--sourcemap \
 	--outdir=dist
 
-cp src/index.html dist/index.html
-cp src/style.css dist/style.css
-cp src/planner_build.css dist/planner_build.css
+cp src/index.html "${stylesheets[@]}" dist/
 cp -R assets/fonts dist/fonts
 cp generated/wasm/track_geometry_bg.wasm dist/wasm/
 cp "${required_templates[@]}" dist/templates/
@@ -82,7 +81,9 @@ cp -R docs/references/niltc-track-specifications dist/references/
 touch dist/.nojekyll
 
 test -s dist/index.html
-test -s dist/planner_build.css
+for stylesheet in "${stylesheets[@]}"; do
+	test -s "dist/${stylesheet##*/}"
+done
 test -s dist/main.js
 test -s dist/wasm/track_geometry_bg.wasm
 for template in "${required_templates[@]}"; do

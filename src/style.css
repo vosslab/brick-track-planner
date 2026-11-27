@@ -8,6 +8,7 @@
   --muted: #3d4a63;
   --line: #d9cbae;
   --control-line: #6b7785;
+  --disabled-surface: #edf0f2;
   --accent: #2768a5;
   --accent-dark: #1b4f80;
   --accent-soft: #e7f1fb;
@@ -16,7 +17,6 @@
   --focus: #1d5791;
   --warning: #8a381e;
   --radius: 10px;
-  --control-height: 36px;
   --gutter: clamp(0.65rem, 1.5vw, 1.4rem);
   font-family: "Atkinson Hyperlegible Next", sans-serif;
   font-size-adjust: from-font;
@@ -183,12 +183,6 @@ body {
 [hidden] {
   display: none !important;
 }
-button,
-input,
-select {
-  font: inherit;
-  color: inherit;
-}
 #trace-from {
   font-family: "IBM Plex Sans Condensed", "Atkinson Hyperlegible Next", sans-serif;
 }
@@ -196,19 +190,6 @@ select {
 #parts-summary .list-row > small:last-child,
 .number-tag {
   font-family: "Atkinson Hyperlegible Mono", monospace;
-}
-button,
-select,
-input:not([type="checkbox"]) {
-  min-height: var(--control-height);
-  padding: 0.4rem 0.65rem;
-  border: 1px solid var(--control-line);
-  border-radius: 6px;
-  background: var(--surface);
-}
-button,
-select {
-  cursor: pointer;
 }
 select {
   appearance: none;
@@ -232,40 +213,6 @@ select {
     outline: 1px solid Highlight;
     outline-offset: -1px;
   }
-  button[aria-pressed="true"] {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-}
-button {
-  font-weight: 650;
-  white-space: nowrap;
-}
-button:hover:not(:disabled) {
-  background: var(--accent-soft);
-}
-:is(button, select, input):disabled {
-  color: var(--muted);
-  cursor: default;
-  background: var(--subtle);
-  border-color: var(--line);
-}
-select:hover:not(:disabled) {
-  background-color: var(--accent-soft);
-}
-button.primary:not(:disabled) {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
-}
-button.primary:hover:not(:disabled) {
-  background: var(--accent-dark);
-}
-button[aria-pressed="true"]:not(:disabled) {
-  color: var(--accent-dark);
-  background: var(--selected);
-  border-color: var(--accent);
-  box-shadow: inset 0 -2px var(--accent);
 }
 input:is([type="checkbox"], [type="radio"]) {
   accent-color: var(--accent);
@@ -342,14 +289,6 @@ p {
 }
 .file-controls {
   color: var(--ink);
-}
-.file-controls .primary:not(:disabled) {
-  color: var(--ink);
-  background: var(--brick-yellow);
-  border-color: var(--brick-yellow);
-}
-.file-controls .primary:hover:not(:disabled) {
-  background: var(--selected);
 }
 
 #editor {
@@ -724,11 +663,6 @@ dialog h2 {
     gap: 0 0.5rem;
   }
 }
-@media (max-width: 750px), (pointer: coarse) {
-  :root {
-    --control-height: 44px;
-  }
-}
 @media (max-width: 750px) {
   body {
     display: block;
@@ -801,7 +735,7 @@ dialog h2 {
   }
 }
 @media (max-width: 360px) {
-  .file-controls button {
+  #start-import-project {
     padding-inline: 0.42rem;
   }
 }

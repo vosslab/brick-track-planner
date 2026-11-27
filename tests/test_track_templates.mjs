@@ -60,6 +60,7 @@ test("the 100 by 40 R104 yard connects six storage tracks to the east edge", () 
     assert.ok(reaches(result.routes, west.inner, end));
     assert.ok(Math.abs(end.x - area.width) < 0.05);
     assert.deepEqual([end.angle, end.heightPlates], [0, 2]);
+    assert.equal(items.find(({ id }) => id === end.pieceId)?.partId, "lego:rc-s16");
   }
 });
 

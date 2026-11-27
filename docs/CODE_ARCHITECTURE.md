@@ -10,6 +10,10 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 
 - [`../src/main.ts`](../src/main.ts) starts the browser editor and coordinates
   input, undoable state changes, rendering, and exports.
+- [`../src/controls.css`](../src/controls.css) owns shared control geometry and
+  semantic states. Header actions opt into the compact `command-button`
+  variant, while [`../src/planner_build.css`](../src/planner_build.css) places
+  them in the editor and positions menus and tooltips.
 - [`../src/project.ts`](../src/project.ts) defines and validates the single-area
   project passed between the editor and Rust. [`../src/ldraw.ts`](../src/ldraw.ts)
   reads and writes editable LDraw track plans.
