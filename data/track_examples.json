@@ -72,6 +72,14 @@
     "purpose": "Use two perpendicular spurs on a private double-track line."
   },
   {
+    "code": "MSBC",
+    "frontage": 60,
+    "depth": 40,
+    "file": "mirrored-s-bend-crossings.ldr",
+    "name": "Mirrored S-bend crossings",
+    "purpose": "Two pairs of tracks swap sides through four 45-degree crossings. Each train stays on its original route."
+  },
+  {
     "code": "8TRY",
     "frontage": 60,
     "depth": 40,

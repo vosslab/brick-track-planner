@@ -56,7 +56,7 @@ const templates: readonly Template[] = [
   {
     file: "joel-mainline-offset.ldr",
     name: "Joel's 10-to-0 mainline",
-    purpose: "Two parallel mainlines shift 10 inches across a 60 by 40 inch display.",
+    purpose: "A Rockford-inspired 10-inch offset on a 60 by 40 inch display.",
   },
 ];
 

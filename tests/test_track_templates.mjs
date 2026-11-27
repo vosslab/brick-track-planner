@@ -247,7 +247,8 @@ test("every straight example fits and connects the intended routes", () => {
     );
     const privateJunction = code === "TJ56";
     const privateYard = code === "8TRY";
-    const general = privateJunction || privateYard;
+    const mirroredCrossings = code === "MSBC";
+    const general = privateJunction || privateYard || mirroredCrossings;
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
       [frontage * 3.2, 128, general ? undefined : "straight"],
@@ -259,6 +260,22 @@ test("every straight example fits and connects the intended routes", () => {
       `${name} uses the intended public edge`,
     );
     assertFits(result, name);
+
+    if (mirroredCrossings) {
+      const open = result.ports
+        .filter(({ type, joined }) => type === "regular" && !joined)
+        .sort((a, b) => a.y - b.y);
+      const west = open.filter(({ x, angle }) => Math.abs(x) < 0.05 && angle === 180);
+      const east = open.filter(({ x, angle }) => Math.abs(x - 192) < 0.05 && angle === 0);
+      assert.deepEqual([open.length, west.length, east.length], [8, 4, 4]);
+      for (const [row, start] of west.entries()) {
+        const destinations = east.filter((end) => reaches(result.routes, start, end));
+        assert.deepEqual(destinations, [east[(row + 2) % 4]], "each route swaps sides");
+        const path = traceRoute(result.routes, start, destinations[0]);
+        assert.equal(path.filter(({ event }) => event === "crossing").length, 2);
+      }
+      continue;
+    }
 
     if (privateYard) {
       const open = result.ports

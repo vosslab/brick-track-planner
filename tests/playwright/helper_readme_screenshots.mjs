@@ -51,9 +51,19 @@ try {
     await target.evaluate(() => document.fonts.ready);
   };
   const capture = async (name, target = page, scale = "css") => {
-    execFileSync("cwebp", ["-quiet", "-q", "90", "-o", join(output, `${name}.webp`), "--", "-"], {
-      input: await target.screenshot({ ...screenshotOptions, scale }),
-    });
+    const png = await target.screenshot({ ...screenshotOptions, scale, type: "png" });
+    // The PNG IHDR header stores width and height before the image data.
+    const width = png.readUInt32BE(16);
+    const height = png.readUInt32BE(20);
+    const resize =
+      Math.max(width, height) > 1920
+        ? ["-resize", ...(width >= height ? ["1920", "0"] : ["0", "1920"])]
+        : [];
+    execFileSync(
+      "cwebp",
+      ["-quiet", "-q", "90", ...resize, "-o", join(output, `${name}.webp`), "--", "-"],
+      { input: png },
+    );
   };
   const track = page.locator("#tabletop [data-kind=track]");
   const fit = async (target = page) => {

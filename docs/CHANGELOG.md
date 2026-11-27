@@ -4,6 +4,8 @@
 
 ### Additions and New Features
 
+- Add the 60 by 40 inch Mirrored S-bend crossings example. Two pairs of
+  tracks swap sides through four factory-made TrixBrix 45-degree crossings.
 - Add the 75 by 40 inch Member R24 staging yard with six inset sidings for
   pushing cars onto the inner mainline by hand. The TrixBrix R24 ladder spans
   every baseplate column.
@@ -89,6 +91,8 @@
 
 ### Fixes and Maintenance
 
+- Document the Rockford mainline offset and the planner's choice of track
+  parts for the 60 by 40 inch adaptation.
 - Refresh all 35 documentation images from the current Pages build, including
   the phone views, layout gallery, outline preview, and placement demo.
 

@@ -60,7 +60,9 @@ test("members can save, reopen, and undo a five-inch design-area bump", async ({
   await expect(size).toContainText("60 \u00d7 45 in overall");
 });
 
-test("members can open small and R104 return examples from the gallery", async ({ page }) => {
+test("members can open small, mirrored, and R104 return examples from the gallery", async ({
+  page,
+}) => {
   await boot(page, { startProject: false });
   await page.locator("#start-browse-examples").click();
   const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
@@ -68,6 +70,12 @@ test("members can open small and R104 return examples from the gallery", async (
   await expect(gallery).toBeHidden();
   await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
   await expect(page.locator("#design-size")).toContainText("40 \u00d7 40");
+
+  await openEditorMenu(page, "File");
+  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+  await gallery.getByRole("button", { name: "Open MSBC \u00b7 Mirrored S-bend crossings" }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Mirrored S-bend crossings");
+  await expect(page.locator("#design-size")).toContainText("60 \u00d7 40");
 
   await openEditorMenu(page, "File");
   await page.getByRole("button", { name: "Browse examples", exact: true }).click();

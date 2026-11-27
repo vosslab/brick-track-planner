@@ -194,6 +194,18 @@ along the track. Jump to [60 by 40 inches](#60-by-40-inches),
 ![The R40&ndash;R56 T-junction with two straight through tracks and two perpendicular spurs on a General plan](screenshots/example_tj56.webp)
 <!-- screenshots:end -->
 
+#### MSBC - Mirrored S-bend crossings
+
+Two pairs of tracks swap sides across a 60 by 40 inch display. The R104 and
+R120 S-bends shift each pair about 12.6 inches to leave room for four 45-degree
+diamonds. Trains cross the other pair while staying on their own route.
+The layout uses stock TrixBrix crossings, curves, and short straights with
+LEGO S16 approaches. [Download the editable plan](../templates/mirrored-s-bend-crossings.ldr).
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Four independent tracks swapping sides through a centered group of 45-degree crossings](screenshots/example_msbc.webp)
+<!-- screenshots:end -->
+
 #### 8TRY - Eight-track switch yard
 
 Eight parallel rows run between the left and right edges. Seven alternating
@@ -320,10 +332,12 @@ tracks end four studs inside the west edge.
 
 ### Joel's 10-to-0 mainline
 
-This [editable template](../templates/joel-mainline-offset.ldr) adapts the
-January 2024 Rockford mainline transition to a standard 60 by 40 inch table.
-R104 and R120 S-bends centered along the 60-inch frontage shift both mainlines
-10 inches toward the front. The lanes are 16 studs apart at both handoffs.
+Roger's January 2024 Rockford drawing shows the mainline offset at Joel's
+display. The [editable 60 by 40 inch template](../templates/joel-mainline-offset.ldr)
+uses centered S-bends to shift both mainlines 10 inches, with R104 on the inside
+of each bend and R120 on the outside. The lanes are 16 studs apart at both
+handoffs. The planner chose the individual curves and straight lengths for
+this template. The Rockford drawing leaves those parts unspecified.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Two mainlines shifting 10 inches through centered S-bends on a 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
