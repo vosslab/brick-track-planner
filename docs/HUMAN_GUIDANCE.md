@@ -40,6 +40,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use 40 inches from the plexiglass as the default NILTC display depth, including
   for the Member R104 right yard. Lead with a 60 by 40 inch display and also
   show a collection of 40 by 40 inch examples.
+- Run the three additional tracks in the Member R104 right yard to the far edge.
 - Use a standard 60 by 40 inch rectangle for Joel's 10-to-0 mainline example.
   Center the bends along the 60-inch frontage.
 - Give examples two-to-five-character alphanumeric codes based on their types.

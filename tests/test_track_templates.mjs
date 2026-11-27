@@ -35,7 +35,7 @@ test("a clean joint at a named handoff can lead past the design border", () => {
   assert.deepEqual(placementWarnings(analysis, catalog), []);
 });
 
-test("the 100 by 40 R104 yard reaches three 128-stud storage tracks from the mainline", () => {
+test("the 100 by 40 R104 yard reaches three 144-stud storage tracks at the east edge", () => {
   const result = evaluate(template("member-yard"));
   const { area, items } = result.project;
   assert.deepEqual([area.width, area.depth, area.niltc], [320, 128, "straight"]);
@@ -55,8 +55,8 @@ test("the 100 by 40 R104 yard reaches three 128-stud storage tracks from the mai
     const length = route
       .filter(({ kind, from }) => kind === "internal" && storageIds.has(from.pieceId))
       .reduce((sum, link) => sum + link.length, 0);
-    assert.ok(length >= 128, "each storage track has at least 128 straight studs");
-    assert.ok(Math.abs(end.x - (area.width - 16)) < 0.05);
+    assert.ok(length >= 144, "each storage track has at least 144 straight studs");
+    assert.ok(Math.abs(end.x - area.width) < 0.05);
   }
 });
 

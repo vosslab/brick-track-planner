@@ -22,7 +22,7 @@ Choose the assigned mainline shape.
 
 Use **Open track plan** to continue an LDraw file saved by this planner.
 **Other templates** includes the 60 by 40 straight, the corner, the 100 by 40
-inch R104 yard with three 128-stud storage tracks, the 130 by 70 inch R104
+inch R104 yard with three additional right-edge tracks, the 130 by 70 inch R104
 semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
 inch corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
@@ -183,9 +183,9 @@ heights for repair.
   Its 32-stud tail fits in a 100 by 60 inch area; use 100 by 70 inches for a
   64-stud tail.
 
-For a 100 by 40 inch example, choose **Member yard** under **Other templates**. The
-inner mainline remains open past the R104 switches. Each of the three private
-tracks has eight S16 straights for parking and ends 16 studs before the edge.
+For a 100 by 40 inch example, choose **Member yard** under **Other templates**.
+The inner mainline remains open past the R104 switches. Each storage track has
+nine S16 straights and reaches the right edge alongside the two mainlines.
 [See the 100 by 40 inch R104 yard](screenshots/member_r104_yard.webp).
 
 TrixBrix product sets can include required specialty connectors and separately

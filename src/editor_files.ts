@@ -30,7 +30,7 @@ const templates: readonly Template[] = [
   {
     file: "member-yard.ldr",
     name: "Member yard",
-    purpose: "100 by 40 inch R104 yard with three 128-stud storage tracks.",
+    purpose: "100 by 40 inch R104 yard with three additional tracks reaching the right edge.",
   },
   {
     file: "r104-semicircle-return.ldr",

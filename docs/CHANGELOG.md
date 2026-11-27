@@ -20,8 +20,9 @@
 
 ### Behavior or Interface Changes
 
+- Extend the Member R104 right yard's three storage tracks to the right edge
+  so five lines can connect onward.
 - Use the standard 40-inch depth for the 100-inch-wide Member R104 right yard.
-  Keep all three 128-stud storage tracks and refresh the template screenshot.
 - Trim the R104 semicircle return to 130 by 70 inches. Give the R120 corner
   return a 120 by 90 inch footprint with a 30 by 30 inch cutout.
 

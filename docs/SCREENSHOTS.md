@@ -236,7 +236,7 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 ### Member R104 right yard
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 100 by 40 inch R104 right yard with three 128-stud storage tracks](screenshots/member_r104_yard.webp)
+![A 100 by 40 inch R104 right yard with two mainlines and three storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return
