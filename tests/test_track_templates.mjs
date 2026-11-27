@@ -13,7 +13,9 @@ import { newProject } from "../src/project.ts";
 import { traceRoute } from "../src/route_trace.ts";
 import { showInventory } from "../src/show_inventory.ts";
 
-const straightExamples = trackExamples.filter(({ depth }) => depth === 40);
+const straightExamples = trackExamples.filter(
+  ({ depth, frontage }) => depth === 40 && (frontage === 40 || frontage === 60),
+);
 
 const template = (name) =>
   openTrackPlan(
@@ -234,30 +236,42 @@ test("a notch exposes a straight that bridges it, even with supported corners", 
   );
 });
 
-test("every straight example fits and connects the intended routes", () => {
+test("gallery cards match their editable track plans", () => {
   assert.equal(
-    new Set(straightExamples.map(({ file }) => file)).size,
-    straightExamples.length,
+    new Set(trackExamples.map(({ file }) => file)).size,
+    trackExamples.length,
     "each gallery example has its own track plan",
   );
-  const codes = straightExamples.map(({ code }) => code);
+  const codes = trackExamples.map(({ code }) => code);
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((code) => /^[A-Z0-9]{2,5}$/.test(code)));
+  for (const { file, frontage, depth, name } of trackExamples) {
+    const project = template(file.replace(/\.ldr$/, ""));
+    assert.deepEqual(
+      [project.name, project.area.width, project.area.depth],
+      [name, frontage * 3.2, depth * 3.2],
+      file,
+    );
+  }
+});
+
+test("every straight example fits and connects the intended routes", () => {
   assert.deepEqual(
     straightExamples.slice(0, 2).map(({ name }) => name),
     ["Mainline only", "Back-out siding"],
   );
   const parts = { 60: [], 40: [] };
-  for (const { code, file, frontage, name } of straightExamples) {
+  for (const { code, file, frontage, group, name } of straightExamples) {
     const id = file.replace(/\.ldr$/, "");
     const result = evaluate(template(id));
-    parts[frontage].push(
-      showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
-    );
+    if (!group)
+      parts[frontage].push(
+        showInventory(result.project, catalog).track.reduce((sum, row) => sum + row.required, 0),
+      );
     const privateJunction = code === "TJ56";
     const privateYard = code === "8TRY";
     const mirroredCrossings = code === "MSBC";
-    const general = privateJunction || privateYard || mirroredCrossings;
+    const general = privateJunction || privateYard || mirroredCrossings || code === "JOEL";
     assert.deepEqual(
       [result.project.area.width, result.project.area.depth, result.project.area.niltc],
       [frontage * 3.2, 128, general ? undefined : "straight"],

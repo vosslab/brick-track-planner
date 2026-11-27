@@ -112,12 +112,27 @@ test("members can save, reopen, and undo a five-inch design-area bump", async ({
   await expect(size).toContainText("60 \u00d7 45 in overall");
 });
 
-test("members can open small, mirrored, and R104 return examples from the gallery", async ({
-  page,
-}) => {
+test("members can browse mainline loops and train yards in the gallery", async ({ page }) => {
   await boot(page, { startProject: false });
   await page.locator("#start-browse-examples").click();
   const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
+  const loops = gallery.getByRole("region", { name: "Mainline loops", exact: true });
+  const yards = gallery.getByRole("region", { name: "Train yards", exact: true });
+  for (const name of [
+    "Open R104R · R104 3/4-circle return",
+    "Open R104S · R104 semicircle return",
+    "Open R120R · R120 corner return",
+  ])
+    await expect(loops.getByRole("button", { name, exact: true })).toBeVisible();
+  for (const name of [
+    "Open 4TRY · Four-track right yard",
+    "Open 8TRY · Eight-track switch yard",
+    "Open Y104 · Member R104 right yard",
+    "Open Y40 · Member R40 left yard",
+    "Open Y24 · Member R24 staging yard",
+  ])
+    await expect(yards.getByRole("button", { name, exact: true })).toBeVisible();
+
   await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
   await expect(gallery).toBeHidden();
   await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
@@ -125,7 +140,13 @@ test("members can open small, mirrored, and R104 return examples from the galler
 
   await openEditorMenu(page, "File");
   await page.getByRole("button", { name: "Browse examples", exact: true }).click();
-  await gallery.getByRole("button", { name: "Open MSBC \u00b7 Mirrored S-bend crossings" }).click();
+  const mirrored = gallery.getByRole("button", {
+    name: "Open MSBC \u00b7 Mirrored S-bend crossings",
+  });
+  await expect(mirrored).toHaveAccessibleDescription(
+    /60 × 40 in design area.*about 20 inches deep/,
+  );
+  await mirrored.click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Mirrored S-bend crossings");
   await expect(page.locator("#design-size")).toContainText("60 \u00d7 40");
 
@@ -134,6 +155,12 @@ test("members can open small, mirrored, and R104 return examples from the galler
   await gallery.getByRole("button", { name: "Open R104R \u00b7 R104 3/4-circle return" }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("R104 3/4-circle return");
   await expect(page.locator("#design-size")).toContainText("100 \u00d7 70");
+
+  await openEditorMenu(page, "File");
+  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+  await yards.getByRole("button", { name: "Open Y104 · Member R104 right yard" }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Member R104 right yard");
+  await expect(page.locator("#design-size")).toContainText("100 \u00d7 40");
 });
 
 test("members can move track in a rotated view and undo it", async ({ page, hasTouch }) => {

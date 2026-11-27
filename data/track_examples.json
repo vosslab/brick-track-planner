@@ -24,6 +24,14 @@
     "purpose": "Transfer between the two club lines within the mainline corridor."
   },
   {
+    "code": "JOEL",
+    "frontage": 60,
+    "depth": 40,
+    "file": "joel-mainline-offset.ldr",
+    "name": "Joel's 10-to-0 mainline",
+    "purpose": "Shift both mainlines 10 inches through centered S-bends on a Rockford-inspired display."
+  },
+  {
     "code": "DTS60",
     "frontage": 60,
     "depth": 40,
@@ -56,14 +64,6 @@
     "purpose": "Reach a right-side spur from either end of the inner mainline."
   },
   {
-    "code": "4TRY",
-    "frontage": 60,
-    "depth": 40,
-    "file": "04-r40-right-yard.ldr",
-    "name": "Four-track right yard",
-    "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
-  },
-  {
     "code": "TJ56",
     "frontage": 60,
     "depth": 40,
@@ -77,15 +77,7 @@
     "depth": 40,
     "file": "mirrored-s-bend-crossings.ldr",
     "name": "Mirrored S-bend crossings",
-    "purpose": "Two pairs of tracks swap sides through four 45-degree crossings. Each train stays on its original route."
-  },
-  {
-    "code": "8TRY",
-    "frontage": 60,
-    "depth": 40,
-    "file": "eight_track_ladder_yard.ldr",
-    "name": "Eight-track switch yard",
-    "purpose": "Reach any row via alternating single crossovers. A diagonal links rows 8 and 1."
+    "purpose": "Two pairs of tracks swap sides through four 45-degree crossings. The track footprint is about 20 inches deep."
   },
   {
     "code": "ML40",
@@ -129,10 +121,74 @@
   },
   {
     "code": "R104R",
+    "group": "mainline-loops",
     "frontage": 100,
     "depth": 70,
     "file": "r104-three-quarter-return.ldr",
     "name": "R104 3/4-circle return",
     "purpose": "Return trains from one mainline to the other using only R104 curves."
+  },
+  {
+    "code": "R104S",
+    "group": "mainline-loops",
+    "frontage": 130,
+    "depth": 70,
+    "file": "r104-semicircle-return.ldr",
+    "name": "R104 semicircle return",
+    "purpose": "Turn back using an R104 semicircle and a long diagonal."
+  },
+  {
+    "code": "R120R",
+    "group": "mainline-loops",
+    "frontage": 120,
+    "depth": 90,
+    "file": "r120-corner-return.ldr",
+    "name": "R120 corner return",
+    "purpose": "Return through an R120 quarter-turn around a 30 by 30 inch corner cutout."
+  },
+  {
+    "code": "4TRY",
+    "group": "train-yards",
+    "frontage": 60,
+    "depth": 40,
+    "file": "04-r40-right-yard.ldr",
+    "name": "Four-track right yard",
+    "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
+  },
+  {
+    "code": "8TRY",
+    "group": "train-yards",
+    "frontage": 60,
+    "depth": 40,
+    "file": "eight_track_ladder_yard.ldr",
+    "name": "Eight-track switch yard",
+    "purpose": "Reach any row via alternating single crossovers. A diagonal links rows 8 and 1."
+  },
+  {
+    "code": "Y24",
+    "group": "train-yards",
+    "frontage": 80,
+    "depth": 40,
+    "file": "member-r24-staging-yard.ldr",
+    "name": "Member R24 staging yard",
+    "purpose": "Stage cars on six sidings at the west edge for hand-push operation."
+  },
+  {
+    "code": "Y40",
+    "group": "train-yards",
+    "frontage": 100,
+    "depth": 40,
+    "file": "member-r40-left-yard.ldr",
+    "name": "Member R40 left yard",
+    "purpose": "Reach six west-edge storage tracks using standard LEGO R40 switches and curves."
+  },
+  {
+    "code": "Y104",
+    "group": "train-yards",
+    "frontage": 100,
+    "depth": 40,
+    "file": "member-yard.ldr",
+    "name": "Member R104 right yard",
+    "purpose": "Reach six east-edge storage tracks from the inner mainline through an R104 ladder."
   }
 ]

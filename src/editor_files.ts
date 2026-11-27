@@ -27,38 +27,9 @@ const templates: readonly Template[] = [
     name: "Member corner",
     purpose: "NILTC R120 and R104 corner.",
   },
-  {
-    file: "member-yard.ldr",
-    name: "Member R104 right yard",
-    purpose: "100 by 40 inch R104 yard with six storage tracks reaching the right edge.",
-  },
-  {
-    file: "member-r40-left-yard.ldr",
-    name: "Member R40 left yard",
-    purpose: "100 by 40 inch LEGO R40 yard with six storage tracks reaching the left edge.",
-  },
-  {
-    file: "member-r24-staging-yard.ldr",
-    name: "Member R24 staging yard",
-    purpose:
-      "80 by 40 inch hand-push staging yard with six flush sidings and two straight mainlines.",
-  },
-  {
-    file: "r104-semicircle-return.ldr",
-    name: "R104 semicircle return",
-    purpose: "A 130 by 70 inch turnaround with an R104 semicircle and a long diagonal.",
-  },
-  {
-    file: "r120-corner-return.ldr",
-    name: "R120 corner return",
-    purpose:
-      "A 120 by 90 inch turnaround with a 30 by 30 inch corner cutout and an R120 quarter-turn.",
-  },
-  {
-    file: "joel-mainline-offset.ldr",
-    name: "Joel's 10-to-0 mainline",
-    purpose: "A Rockford-inspired 10-inch offset on a 60 by 40 inch display.",
-  },
+  ...["Y104", "Y40", "Y24", "R104S", "R120R", "JOEL"].flatMap((code) =>
+    trackExamples.filter((example) => example.code === code),
+  ),
 ];
 
 export function setupFiles(
@@ -219,6 +190,7 @@ export function setupFiles(
   const showGallery = (): void => {
     gallery.showModal();
     for (const template of trackExamples) {
+      const details = `${template.frontage} × ${template.depth} in design area. ${template.purpose}`;
       let card = galleryCards.get(template.file);
       if (!card) {
         const container = document.createElement("article");
@@ -229,7 +201,7 @@ export function setupFiles(
         opener.setAttribute("aria-label", `Open ${title}`);
         const name = document.createElement("strong");
         name.textContent = title;
-        const description = textNode("small", template.purpose);
+        const description = textNode("small", details);
         description.id = `example-description-${template.file}`;
         opener.setAttribute("aria-describedby", description.id);
         container.append(opener, name, description);
@@ -239,7 +211,8 @@ export function setupFiles(
         });
         card = { opener, description };
         galleryCards.set(template.file, card);
-        element(`template-gallery-cards-${template.frontage}x${template.depth}`).append(container);
+        const group = template.group ?? `${template.frontage}x${template.depth}`;
+        element(`template-gallery-cards-${group}`).append(container);
       }
       const { opener, description } = card;
       if (opener.dataset.preview === "ready" || opener.dataset.preview === "loading") continue;
@@ -257,7 +230,7 @@ export function setupFiles(
             (sum, row) => sum + row.required,
             0,
           );
-          description.textContent = `${total} track pieces. ${template.purpose}`;
+          description.textContent = `${details} ${total} track pieces.`;
           preview.setAttribute("aria-hidden", "true");
           opener.replaceChildren(preview);
           const view = preview.viewBox.baseVal;
@@ -266,7 +239,7 @@ export function setupFiles(
           opener.dataset.preview = "ready";
         } catch {
           opener.dataset.preview = "failed";
-          description.textContent = "Preview unavailable. Open again to retry.";
+          description.textContent = `${details} Preview unavailable. Open again to retry.`;
         }
         opener.disabled = false;
       })();

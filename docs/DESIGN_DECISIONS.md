@@ -117,21 +117,26 @@ reconstructions into compact outlines.
 
 **Owner.** [templates](../templates/), [editor_files.ts](../src/editor_files.ts)
 
-### Lead with the mainline and back-out siding examples
+### Group examples by layout job
 
 **Decision.** Identify examples by type code and name. Frame the track in
-each preview. Group the cards by display size with 60 by 40 inches first.
-In each group, lead with the mainline and back-out siding, then order the
-remaining cards by total physical track count.
+each preview. Keep 60 by 40 inches and 40 by 40 inches as display-size groups.
+Lead with the mainline and back-out siding in each size group, then order
+the remaining cards by physical track count.
+Group the returns under Mainline loops and the storage plans under Train yards.
+Show the saved design-area dimensions on every card.
 
 **Why.** Members can identify a plan in conversation and compare the track
 it requires.
 
-**Consequence.** Keep the list in track count order when editing the plans.
-PFS, 4TRY, and PFS40 use a west crossover to serve every storage track
-from both mainlines while keeping both through routes.
-TJ56 uses a General plan because the R40&ndash;R56 assembly has less than the
-NILTC-required spacing between the inner switches and the crossing.
+**Consequence.** The gallery includes the R104 three-quarter, R104
+semicircle, and R120 corner returns, plus the R104, R40, R24, four-track,
+and eight-track yards. The semicircle and corner returns, three member yards,
+and Joel's mainline offset also appear in Other templates.
+PFS, 4TRY, and PFS40 use a west crossover to serve every storage track from
+both mainlines while keeping both through routes. TJ56 uses a General plan
+because the R40&ndash;R56 assembly has less than the NILTC-required spacing between
+the inner switches and the crossing.
 
 **Owner.** [track_examples.json](../data/track_examples.json)
 

@@ -4,6 +4,9 @@
 
 ### Behavior or Interface Changes
 
+- Group **Browse examples** into display-size collections, Mainline loops,
+  and Train yards. Add the bundled returns, yards, and Joel's mainline to the
+  gallery, and show each card's design-area dimensions.
 - Move selected track one stud at a time with the arrow keys, including in
   rotated views. Each step can be undone.
 - Run the local Playwright suite in Firefox too; install Firefox, Chromium, and

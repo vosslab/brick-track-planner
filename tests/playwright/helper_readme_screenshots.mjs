@@ -108,7 +108,7 @@ try {
     await phonePage.close();
   }
 
-  await page.setViewportSize({ width: 1920, height: 2000 });
+  await page.setViewportSize({ width: 1920, height: 2700 });
   await Promise.all([
     ...trackExamples.map(({ file }) => verifyTemplate(page, file)),
     page.locator("#start-browse-examples").click(),

@@ -17,8 +17,9 @@ branches off the inner mainline and gives a train a place to park.
 ![The Back-out siding example showing two shared mainlines and one parking track](docs/screenshots/example_bos.webp)
 <!-- screenshots:end -->
 
-For an end-of-layout turnaround, see the 100 by 70 inch R104 three-quarter
-return in the gallery. [Screenshot and track plan](docs/SCREENSHOTS.md#r104r---r104-three-quarter-return)
+For an end-of-layout turnaround, open **Mainline loops** in the gallery and
+choose the 100 by 70 inch R104 three-quarter return.
+[Screenshot and track plan](docs/SCREENSHOTS.md#mainline-loops)
 
 ## Quick start
 

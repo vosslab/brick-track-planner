@@ -29,7 +29,7 @@ Use **Open track plan** to continue an LDraw file saved by this planner.
 inch R104 yard with six right-edge storage tracks, the 130 by 70 inch R104
 semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
 inch corner cutout. Each turnaround links the two approach tracks at the same edge.
-[See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
+[See the turnarounds](SCREENSHOTS.md#mainline-loops).
 Joel's 10-to-0 mainline adapts the Rockford offset to a 60 by 40 inch table
 with a 10-inch shift between handoffs. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
 
@@ -39,10 +39,14 @@ track instead of moving baseplates.
 
 ## Compare track examples
 
-Choose **Browse examples** on the start screen or under **File** in the editor. The straight
-collections start with the mainline and back-out siding, then order the plans by
-physical track piece count. Under **100 &times; 70 inches**, choose **R104R** for a
-three-quarter return that connects the two mainlines on the same edge.
+Choose **Browse examples** on the start screen or under **File** in the editor.
+The 60 by 40 and 40 by 40 inch collections organize compact display plans by
+size; each begins with the mainline and back-out siding, then orders the
+remaining plans by physical track piece count. **Mainline loops** collects the
+three return plans. **Train yards**
+collects storage and staging plans, including the 100 by 40 inch R104 and R40
+yards and the 80 by 40 inch R24 staging yard. Each card gives its design-area
+dimensions. All existing choices remain under **Other templates**.
 
 Use **PFS** for two perpendicular freight spurs on the right. Each has 32
 straight studs with room to extend. Use **4TRY** for three storage tracks
@@ -62,7 +66,7 @@ another example keeps your existing layouts open. **Close** leaves the
 gallery and returns to the current layout.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Track examples grouped into 60 by 40, 40 by 40, and 100 by 70 inch displays](screenshots/straight_examples.webp)
+![Track examples grouped by display size, mainline loops, and train yards](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 [See each example in the editor](SCREENSHOTS.md#track-examples).

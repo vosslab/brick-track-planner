@@ -136,10 +136,11 @@ When the rail handoffs themselves are offset, see [Joel's 10-to-0 mainline](#joe
 
 Open these plans with **Browse examples**. The first number is the width
 along the track. Jump to [60 by 40 inches](#60-by-40-inches),
-[40 by 40 inches](#40-by-40-inches), or [100 by 70 inches](#100-by-70-inches).
+[40 by 40 inches](#40-by-40-inches), [Mainline loops](#mainline-loops),
+or [Train yards](#train-yards).
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Track gallery showing three sizes with their type codes and piece counts](screenshots/straight_examples.webp)
+![Track gallery grouped by display size, mainline loops, and train yards](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ### 60 by 40 inches
@@ -186,12 +187,6 @@ along the track. Jump to [60 by 40 inches](#60-by-40-inches),
 ![The R40 T-junction reaching a perpendicular spur from both ends of the inner mainline](screenshots/example_tj40.webp)
 <!-- screenshots:end -->
 
-#### 4TRY - Four-track right yard
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A four-track yard with three storage tracks ending at the right edge and access from both mainlines](screenshots/example_4try.webp)
-<!-- screenshots:end -->
-
 #### TJ56 - R40&ndash;R56 T-junction
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
@@ -204,29 +199,25 @@ Two pairs of tracks swap sides across a 60 by 40 inch display. The R104 and
 R120 S-bends shift each pair about 12.6 inches to leave room for four 45-degree
 diamonds. Trains cross the other pair while staying on their own route.
 The layout uses stock TrixBrix crossings, curves, and short straights with
-LEGO S16 approaches. [Download the editable plan](../templates/mirrored-s-bend-crossings.ldr).
+LEGO S16 approaches. Its saved General design area is 60 by 40 inches, while
+the centered crossing formation is about 20 inches deep.
+[Download the editable plan](../templates/mirrored-s-bend-crossings.ldr).
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Four independent tracks swapping sides through a centered group of 45-degree crossings](screenshots/example_msbc.webp)
 <!-- screenshots:end -->
 
-#### 8TRY - Eight-track switch yard
+#### Joel's 10-to-0 mainline
 
-Eight parallel rows run between the left and right edges. Seven alternating
-R40 single crossovers connect adjacent rows. Each uses two matching switches
-and a connector. The 45-degree diagonal connects the right end of row 8
-directly to the left end of row 1.
-([TrixBrix right switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/right-switch-r40/9953-right-switch-r40),
-[TrixBrix left switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/switches-and-crossovers-r40/left-switch-r40/9937-left-switch-r40))
-
-Every row is reachable with reversals. To get from row 8 to row 5, run left
-to row 7, right to row 6, then left to row 5. Reverse after the train clears
-the crossover. The shortest approach at a table edge is 16 studs. Longer trains
-may need continuation track beyond the table for some moves. **Trace route**
-shows one move at a time.
+Roger's January 2024 Rockford drawing shows the mainline offset at Joel's
+display. The [editable 60 by 40 inch template](../templates/joel-mainline-offset.ldr)
+uses centered S-bends to shift both mainlines 10 inches, with R104 on the inside
+of each bend and R120 on the outside. The lanes are 16 studs apart at both
+handoffs. The planner chose the individual curves and straight lengths for
+this template. The Rockford drawing leaves those parts unspecified.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Eight full-width tracks with alternating single crossovers and a diagonal route between the outer rows](screenshots/example_8try.webp)
+![Two mainlines shifting 10 inches through centered S-bends on a 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
 <!-- screenshots:end -->
 
 ### 40 by 40 inches
@@ -261,9 +252,9 @@ shows one move at a time.
 ![A crossover feeding a single perpendicular freight spur on the right](screenshots/example_pfs40.webp)
 <!-- screenshots:end -->
 
-### 100 by 70 inches
+### Mainline loops
 
-#### R104R - R104 three-quarter return
+#### R104R - R104 three-quarter return, 100 by 70 inches
 
 This return links the two mainlines at the same edge. It uses a 258.75-degree
 R104 bend, a 25-stud diagonal, and a 78.75-degree R104 bend in the opposite
@@ -273,15 +264,87 @@ direction. [Download the editable track plan](../templates/r104-three-quarter-re
 ![The R104 three-quarter return on a rectangular 100 by 70 inch display](screenshots/example_r104r.webp)
 <!-- screenshots:end -->
 
+#### R104 semicircle return, 130 by 70 inches
+
+[Download the editable track plan](../templates/r104-semicircle-return.ldr).
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 130 by 70 inch turnaround with an R104 semicircle and diagonal return](screenshots/r104_semicircle_return.webp)
+<!-- screenshots:end -->
+
+#### R120 corner return, 120 by 90 inches
+
+[Download the editable track plan](../templates/r120-corner-return.ldr).
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 120 by 90 inch turnaround with an R120 quarter-turn and a stepped corner cutout](screenshots/r120_corner_return.webp)
+<!-- screenshots:end -->
+
+### Train yards
+
+#### 4TRY - Four-track right yard, 60 by 40 inches
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A four-track yard with three storage tracks ending at the right edge and access from both mainlines](screenshots/example_4try.webp)
+<!-- screenshots:end -->
+
+#### 8TRY - Eight-track switch yard, 60 by 40 inches
+
+Eight parallel rows run between the left and right edges. Seven alternating
+R40 single crossovers connect adjacent rows. Each uses two matching switches
+and a connector. The 45-degree diagonal connects the right end of row 8
+directly to the left end of row 1.
+([TrixBrix right switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/right-switch-r40/9953-right-switch-r40),
+[TrixBrix left switch](https://trixbrix.eu/en/p/track/switches-and-crossovers/switches-and-crossovers-r40/left-switch-r40/9937-left-switch-r40))
+
+Every row is reachable with reversals. To get from row 8 to row 5, run left
+to row 7, right to row 6, then left to row 5. Reverse after the train clears
+the crossover. The shortest approach at a table edge is 16 studs. Longer trains
+may need continuation track beyond the table for some moves. **Trace route**
+shows one move at a time.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![Eight full-width tracks with alternating single crossovers and a diagonal route between the outer rows](screenshots/example_8try.webp)
+<!-- screenshots:end -->
+
+#### Member R104 right yard, 100 by 40 inches
+
+[Download the editable track plan](../templates/member-yard.ldr).
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 100 by 40 inch R104 right yard with two mainlines and six storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
+<!-- screenshots:end -->
+
+#### Member R40 left yard, 100 by 40 inches
+
+[Download the editable track plan](../templates/member-r40-left-yard.ldr).
+
+Each stock 22.5-degree LEGO switch and full R40 reverse curve moves a storage
+row 48 studs along and 16 studs back, so the yard needs no short filler
+pieces. Where space permits, the rear row is a single 16-stud straight.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 100 by 40 inch LEGO R40 left yard with two mainlines and six storage tracks reaching the left edge](screenshots/member_r40_left_yard.webp)
+<!-- screenshots:end -->
+
+#### Member R24 staging yard, 80 by 40 inches
+
+[Download the editable track plan](../templates/member-r24-staging-yard.ldr).
+
+This 80 by 40 inch template has six sidings for staging cars and pushing
+them by hand onto the inner mainline. The TrixBrix R24 ladder uses S4 and S8
+spacers at the throat, so every track reaches the west edge and its LEGO S16
+straight sections line up on the same grid. Both mainlines run straight through.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![An 80 by 40 inch R24 staging yard with a compact ladder and six tracks flush at the west edge](screenshots/member_r24_staging_yard.webp)
+<!-- screenshots:end -->
+
 ## Other templates
 
-Open these plans from **Other templates** on the start screen or from **File**
-in the editor. You can also download the [R104 right yard](../templates/member-yard.ldr),
-[LEGO R40 left yard](../templates/member-r40-left-yard.ldr),
-[R24 staging yard](../templates/member-r24-staging-yard.ldr),
-[R104 semicircle return](../templates/r104-semicircle-return.ldr), or
-[R120 corner return](../templates/r120-corner-return.ldr) and use
-**Open track plan** in the planner.
+Open these starter plans from **Other templates** on the start screen or
+under **File** in the editor. The same menu includes the semicircle return,
+corner return, three member yards, and Joel's mainline offset.
 
 ### Member straight
 
@@ -304,58 +367,6 @@ printed directly on it.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A member corner in color-coded track view, showing blue R104, burgundy R120, and gray straight sections](screenshots/track_color_view.webp)
-<!-- screenshots:end -->
-
-### Member R104 right yard
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A 100 by 40 inch R104 right yard with two mainlines and six storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
-<!-- screenshots:end -->
-
-### Member R40 left yard
-
-Each stock 22.5-degree LEGO switch and full R40 reverse curve moves a storage
-row 48 studs along and 16 studs back, so the yard needs no short filler
-pieces. Where space permits, the rear row is a single 16-stud straight.
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A 100 by 40 inch LEGO R40 left yard with two mainlines and six storage tracks reaching the left edge](screenshots/member_r40_left_yard.webp)
-<!-- screenshots:end -->
-
-### Member R24 staging yard
-
-This 80 by 40 inch template has six sidings for staging cars and pushing
-them by hand onto the inner mainline. The TrixBrix R24 ladder uses S4 and S8
-spacers at the throat, so every track reaches the west edge and its LEGO S16
-straight sections line up on the same grid. Both mainlines run straight through.
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![An 80 by 40 inch R24 staging yard with a compact ladder and six tracks flush at the west edge](screenshots/member_r24_staging_yard.webp)
-<!-- screenshots:end -->
-
-### R104 semicircle return
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A 130 by 70 inch turnaround with an R104 semicircle and diagonal return](screenshots/r104_semicircle_return.webp)
-<!-- screenshots:end -->
-
-### R120 corner return
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![A 120 by 90 inch turnaround with an R120 quarter-turn and a stepped corner cutout](screenshots/r120_corner_return.webp)
-<!-- screenshots:end -->
-
-### Joel's 10-to-0 mainline
-
-Roger's January 2024 Rockford drawing shows the mainline offset at Joel's
-display. The [editable 60 by 40 inch template](../templates/joel-mainline-offset.ldr)
-uses centered S-bends to shift both mainlines 10 inches, with R104 on the inside
-of each bend and R120 on the outside. The lanes are 16 studs apart at both
-handoffs. The planner chose the individual curves and straight lengths for
-this template. The Rockford drawing leaves those parts unspecified.
-
-<!-- screenshots:begin (managed by screenshot-docs) -->
-![Two mainlines shifting 10 inches through centered S-bends on a 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
 <!-- screenshots:end -->
 
 ## Recapture the collection
