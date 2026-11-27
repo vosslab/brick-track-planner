@@ -73,6 +73,16 @@ source source_me.sh && python3 devel/render_track_artwork.py /path/to/ldraw
 
 ## Track geometry
 
+- The LEGO crossing straight (2824, element 6530143) and straight with clips
+  (7442, element 6546033) both use the usual S16 connector centers and an
+  8-by-16-stud placement footprint. Each carries one straight train route.
+  Their original schematic previews show the smooth deck and clip cutout.
+  [Crossing straight](https://www.bricklink.com/v2/catalog/catalogitem.page?P=2824)
+  [Straight with clips](https://www.bricklink.com/v2/catalog/catalogitem.page?P=7442)
+  [Schematic data](track_schematics.json)
+- LEGO element 6486315 is an 8-by-12-stud rerailing ramp. Its approach rises
+  to a single standard rail connection, so it falls outside the flat catalog.
+  [LDraw part geometry](https://library.ldraw.org/parts/25341)
 - The [right pass-through single crossover R40](https://trixbrix.eu/en/p/track/curved-tracks/right-pass-through-single-crossover-r40/10035-right-pass-through-single-crossover-r40)
   uses the crossing and adapter records from the BlueBrick pass-through set.
   Adapter ends are aligned to nominal 16-stud lane spacing. The set drawing

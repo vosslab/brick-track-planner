@@ -2,6 +2,18 @@
 
 ## 2026-11-27
 
+### Additions and New Features
+
+- Add the LEGO S16 crossing straight (6530143) and S16 straight with clips
+  (6546033) to Track parts. Both connect to ordinary LEGO train track.
+
+### Fixes and Improvements
+
+- Keep the Pages example files and geometry engine matched to the planner
+  build so cached files from another release cannot break the gallery.
+- Show larger error messages near the top of the planner. Keep the example
+  gallery open after an error so the user can retry or choose another plan.
+
 ### Behavior or Interface Changes
 
 - Keep every track plan flat. Remove track-height data, height findings, and

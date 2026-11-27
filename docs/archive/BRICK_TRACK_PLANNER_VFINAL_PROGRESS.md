@@ -34,7 +34,7 @@ Read the 12 repository style files:
 - **Connector guidance (`vn_snap`).** The native check verifies that a real rail connector wins over
   a nearby lane guide. Visible placement on a rotated table lands the two S16s at local y=8 and
   y=24 and the baseplate at (16, 16). Siding placement and duplication preserve both mainlines.
-  [niltc.rs](../../rust/niltc.rs), `niltc.spec.ts`
+  `niltc.rs`, `niltc.spec.ts`
 - **Table standards (`vn_standards`).** New starters and nominal presets carry explicit NILTC
   tags. V1 and BlueBrick imports preserve geometry and free editing with no automatic tag.
   Applying checks to imported geometry preserves its pose and reports the off-grid plate.
@@ -70,8 +70,7 @@ Read the 12 repository style files:
   against the illustrated source sheets, including color and exact compatible track. The 001A,
   022A, and 023B recipes contain 44, 71, and 98 ballast pieces per track section respectively.
   Both colors of the straight's 2 x 8 plate stay distinct. The inventory retains recipe gaps.
-  [BALLAST_SOURCES.md](../../data/BALLAST_SOURCES.md),
-  [test_ballast_recipes.mjs](../../tests/test_ballast_recipes.mjs)
+  [BALLAST_SOURCES.md](../../data/BALLAST_SOURCES.md), `test_ballast_recipes.mjs`
 
 ## Sections and whole-show proof
 
@@ -81,8 +80,8 @@ Read the 12 repository style files:
 - **Section files (`vn_section_files`).** All four staged bundles open at their anchors. The
   repeated Corner imports have fresh independent IDs. Section export preserves attached pieces,
   used layers, internal seams, and named exits. Invalid data is rejected before insertion.
-  The historical check used `test_sections.mjs`. For current template coverage, see
-  [test_track_templates.mjs](../../tests/test_track_templates.mjs)
+  The historical check used `test_sections.mjs`. Later template checks used
+  `test_track_templates.mjs`.
 - **Alignment and assembly (`vn_alignment`, `vn_assembly`).** The M7-M11 integrated fixture has
   seven independent section instances, eight tagged 128x128-stud tables, eight seams, and 16
   joined lanes within 0.000001 stud. The independent connector walk proves disjoint closed

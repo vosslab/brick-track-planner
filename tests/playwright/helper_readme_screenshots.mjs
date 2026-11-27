@@ -233,11 +233,10 @@ try {
     await expect(target.getByRole("button", { name: "Place at center" })).toBeEnabled();
     await expect(target.locator("#tabletop [data-kind=track]")).toHaveCount(0);
   };
-  const choosePartCategory = async (target, name, partModel) => {
+  const choosePartCategory = async (target, name, partId) => {
     await target.getByRole("radio", { name, exact: true }).check();
-    const cards = target.locator("#part-results .part-card");
-    const firstCard = partModel ? cards.filter({ hasText: partModel }) : cards.first();
-    const part = firstCard.getByRole("radio");
+    const parts = target.locator("#part-results").getByRole("radio");
+    const part = partId ? parts.and(target.locator(`[value="${partId}"]`)) : parts.first();
     await expect(part).toBeVisible();
     await part.check();
     await expect(part).toBeChecked();
@@ -262,7 +261,7 @@ try {
   } finally {
     await phoneParts.close();
   }
-  await choosePartCategory(page, "Straights", "RC/PF straight S16");
+  await choosePartCategory(page, "Straights", "lego:rc-s16");
 
   const demonstratePlacement = async (target, frame) => {
     await target.getByLabel("Place at", { exact: true }).selectOption("drawing");
@@ -312,7 +311,7 @@ try {
 
   await page.setViewportSize(desktopViewport);
   await startBlank(page, "Overlapping straight track");
-  await choosePartCategory(page, "Straights", "RC/PF straight S16");
+  await choosePartCategory(page, "Straights", "lego:rc-s16");
   const placeCentered = page.getByRole("button", { name: "Place at center", exact: true });
   await placeCentered.click();
   await expect(track).toHaveCount(1);

@@ -31,7 +31,7 @@ Run `./check_codebase.sh --help` for usage. In a `githubpages` repository,
 ## Repo layout you edit
 
 - `src/main.ts` is the entry point (use `src/main.tsx` for JSX or Solid).
-- `src/index.html` is the page shell that loads `dist/main.js`.
+- `src/index.html` is the page shell. The Pages build fills in the hashed entry filename.
 - `src/style.css` holds the styles, copied into `dist/` at build time.
 - `dist/` is the generated bundle; treat it as build output, not source.
 - `tests/` holds every test tier described below.

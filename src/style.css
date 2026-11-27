@@ -617,9 +617,38 @@ fieldset {
   font-size: 0.8rem;
   color: var(--muted);
 }
+.status > p {
+  margin: 0;
+}
+.status:has(> #status-message:empty) {
+  min-height: 0;
+  margin: 0;
+}
 .status[data-error] {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  min-height: 0;
+  margin: 0.5rem var(--gutter);
+  padding: 0.8rem 1rem;
+  border: 2px solid currentColor;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 0.3rem 1rem #13213c33;
+  font-size: 1rem;
+  line-height: 1.4;
   color: var(--warning);
   font-weight: 650;
+}
+.status[data-error] > p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.status[data-error] > button {
+  flex: 0 0 auto;
+  color: inherit;
+  border-color: currentColor;
+  background: transparent;
 }
 .bad-status {
   color: var(--warning);
@@ -717,17 +746,6 @@ dialog h2 {
   #startup-form .curve-options label {
     padding-block: 0.25rem;
   }
-  body:not([data-project-open]) .status[data-error] {
-    position: fixed;
-    z-index: 2;
-    right: var(--gutter);
-    bottom: 0.5rem;
-    left: var(--gutter);
-    padding: 0.4rem 0.55rem;
-    border: 1px solid currentColor;
-    border-radius: 6px;
-    background: var(--surface);
-  }
 }
 @media (max-width: 500px) {
   .workspace {
@@ -749,28 +767,18 @@ dialog h2 {
 }
 
 [data-dialog-error] {
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.75rem;
+  border-inline-start: 0.3rem solid currentColor;
+  border-radius: 4px;
+  background: var(--subtle);
   color: var(--warning);
-  font-size: 0.84rem;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
 }
 [data-dialog-error]:empty {
   display: none;
-}
-@media (max-width: 750px) {
-  .status:empty {
-    min-height: 0;
-    margin: 0;
-  }
-  .status[data-error] {
-    position: fixed;
-    z-index: 2;
-    bottom: 0.5rem;
-    inset-inline: 0;
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    background: var(--surface);
-    pointer-events: none;
-  }
 }
 @media (min-width: 751px) {
   #library-body[hidden],

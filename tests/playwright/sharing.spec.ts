@@ -137,6 +137,7 @@ test("rejects an ordinary LDraw file without replacing the track plan", async ({
     buffer: Buffer.from("0 External LDraw model\r\n1 16 0 0 0 1 0 0 0 1 0 0 0 1 3001.dat\r\n"),
   });
   await expect(planner.getByRole("status")).toContainText("Brick Track");
+  await expect(planner.getByRole("status")).toBeInViewport();
   expect((await saveProject(planner)).project).toEqual(before.project);
 });
 

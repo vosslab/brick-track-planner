@@ -4,6 +4,7 @@ import init, {
   evaluate_json,
 } from "../generated/wasm/track_geometry.js";
 import type { Catalog, Point, Project } from "./project";
+import { releaseAsset } from "./release_assets";
 
 export type Analysis = {
   project: Project;
@@ -32,7 +33,7 @@ export type Analysis = {
 };
 
 export async function initEngine(): Promise<Catalog> {
-  await init({ module_or_path: new URL("./wasm/track_geometry_bg.wasm", import.meta.url) });
+  await init({ module_or_path: releaseAsset("wasm/track_geometry_bg.wasm") });
   return JSON.parse(catalog_json()) as Catalog;
 }
 

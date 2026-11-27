@@ -1,4 +1,5 @@
 import trackArtwork from "../data/ldraw/track_artwork.json" with { type: "json" };
+import trackSchematics from "../data/track_schematics.json" with { type: "json" };
 import type { Catalog, TrackItem } from "./project";
 import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
 import { codedTrackDrawing, codedTrackWidth } from "./scene_track_colors";
@@ -15,7 +16,7 @@ type PartGeometry = {
 
 const geometries = new WeakMap<Part, PartGeometry>();
 const modelDrawings = new Map<string, Readonly<Record<string, string>>>(
-  Object.entries(trackArtwork),
+  Object.entries({ ...trackSchematics, ...trackArtwork }),
 );
 const ballastWidths = { bare: 7.5, gray: 10.5, pennlug: 13 };
 

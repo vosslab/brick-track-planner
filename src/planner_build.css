@@ -292,6 +292,22 @@
   max-height: calc(100dvh - 1.5rem);
   background: var(--paper);
 }
+.template-gallery-error {
+  margin: 0 0 0.7rem;
+  padding: 0.65rem 0.8rem;
+  border: 2px solid var(--warning);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--warning);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.template-gallery-error:empty {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+}
 .template-gallery-sections {
   display: grid;
   align-content: start;
@@ -420,9 +436,6 @@
 #editor {
   row-gap: 0;
   padding-inline: 0.5rem;
-}
-body[data-project-open] .status:empty {
-  display: none;
 }
 body[data-project-open] .app-header {
   position: relative;

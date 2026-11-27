@@ -74,10 +74,14 @@ test("members can browse mainline loops and train yards in the gallery", async (
   const loops = gallery.getByRole("region", { name: "Mainline loops", exact: true });
   const yards = gallery.getByRole("region", { name: "Train yards", exact: true });
   await expect(
-    loops.getByRole("button", { name: "Open R104R · R104 3/4-circle return", exact: true }),
+    loops
+      .getByRole("button", { name: "Open R104R · R104 3/4-circle return", exact: true })
+      .locator("svg"),
   ).toBeVisible();
   await expect(
-    yards.getByRole("button", { name: "Open Y104 · Member R104 right yard", exact: true }),
+    yards
+      .getByRole("button", { name: "Open Y104 · Member R104 right yard", exact: true })
+      .locator("svg"),
   ).toBeVisible();
 
   await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
@@ -90,6 +94,28 @@ test("members can browse mainline loops and train yards in the gallery", async (
   await yards.getByRole("button", { name: "Open Y104 · Member R104 right yard" }).click();
   await expect(page.getByLabel("Layout name")).toHaveValue("Member R104 right yard");
   await expect(page.locator("#design-size")).toContainText("100 \u00d7 40");
+});
+
+test("an unavailable example reports the error in the gallery and can be retried", async ({
+  page,
+}) => {
+  const template = (url: URL): boolean => url.pathname.endsWith("/06-long-back-out.ldr");
+  await page.route(template, (route) => route.fulfill({ status: 503 }));
+  await boot(page, { startProject: false });
+  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+
+  const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
+  const backOut = gallery.getByRole("button", { name: "Open BOS · Back-out siding", exact: true });
+  await backOut.click();
+  const error = gallery.locator("#template-gallery-error");
+  await expect(error).toBeInViewport();
+  await expect(error).toContainText("Back-out siding");
+  await expect(error).toContainText("retry");
+
+  await page.unroute(template);
+  await backOut.click();
+  await expect(gallery).toBeHidden();
+  await expect(page.getByLabel("Layout name")).toHaveValue("Back-out siding");
 });
 
 test("[touch] members can move track in a rotated view and undo it", async ({ page, hasTouch }) => {

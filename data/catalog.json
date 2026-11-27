@@ -60,6 +60,42 @@
       ]
     },
     {
+      "id": "lego:rc-crossing-s16",
+      "browse": { "category": "straights", "label": "Crossing straight (16 studs)", "order": 17, "description": "One straight rail route with a smooth rerailing deck." },
+      "brand": "LEGO",
+      "name": "RC/PF crossing straight S16 (6530143)",
+      "ports": [
+        { "id": "a", "x": -8, "y": 0, "angle": 180, "type": "regular" },
+        { "id": "b", "x": 8, "y": 0, "angle": 0, "type": "regular" }
+      ],
+      "paths": [[{ "x": -8, "y": 0 }, { "x": 8, "y": 0 }]],
+      "footprint": [
+        { "x": -8, "y": -4 },
+        { "x": 8, "y": -4 },
+        { "x": 8, "y": 4 },
+        { "x": -8, "y": 4 }
+      ],
+      "routes": [{ "from": "a", "to": "b", "path": 0 }]
+    },
+    {
+      "id": "lego:rc-s16-holder",
+      "browse": { "category": "straights", "label": "Straight with clips (16 studs)", "order": 18, "description": "Standard rail ends with a side cutout and attachment clips." },
+      "brand": "LEGO",
+      "name": "RC/PF straight S16 with clips (6546033)",
+      "ports": [
+        { "id": "a", "x": -8, "y": 0, "angle": 180, "type": "regular" },
+        { "id": "b", "x": 8, "y": 0, "angle": 0, "type": "regular" }
+      ],
+      "paths": [[{ "x": -8, "y": 0 }, { "x": 8, "y": 0 }]],
+      "footprint": [
+        { "x": -8, "y": -4 },
+        { "x": 8, "y": -4 },
+        { "x": 8, "y": 4 },
+        { "x": -8, "y": 4 }
+      ],
+      "routes": [{ "from": "a", "to": "b", "path": 0 }]
+    },
+    {
       "id": "lego:rc-r40",
       "browse": { "category": "curves", "label": "Curve R40 (22.5 degrees)", "order": 40 },
       "brand": "LEGO",

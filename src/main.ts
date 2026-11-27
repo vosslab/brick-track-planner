@@ -37,8 +37,10 @@ type LayoutTab = {
 
 function notice(message: string, error = false): void {
   const status = element("status");
-  status.textContent = message;
+  element("status-message").textContent = message;
   status.toggleAttribute("data-error", error);
+  button("dismiss-status").hidden = !error;
+  if (error) status.scrollIntoView({ block: "nearest" });
 }
 
 function start(setup: AreaSetup, catalog: Catalog): Project {
@@ -544,4 +546,5 @@ async function main(): Promise<void> {
     notice(`Cannot start Brick Track Planner: ${errorMessage(error)}`, true);
   }
 }
+button("dismiss-status").addEventListener("click", () => notice(""));
 void main();

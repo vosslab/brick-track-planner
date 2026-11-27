@@ -49,10 +49,12 @@ if [ ! -f playwright.config.ts ]; then
 	exit 1
 fi
 
+pages_main=(dist/main-*.js)
+pages_wasm=(dist/assets/*/wasm/track_geometry_bg.wasm)
 if [ "$FORCE_BUILD" -eq 1 ]; then
 	echo "==> --build flag set: rebuilding dist/..."
 	bash build_github_pages.sh
-elif [ ! -s dist/index.html ] || [ ! -s dist/main.js ] || [ ! -s dist/wasm/track_geometry_bg.wasm ]; then
+elif [ ! -s dist/index.html ] || [ ! -s "${pages_main[0]}" ] || [ ! -s "${pages_wasm[0]}" ]; then
 	echo "==> Release artifact missing: running build_github_pages.sh..."
 	bash build_github_pages.sh
 fi

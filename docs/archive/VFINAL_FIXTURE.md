@@ -57,7 +57,7 @@ to reproduce exactly two-stud gaps on both lanes of Yard / Connector and Connect
 Northeast. The sole uncovered footprint is the Yard S8 strip from x=288 to x=290 and y=52 to
 y=60. The move also introduces a tabletop overlap between Connector and Northeast.
 
-The [template test](../../tests/test_track_templates.mjs) walks both mainlines from the
+The historical `test_track_templates.mjs` walks both mainlines from the
 Northwest south exit using the catalog connectors. The outer loop uses 48 track pieces and
 the inner loop 64. The walk checks physical connectivity independently of the declared seams.
 

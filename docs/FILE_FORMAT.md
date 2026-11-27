@@ -18,7 +18,7 @@ That baseline preserves the part model's own geometry, such as sleepers and
 rails. It is not layout elevation and cannot be changed in the planner.
 
 ```text
-1 72 160 -24 -160 1 0 0 0 1 0 0 0 1 53401.dat
+1 72 160 -8 -160 1 0 0 0 1 0 0 0 1 53401.dat
 ```
 
 Other LDraw programs can read the references as a model. The plastic LEGO straight and
@@ -30,6 +30,12 @@ its catalog geometry and embedded in the file. Rail pieces include paired,
 raised rail strips and regular sleeper slabs. A switch preserves each measured
 route through that shared track geometry. A switch stand has no rail path, so
 its embedded model remains its measured footprint.
+
+The LEGO S16 crossing straight and S16 straight with clips use embedded
+schematics. They use standard 16-stud connections and retain their separate
+identities in the planner and parts tally.
+[Crossing straight (2824)](https://www.bricklink.com/v2/catalog/catalogitem.page?P=2824)
+[Straight with clips (7442)](https://www.bricklink.com/v2/catalog/catalogitem.page?P=7442)
 
 ## Planner editing information
 

@@ -6,6 +6,7 @@ import { MAX_TRACK_PLAN_FILE_BYTES, openTrackPlan, saveTrackPlan } from "./ldraw
 import type { Catalog, Project } from "./project";
 import { downloadBlob, importBlueBrick, MAX_BLUEBRICK_FILE_BYTES } from "./project_files";
 import { createScene, setSceneDetail } from "./scene";
+import { releaseAsset } from "./release_assets";
 import { exportSharing } from "./share";
 import { showInventory } from "./show_inventory";
 
@@ -153,7 +154,7 @@ export function setupFiles(
   const loadTemplate = async (template: Template): Promise<Project> => {
     const loaded = loadedTemplates.get(template.file);
     if (loaded) return loaded;
-    const response = await fetch(new URL("./templates/" + template.file, import.meta.url));
+    const response = await fetch(releaseAsset(`templates/${template.file}`));
     if (!response.ok) throw new Error("Could not open the packaged template.");
     const project = openTrackPlan(await response.text(), catalog);
     loadedTemplates.set(template.file, project);
@@ -186,8 +187,12 @@ export function setupFiles(
   }
 
   const gallery = dialog("template-gallery");
+  const galleryError = element("template-gallery-error");
   const galleryCards = new Map<string, { opener: HTMLButtonElement; description: HTMLElement }>();
+  let galleryRequest = 0;
   const showGallery = (): void => {
+    galleryRequest += 1;
+    galleryError.textContent = "";
     gallery.showModal();
     for (const template of trackExamples) {
       const details = `${template.frontage} × ${template.depth} in design area. ${template.purpose}`;
@@ -206,8 +211,26 @@ export function setupFiles(
         opener.setAttribute("aria-describedby", description.id);
         container.append(opener, name, description);
         opener.addEventListener("click", () => {
-          gallery.close();
-          void openTemplate(template);
+          const request = ++galleryRequest;
+          const restoreFocus = document.activeElement === opener;
+          galleryError.textContent = "";
+          opener.disabled = true;
+          void (async (): Promise<void> => {
+            try {
+              const project = await loadTemplate(template);
+              if (request === galleryRequest && gallery.open) {
+                hooks.open(project, true, hooks.beginOpen());
+                gallery.close();
+              }
+            } catch (error) {
+              if (request === galleryRequest && gallery.open)
+                galleryError.textContent = `${template.name}: ${errorMessage(error)} Select the example again to retry.`;
+            } finally {
+              opener.disabled = false;
+              if (restoreFocus && gallery.open && document.activeElement === document.body)
+                opener.focus();
+            }
+          })();
         });
         card = { opener, description };
         galleryCards.set(template.file, card);
@@ -239,7 +262,7 @@ export function setupFiles(
           opener.dataset.preview = "ready";
         } catch {
           opener.dataset.preview = "failed";
-          description.textContent = `${details} Preview unavailable. Open again to retry.`;
+          description.textContent = `${details} Preview unavailable. Select this card to open the example.`;
         }
         opener.disabled = false;
       })();
