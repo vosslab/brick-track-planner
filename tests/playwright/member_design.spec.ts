@@ -66,6 +66,63 @@ test("members can save, reopen, and undo a five-inch design-area bump", async ({
   await expect(size).toContainText("60 \u00d7 45 in overall");
 });
 
+// Baseplate controls are a named dialog with Pattern and two color fieldsets (src/index.html).
+test("[touch] members can discard, save, reopen, and undo baseplate appearance", async ({
+  planner,
+  hasTouch,
+}) => {
+  const open = async (): Promise<void> => {
+    const button = planner.getByRole("button", { name: "Baseplates", exact: true });
+    if (hasTouch) await button.tap();
+    else await button.click();
+  };
+  const editor = planner.getByRole("dialog", { name: "Baseplates", exact: true });
+  const firstColor = editor.getByRole("group", { name: "First color", exact: true });
+  const secondColor = editor.getByRole("group", { name: "Second color", exact: true });
+  const chosen = {
+    pattern: "checkerboard" as const,
+    color: "classic-blue" as const,
+    secondary: "light-bley" as const,
+  };
+
+  await open();
+  await expect(firstColor.getByRole("radio", { name: "Classic Green", exact: true })).toBeChecked();
+  await editor.getByRole("combobox", { name: "Pattern", exact: true }).selectOption(chosen.pattern);
+  await firstColor.getByRole("radio", { name: "Classic Blue", exact: true }).check();
+  await secondColor.getByRole("radio", { name: "Light Bley", exact: true }).check();
+  if (hasTouch) await editor.getByRole("button", { name: "Cancel", exact: true }).tap();
+  else await planner.keyboard.press("Escape");
+  await expect(editor).toBeHidden();
+  expect((await saveProject(planner)).project.area.baseplates).toBeUndefined();
+
+  await open();
+  await editor.getByRole("combobox", { name: "Pattern", exact: true }).selectOption(chosen.pattern);
+  await firstColor.getByRole("radio", { name: "Classic Blue", exact: true }).check();
+  await secondColor.getByRole("radio", { name: "Light Bley", exact: true }).check();
+  const apply = editor.getByRole("button", { name: "Apply baseplates", exact: true });
+  if (hasTouch) await apply.tap();
+  else await apply.click();
+  await expect(editor).toBeHidden();
+  const saved = await saveProject(planner);
+  expect(saved.project.area.baseplates).toEqual(chosen);
+
+  const undo = planner.getByRole("button", { name: "Undo", exact: true });
+  if (hasTouch) await undo.tap();
+  else await undo.click();
+  expect((await saveProject(planner)).project.area.baseplates).toBeUndefined();
+  const redo = planner.getByRole("button", { name: "Redo", exact: true });
+  if (hasTouch) await redo.tap();
+  else await redo.click();
+
+  await chooseEditorFile(planner, saved.path);
+  await open();
+  await expect(editor.getByRole("combobox", { name: "Pattern", exact: true })).toHaveValue(
+    chosen.pattern,
+  );
+  await expect(firstColor.getByRole("radio", { name: "Classic Blue", exact: true })).toBeChecked();
+  await expect(secondColor.getByRole("radio", { name: "Light Bley", exact: true })).toBeChecked();
+});
+
 test("members can browse mainline loops and train yards in the gallery", async ({ page }) => {
   await boot(page, { startProject: false });
   await page.locator("#start-browse-examples").click();

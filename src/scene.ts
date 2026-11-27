@@ -1,6 +1,7 @@
 import type { Analysis } from "./engine";
 import type { EditPreview } from "./editor_placement";
-import { defaultBaseplateColor } from "./appearance";
+import { defaultBaseplateAppearance } from "./appearance";
+import type { BaseplateAppearance } from "./appearance";
 import {
   edgeCoordinate,
   frontCoordinate,
@@ -12,10 +13,10 @@ import {
 import type { Catalog, Item, Project } from "./project";
 import {
   ballastPattern,
+  baseplatePattern,
   partDrawing,
   partInstance,
   setSceneDetail,
-  studPattern,
   trackHalfWidth,
 } from "./scene_appearance";
 import {
@@ -107,7 +108,14 @@ function patternDefinitions(defs: SVGDefsElement, prefix: string): void {
   grid.append(
     svg("path", { d: "M0 0H32 M0 0V32", fill: "none", stroke: "#ab9980", "stroke-width": 0.24 }),
   );
-  defs.append(grid, ballastPattern(prefix), studPattern(`${prefix}-studs`, defaultBaseplateColor));
+  defs.append(grid, ballastPattern(prefix));
+}
+
+function setBaseplatePattern(layers: SceneLayers, appearance: BaseplateAppearance): void {
+  const next = baseplatePattern(`${layers.prefix}-baseplates`, appearance);
+  const prior = layers.definitions.querySelector("pattern[data-baseplate-pattern-definition]");
+  if (prior) prior.replaceWith(next);
+  else layers.definitions.append(next);
 }
 
 function trackDrawing(
@@ -279,6 +287,8 @@ function drawArea(
   options: SceneOptions,
 ): void {
   const { area } = project;
+  const baseplates = area.baseplates ?? defaultBaseplateAppearance;
+  setBaseplatePattern(layers, baseplates);
   const outline = outlineOf(area);
   const edges = outlineEdges(outline);
   const { left, right, top, bottom } = outlineBounds(outline);
@@ -292,24 +302,21 @@ function drawArea(
     clip,
     svg("path", {
       d,
-      fill: options.trackColors ? "#e8eee2" : defaultBaseplateColor,
+      fill: options.trackColors ? "#e8eee2" : `url(#${layers.prefix}-baseplates)`,
       "data-baseplate-field": "true",
     }),
     surface,
     svg("path", { d, fill: "none", stroke: "#313b32", "stroke-width": 0.72 }),
   );
-  if (!options.trackColors) {
-    surface.append(
-      svg("path", {
-        d,
-        fill: `url(#${layers.prefix}-studs)`,
-        style: detailStyle,
-        "pointer-events": "none",
-      }),
-    );
-  }
+  const darkBaseplate =
+    !options.trackColors &&
+    (baseplates.color === "classic-blue" ||
+      baseplates.color === "dark-blue" ||
+      (baseplates.pattern !== "solid" &&
+        (baseplates.secondary === "classic-blue" || baseplates.secondary === "dark-blue")));
   const seam = {
-    stroke: "#203821",
+    // Pale seams preserve individual 32-stud plates on the two dark blues.
+    stroke: darkBaseplate ? "#f4f4ed" : "#203821",
     "stroke-width": 0.24,
     opacity: 0.52,
     "data-baseplate-seam": "true",

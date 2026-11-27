@@ -109,6 +109,27 @@ try {
   await expect(page.locator("#design-size")).toContainText("60 × 40");
   await capture("member_mainline_start");
 
+  await page.getByRole("button", { name: "Baseplates", exact: true }).click();
+  const baseplates = page.getByRole("dialog", { name: "Baseplates", exact: true });
+  await expect(baseplates).toBeVisible();
+  await baseplates
+    .getByRole("combobox", { name: "Pattern", exact: true })
+    .selectOption("checkerboard");
+  await baseplates
+    .getByRole("group", { name: "First color", exact: true })
+    .getByRole("radio", { name: "Classic Blue", exact: true })
+    .check();
+  await baseplates
+    .getByRole("group", { name: "Second color", exact: true })
+    .getByRole("radio", { name: "Light Bley", exact: true })
+    .check();
+  await expect(baseplates.getByLabel("Baseplate appearance preview")).toBeVisible();
+  await expect(baseplates.locator("figcaption")).toHaveText(
+    "Checkerboard: Classic Blue and Light Bley",
+  );
+  await capture("baseplate_patterns");
+  await baseplates.getByRole("button", { name: "Cancel", exact: true }).click();
+
   let layoutMenu = await openMenu(page, "Layout");
   await layoutMenu.getByRole("button", { name: "Design area", exact: true }).click();
   const outline = page.getByRole("dialog", { name: "Edit your design area" });

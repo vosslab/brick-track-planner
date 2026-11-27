@@ -3,6 +3,7 @@ import type { AreaSetup } from "./area_form";
 import { placementWarnings } from "./arrangements";
 import type { ArrangementResult, PlacementWarning } from "./arrangements";
 import { ArrangementTools } from "./editor_arrangements";
+import { setupBaseplates } from "./editor_baseplates";
 import { EditorCamera } from "./editor_camera";
 import type { CameraView } from "./editor_camera";
 import { setupEditorControls } from "./editor_controls";
@@ -203,6 +204,17 @@ class Planner {
       this.#areaForm.open();
     };
     button("edit-design-area").onclick = (): void => this.#editArea();
+    const openBaseplates = setupBaseplates();
+    button("edit-baseplates").onclick = (): void => {
+      const layout = this.#active;
+      if (!layout) return;
+      this.#navigation++;
+      openBaseplates(layout.state.project.area.baseplates, (baseplates) => {
+        if (layout !== this.#active) return;
+        const { project } = layout.state;
+        this.#commit({ ...project, area: { ...project.area, baseplates } });
+      });
+    };
     const trackColors = button("track-colors");
     trackColors.onclick = (): void => {
       const layout = this.#active;

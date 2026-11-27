@@ -6,6 +6,8 @@ import {
   outlineEdges,
   validOutline,
 } from "./area_outline";
+import { baseplateColors, baseplatePatterns } from "./appearance";
+import type { BaseplateAppearance, BaseplateColor, BaseplatePattern } from "./appearance";
 
 export type Point = { x: number; y: number };
 export type Pose = Point & { angle: number };
@@ -30,6 +32,7 @@ export type DesignArea = {
   frontLines?: Partial<Record<Edge, number>>;
   fronts: Edge[];
   niltc?: NiltcMode;
+  baseplates?: BaseplateAppearance;
 };
 export type ItemBase = Pose & { id: string; layerId: string };
 export type TrackItem = ItemBase & {
@@ -238,6 +241,41 @@ function validateArea(value: unknown): void {
     "project.area.fronts",
     `${expectedFronts} public edge(s) for this assignment`,
   );
+  if (area.baseplates !== undefined) {
+    const baseplates = record(area.baseplates, "project.area.baseplates");
+    const pattern = string(
+      baseplates.pattern,
+      "project.area.baseplates.pattern",
+    ) as BaseplatePattern;
+    const color = string(baseplates.color, "project.area.baseplates.color") as BaseplateColor;
+    expect(
+      Object.prototype.hasOwnProperty.call(baseplatePatterns, pattern),
+      "project.area.baseplates.pattern",
+      "a supported baseplate pattern",
+    );
+    expect(
+      Object.prototype.hasOwnProperty.call(baseplateColors, color),
+      "project.area.baseplates.color",
+      "a supported baseplate color",
+    );
+    if (pattern === "solid") {
+      expect(
+        baseplates.secondary === undefined,
+        "project.area.baseplates.secondary",
+        "absent for a solid baseplate",
+      );
+    } else {
+      const secondary = string(
+        baseplates.secondary,
+        "project.area.baseplates.secondary",
+      ) as BaseplateColor;
+      expect(
+        Object.prototype.hasOwnProperty.call(baseplateColors, secondary),
+        "project.area.baseplates.secondary",
+        "a supported baseplate color",
+      );
+    }
+  }
   if (area.outline === undefined && area.frontLines === undefined) return;
   const vertices = list(area.outline, "project.area.outline");
   expect(vertices.length <= maxOutlineVertices, "project.area.outline", "at most 256 vertices");

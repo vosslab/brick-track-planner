@@ -21,11 +21,31 @@ function track(partId, extra = {}) {
 test("planner LDraw files preserve project data and use physical type-1 placements", () => {
   const project = newProject();
   project.name = "Yard & mainline";
+  project.area.baseplates = {
+    pattern: "checkerboard",
+    color: "classic-green",
+    secondary: "light-bley",
+  };
   project.items = [track("lego:rc-s16", { groupId: "yard", ballast: "gray", countBallast: false })];
   const text = saveTrackPlan(project, catalog);
   assert.match(text, /0 !BRICKTRACK TRACK @track @layout @lego%3Arc-s16 @yard - @gray 0\r\n1 72 /);
   assert.match(text, /^1 72 200 -8 -400 .* 53401\.dat$/m);
   assert.deepEqual(openTrackPlan(text, catalog), project);
+});
+
+test("opening rejects malformed baseplate metadata", () => {
+  const saved = saveTrackPlan(newProject(), catalog);
+  assert.throws(
+    () =>
+      openTrackPlan(
+        saved.replace(
+          /0 !BRICKTRACK AREA ([^\r]+)\r\n/,
+          "0 !BRICKTRACK AREA $1\r\n0 !BRICKTRACK BASEPLATE @solid @classic-green @classic-blue\r\n",
+        ),
+        catalog,
+      ),
+    /baseplates\.secondary/,
+  );
 });
 
 test("embedded schematic parts keep unmapped catalog track visible in LDraw", () => {

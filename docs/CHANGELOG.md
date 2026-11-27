@@ -4,6 +4,9 @@
 
 ### Additions and New Features
 
+- Choose baseplate colors and patterns from the Baseplates button next to
+  Layout. Save the appearance with the track plan and include it in image and
+  PDF exports.
 - Add a Dead ends category with LEGO's 8-by-12-stud rerailing ramp (6486315)
   and TrixBrix's one-piece and brick-built buffer stops. Each has one usable
   rail connection.

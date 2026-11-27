@@ -43,23 +43,26 @@ also use embedded schematics and retain their single connection in the planner.
 Lines starting with `0 !BRICKTRACK` identify planner files and store the data
 needed to continue editing. These include the design name, width and depth,
 public edges, and straight or corner assignment. The optional `OUTLINE` record
-follows `AREA` and lists 4 to 256 clockwise X/Y pairs in studs, with an
+lists 4 to 256 clockwise X/Y pairs in studs, with an
 implicit closing segment. Without `OUTLINE`, the area is the rectangle from
 `(0, 0)` to its saved width and depth. `AREA` records the outline's overall
-width and depth. A
-`FRONT_LINE` record gives the signed stud coordinate of each public edge,
+width and depth. A `FRONT_LINE` record gives the signed stud coordinate of each public edge,
 as in `0 !BRICKTRACK FRONT_LINE @north -16`.
 
-The planner recognizes `PROJECT`, `AREA`, optional `OUTLINE`, `FRONT`,
-`FRONT_LINE`, `LAYER`, `TRACK`, and `UNRESOLVED` metadata records. A `TRACK`
-record is followed by its LDraw type-1 placement. Embedded LDraw submodels
-carry catalog parts without a published library model.
+The planner recognizes `PROJECT`, `AREA`, optional `BASEPLATE` and `OUTLINE`,
+`FRONT`, `FRONT_LINE`, `LAYER`, `TRACK`, and `UNRESOLVED` metadata records.
+A `TRACK` record is followed by its LDraw type-1 placement. Embedded LDraw
+submodels carry catalog parts without a published library model.
 
 Each track reference has a stable item ID, catalog part ID and
 layer. Saving includes track on hidden layers. The planner restores their
 visibility on open, while LDraw viewers can display the whole model. Grouping
-and ballast settings stay with the item. The automatically tiled baseplate
-surface is clipped to the area outline.
+and ballast settings stay with the item. The optional `BASEPLATE` record
+stores the pattern and the palette ID for each color, as in
+`0 !BRICKTRACK BASEPLATE @checkerboard @classic-white @dark-blue`. A solid
+color uses `-` for the second color. Layouts without this record use solid
+Classic Green. The planner's shared drawing clips the baseplate surface to
+the area outline.
 
 Track geometry, ordinary fit diagnostics, and inventory come from the
 planner's catalog.

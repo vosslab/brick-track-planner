@@ -1,7 +1,7 @@
 /* Track editing, arrangement controls, and the editable example gallery. */
 .layout-tabs {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0 0.65rem;
   margin-block-end: 0.45rem;
@@ -423,6 +423,97 @@
 #outline-form :is(input, select, button) {
   font-size: max(1rem, 1em);
 }
+#baseplates-dialog:modal {
+  width: min(38rem, calc(100% - 1.5rem));
+  max-block-size: calc(100dvh - 1.5rem);
+  overscroll-behavior: contain;
+}
+#baseplates-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+#baseplates-form {
+  display: grid;
+  gap: 0.75rem;
+}
+#baseplates-form > label {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+.baseplate-color-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.baseplate-color-fields fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+}
+.baseplate-color-fields legend {
+  padding-inline: 0.2rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+.baseplate-colors {
+  display: grid;
+  gap: 0.25rem;
+}
+.baseplate-color-choice {
+  display: grid;
+  grid-template-columns: auto 1rem minmax(0, 1fr);
+  align-items: center;
+  min-height: 2rem;
+  gap: 0.35rem;
+  padding: 0.2rem 0.3rem;
+  border: 1px solid transparent;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-size: 0.84rem;
+}
+.baseplate-color-choice:has(input:checked) {
+  border-color: var(--accent-dark);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+.baseplate-color-choice input {
+  inline-size: 1rem;
+  block-size: 1rem;
+  margin: 0;
+  accent-color: var(--accent-dark);
+}
+.baseplate-color-swatch {
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 40%, transparent);
+  border-radius: 0.18rem;
+  background: var(--baseplate-color);
+}
+.baseplate-preview-frame {
+  margin: 0;
+}
+#baseplate-preview {
+  display: block;
+  inline-size: 100%;
+  block-size: clamp(5rem, 16dvh, 8rem);
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+}
+#baseplate-preview-caption {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+@media (max-width: 420px) {
+  .baseplate-color-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 550px) {
   #outline-form :is([for="outline-edge"], [for="outline-operation"]) {
     grid-column: 1 / -1;
@@ -721,6 +812,9 @@ body[data-project-open] .app-header {
   .layout-tabs {
     grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 0.25rem;
+  }
+  .phone-panel-actions {
+    grid-column: 1 / -1;
   }
   #layout-menu {
     position: static;

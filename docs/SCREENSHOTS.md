@@ -1,6 +1,7 @@
 # Planner screenshots
 
-[Start a plan](#start-a-plan) &middot; [Place track](#place-track)
+[Start a plan](#start-a-plan) &middot; [Change the baseplates](#change-the-baseplates)
+&middot; [Place track](#place-track)
 &middot; [Select several pieces](#select-several-pieces)
 &middot; [Compare two versions](#compare-two-versions)
 &middot; [Change the table outline](#change-the-table-outline)
@@ -54,6 +55,15 @@ The first editor view keeps the drawing dominant. Use **File**, **Layout**, or
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Phone editor with the Back-out siding drawing visible on first open](screenshots/mobile_editor.webp)
+<!-- screenshots:end -->
+
+## Change the baseplates
+
+Select **Baseplates** next to **Layout**, choose a pattern and colors, and
+check the preview. Choose **Apply baseplates** to use them on the drawing.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The Baseplates dialog with a two-color checkerboard preview](screenshots/baseplate_patterns.webp)
 <!-- screenshots:end -->
 
 ## Place track

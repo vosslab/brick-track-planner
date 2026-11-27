@@ -12,6 +12,9 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   tables, room layout, and deciding who gets a curve are outside its scope.
 - Baseplates always cover NILTC and general train layout areas. They are the
   surface for track planning, not editable LEGO building pieces.
+- Put a Baseplates button next to Layout. Offer Classic White, Classic Green,
+  Bright Green, Classic Blue, Dark Blue, and Light Bley, with one solid color
+  or two colors in a checkerboard, vertical stripes, or horizontal stripes.
 - Prioritize connecting track: NILTC dual mainlines, parking behind a
   display, and yards that store and dispatch trains.
 - Roger chooses whether a member gets a straight or curve assignment. The

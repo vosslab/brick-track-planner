@@ -2,6 +2,7 @@ import brickTracksModels from "../data/ldraw/bricktracks_models.json" with { typ
 import { maxOutlineVertices } from "./area_outline";
 import { composePose, validateProject } from "./project";
 import { fallbackTrackModel, fallbackTrackModelName } from "./ldraw_parts";
+import type { BaseplateAppearance } from "./appearance";
 import type { Catalog, Edge, Item, Layer, Part, Pose, Project, TrackItem } from "./project";
 
 type Mapping = {
@@ -206,6 +207,10 @@ export function saveTrackPlan(project: Project, catalog: Catalog): string {
     `${format} PROJECT ${text(project.name)}`,
     `${format} AREA ${project.area.width} ${project.area.depth} ${text(project.area.niltc)}`,
   ];
+  if (project.area.baseplates) {
+    const { pattern, color, secondary } = project.area.baseplates;
+    lines.push(`${format} BASEPLATE ${text(pattern)} ${text(color)} ${text(secondary)}`);
+  }
   if (project.area.outline) {
     lines.push(
       `${format} OUTLINE ${project.area.outline.map(({ x, y }) => `${x} ${y}`).join(" ")}`,
@@ -301,6 +306,20 @@ export function openTrackPlan(source: string, catalog: Catalog): Project {
         };
         const niltc = readText(fields[5]!, "area assignment");
         if (niltc !== undefined) area.niltc = niltc as Project["area"]["niltc"];
+        break;
+      }
+      case "BASEPLATE": {
+        record(fields, 6, kind);
+        if (!area || area.baseplates)
+          throw new Error("Brick Track baseplate metadata must follow one area record.");
+        const pattern = requiredText(fields[3]!, "baseplate pattern");
+        const color = requiredText(fields[4]!, "baseplate color");
+        const secondary = readText(fields[5]!, "baseplate secondary color");
+        area.baseplates = {
+          pattern,
+          color,
+          ...(secondary === undefined ? {} : { secondary }),
+        } as BaseplateAppearance;
         break;
       }
       case "FRONT":

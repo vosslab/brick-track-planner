@@ -159,13 +159,16 @@ still receives the validated in-memory project through its JSON interface.
 
 ### Derive baseplate coverage
 
-**Decision.** Render a 32-stud baseplate grid from the design area.
+**Decision.** Render a 32-stud baseplate grid from the design area. The
+layout stores one appearance that paints the grid in a solid color or a
+two-color pattern anchored at the drawing origin.
 
 **Why.** Every supported train display area is fully covered, and rail geometry
 does not depend on individual baseplate objects.
 
-**Consequence.** Coverage is always current after an area resize and cannot be
-accidentally moved away from track.
+**Consequence.** An area resize reveals or clips the pattern at the edge.
+An appearance edit is undoable and travels with the saved plan and shared
+diagram. **Color-coded track** uses a neutral surface for route labels.
 
 **Owner.** [GEOMETRY_MODEL.md](GEOMETRY_MODEL.md)
 

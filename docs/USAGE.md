@@ -34,8 +34,19 @@ Joel's 10-to-0 mainline adapts the Rockford offset to a 60 by 40 inch table
 with a 10-inch shift between its two display edges. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
 
 The area is the member's usable display space. It is not a physical table map.
-The planner draws the 32-stud baseplate grid automatically, so members plan
-track instead of moving baseplates.
+The planner draws the 32-stud baseplate grid automatically.
+
+## Change the baseplates
+
+Choose **Baseplates** next to **Layout**. Pick a solid color, or pick two
+colors for a checkerboard, vertical stripes, or horizontal stripes. The
+preview updates as you change the choices. Choose **Apply baseplates** to update
+the drawing or **Cancel** to keep the current appearance.
+
+The appearance stays with the saved track plan and appears in PNG, WebP, and
+PDF exports. Use **Undo** to reverse an applied change. **Color-coded track**
+uses a neutral background and shows the saved baseplates again when you turn
+it off. [See the pattern preview](SCREENSHOTS.md#change-the-baseplates).
 
 ## Compare track examples
 

@@ -1,5 +1,7 @@
 import trackArtwork from "../data/ldraw/track_artwork.json" with { type: "json" };
 import trackSchematics from "../data/track_schematics.json" with { type: "json" };
+import { baseplateColors } from "./appearance";
+import type { BaseplateAppearance, BaseplateColor } from "./appearance";
 import type { Catalog, TrackItem } from "./project";
 import { detailStyle, offsetRail, pathData, sleepers, svg, trackRailOffset } from "./scene_drawing";
 import { codedTrackDrawing, codedTrackWidth } from "./scene_track_colors";
@@ -244,7 +246,8 @@ export function ballastPattern(prefix: string): SVGPatternElement {
   return grain;
 }
 
-export function studPattern(id: string, color: string): SVGPatternElement {
+function studPattern(id: string, color: BaseplateColor): SVGPatternElement {
+  const fill = baseplateColors[color].color;
   const pattern = svg("pattern", {
     id,
     width: 1,
@@ -255,8 +258,80 @@ export function studPattern(id: string, color: string): SVGPatternElement {
   pattern.append(
     svg("circle", { cx: 0.52, cy: 0.56, r: 0.31, fill: "#1b2318", opacity: 0.42 }),
     svg("circle", { cx: 0.485, cy: 0.47, r: 0.29, fill: "#fff", opacity: 0.49 }),
-    svg("circle", { cx: 0.505, cy: 0.5, r: 0.235, fill: color }),
+    svg("circle", { cx: 0.505, cy: 0.5, r: 0.235, fill }),
   );
+  return pattern;
+}
+
+/**
+ * Paint one 32-stud baseplate tile, including its studs.  Keeping the studs
+ * inside the color tile lets a two-color pattern give every stud the right
+ * plastic color rather than laying one color of studs over the whole area.
+ */
+function baseplateTile(id: string, color: BaseplateColor, x: number, y: number): SVGRectElement[] {
+  const fill = baseplateColors[color].color;
+  return [
+    svg("rect", { x, y, width: 32, height: 32, fill }),
+    svg("rect", {
+      x,
+      y,
+      width: 32,
+      height: 32,
+      fill: `url(#${id})`,
+      style: detailStyle,
+      "pointer-events": "none",
+    }),
+  ];
+}
+
+/**
+ * A world-anchored baseplate paint server.  Its color tiles share the
+ * existing 32-stud grid; two-color repeats are exactly two tiles wide and/or
+ * high, so the phase remains stable through outline edits and at negative
+ * coordinates.
+ */
+export function baseplatePattern(id: string, appearance: BaseplateAppearance): SVGPatternElement {
+  const width =
+    appearance.pattern === "horizontal-stripes" || appearance.pattern === "solid" ? 32 : 64;
+  const height =
+    appearance.pattern === "vertical-stripes" || appearance.pattern === "solid" ? 32 : 64;
+  const secondary = appearance.pattern === "solid" ? appearance.color : appearance.secondary;
+  const pattern = svg("pattern", {
+    id,
+    x: 0,
+    y: 0,
+    width,
+    height,
+    patternUnits: "userSpaceOnUse",
+    "data-baseplate-pattern-definition": appearance.pattern,
+    "data-baseplate-primary": appearance.color,
+    "data-baseplate-secondary": secondary,
+  });
+  const definitions = svg("defs");
+  definitions.append(studPattern(`${id}-primary-studs`, appearance.color));
+  if (secondary !== appearance.color)
+    definitions.append(studPattern(`${id}-secondary-studs`, secondary));
+  pattern.append(definitions);
+
+  const primaryStuds = `${id}-primary-studs`;
+  const secondaryStuds = secondary === appearance.color ? primaryStuds : `${id}-secondary-studs`;
+  const tile = (color: BaseplateColor, studs: string, x: number, y: number): void => {
+    pattern.append(...baseplateTile(studs, color, x, y));
+  };
+  if (appearance.pattern === "solid") {
+    tile(appearance.color, primaryStuds, 0, 0);
+  } else if (appearance.pattern === "checkerboard") {
+    tile(appearance.color, primaryStuds, 0, 0);
+    tile(secondary, secondaryStuds, 32, 0);
+    tile(secondary, secondaryStuds, 0, 32);
+    tile(appearance.color, primaryStuds, 32, 32);
+  } else if (appearance.pattern === "vertical-stripes") {
+    tile(appearance.color, primaryStuds, 0, 0);
+    tile(secondary, secondaryStuds, 32, 0);
+  } else {
+    tile(appearance.color, primaryStuds, 0, 0);
+    tile(secondary, secondaryStuds, 0, 32);
+  }
   return pattern;
 }
 

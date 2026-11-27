@@ -82,6 +82,7 @@
               <button type="button" id="close-layout">Close layout</button>
             </div>
           </details>
+          <button type="button" id="edit-baseplates" class="command-button">Baseplates</button>
           <div class="phone-panel-actions phone-only">
             <button
               type="button"
@@ -569,6 +570,35 @@
         <p id="outline-error" data-dialog-error role="alert" tabindex="-1"></p>
         <div class="dialog-actions">
           <button type="submit" id="apply-outline" class="primary">Apply outline</button>
+          <button type="submit" formmethod="dialog" formnovalidate value="cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="baseplates-dialog" aria-labelledby="baseplates-title">
+      <h2 id="baseplates-title">Baseplates</h2>
+      <p class="dialog-intro">
+        Choose the colors and pattern for this layout's design area.
+      </p>
+      <form id="baseplates-form">
+        <label for="baseplate-pattern">Pattern
+          <select id="baseplate-pattern" name="pattern" autofocus></select>
+        </label>
+        <div class="baseplate-color-fields">
+          <fieldset>
+            <legend>First color</legend>
+            <div id="baseplate-primary-colors" class="baseplate-colors"></div>
+          </fieldset>
+          <fieldset id="baseplate-secondary-field">
+            <legend>Second color</legend>
+            <div id="baseplate-secondary-colors" class="baseplate-colors"></div>
+          </fieldset>
+        </div>
+        <figure class="baseplate-preview-frame">
+          <svg id="baseplate-preview" viewBox="0 0 128 64" role="img" aria-label="Baseplate appearance preview" style="--track-detail: inline"></svg>
+          <figcaption id="baseplate-preview-caption"></figcaption>
+        </figure>
+        <div class="dialog-actions">
+          <button type="submit" id="apply-baseplates" class="primary">Apply baseplates</button>
           <button type="submit" formmethod="dialog" formnovalidate value="cancel">Cancel</button>
         </div>
       </form>
