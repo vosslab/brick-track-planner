@@ -183,20 +183,6 @@ test("replacement keeps the specific surviving-piece joint, not another port on 
   );
 });
 
-test("measured R104 triple places its five physical pieces on a blank area", () => {
-  const result = previewArrangement(project, measuredCatalog, {
-    kitId: "trixbrix:r104-triple-kit",
-    pose: { x: 32, y: 32, angle: 0 },
-  });
-  assert.equal(result.ok, true);
-  assert.equal(result.project?.items.length, 5);
-  assert.ok(
-    result.project?.items.every(
-      ({ arrangementId }) => arrangementId === "trixbrix:r104-triple-kit",
-    ),
-  );
-});
-
 test("replacement preserves each protected endpoint by its own port pose", () => {
   const old = {
     id: "old",

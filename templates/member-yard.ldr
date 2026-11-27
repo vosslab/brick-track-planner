@@ -4,7 +4,7 @@
 0 Author: Brick Track Planner
 0 !BRICKTRACK FORMAT 1
 0 !BRICKTRACK PROJECT @Member%20R104%20right%20yard
-0 !BRICKTRACK AREA 320 192 @straight
+0 !BRICKTRACK AREA 320 128 @straight
 0 !BRICKTRACK FRONT @north
 0 !BRICKTRACK EXIT @exit-west @west%20exit @west @outer-1 @a @inner-1 @a
 0 !BRICKTRACK EXIT @exit-east @east%20exit @east @outer-20 @b @inner-20 @b

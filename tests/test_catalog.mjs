@@ -156,35 +156,6 @@ test("4DBrix R104 and R120 reach 90 degrees in nine and ten segments", () => {
   }
 });
 
-test("the four BrickTracks recipes place one reversible stand and one turnout body", () => {
-  const stand = parts.get("bricktracks:r104-stand");
-  assert.deepEqual(stand.ports, []);
-  for (const [hand, standX, sourceX] of [
-    ["left", -16.0625, 0],
-    ["right", 16, -0.0625],
-  ]) {
-    for (const [side, standY, angle, sourceY] of [
-      ["inside", -2.625, 0, -0.0625],
-      ["outside", 10.375, 180, -2.96875],
-    ]) {
-      const kit = kits.get(`bricktracks:r104-${hand}-${side}`);
-      const body = `bricktracks:r104-${hand}-body`;
-      assert.deepEqual(kit.parts, [
-        { partId: body, x: 0, y: 0, angle: 0 },
-        { partId: stand.id, x: standX, y: standY, angle },
-      ]);
-      assert.deepEqual(kit.aliases, [
-        `BT SWITCH R104 ${hand.toUpperCase()} STAND ${side.toUpperCase()}.8`,
-      ]);
-      assert.deepEqual(kit.sourceOffset, { x: sourceX, y: sourceY });
-      assert.deepEqual(
-        parts.get(body).ports.map(({ id }) => id),
-        ["common", "through", "branch"],
-      );
-    }
-  }
-});
-
 test("TrixBrix recipes join four physical parts and preserve assembled ports", () => {
   for (const [hand, sign] of [
     ["left", 1],

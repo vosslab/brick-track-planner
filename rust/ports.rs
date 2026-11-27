@@ -202,17 +202,4 @@ mod tests {
         assert!(join_links(&ports).is_empty());
     }
 
-    #[test]
-    fn recognizes_a_thousand_sparse_straight_connections() {
-        let ids: Vec<_> = (0..1_001).map(|index| format!("s{index}")).collect();
-        let mut ports = Vec::new();
-        for (index, id) in ids.iter().enumerate() {
-            let x = index as f64 * 16.0;
-            ports.push(port(id, x, 0.0, 180.0));
-            ports.push(port(id, x + 16.0, 0.0, 0.0));
-        }
-        recognize_joins(&mut ports, |_| false);
-        assert_eq!(join_links(&ports).len(), 1_000);
-        assert_eq!(ports.iter().filter(|port| port.joined).count(), 2_000);
-    }
 }

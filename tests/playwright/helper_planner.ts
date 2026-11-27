@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 
 import { expect, test as base } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
@@ -7,14 +6,6 @@ import type { Locator, Page } from "@playwright/test";
 import catalog from "../../data/catalog.json" with { type: "json" };
 import { openTrackPlan, saveTrackPlan } from "../../src/ldraw";
 import type { Catalog, Project, TrackItem } from "../../src/project";
-
-// The propagated JS path anchor has no TypeScript declaration.
-// @ts-expect-error JavaScript path anchor
-import { REPO_ROOT } from "./repo_root.mjs";
-
-export function example(name: string): string {
-  return resolve(REPO_ROOT as string, "examples", name);
-}
 
 export function watchErrors(page: Page): string[] {
   const errors: string[] = [];

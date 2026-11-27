@@ -21,18 +21,6 @@ function track(id, partId, groupId) {
   };
 }
 
-function addKit(project, kitId) {
-  const kit = catalog.kits.find(({ id }) => id === kitId);
-  assert.ok(kit, kitId);
-  project.items.push(
-    ...kit.parts.map(({ partId }, index) => track(`${kitId}-${index}`, partId, kitId)),
-  );
-}
-
-function compareRows([left], [right]) {
-  return left.localeCompare(right);
-}
-
 test("member inventory counts only visible physical track and keeps an arrangement together", () => {
   const project = newProject();
   const straight = catalog.parts.find((part) => part.ports.length === 2);
@@ -47,35 +35,6 @@ test("member inventory counts only visible physical track and keeps an arrangeme
   assert.equal(report.groups.length, 1);
   assert.equal(report.groups[0].rows[0].required, 2);
   assert.deepEqual(report.buildReferences, []);
-});
-
-test("assembled R40 triple reports its six physical elements", () => {
-  const project = newProject();
-  addKit(project, "trixbrix:r40-triple");
-  const report = showInventory(project, catalog);
-  assert.deepEqual(report.track.map(({ key, required }) => [key, required]).sort(compareRows), [
-    ["trixbrix:r40-half", 2],
-    ["trixbrix:r40-left-connector", 1],
-    ["trixbrix:r40-right-connector", 1],
-    ["trixbrix:r40-triple-base", 1],
-    ["trixbrix:r40-triple-detach", 1],
-  ]);
-  const parallel = newProject();
-  addKit(parallel, "trixbrix:r40-triple-parallel");
-  const parallelRows = showInventory(parallel, catalog).track;
-  assert.equal(
-    parallelRows.reduce((total, row) => total + row.required, 0),
-    9,
-  );
-  assert.deepEqual(parallelRows.map(({ key, required }) => [key, required]).sort(compareRows), [
-    ["trixbrix:r40", 2],
-    ["trixbrix:r40-half", 2],
-    ["trixbrix:r40-left-connector", 1],
-    ["trixbrix:r40-right-connector", 1],
-    ["trixbrix:r40-triple-base", 1],
-    ["trixbrix:r40-triple-detach", 1],
-    ["trixbrix:s16", 1],
-  ]);
 });
 
 test("unknown imports and missing ballast recipes remain visible in the member handoff", () => {

@@ -6,9 +6,10 @@ The first screen starts a member design. Enter the width along the track and
 the depth from the plexiglass. Common values are expressed in inches and
 baseplates, and **Other** accepts a specific size.
 
-For a common 60 by 40 inch display, choose 60 inches for the width, 40 inches
-for the depth, and **Straight**, then choose **Create track plan**. The editor
-opens with both mainlines and the automatic baseplate grid already in place.
+The default NILTC depth is 40 inches. For a common 60 by 40 inch display,
+choose 60 inches for the width, 40 inches for the depth, and **Straight**,
+then choose **Create track plan**. The editor opens with both mainlines and
+the automatic baseplate grid already in place.
 
 Choose the assigned mainline shape.
 
@@ -20,10 +21,10 @@ Choose the assigned mainline shape.
   mainline.
 
 Use **Open track plan** to continue an LDraw file saved by this planner.
-**Other templates** includes the 60 by 40 straight, the corner, the larger
-R104 yard with three 128-stud storage tracks, the 130 by 70 inch R104 semicircle
-return, and the 120 by 90 inch R120 corner return with a 30 by 30 inch
-corner cutout. Each turnaround links the two approach tracks at the same edge.
+**Other templates** includes the 60 by 40 straight, the corner, the 100 by 40
+inch R104 yard with three 128-stud storage tracks, the 130 by 70 inch R104
+semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
+inch corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
 Joel's 10-to-0 mainline shows how two tracks can shift 10 inches between
 handoffs on a 60 by 40 inch table. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
@@ -182,10 +183,10 @@ heights for repair.
   Its 32-stud tail fits in a 100 by 60 inch area; use 100 by 70 inches for a
   64-stud tail.
 
-For a larger example, choose **Member yard** under **Other templates**. The
+For a 100 by 40 inch example, choose **Member yard** under **Other templates**. The
 inner mainline remains open past the R104 switches. Each of the three private
 tracks has eight S16 straights for parking and ends 16 studs before the edge.
-[See the 100 by 60 inch R104 yard](screenshots/member_r104_yard.webp).
+[See the 100 by 40 inch R104 yard](screenshots/member_r104_yard.webp).
 
 TrixBrix product sets can include required specialty connectors and separately
 sold entrance switches. The inventory lists each placed physical part, rather

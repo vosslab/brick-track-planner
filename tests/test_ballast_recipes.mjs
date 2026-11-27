@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const recipes = JSON.parse(
@@ -44,16 +44,6 @@ test("ballast recipes match the reference sheets and exact supported catalog par
     }
   }
 });
-test("the NILTC reference snapshot includes both local standard diagrams", () => {
-  const directory = new URL("../docs/references/niltc-track-specifications/", import.meta.url);
-  const page = readFileSync(new URL("index.html", directory), "utf8");
-  assert.match(page, /double-straight-standard\.jpg/);
-  assert.match(page, /r120-r104-curve-standard\.png/);
-  assert.ok(existsSync(new URL("double-straight-standard.jpg", directory)));
-  assert.ok(existsSync(new URL("r120-r104-curve-standard.png", directory)));
-  assert.ok(existsSync(new URL("source.html", directory)));
-});
-
 test("switch and return-curve instructions bind only to the LEGO RC arrangement", () => {
   assert.deepEqual(
     buildReferences.map(({ arrangementIds }) => arrangementIds),

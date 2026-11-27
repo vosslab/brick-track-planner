@@ -236,7 +236,7 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 ### Member R104 right yard
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 100 by 60 inch R104 right yard with three long storage tracks](screenshots/member_r104_yard.webp)
+![A 100 by 40 inch R104 right yard with three 128-stud storage tracks](screenshots/member_r104_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return
@@ -255,11 +255,11 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 
 This [editable template](../templates/joel-mainline-offset.ldr) adapts the
 January 2024 Rockford mainline transition to a standard 60 by 40 inch table.
-R104 and R120 S-bends shift both mainlines 10 inches toward the front.
-The lanes are 16 studs apart at both handoffs.
+R104 and R120 S-bends centered along the 60-inch frontage shift both mainlines
+10 inches toward the front. The lanes are 16 studs apart at both handoffs.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Two mainlines shifting 10 inches across a rectangular 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
+![Two mainlines shifting 10 inches through centered S-bends on a 60 by 40 inch table](screenshots/joel_mainline_offset.webp)
 <!-- screenshots:end -->
 
 ## Recapture the collection

@@ -5,8 +5,8 @@
 ### Additions and New Features
 
 - Add Joel's Rockford-inspired 10-to-0 mainline as an editable template and
-  screenshot. Two S-bends shift the mainlines 10 inches on a standard 60 by 40
-  inch table.
+  screenshot. Two centered S-bends shift the mainlines 10 inches on a standard
+  60 by 40 inch table.
 - Edit the design-area outline in place. Extend or trim full NILTC edges in
   10-inch steps, or shift a span in 5-inch steps so its two edges move together.
   Preview track overhang and handoff changes. Save the outline with the layout.
@@ -20,6 +20,8 @@
 
 ### Behavior or Interface Changes
 
+- Use the standard 40-inch depth for the 100-inch-wide Member R104 right yard.
+  Keep all three 128-stud storage tracks and refresh the template screenshot.
 - Trim the R104 semicircle return to 130 by 70 inches. Give the R120 corner
   return a 120 by 90 inch footprint with a 30 by 30 inch cutout.
 
@@ -47,6 +49,9 @@
 
 ### Fixes and Maintenance
 
+- Prune repeated browser checks, exact catalog snapshots, and test helpers
+  that replay placement. Keep route and fit checks for packaged plans and
+  browser coverage for editing, saving, and exporting.
 - Refresh the full screenshot collection and capture the paired 5-inch table
   shift in the documentation screenshot harness.
 

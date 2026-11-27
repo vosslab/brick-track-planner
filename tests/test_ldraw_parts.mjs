@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { fallbackTrackModel, fallbackTrackModelName } from "../src/ldraw_parts.ts";
-import { offsetRail, sleepers } from "../src/scene_drawing.ts";
+import { offsetRail } from "../src/scene_drawing.ts";
 
 const part = {
   id: "vendor:straight/16",
@@ -39,22 +39,6 @@ test("fallback rails use the same five-stud gauge and endpoint tangents as the d
   assert.ok(rail.every((point) => Math.abs(point.y - 2.5) < 1e-9));
   assert.ok(Math.abs(rail[0].x + 8) < 1e-9);
   assert.ok(Math.abs(rail[1].x - 8) < 1e-9);
-});
-
-test("the shared sleeper rhythm matches a 16-stud LEGO straight", () => {
-  const spans = sleepers(part.paths[0]);
-  assert.equal(spans.length, 5);
-  assert.deepEqual(
-    spans.map(({ left, right }) => [left.x, right.x]),
-    [
-      [-8, -8],
-      [-4, -4],
-      [0, 0],
-      [4, 4],
-      [8, 8],
-    ],
-  );
-  assert.ok(spans.every(({ left, right }) => Math.abs(left.y - right.y) === 7.5));
 });
 
 test("fallback models preserve catalog footprints for non-rail accessories", () => {

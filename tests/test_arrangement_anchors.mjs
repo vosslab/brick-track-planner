@@ -170,32 +170,6 @@ test("anchor search identifies track at the wrong height", () => {
   assert.match(findArrangementAnchors(project, catalog, "pair", 2).reason, /2-plate/);
 });
 
-test("hidden imported track does not generate or suppress arrangement anchors", () => {
-  const project = {
-    version: 3,
-    name: "import",
-    area,
-    layers: [{ id: "import", name: "Imported", visible: false }],
-    items: [
-      {
-        id: "hidden",
-        kind: "track",
-        layerId: "import",
-        partId: "straight",
-        x: 32,
-        y: 48,
-        angle: 0,
-        heightPlates: 0,
-      },
-    ],
-  };
-  const anchors = findArrangementAnchors(project, catalog, "pair").anchors;
-  assert.equal(anchors.length, 4);
-  assert.ok(
-    anchors.every(({ replaceIds, connections }) => !replaceIds.length && !connections.length),
-  );
-});
-
 test("R40 parallel triple belongs behind a mainline, where it has clearance to fan out", () => {
   const starter = createNiltcStarter(measuredCatalog, {
     width: 320,

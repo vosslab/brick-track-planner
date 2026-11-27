@@ -37,9 +37,11 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   old layouts do not need compatibility behavior.
 - Give members editable track templates. Save track plans in LDraw so someone
   can use them in another program. We only need to reopen our own track files.
-- Lead with 60 inches along the track and 40 inches of depth, the more common
-  size. Also show a collection of 40 by 40 inch examples.
+- Use 40 inches from the plexiglass as the default NILTC display depth, including
+  for the Member R104 right yard. Lead with a 60 by 40 inch display and also
+  show a collection of 40 by 40 inch examples.
 - Use a standard 60 by 40 inch rectangle for Joel's 10-to-0 mainline example.
+  Center the bends along the 60-inch frontage.
 - Give examples two-to-five-character alphanumeric codes based on their types.
   Keep layouts distinct, show a short perpendicular spur, and use the right
   edge for perpendicular tracks and the four-track right yard's storage.
