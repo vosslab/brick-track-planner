@@ -7,6 +7,14 @@ bitmap center where an alias is available. The 4DBrix parts use the midpoint of 
 A kit origin is the reference point for its individual part placements. Keep catalog IDs stable
 because project files save them.
 
+## Part browsing
+
+Each catalog part with a regular-gauge port has browse metadata for the member-facing **Track
+parts** picker. It supplies a plain-language label, category, order, and optional preview approach.
+Group joins only geometrically interchangeable variants. Preferred chooses the default variant in
+that group. Advanced holds replacement sections behind **More track parts** while keeping them
+available for repair work. The metadata does not change placement geometry, inventory, or saved IDs.
+
 ## Source archives
 
 | Archive                                                                                  | Catalog measurements                                                                                                                          | MD5 of the archive checked         |

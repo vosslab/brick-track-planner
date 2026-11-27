@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 ENTRY="src/main.ts"
-stylesheets=(src/controls.css src/style.css src/planner_build.css)
+stylesheets=(src/controls.css src/style.css src/planner_build.css src/track_part_picker.css)
 
 # Verify required static assets before any destructive step.
 for required in "$ENTRY" src/index.html "${stylesheets[@]}"; do

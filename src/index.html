@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="./controls.css" />
     <link rel="stylesheet" href="./style.css" />
     <link rel="stylesheet" href="./planner_build.css" />
+    <link rel="stylesheet" href="./track_part_picker.css" />
     <script type="module" src="./main.js"></script>
   </head>
   <body>
@@ -293,8 +294,8 @@
                 Arrangement</label
               >
               <label
-                ><input type="radio" name="build-tool" id="build-piece" value="piece" /> Single
-                piece</label
+                ><input type="radio" name="build-tool" id="build-piece" value="piece" /> Track
+                parts</label
               >
             </fieldset>
             <div id="library-body">
@@ -349,22 +350,44 @@
               <section
                 id="piece-tools"
                 class="direct-track-controls"
-                aria-label="Place a single piece"
+                aria-label="Place track parts"
                 hidden
               >
-                <label for="piece-choice">Track piece</label>
-                <select id="piece-choice"></select>
-                <label for="piece-target">Place at</label>
-                <select id="piece-target"></select>
-                <details class="placement-options">
-                  <summary>Connection options</summary>
-                  <div class="placement-fields">
-                    <label for="piece-port">Connecting end of this piece</label>
-                    <select id="piece-port"></select>
-                  </div>
+                <fieldset id="part-categories" class="part-categories">
+                  <legend class="screen-reader">Track part category</legend>
+                </fieldset>
+                <div class="part-placement">
+                  <p class="selected-part" aria-live="polite">
+                    <strong id="selected-part-title"></strong>
+                    <small id="selected-part-model"></small>
+                  </p>
+                  <label for="piece-target">Place at</label>
+                  <select id="piece-target"></select>
+                  <details class="placement-options">
+                    <summary>Connection options</summary>
+                    <div class="placement-fields">
+                      <label for="piece-port">Connecting end of this part</label>
+                      <select id="piece-port"></select>
+                    </div>
+                  </details>
+                  <button type="button" class="primary" id="extend-piece">Place on drawing</button>
+                  <p id="piece-info" class="library-help" aria-live="polite"></p>
+                </div>
+                <fieldset id="part-choices" class="part-choices">
+                  <legend>Choose a track part</legend>
+                  <div id="part-results"></div>
+                </fieldset>
+                <details id="part-advanced" class="part-advanced">
+                  <summary>More track parts</summary>
+                  <p class="library-help">
+                    Replacement sections and specialized connectors. Choose Arrangement for a
+                    complete switch, yard, or crossover.
+                  </p>
+                  <button type="button" id="part-show-arrangements">
+                    View complete arrangements
+                  </button>
+                  <div id="part-advanced-results"></div>
                 </details>
-                <button type="button" class="primary" id="extend-piece">Place on drawing</button>
-                <p id="piece-info" class="library-help" aria-live="polite"></p>
               </section>
             </div>
           </section>

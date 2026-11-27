@@ -23,6 +23,10 @@ geometry, physical joins, routes, NILTC constraints, and area coverage.
 - [`../src/editor_track.ts`](../src/editor_track.ts) and
   [`../src/editor_arrangements.ts`](../src/editor_arrangements.ts) place
   physical parts and complete track arrangements.
+- [`../src/editor_part_picker.ts`](../src/editor_part_picker.ts) browses the
+  catalog and sends the selected part ID to the placement controller.
+  [`../src/track_part_picker.css`](../src/track_part_picker.css) owns the
+  responsive card layout and placement panel.
 - [`../src/arrangements.ts`](../src/arrangements.ts),
   [`../src/parking.ts`](../src/parking.ts),
   [`../src/drive_through_yard.ts`](../src/drive_through_yard.ts), and

@@ -178,7 +178,7 @@ export class ArrangementTools {
   #commit(project: Project, addedIds: readonly string[]): void {
     const storage = this.#storageDescription();
     const name = this.#choice.selectedOptions[0]!.text;
-    const message = `Added ${name}.${storage ? ` ${storage}` : ""} Choose Single piece to extend an open end.`;
+    const message = `Added ${name}.${storage ? ` ${storage}` : ""} Choose Track parts to extend an open end.`;
     this.reset();
     try {
       this.hooks.commit(project);

@@ -1,5 +1,6 @@
 import { button, element, input, select, toCanvas } from "./editor_dom";
 import { areaCenter } from "./area_outline";
+import { setupPartPicker } from "./editor_part_picker";
 import { renderEditControls, renderSelectionInfo } from "./editor_track_controls";
 import {
   blockedEdit,
@@ -37,6 +38,7 @@ type Hooks = {
 };
 
 type RailEnd = Analysis["ports"][number];
+const defaultPartId = "lego:rc-s16";
 type TrackCopy = {
   items: readonly TrackItem[];
   geometry: RailGeometry;
@@ -70,6 +72,8 @@ function portKey(hit?: SVGElement | null): string | undefined {
 export class TrackTools {
   readonly #catalog: Catalog;
   readonly #hooks: Hooks;
+  readonly #resetParts: () => void;
+  #selectedPartId = defaultPartId;
   #interaction: Interaction = { kind: "select" };
   #selected = new Set<string>();
   #multiple = false;
@@ -88,18 +92,20 @@ export class TrackTools {
         this.#showTool();
       });
     }
-    const choices = select("piece-choice");
-    for (const part of catalog.parts.filter(({ ports }) =>
-      ports.some(({ type }) => type === "regular"),
-    )) {
-      choices.add(new Option(`${part.brand} · ${part.name}`, part.id));
-    }
-    choices.value = "lego:rc-s16";
-    choices.addEventListener("change", () => {
-      this.#piecePorts();
-      this.#refreshPiecePreview();
+    this.#resetParts = setupPartPicker(catalog, {
+      selectedId: () => this.#selectedPartId,
+      selectPart: (id) => {
+        this.#selectedPartId = id;
+        this.#showPart();
+        this.#cancelPartPreview();
+      },
+      browse: () => this.#cancelPartPreview(),
+      showArrangements: () => {
+        input("build-arrangement").click();
+        select("arrangement").focus();
+      },
     });
-    this.#piecePorts();
+    this.#showPart();
     select("piece-port").addEventListener("change", () => this.#refreshPiecePreview());
     select("piece-target").addEventListener("change", () => {
       this.stopPicking();
@@ -157,6 +163,9 @@ export class TrackTools {
   useDefaultTool(): void {
     input(this.#hooks.analysis().project.area.niltc ? "build-arrangement" : "build-piece").checked =
       true;
+    this.#selectedPartId = defaultPartId;
+    this.#resetParts();
+    this.#showPart();
     this.#multiple = false;
   }
 
@@ -174,10 +183,10 @@ export class TrackTools {
     const empty = !visibleTrackItems(project).length;
     element("build-hint").textContent = piece
       ? empty
-        ? "Choose a piece to start the track in your design area."
+        ? "Choose a track part to start your layout."
         : this.#openEnds.size
-          ? "Place a piece anywhere on the drawing, or connect to an open rail end."
-          : "Place a piece anywhere on the drawing. Choose Arrangement to insert a switch."
+          ? "Place a part on the drawing or connect it to an open rail end."
+          : "Place a part anywhere on the drawing."
       : project.area.niltc
         ? "To park a train behind your display, preview a siding off the mainline."
         : "Preview a connected group of track pieces in your design area.";
@@ -188,7 +197,7 @@ export class TrackTools {
         ? "Place on drawing"
         : target === "center"
           ? "Place at center"
-          : "Connect piece";
+          : "Connect part";
     action.disabled = !select("piece-port").value;
   }
 
@@ -198,7 +207,7 @@ export class TrackTools {
     this.cancel();
     if (target === "drawing") {
       this.#interaction = { kind: "extend", id };
-      const message = "Click or tap the drawing to place the piece.";
+      const message = "Click or tap the drawing to place the part.";
       this.#hooks.notice(message);
       element("piece-info").textContent = message;
       this.#editControls();
@@ -309,13 +318,23 @@ export class TrackTools {
     return true;
   }
 
-  #piecePorts(): void {
-    const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
+  get #part(): Catalog["parts"][number] | undefined {
+    return this.#catalog.parts.find(({ id }) => id === this.#selectedPartId);
+  }
+
+  #showPart(): void {
+    const part = this.#part;
+    element("selected-part-title").textContent = part?.browse?.label ?? "";
+    element("selected-part-model").textContent = part ? `${part.brand} · ${part.name}` : "";
     select("piece-port").replaceChildren(
       ...(part?.ports ?? [])
         .filter(({ type }) => type === "regular")
         .map((p) => new Option(p.id, p.id)),
     );
+  }
+
+  #cancelPartPreview(): void {
+    if (this.#interaction.kind === "extend") this.cancel();
   }
 
   #armTrace(): void {
@@ -711,9 +730,9 @@ export class TrackTools {
     end?: string,
     centered = false,
   ): EditPreview {
-    const part = this.#catalog.parts.find(({ id }) => id === select("piece-choice").value);
+    const part = this.#part;
     const incoming = part?.ports.find(({ id }) => id === select("piece-port").value);
-    if (!part || !incoming) return blockedEdit("Choose a track piece and its connecting end.");
+    if (!part || !incoming) return blockedEdit("Choose a track part and its connecting end.");
     const { project } = this.#hooks.analysis();
     const target = this.#nearbyOpenEnd(point, radius, end);
     const item: TrackItem = {

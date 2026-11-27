@@ -2,6 +2,7 @@
   "parts": [
     {
       "id": "lego:rc-s16",
+      "browse": { "category": "straights", "label": "Straight (16 studs)", "order": 16, "group": "straight-16", "preferred": true },
       "brand": "LEGO",
       "name": "RC/PF straight S16",
       "ports": [
@@ -66,6 +67,7 @@
     },
     {
       "id": "lego:rc-r40",
+      "browse": { "category": "curves", "label": "Curve R40 (22.5 degrees)", "order": 40 },
       "brand": "LEGO",
       "name": "RC/PF curve R40",
       "radius": 40,
@@ -294,6 +296,7 @@
     },
     {
       "id": "bricktracks:s04",
+      "browse": { "category": "straights", "label": "Straight (4 studs)", "order": 4, "group": "straight-4", "preferred": true },
       "brand": "BrickTracks",
       "name": "Straight S4",
       "ports": [
@@ -357,6 +360,7 @@
     },
     {
       "id": "bricktracks:s08",
+      "browse": { "category": "straights", "label": "Straight (8 studs)", "order": 8, "group": "straight-8", "preferred": true },
       "brand": "BrickTracks",
       "name": "Straight S8",
       "ports": [
@@ -420,6 +424,7 @@
     },
     {
       "id": "bricktracks:r104",
+      "browse": { "category": "curves", "label": "Curve R104 (11.25 degrees)", "order": 104 },
       "brand": "BrickTracks",
       "name": "Curve R104",
       "radius": 104,
@@ -655,6 +660,7 @@
     },
     {
       "id": "bricktracks:r120",
+      "browse": { "category": "curves", "label": "Curve R120 (11.25 degrees)", "order": 120 },
       "brand": "BrickTracks",
       "name": "Curve R120",
       "radius": 120,
@@ -894,6 +900,7 @@
     },
     {
       "id": "bricktracks:r104a",
+      "browse": { "category": "connectors", "label": "R104 turnout adapter", "order": 104, "description": "Extends an R104 turnout." },
       "brand": "BrickTracks",
       "name": "Turnout adapter R104A",
       "radius": 104,
@@ -1029,6 +1036,7 @@
     },
     {
       "id": "bricktracks:r104b",
+      "browse": { "category": "connectors", "label": "R104 siding adapter", "order": 105, "description": "Connects an R104 turnout to a siding." },
       "brand": "BrickTracks",
       "name": "Siding adapter R104B",
       "radius": 104,
@@ -1164,6 +1172,7 @@
     },
     {
       "id": "bricktracks:r104-left-body",
+      "browse": { "category": "switches", "label": "Left switch (R104)", "order": 104, "approach": "common" },
       "brand": "BrickTracks",
       "name": "R104 left turnout body",
       "radius": 104,
@@ -1362,6 +1371,7 @@
     },
     {
       "id": "bricktracks:r104-right-body",
+      "browse": { "category": "switches", "label": "Right switch (R104)", "order": 104, "approach": "common" },
       "brand": "BrickTracks",
       "name": "R104 right turnout body",
       "radius": 104,
@@ -1591,6 +1601,7 @@
     },
     {
       "id": "trixbrix:s04",
+      "browse": { "category": "straights", "label": "Straight (4 studs)", "order": 4, "group": "straight-4" },
       "brand": "TrixBrix",
       "name": "Straight S4",
       "ports": [
@@ -1609,6 +1620,7 @@
     },
     {
       "id": "trixbrix:s08",
+      "browse": { "category": "straights", "label": "Straight (8 studs)", "order": 8, "group": "straight-8" },
       "brand": "TrixBrix",
       "name": "Straight S8",
       "ports": [
@@ -1672,6 +1684,7 @@
     },
     {
       "id": "trixbrix:s32",
+      "browse": { "category": "straights", "label": "Straight (32 studs)", "order": 32 },
       "brand": "TrixBrix",
       "name": "Double straight S32",
       "ports": [
@@ -1735,6 +1748,7 @@
     },
     {
       "id": "trixbrix:r104",
+      "browse": { "category": "curves", "label": "Curve R104 (11.25 degrees)", "order": 104 },
       "brand": "TrixBrix",
       "name": "Curve R104",
       "radius": 104,
@@ -1954,6 +1968,7 @@
     },
     {
       "id": "trixbrix:r120",
+      "browse": { "category": "curves", "label": "Curve R120 (11.25 degrees)", "order": 120 },
       "brand": "TrixBrix",
       "name": "Curve R120",
       "radius": 120,
@@ -2173,6 +2188,7 @@
     },
     {
       "id": "trixbrix:r104-left-base",
+      "browse": { "category": "switches", "label": "R104 switch base, branches left", "order": 104, "advanced": true, "approach": "common", "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 left switch base",
       "radius": 104,
@@ -2321,6 +2337,7 @@
     },
     {
       "id": "trixbrix:r104-left-detach-1",
+      "browse": { "category": "switches", "label": "R104 switch section, left through", "order": 105, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 left detach 1",
       "radius": 104,
@@ -2467,6 +2484,7 @@
     },
     {
       "id": "trixbrix:r104-left-detach-2",
+      "browse": { "category": "switches", "label": "R104 switch section, left branch", "order": 106, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 left detach 2",
       "radius": 104,
@@ -2579,6 +2597,7 @@
     },
     {
       "id": "trixbrix:r104-right-base",
+      "browse": { "category": "switches", "label": "R104 switch base, branches right", "order": 104, "advanced": true, "approach": "common", "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 right switch base",
       "radius": 104,
@@ -2727,6 +2746,7 @@
     },
     {
       "id": "trixbrix:r104-right-detach-1",
+      "browse": { "category": "switches", "label": "R104 switch section, right through", "order": 105, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 right detach 1",
       "radius": 104,
@@ -2873,6 +2893,7 @@
     },
     {
       "id": "trixbrix:r104-right-detach-2",
+      "browse": { "category": "switches", "label": "R104 switch section, right branch", "order": 106, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 right detach 2",
       "radius": 104,
@@ -2985,6 +3006,7 @@
     },
     {
       "id": "4dbrix:s04",
+      "browse": { "category": "straights", "label": "Straight (4 studs)", "order": 4, "group": "straight-4" },
       "brand": "4DBrix",
       "name": "Straight S4",
       "ports": [
@@ -3043,6 +3065,7 @@
     },
     {
       "id": "4dbrix:s08",
+      "browse": { "category": "straights", "label": "Straight (8 studs)", "order": 8, "group": "straight-8" },
       "brand": "4DBrix",
       "name": "Straight S8",
       "ports": [
@@ -3101,6 +3124,7 @@
     },
     {
       "id": "4dbrix:r104",
+      "browse": { "category": "curves", "label": "Curve R104 (10 degrees)", "order": 104 },
       "brand": "4DBrix",
       "name": "Curve R104",
       "radius": 104,
@@ -3295,6 +3319,7 @@
     },
     {
       "id": "4dbrix:r120",
+      "browse": { "category": "curves", "label": "Curve R120 (9 degrees)", "order": 120 },
       "brand": "4DBrix",
       "name": "Curve R120",
       "radius": 120,
@@ -3489,6 +3514,7 @@
     },
     {
       "id": "trixbrix:r40",
+      "browse": { "category": "curves", "label": "Curve R40 (22.5 degrees)", "order": 40 },
       "brand": "TrixBrix",
       "name": "Curve R40",
       "radius": 40,
@@ -3568,6 +3594,7 @@
     },
     {
       "id": "trixbrix:r40-half",
+      "browse": { "category": "curves", "label": "Curve R40 (11.25 degrees)", "order": 41 },
       "brand": "TrixBrix",
       "name": "Curve R40 half",
       "radius": 40,
@@ -3639,6 +3666,7 @@
     },
     {
       "id": "trixbrix:r40-right-switch",
+      "browse": { "category": "switches", "label": "Right switch (R40)", "order": 40, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Right switch R40",
       "radius": 40,
@@ -3744,6 +3772,7 @@
     },
     {
       "id": "trixbrix:r40-left-switch",
+      "browse": { "category": "switches", "label": "Left switch (R40)", "order": 40, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Left switch R40",
       "radius": 40,
@@ -3849,6 +3878,7 @@
     },
     {
       "id": "trixbrix:r40-triple-switch",
+      "browse": { "category": "switches", "label": "R40 triple switch", "order": 41, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Triple switch R40",
       "radius": 40,
@@ -3982,6 +4012,7 @@
     },
     {
       "id": "trixbrix:r40-double-crossover",
+      "browse": { "category": "crossings", "label": "R40 double crossover", "order": 40, "description": "Changes between parallel tracks in either direction." },
       "brand": "TrixBrix", "name": "Double crossover R40", "radius": 40,
       "ports": [{"id":"north-right","x":8,"y":24,"angle":90,"type":"regular"},{"id":"north-left","x":-8,"y":24,"angle":90,"type":"regular"},{"id":"south-left","x":-8,"y":-24,"angle":-90,"type":"regular"},{"id":"south-right","x":8,"y":-24,"angle":-90,"type":"regular"}],
       "paths": [[{"x":-8,"y":-24},{"x":-8,"y":24}],[{"x":8,"y":-24},{"x":8,"y":24}],[{"x":-8,"y":-24},{"x":-5,"y":-6},{"x":5,"y":6},{"x":8,"y":24}],[{"x":8,"y":-24},{"x":5,"y":-6},{"x":-5,"y":6},{"x":-8,"y":24}]],
@@ -3992,6 +4023,7 @@
     },
     {
       "id": "trixbrix:r40-yard-right-switch",
+      "browse": { "category": "switches", "label": "R40 rail-yard switch, branches right", "order": 42, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Right rail-yard switch R40",
       "radius": 40,
@@ -4105,6 +4137,7 @@
     },
     {
       "id": "trixbrix:r40-yard-left-switch",
+      "browse": { "category": "switches", "label": "R40 rail-yard switch, branches left", "order": 42, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Left rail-yard switch R40",
       "radius": 40,
@@ -4218,6 +4251,7 @@
     },
     {
       "id": "trixbrix:r40-right-connector",
+      "browse": { "category": "connectors", "label": "R40 rail-yard connector, right", "order": 40 },
       "brand": "TrixBrix",
       "name": "R40 right rail-yard connector",
       "ports": [
@@ -4281,6 +4315,7 @@
     },
     {
       "id": "trixbrix:r40-left-connector",
+      "browse": { "category": "connectors", "label": "R40 rail-yard connector, left", "order": 40 },
       "brand": "TrixBrix",
       "name": "R40 left rail-yard connector",
       "ports": [
@@ -4344,6 +4379,7 @@
     },
     {
       "id": "trixbrix:r104-left-gto",
+      "browse": { "category": "switches", "label": "Left switch (R104)", "order": 104, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Left switch R104, outer ground throw",
       "radius": 104,
@@ -4445,6 +4481,7 @@
     },
     {
       "id": "trixbrix:r104-wye",
+      "browse": { "category": "switches", "label": "R104 wye switch", "order": 105, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Wye switch R104",
       "radius": 104,
@@ -4551,6 +4588,7 @@
     },
     {
       "id": "trixbrix:r104y-adapter",
+      "browse": { "category": "connectors", "label": "R104 wye adapter (6.75 degrees)", "order": 104 },
       "brand": "TrixBrix",
       "name": "Wye adapter R104Y 6.75 degrees",
       "radius": 104,
@@ -4622,6 +4660,7 @@
     },
     {
       "id": "trixbrix:rc1",
+      "browse": { "category": "connectors", "label": "Rail-yard connector RC1", "order": 1 },
       "brand": "TrixBrix",
       "name": "Rail yard connector RC1",
       "ports": [
@@ -4685,6 +4724,7 @@
     },
     {
       "id": "trixbrix:rc2",
+      "browse": { "category": "connectors", "label": "Rail-yard connector RC2", "order": 2 },
       "brand": "TrixBrix",
       "name": "Rail yard connector RC2",
       "ports": [
@@ -4748,6 +4788,7 @@
     },
     {
       "id": "trixbrix:r104-ballast-curve",
+      "browse": { "category": "curves", "label": "Ballasted curve R104 (11.25 degrees)", "order": 105 },
       "brand": "TrixBrix",
       "name": "Ballast curve R104 11.25 degrees",
       "radius": 104,
@@ -4819,6 +4860,7 @@
     },
     {
       "id": "trixbrix:r56-left",
+      "browse": { "category": "switches", "label": "Left switch (R56)", "order": 56, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Left switch R56",
       "radius": 56,
@@ -5010,6 +5052,7 @@
     },
     {
       "id": "trixbrix:r56-right",
+      "browse": { "category": "switches", "label": "Right switch (R56)", "order": 56, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Right switch R56",
       "radius": 56,
@@ -5201,6 +5244,7 @@
     },
     {
       "id": "trixbrix:r56-double-pass-through",
+      "browse": { "category": "crossings", "label": "R56 double pass-through crossover", "order": 56, "description": "Changes between the outer tracks. The center track stays separate." },
       "brand": "TrixBrix",
       "name": "Double pass-through crossover R56",
       "radius": 56,
@@ -5343,6 +5387,7 @@
     },
     {
       "id": "trixbrix:s16",
+      "browse": { "category": "straights", "label": "Straight (16 studs)", "order": 16, "group": "straight-16" },
       "brand": "TrixBrix",
       "name": "Straight S16",
       "ports": [
@@ -5406,6 +5451,7 @@
     },
     {
       "id": "trixbrix:s01",
+      "browse": { "category": "straights", "label": "Straight (1 stud)", "order": 1 },
       "brand": "TrixBrix",
       "name": "Straight S1",
       "ports": [
@@ -5469,6 +5515,7 @@
     },
     {
       "id": "trixbrix:s02",
+      "browse": { "category": "straights", "label": "Straight (2 studs)", "order": 2 },
       "brand": "TrixBrix",
       "name": "Straight S2",
       "ports": [
@@ -5532,6 +5579,7 @@
     },
     {
       "id": "lego:rc-r40-right-switch",
+      "browse": { "category": "switches", "label": "Right switch (R40)", "order": 40, "approach": "common" },
       "brand": "LEGO",
       "name": "RC/PF right switch R40",
       "radius": 40,
@@ -5755,6 +5803,7 @@
     },
     {
       "id": "lego:rc-r40-left-switch",
+      "browse": { "category": "switches", "label": "Left switch (R40)", "order": 40, "approach": "common" },
       "brand": "LEGO",
       "name": "RC/PF left switch R40",
       "radius": 40,
@@ -6025,6 +6074,7 @@
     },
     {
       "id": "trixbrix:r104-left-detach-1-crossover",
+      "browse": { "category": "crossings", "label": "R104 crossover section, left", "order": 104, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete crossover." },
       "brand": "TrixBrix",
       "name": "R104 left detach 1 (crossover assembly)",
       "radius": 104,
@@ -6120,6 +6170,7 @@
     },
     {
       "id": "trixbrix:r104-right-detach-1-crossover",
+      "browse": { "category": "crossings", "label": "R104 crossover section, right", "order": 104, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete crossover." },
       "brand": "TrixBrix",
       "name": "R104 right detach 1 (crossover assembly)",
       "radius": 104,
@@ -6215,6 +6266,7 @@
     },
     {
       "id": "trixbrix:r104-triple-base",
+      "browse": { "category": "switches", "label": "R104 triple switch base", "order": 107, "advanced": true, "approach": "common", "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 triple switch base",
       "radius": 104,
@@ -6231,6 +6283,7 @@
     },
     {
       "id": "trixbrix:r104-triple-detach-1",
+      "browse": { "category": "switches", "label": "R104 triple switch section", "order": 108, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 triple switch first detach",
       "radius": 104,
@@ -6249,6 +6302,7 @@
     },
     {
       "id": "trixbrix:r104-triple-detach-2-left",
+      "browse": { "category": "switches", "label": "R104 triple switch section, left", "order": 109, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 triple switch second detach left",
       "radius": 104,
@@ -6260,6 +6314,7 @@
     },
     {
       "id": "trixbrix:r104-triple-detach-2-right",
+      "browse": { "category": "switches", "label": "R104 triple switch section, right", "order": 109, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete switch." },
       "brand": "TrixBrix",
       "name": "R104 triple switch second detach right",
       "radius": 104,
@@ -6374,6 +6429,7 @@
     },
     {
       "id": "trixbrix:crossing-45-right",
+      "browse": { "category": "crossings", "label": "45-degree crossing", "order": 45, "description": "Two tracks cross without changing between them." },
       "brand": "TrixBrix",
       "name": "45-degree crossing, right",
       "ports": [
@@ -6518,6 +6574,7 @@
     },
     {
       "id": "trixbrix:r40-pass-through-adapter",
+      "browse": { "category": "connectors", "label": "R40 pass-through adapter", "order": 41, "description": "Connects the R40 pass-through crossover." },
       "brand": "TrixBrix",
       "name": "R40 pass-through adapter",
       "ports": [
@@ -6628,6 +6685,7 @@
     },
     {
       "id": "trixbrix:r40-wye",
+      "browse": { "category": "switches", "label": "R40 wye switch", "order": 43, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Wye switch R40",
       "radius": 40,
@@ -6904,6 +6962,7 @@
     },
     {
       "id": "trixbrix:r40-quarter",
+      "browse": { "category": "curves", "label": "Quarter curve R40 (90 degrees)", "order": 42 },
       "brand": "TrixBrix",
       "name": "Quarter curve R40",
       "radius": 40,
@@ -7102,6 +7161,7 @@
     },
     {
       "id": "trixbrix:r40-r56-wye",
+      "browse": { "category": "switches", "label": "R40-R56 wye switch", "order": 44, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Wye switch R40-R56",
       "ports": [
@@ -7341,6 +7401,7 @@
     },
     {
       "id": "trixbrix:r56-r40-wye",
+      "browse": { "category": "switches", "label": "R56-R40 wye switch", "order": 44, "approach": "common" },
       "brand": "TrixBrix",
       "name": "Wye switch R56-R40",
       "ports": [
@@ -7580,6 +7641,7 @@
     },
     {
       "id": "trixbrix:r40-r56-t-junction-core",
+      "browse": { "category": "crossings", "label": "R40-R56 T-junction core", "order": 57, "advanced": true, "description": "Replacement section. Choose Arrangement for the complete T-junction." },
       "brand": "TrixBrix",
       "name": "T-junction core R40-R56",
       "ports": [

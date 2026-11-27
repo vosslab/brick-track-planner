@@ -105,6 +105,24 @@ export type PartAlias = {
   sourceHull?: Point[];
 };
 export type InventoryComponent = { id: string; name: string; quantity: number };
+export const partCategories = [
+  "straights",
+  "curves",
+  "switches",
+  "crossings",
+  "connectors",
+] as const;
+export type PartCategory = (typeof partCategories)[number];
+export type PartBrowse = {
+  category: PartCategory;
+  label: string;
+  order?: number;
+  group?: string;
+  preferred?: true;
+  advanced?: true;
+  approach?: string;
+  description?: string;
+};
 export type Part = {
   id: string;
   brand: string;
@@ -118,6 +136,8 @@ export type Part = {
   aliases?: PartAlias[];
   /** Physical elements represented by a source-supplied assembled track record. */
   inventory?: InventoryComponent[];
+  /** Member-facing catalog placement metadata. */
+  browse?: PartBrowse;
 };
 export type Kit = {
   id: string;

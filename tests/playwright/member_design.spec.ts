@@ -96,6 +96,51 @@ test("members can move track in a rotated view and undo it", async ({ page, hasT
   expect((await saveProject(page)).project).toEqual(original);
 });
 
+// Picker labels are member-facing catalog names from data/catalog.json.
+test("track part browsing keeps a chosen variant and saves the part it places", async ({
+  page,
+  hasTouch,
+}) => {
+  await boot(page, { startProject: false });
+  await createProject(page, { assignment: "general", width: "128", depth: "192" });
+
+  const legoStraight = page.getByRole("radio", {
+    name: /Straight \(16 studs\).*LEGO.*RC\/PF straight S16/,
+  });
+  await expect(page.getByRole("radio", { name: "Track parts" })).toBeChecked();
+  await expect(legoStraight).toBeChecked();
+
+  await page.getByLabel("Place at", { exact: true }).selectOption("drawing");
+  await page.getByRole("button", { name: "Place on drawing", exact: true }).click();
+  await expect(page.locator("#piece-info")).toContainText("Click or tap the drawing");
+  await page.getByRole("radio", { name: "Straights", exact: true }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("radio", { name: "Curves", exact: true })).toBeChecked();
+  await expect(page.locator("#piece-info")).toBeEmpty();
+
+  await page.keyboard.press("ArrowLeft");
+  await expect(legoStraight).toBeChecked();
+  await page.locator('summary[aria-label="Other brands for Straight (16 studs)"]').click();
+  const trixStraight = page.getByRole("radio", {
+    name: /Straight \(16 studs\).*TrixBrix.*Straight S16/,
+  });
+  if (hasTouch) await trixStraight.tap();
+  else await trixStraight.check();
+  await expect(page.locator("#selected-part-model")).toHaveText("TrixBrix · Straight S16");
+
+  const place = page.getByRole("button", { name: "Place on drawing", exact: true });
+  if (hasTouch) await place.tap();
+  else await place.click();
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  if (hasTouch) await canvas.tap();
+  else await canvas.click();
+  expect(
+    (await saveProject(page)).project.items
+      .filter((item) => item.kind === "track")
+      .map((item) => item.partId),
+  ).toEqual(["trixbrix:s16"]);
+});
+
 test("deleting selected pieces leaves nearby track and undoes in one step", async ({
   page,
   hasTouch,

@@ -22,6 +22,10 @@
 
 ### Behavior or Interface Changes
 
+- Browse Track parts by category with labeled drawings, measured sizes, and
+  manufacturer details. Choose an equivalent brand or a replacement section
+  when you need it, then place the selected part from the same panel.
+
 - Order the Member R104 right yard fillers shortest first after each switch.
   End every storage track with aligned LEGO RC/PF S16 straights.
 
@@ -80,6 +84,7 @@
 - Refresh all 35 documentation images from the current Pages build, including
   the phone views, layout gallery, outline preview, and placement demo.
 
+- Record the Track parts picker design and verification plan.
 - Move TrackTools toolbar and inspector rendering into a separate module to keep
   the controller within the source size guidance.
 - Refresh all 33 documentation screenshots, including the Member R104 right

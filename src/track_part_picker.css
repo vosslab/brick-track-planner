@@ -1,0 +1,234 @@
+.direct-track-controls {
+  padding: 0 0 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.part-categories,
+.part-choices {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.part-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.5rem var(--panel-inset) 0;
+}
+.part-category {
+  display: inline-flex;
+  flex: 1 1 max-content;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  min-block-size: var(--command-height);
+  padding: 0.22rem 0.4rem;
+  border: 1px solid var(--control-line);
+  border-radius: 6px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 650;
+  text-align: center;
+}
+.part-category:hover {
+  background: var(--accent-soft);
+}
+.part-category:has(> input:checked) {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+  background: var(--selected);
+}
+.part-category:has(> input:focus-visible),
+.part-card:has(> input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.part-category > input,
+.part-card > input {
+  inline-size: 1rem;
+  block-size: 1rem;
+  flex: 0 0 1rem;
+  min-block-size: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.part-choices {
+  padding: 0.6rem var(--panel-inset) 0;
+  container-type: inline-size;
+}
+.part-choices > legend {
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+#part-results,
+#part-advanced-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+}
+@container (inline-size >= 13rem) {
+  #part-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.part-choice-group {
+  align-content: start;
+  display: grid;
+  min-inline-size: 0;
+  gap: 0.25rem;
+}
+.part-variants {
+  min-inline-size: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+}
+.part-variants > summary {
+  min-block-size: var(--control-height);
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+.part-variants[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+.part-variant-cards {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.25rem;
+}
+.part-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "preview preview"
+    "control name"
+    "model model"
+    "description description";
+  align-content: start;
+  gap: 0.16rem 0.35rem;
+  min-inline-size: 0;
+  padding: 0.35rem;
+  border: 1px solid var(--control-line);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.part-card:hover {
+  background: var(--accent-soft);
+}
+.part-card:has(> input:checked) {
+  border-color: var(--accent-dark);
+  box-shadow: inset 0 -3px 0 var(--accent);
+  background: var(--selected);
+}
+.part-card > input {
+  grid-area: control;
+  align-self: start;
+  margin-block-start: 0.08rem;
+}
+.part-preview {
+  --track-compact: none;
+  --track-sleepers: inline;
+  --track-detail: inline;
+  grid-area: preview;
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  min-inline-size: 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--board);
+}
+.part-card strong {
+  grid-area: name;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+.part-card small {
+  grid-area: model;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.part-description {
+  grid-area: description;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+.part-advanced {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.6rem var(--panel-inset) 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.part-advanced > summary {
+  min-block-size: var(--control-height);
+  padding: 0.45rem 0.55rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+.part-advanced[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+.part-advanced > :not(summary) {
+  margin-inline: 0.55rem;
+}
+.part-advanced > .library-help {
+  margin-block: 0;
+}
+.part-advanced > button {
+  inline-size: calc(100% - 1.1rem);
+  min-inline-size: 0;
+  margin-block: 0;
+  font-size: 0.78rem;
+}
+#part-advanced-results {
+  margin-block-end: 0.55rem;
+}
+.part-placement {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.6rem var(--panel-inset) 0.7rem;
+  border-block: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 0.18rem 0.45rem rgb(19 33 60 / 7%);
+}
+.selected-part {
+  display: grid;
+  gap: 0.06rem;
+}
+.selected-part strong {
+  font-size: 0.82rem;
+}
+.selected-part small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+@media (max-width: 750px) {
+  .library:has(#piece-tools:not([hidden])) {
+    overflow: clip;
+  }
+  #library-body:has(#piece-tools:not([hidden])) {
+    overflow: visible;
+  }
+  .part-category {
+    flex-basis: 7.5rem;
+  }
+}

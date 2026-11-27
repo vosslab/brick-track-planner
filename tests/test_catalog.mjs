@@ -52,6 +52,44 @@ test("catalog references physical parts and has terminal centerlines", () => {
   }
 });
 
+test("catalog gives every placeable part a clear browsing home", () => {
+  const categories = new Set(["straights", "curves", "switches", "crossings", "connectors"]);
+  const groups = new Map();
+  for (const part of parts.values()) {
+    const placeable = part.ports.some(({ type }) => type === "regular");
+    assert.equal(Boolean(part.browse), placeable, part.id);
+    if (!placeable) continue;
+    const { browse } = part;
+    assert.ok(categories.has(browse.category), part.id);
+    assert.match(browse.label, /\S/, part.id);
+    assert.ok(Number.isFinite(browse.order), part.id);
+    if (browse.approach) {
+      assert.ok(
+        part.ports.some(({ id }) => id === browse.approach),
+        part.id + ":" + browse.approach,
+      );
+    }
+    if (browse.group) groups.set(browse.group, [...(groups.get(browse.group) ?? []), part]);
+  }
+  for (const [group, variants] of groups) {
+    assert.ok(variants.length > 1, group);
+    assert.equal(variants.filter(({ browse }) => browse.preferred).length, 1, group);
+    const [first] = variants;
+    for (const variant of variants.slice(1)) {
+      assert.deepEqual(variant.ports, first.ports, group);
+      assert.deepEqual(variant.paths, first.paths, group);
+      assert.deepEqual(variant.routes, first.routes, group);
+    }
+  }
+  assert.equal(parts.get("lego:rc-s16").browse.preferred, true);
+  assert.equal(
+    parts.get("trixbrix:crossing-45-right").browse.description,
+    "Two tracks cross without changing between them.",
+  );
+  assert.match(parts.get("trixbrix:r56-double-pass-through").browse.description, /Changes between/);
+  assert.equal(parts.get("trixbrix:r104-left-base").browse.advanced, true);
+});
+
 test("catalog uses plastic RC/PF track and exposes practical multi-route products", () => {
   assert.ok(parts.has("lego:rc-s16"));
   assert.ok([...parts.keys()].every((id) => !id.includes("9v")));

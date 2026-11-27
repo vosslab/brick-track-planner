@@ -36,7 +36,7 @@ Choose **General** to start with an empty drawing and add the track
 yourself.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![An empty 60 by 40 inch General plan with Single piece selected and Place at center available](screenshots/general_blank_start.webp)
+![An empty 60 by 40 inch General plan with Track parts selected and Place at center available](screenshots/general_blank_start.webp)
 <!-- screenshots:end -->
 
 ### Straight member starter
@@ -69,7 +69,19 @@ put it in the plan.
 ![The applied parking siding connected to the inner mainline](screenshots/member_parking_siding.webp)
 <!-- screenshots:end -->
 
-### Place a single piece
+### Browse track parts
+
+Choose **Track parts** in a General plan. Pick a visible category, then choose
+a card by its drawing and measurement. The smaller manufacturer and model line
+identifies the physical part. Use **Other brands** for an equivalent part or
+**More track parts** for a replacement section.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The Switches category showing labeled track drawings and the selected part's placement controls](screenshots/track_parts_switches.webp)
+![Phone Track parts view showing category choices, a selected switch card, and placement controls](screenshots/mobile_track_parts.webp)
+<!-- screenshots:end -->
+
+### Place a track part
 
 In the blank General editor, choose **Choose on the drawing** under
 **Place at**. Choose **Place on drawing**, then click or tap the drawing
@@ -77,7 +89,7 @@ once. The piece stays where you put it. Select **Move** to reposition it,
 or drag it with a mouse.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A straight track piece appears after choosing Place on drawing and clicking the grid](screenshots/place_single_track_demo.webp)
+![A straight track part appears after choosing Place on drawing and clicking the grid](screenshots/place_single_track_demo.webp)
 <!-- screenshots:end -->
 
 ## Select several pieces

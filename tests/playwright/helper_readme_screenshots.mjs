@@ -233,12 +233,40 @@ try {
     await target.getByRole("radio", { name: /General/ }).check();
     await target.getByLabel("Design name").fill("My general layout");
     await create(target);
-    await expect(target.getByRole("radio", { name: "Single piece" })).toBeChecked();
+    await expect(target.getByRole("radio", { name: "Track parts" })).toBeChecked();
     await expect(target.getByRole("button", { name: "Place at center" })).toBeEnabled();
     await expect(target.locator("#tabletop [data-kind=track]")).toHaveCount(0);
   };
+  const choosePartCategory = async (target, name, partModel) => {
+    await target.getByRole("radio", { name, exact: true }).check();
+    const cards = target.locator("#part-results .part-card");
+    const firstCard = partModel ? cards.filter({ hasText: partModel }) : cards.first();
+    const part = firstCard.getByRole("radio");
+    await expect(part).toBeVisible();
+    await part.check();
+    await expect(part).toBeChecked();
+  };
   await startBlank();
   await capture("general_blank_start");
+  await choosePartCategory(page, "Switches");
+  await capture("track_parts_switches");
+
+  const phoneParts = await browser.newPage({
+    viewport: phoneViewport,
+    isMobile: true,
+    hasTouch: true,
+  });
+  try {
+    await startBlank(phoneParts);
+    await choosePartCategory(phoneParts, "Switches");
+    await phoneParts.locator("#library-panel").evaluate((panel) => {
+      panel.scrollIntoView({ block: "start" });
+    });
+    await capture("mobile_track_parts", phoneParts);
+  } finally {
+    await phoneParts.close();
+  }
+  await choosePartCategory(page, "Straights", "RC/PF straight S16");
 
   const demonstratePlacement = async (target, frame) => {
     await target.getByLabel("Place at", { exact: true }).selectOption("drawing");
@@ -247,7 +275,7 @@ try {
     await frame?.(1000);
     await place.press("Enter");
     await expect(target.locator("#piece-info")).toContainText(
-      "Click or tap the drawing to place the piece.",
+      "Click or tap the drawing to place the part.",
     );
     await frame?.(950);
     await target.getByRole("group", { name: "Track plan", exact: true }).click();

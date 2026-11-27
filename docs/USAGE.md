@@ -130,7 +130,7 @@ the outline with the track plan.
 
 For a NILTC assignment, **Add track** starts in **Arrangement** mode. It is the
 quickest way to add a useful connected build. A **General** layout starts in
-**Single piece** mode so you can begin its track. On desktop, use the **Add track**
+**Track parts** mode so you can begin its track. On desktop, use the **Add track**
 sidebar switch. On phones, choose **Add track** below the drawing. **Back to drawing**
 returns to the canvas and **Show drawing** brings an active siding preview back into view.
 
@@ -149,13 +149,21 @@ returns to the canvas and **Show drawing** brings an active siding preview back 
 Open **Placement options** before previewing and choose 32 or 0 studs of
 added straight storage if you want a shorter siding.
 
-Choose **Single piece** to lay an individual rail. In an empty general layout,
-the default target is the center of the design area; choose **Place at center**
-to start there. Choose **Choose on the drawing** when you want to pick the
-location yourself. When exactly one private rail end is open, it is selected
-for you. Choose **Connect piece** to extend it. A single piece or copied
-selection drops once; the next click selects track.
-[Watch the first piece being placed](SCREENSHOTS.md#place-a-single-piece).
+Choose **Track parts** to lay an individual rail. Start with the visible
+**Straights**, **Curves**, **Switches**, **Crossings & crossovers**, or
+**Connectors** categories. The selected card names the shape and measurement
+first, then its exact manufacturer and model so you can match the physical
+part. **Other brands** shows interchangeable alternatives. **More track parts**
+contains replacement sections and specialty connectors. Choose **Arrangement**
+for a complete multipart switch, yard, or junction.
+
+In an empty general layout, the default target is the center of the design
+area. Choose **Place at center** to start there. Choose **Choose on the
+drawing** when you want to pick the location yourself. When exactly one private
+rail end is open, it is selected for you. Choose **Connect part** to extend
+it. A single part or copied selection drops once, then the next click selects
+track. After choosing **Place on drawing**, press **Esc** before the drawing
+click to cancel. [Watch the first part being placed](SCREENSHOTS.md#place-a-track-part).
 
 The arrangement picker shows the selected kit's footprint and the track it
 needs. A connected-fit preview highlights the changes. If no connected fit is
@@ -241,12 +249,12 @@ handoff to connect to the next display.
 
 Moves snap to compatible open rail ends and otherwise shift in 8-stud steps.
 Choose **1-stud grid** to make a smaller adjustment for that placement. For a
-single piece you can enter X and Y in studs under **Exact position** in the
+single part you can enter X and Y in studs under **Exact position** in the
 inspector. On desktop, use the **Inspector** sidebar switch. On phones, choose
 **Inspector** in the toolbar to jump to the panel below the drawing. X
 increases to the right and Y increases down.
 **Tools** offers **Rotate left**, **Rotate right**, and **Duplicate** for a
-single piece. Each rotation is 90 degrees. The Undo and Redo icon buttons show
+single part. Each rotation is 90 degrees. The Undo and Redo icon buttons show
 their names on hover or keyboard focus and apply one design operation at a time.
 
 Choose **Duplicate** to copy one selected piece within the current layout.

@@ -141,9 +141,6 @@
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
-.direct-track-controls {
-  border-bottom: 1px solid var(--line);
-}
 .library-help {
   margin: 0 0 0.15rem;
   color: var(--muted);
