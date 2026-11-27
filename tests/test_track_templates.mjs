@@ -64,6 +64,31 @@ test("the 100 by 40 R104 yard connects six storage tracks to the east edge", () 
   }
 });
 
+test("the 100 by 40 R40 left yard reaches six storage tracks with standard LEGO track", () => {
+  const result = evaluate(template("member-r40-left-yard"));
+  const { area, items } = result.project;
+  assert.deepEqual([area.width, area.depth, area.niltc], [320, 128, "straight"]);
+  assert.deepEqual(
+    new Set(items.map(({ partId }) => partId)),
+    new Set(["lego:rc-s16", "lego:rc-r40-left-switch", "lego:rc-r40"]),
+  );
+  assertFits(result, result.project.name);
+
+  const [west, east] = area.exits;
+  assert.ok(reaches(result.routes, east.outer, west.outer));
+  assert.ok(reaches(result.routes, east.inner, west.inner));
+  const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+  assert.equal(open.length, 10);
+  const outputs = open.filter(({ y }) => y > 30).sort((a, b) => a.y - b.y);
+  assert.equal(outputs.length, 6);
+  for (const [index, end] of outputs.entries()) {
+    assert.ok(reaches(result.routes, east.inner, end));
+    assert.ok(Math.hypot(end.x, end.y - (40 + 16 * index)) < 0.05);
+    assert.deepEqual([end.angle, end.heightPlates], [180, 2]);
+    assert.equal(items.find(({ id }) => id === end.pieceId)?.partId, "lego:rc-s16");
+  }
+});
+
 test("return templates join the 8- and 24-stud lanes with no curves tighter than R104", () => {
   for (const [file, width, depth, edge] of [
     ["r104-semicircle-return", 416, 224, "east"],

@@ -106,14 +106,15 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
-    "preview preview"
-    "control name"
-    "model model"
+    "control preview"
+    "name name"
+    "brand brand"
     "description description";
   align-content: start;
-  gap: 0.16rem 0.35rem;
+  gap: 0.15rem 0.2rem;
+  min-block-size: var(--command-height);
   min-inline-size: 0;
-  padding: 0.35rem;
+  padding: 0.25rem 0.3rem;
   border: 1px solid var(--control-line);
   border-radius: 6px;
   background: var(--surface);
@@ -130,20 +131,17 @@
 .part-card > input {
   grid-area: control;
   align-self: start;
-  margin-block-start: 0.08rem;
 }
 .part-preview {
   --track-compact: none;
   --track-sleepers: inline;
   --track-detail: inline;
   grid-area: preview;
+  justify-self: center;
   display: block;
-  inline-size: 100%;
+  inline-size: min(100%, 4.75rem);
   aspect-ratio: 16 / 9;
   min-inline-size: 0;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--board);
 }
 .part-card strong {
   grid-area: name;
@@ -151,7 +149,7 @@
   line-height: 1.2;
 }
 .part-card small {
-  grid-area: model;
+  grid-area: brand;
   color: var(--muted);
   font-size: 0.68rem;
   font-weight: 400;

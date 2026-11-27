@@ -29,8 +29,13 @@ const templates: readonly Template[] = [
   },
   {
     file: "member-yard.ldr",
-    name: "Member yard",
+    name: "Member R104 right yard",
     purpose: "100 by 40 inch R104 yard with six storage tracks reaching the right edge.",
+  },
+  {
+    file: "member-r40-left-yard.ldr",
+    name: "Member R40 left yard",
+    purpose: "100 by 40 inch LEGO R40 yard with six storage tracks reaching the left edge.",
   },
   {
     file: "r104-semicircle-return.ldr",

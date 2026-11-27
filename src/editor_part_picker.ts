@@ -66,14 +66,19 @@ function card(part: Part, selectedId: string, onSelect: (id: string) => void): H
   const label = document.createElement("label");
   label.className = "part-card";
   label.htmlFor = input.id;
+  const modelName = `${part.brand} · ${part.name}`;
+  label.title = modelName;
   const title = document.createElement("strong");
   title.id = `${input.id}-title`;
   title.textContent = browse.label;
-  const model = document.createElement("small");
+  const brand = document.createElement("small");
+  brand.textContent = part.brand;
+  const model = document.createElement("span");
   model.id = `${input.id}-model`;
-  model.textContent = `${part.brand} · ${part.name}`;
+  model.textContent = modelName;
+  model.hidden = true;
   input.setAttribute("aria-labelledby", `${title.id} ${model.id}`);
-  label.append(input, preview(part), title, model);
+  label.append(input, preview(part), title, brand, model);
   if (browse.description) {
     const description = document.createElement("span");
     description.id = `${input.id}-description`;

@@ -152,10 +152,11 @@ added straight storage if you want a shorter siding.
 Choose **Track parts** to lay an individual rail. Start with the visible
 **Straights**, **Curves**, **Switches**, **Crossings & crossovers**, or
 **Connectors** categories. The selected card names the shape and measurement
-first, then its exact manufacturer and model so you can match the physical
-part. **Other brands** shows interchangeable alternatives. **More track parts**
-contains replacement sections and specialty connectors. Choose **Arrangement**
-for a complete multipart switch, yard, or junction.
+first, then its manufacturer. On a desktop, point at a card to see its exact
+model. The selected-part summary always shows the complete manufacturer and
+model. **Other brands** shows interchangeable alternatives. **More track
+parts** contains replacement sections and specialty connectors. Choose
+**Arrangement** for a complete multipart switch, yard, or junction.
 
 In an empty general layout, the default target is the center of the design
 area. Choose **Place at center** to start there. Choose **Choose on the

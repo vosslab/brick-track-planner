@@ -4,6 +4,8 @@
 
 ### Additions and New Features
 
+- Add the 100 by 40 inch Member R40 left yard template. Six storage tracks
+  reach the left edge using LEGO RC/PF switches, full curves, and S16 straights.
 - Add the editable 100 by 70 inch R104 three-quarter return to **Browse examples**
   and capture it in the screenshot guide.
 - Add Joel's Rockford-inspired 10-to-0 mainline as an editable template and
@@ -21,6 +23,9 @@
   joints and make each placed copy independent of its source.
 
 ### Behavior or Interface Changes
+
+- Compact the Track parts cards with smaller previews and short brand labels.
+  Show the exact model in the selected part summary and on desktop hover.
 
 - Browse Track parts by category with labeled drawings, measured sizes, and
   manufacturer details. Choose an equivalent brand or a replacement section

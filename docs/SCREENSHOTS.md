@@ -72,9 +72,10 @@ put it in the plan.
 ### Browse track parts
 
 Choose **Track parts** in a General plan. Pick a visible category, then choose
-a card by its drawing and measurement. The smaller manufacturer and model line
-identifies the physical part. Use **Other brands** for an equivalent part or
-**More track parts** for a replacement section.
+a card by its drawing and measurement. The smaller manufacturer line identifies
+the physical part. Point at a desktop card for its exact model, which also
+appears in the selected-part summary. Use **Other brands** for an equivalent
+part or **More track parts** for a replacement section.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![The Switches category showing labeled track drawings and the selected part's placement controls](screenshots/track_parts_switches.webp)
@@ -259,7 +260,8 @@ direction. [Download the editable track plan](../templates/r104-three-quarter-re
 ## Other templates
 
 Open these plans from **Other templates** on the start screen or from **File**
-in the editor. You can also download the [R104 yard](../templates/member-yard.ldr),
+in the editor. You can also download the [R104 right yard](../templates/member-yard.ldr),
+[LEGO R40 left yard](../templates/member-r40-left-yard.ldr),
 [R104 semicircle return](../templates/r104-semicircle-return.ldr), or
 [R120 corner return](../templates/r120-corner-return.ldr) and use
 **Open track plan** in the planner.
@@ -280,6 +282,16 @@ in the editor. You can also download the [R104 yard](../templates/member-yard.ld
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![A 100 by 40 inch R104 right yard with two mainlines and six storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
+<!-- screenshots:end -->
+
+### Member R40 left yard
+
+Each stock 22.5-degree LEGO switch and full R40 reverse curve moves a storage
+row 48 studs along and 16 studs back, so the yard needs no short filler
+pieces. Where space permits, the rear row is a single 16-stud straight.
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![A 100 by 40 inch LEGO R40 left yard with two mainlines and six storage tracks reaching the left edge](screenshots/member_r40_left_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return
