@@ -62,7 +62,6 @@ another example keeps your existing layouts open. **Close** leaves the
 gallery and returns to the current layout.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-
 ![Track examples grouped into 60 by 40, 40 by 40, and 100 by 70 inch displays](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
@@ -143,7 +142,9 @@ returns to the canvas and **Show drawing** brings an active siding preview back 
    fit on the drawing to use it, or click elsewhere to drop the whole preview
    there while leaving the existing track in place.
 
+<!-- screenshots:begin (managed by screenshot-docs) -->
 ![A siding preview on a 60 by 40 inch straight display with the Add to layout button visible](screenshots/member_parking_siding_preview.webp)
+<!-- screenshots:end -->
 
 Open **Placement options** before previewing and choose 32 or 0 studs of
 added straight storage if you want a shorter siding.

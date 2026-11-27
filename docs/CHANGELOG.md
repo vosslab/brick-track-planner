@@ -63,6 +63,9 @@
 
 ### Fixes and Maintenance
 
+- Refresh all 35 documentation images from the current Pages build, including
+  the phone views, layout gallery, outline preview, and placement demo.
+
 - Move TrackTools toolbar and inspector rendering into a separate module to keep
   the controller within the source size guidance.
 - Refresh all 33 documentation screenshots, including the Member R104 right
