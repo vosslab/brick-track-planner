@@ -355,7 +355,7 @@ p {
 #editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   width: min(100%, 1810px);
   margin-inline: auto;
   padding: 0 var(--gutter) 0.65rem;
@@ -493,7 +493,7 @@ p {
 
 .workbench {
   container-type: inline-size;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
 .canvas-toolbar {
@@ -526,23 +526,6 @@ p {
 }
 #tabletop pattern[id$="-grid"] > path {
   stroke-opacity: 0.52;
-}
-.zoom-controls {
-  position: absolute;
-  right: 0.65rem;
-  bottom: 0.65rem;
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: 0 2px 5px #13213c18;
-}
-.zoom-controls button {
-  min-width: var(--control-height);
-  border-color: transparent;
-  font-size: 0.84rem;
 }
 .canvas-footer {
   display: flex;

@@ -56,8 +56,10 @@ try {
     });
   };
   const track = page.locator("#tabletop [data-kind=track]");
-  const fit = (target = page) =>
-    target.getByRole("button", { name: "Fit view", exact: true }).click();
+  const fit = async (target = page) => {
+    await target.getByRole("button", { name: "Fit view", exact: true }).click();
+    await target.mouse.move(0, 0);
+  };
   const openMenu = async (target, name) => {
     const menu = target.locator("details").filter({ has: target.getByText(name, { exact: true }) });
     await menu.locator("summary").click();
@@ -112,7 +114,7 @@ try {
   await page.setViewportSize(desktopViewport);
 
   await create();
-  await expect(page.getByRole("heading", { name: "Add track" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Preview on track", exact: true })).toBeVisible();
   await expect(track.first()).toBeVisible();
   await expect(page.locator("#design-size")).toContainText("60 × 40");
   await capture("member_mainline_start");
@@ -196,10 +198,6 @@ try {
         .click();
       await expect(examplePage.getByLabel("Layout name")).toHaveValue(name);
       await fit(examplePage);
-      if (code === "R104R") {
-        // Keep the lower bend clear of the camera controls in the capture.
-        await examplePage.getByRole("button", { name: "Zoom out", exact: true }).click();
-      }
       await capture(`example_${code.toLowerCase()}`, examplePage);
     } finally {
       await examplePage.close();

@@ -268,9 +268,10 @@ Press **Esc** to cancel an active placement.
 
 Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
 or trackpad. On touch, when no track is held, drag one finger anywhere in the
-drawing, including over track, to pan. Pinch with two fingers to zoom. The rotate button
-beside **Fit view** turns the view without rotating any track pieces. The zoom
-and rotate-view icons show their names on hover or keyboard focus.
+drawing, including over track, to pan. Pinch with two fingers to zoom.
+**Fit view**, zoom, and view rotation share the top bar with Undo and Redo.
+View rotation turns the drawing while keeping each track piece in place.
+The icons show their names on hover or keyboard focus.
 
 The parts panel totals physical pieces in the current design. **Diagnostics**
 reports overlaps, facing rail ends at different heights, protected NILTC

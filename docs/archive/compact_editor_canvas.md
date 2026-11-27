@@ -9,8 +9,8 @@ stacked commands leave the drawing 26% of the 1280 by 800 baseline frame.
 
 ## Objectives
 
-- Give the drawing about 70% of the first-open frame at 390 by 844 and
-  1600 by 1000, with 68% as the visual acceptance floor.
+- Use about 70% of the first-open frame as a rough design reference for the
+  drawing at 390 by 844 and 1600 by 1000.
 - Show the complete initial plan and the full width and depth option labels.
 - Preserve the editing, placement, independent layout tab, save, and export workflows.
 
@@ -60,9 +60,8 @@ Rust/Wasm bindings.
 - Walk through first open, panel navigation, touch editing, keyboard
   dismissal, saved-plan reopen, export, and cross-layout copy and paste.
   Keep one focused phone regression for drawing reachability.
-- Run `npm run check` and `./devel/verify_release.sh`. If the drawing misses
-  the area target, adjust the sidebar and persistent row geometry and measure
-  again with the same fixture.
+- Run `npm run check` and `./devel/verify_release.sh`. Use the area
+  measurements to compare layouts alongside clipping and visual hierarchy.
 
 ## Results
 

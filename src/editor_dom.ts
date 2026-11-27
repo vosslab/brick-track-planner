@@ -79,7 +79,6 @@ export function toCanvas(): void {
   const canvas = element("tabletop");
   canvas.focus({ preventScroll: true });
   if (window.matchMedia("(max-width: 750px)").matches) {
-    const controls = document.querySelector<HTMLElement>(".editor-controls");
-    (controls ?? canvas).scrollIntoView({ block: "start" });
+    window.scrollTo(0, 0);
   }
 }

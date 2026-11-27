@@ -22,6 +22,10 @@
 
 ### Behavior or Interface Changes
 
+- Combine layout tabs, file commands, history, and view controls in one
+  compact desktop row. Reduce button padding and keep view controls above
+  the drawing.
+
 - Give the drawing more room with compact File, Layout, and Tools menus and
   editing actions that appear as needed. Use one desktop sidebar and provide
   phone shortcuts to Add track and Inspector below the drawing.

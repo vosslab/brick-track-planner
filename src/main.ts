@@ -341,6 +341,7 @@ class Planner {
     this.#active = tab;
     this.#closeMenus();
     element("editor").hidden = !tab;
+    element("editor-controls").hidden = !tab;
     element("start-screen").hidden = Boolean(tab);
     element("file-menu").hidden = !tab;
     button("save-project").hidden = !tab;

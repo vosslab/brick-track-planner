@@ -49,9 +49,7 @@
         <input id="project-file" type="file" accept=".ldr" hidden />
         <input id="import-file" type="file" accept=".bbm,.xml" hidden />
       </div>
-    </header>
-    <main id="editor" hidden>
-      <div class="editor-controls">
+      <div id="editor-controls" class="editor-controls" hidden>
         <div id="layout-tabs" class="layout-tabs">
           <div id="layout-tab-rail" class="layout-tab-rail">
             <div
@@ -78,9 +76,7 @@
               <button type="button" id="close-layout">Close layout</button>
             </div>
           </details>
-        </div>
-        <div class="canvas-toolbar">
-          <div class="toolbar-group" role="group" aria-label="Track tools">
+          <div class="phone-panel-actions">
             <button
               type="button"
               id="show-add-track"
@@ -97,6 +93,10 @@
             >
               Inspector
             </button>
+          </div>
+        </div>
+        <div class="canvas-toolbar">
+          <div class="toolbar-group" role="group" aria-label="History and view">
             <span class="icon-control">
               <button
                 type="button"
@@ -127,98 +127,6 @@
               </button>
               <span class="icon-tooltip" aria-hidden="true">Redo</span>
             </span>
-            <details id="tools-menu" class="editor-disclosure">
-              <summary>Tools</summary>
-              <div class="editor-menu">
-                <button type="button" id="select-multiple" aria-pressed="false">
-                  Select multiple
-                </button>
-                <button type="button" id="connect-ends" disabled>Connect two ends</button>
-                <button type="button" id="select-arrangement" hidden>Select arrangement</button>
-                <div id="track-transform-actions" class="track-transform-actions" hidden>
-                  <button
-                    type="button"
-                    id="rotate-track-left"
-                    title="Rotate track 90 degrees left"
-                    disabled
-                  >
-                    Rotate left
-                  </button>
-                  <button
-                    type="button"
-                    id="rotate-track-right"
-                    title="Rotate track 90 degrees right"
-                    disabled
-                  >
-                    Rotate right
-                  </button>
-                  <button type="button" id="duplicate-track" disabled>Duplicate</button>
-                </div>
-              </div>
-            </details>
-          </div>
-        </div>
-        <div class="context-toolbar">
-          <div
-            class="toolbar-group"
-            id="selection-actions"
-            role="group"
-            aria-label="Selected track actions"
-            hidden
-          >
-            <button type="button" id="move-track" disabled>Move</button>
-            <button type="button" id="copy-track" disabled>Copy</button>
-            <button type="button" id="paste-track" disabled>Paste</button>
-            <button
-              type="button"
-              id="remove-piece"
-              class="danger"
-              aria-label="Delete selected track"
-              disabled
-            >
-              Delete
-            </button>
-          </div>
-          <div
-            class="toolbar-group"
-            id="placement-actions"
-            role="group"
-            aria-label="Placement"
-            hidden
-          >
-            <label class="screen-reader" for="placement-grid">Placement</label>
-            <select id="placement-grid" hidden>
-              <option value="club">Rail ends or 8-stud grid</option>
-              <option value="fine">1-stud grid</option>
-            </select>
-            <button type="button" id="place-edit" class="primary" disabled>Place</button>
-            <button type="button" id="cancel-edit">Cancel</button>
-          </div>
-          <p id="track-edit-hint" class="edit-hint" aria-live="polite">
-            Select a track piece to edit it.
-          </p>
-          <span id="fit-status"></span>
-        </div>
-      </div>
-      <div id="layout-panel" class="workspace" role="tabpanel">
-        <section class="workbench" aria-label="Track plan workspace">
-          <div class="viewport">
-            <div
-              id="tabletop"
-              role="group"
-              aria-label="Track plan"
-              tabindex="0"
-              aria-describedby="camera-hint"
-            ></div>
-            <p id="camera-hint" class="screen-reader">
-              Drag track with a mouse, or use Move and choose a destination. Drag open space to pan.
-              Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise. Press
-              Enter to select a focused piece or choose a highlighted rail end. When choosing a
-              placement on the drawing, press Enter on the drawing to place at the center of the
-              view.
-            </p>
-          </div>
-          <div class="zoom-controls" aria-label="Canvas view">
             <span class="icon-control">
               <button type="button" id="zoom-out" class="icon-button" aria-label="Zoom out">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -249,6 +157,98 @@
               </button>
               <span class="icon-tooltip" aria-hidden="true">Rotate view clockwise</span>
             </span>
+          </div>
+          <details id="tools-menu" class="editor-disclosure">
+            <summary>Tools</summary>
+            <div class="editor-menu">
+              <button type="button" id="select-multiple" aria-pressed="false">
+                Select multiple
+              </button>
+              <button type="button" id="connect-ends" disabled>Connect two ends</button>
+              <button type="button" id="select-arrangement" hidden>Select arrangement</button>
+              <div id="track-transform-actions" class="track-transform-actions" hidden>
+                <button
+                  type="button"
+                  id="rotate-track-left"
+                  title="Rotate track 90 degrees left"
+                  disabled
+                >
+                  Rotate left
+                </button>
+                <button
+                  type="button"
+                  id="rotate-track-right"
+                  title="Rotate track 90 degrees right"
+                  disabled
+                >
+                  Rotate right
+                </button>
+                <button type="button" id="duplicate-track" disabled>Duplicate</button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </header>
+    <main id="editor" hidden>
+      <div class="context-toolbar">
+        <div
+          class="toolbar-group"
+          id="selection-actions"
+          role="group"
+          aria-label="Selected track actions"
+          hidden
+        >
+          <button type="button" id="move-track" disabled>Move</button>
+          <button type="button" id="copy-track" disabled>Copy</button>
+          <button type="button" id="paste-track" disabled>Paste</button>
+          <button
+            type="button"
+            id="remove-piece"
+            class="danger"
+            aria-label="Delete selected track"
+            disabled
+          >
+            Delete
+          </button>
+        </div>
+        <div
+          class="toolbar-group"
+          id="placement-actions"
+          role="group"
+          aria-label="Placement"
+          hidden
+        >
+          <label class="screen-reader" for="placement-grid">Placement</label>
+          <select id="placement-grid" hidden>
+            <option value="club">Rail ends or 8-stud grid</option>
+            <option value="fine">1-stud grid</option>
+          </select>
+          <button type="button" id="place-edit" class="primary" disabled>Place</button>
+          <button type="button" id="cancel-edit">Cancel</button>
+        </div>
+        <p id="track-edit-hint" class="edit-hint" aria-live="polite">
+          Select a track piece to edit it.
+        </p>
+        <span id="fit-status"></span>
+      </div>
+      <div id="layout-panel" class="workspace" role="tabpanel">
+        <section class="workbench" aria-label="Track plan workspace">
+          <div class="viewport">
+            <div
+              id="tabletop"
+              role="group"
+              aria-label="Track plan"
+              tabindex="0"
+              aria-describedby="camera-hint"
+            ></div>
+            <p id="camera-hint" class="screen-reader">
+              Drag track with a mouse, or use Move and choose a destination. Drag open space to pan.
+              Pinch or use plus and minus to zoom. Rotate view turns the drawing clockwise. Press
+              Enter to select a focused piece or choose a highlighted rail end. When choosing a
+              placement on the drawing, press Enter on the drawing to place at the center of the
+              view.
+            </p>
           </div>
         </section>
         <aside class="editor-sidebar" aria-label="Layout tools" data-panel="library">
