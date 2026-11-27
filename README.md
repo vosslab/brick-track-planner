@@ -84,6 +84,8 @@ site, and runs the TypeScript, Node, and browser checks. Run
   importing supported BlueBrick plans, and sharing.
 - [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for first steps, every example,
   and a first-track placement demo.
+- [docs/PHONE_SCREENSHOTS.md](docs/PHONE_SCREENSHOTS.md) for the phone setup,
+  editor, and track picker.
 - [NILTC track specifications](docs/references/niltc-track-specifications/index.html)
   for the club straight and corner diagrams.
 - [data/CATALOG_SOURCES.md](data/CATALOG_SOURCES.md) and

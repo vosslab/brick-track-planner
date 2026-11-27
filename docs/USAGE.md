@@ -31,7 +31,9 @@ semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
 inch corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#mainline-loops).
 Joel's 10-to-0 mainline adapts the Rockford offset to a 60 by 40 inch table
-with a 10-inch shift between its two display edges. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
+with an approximately 10-inch shift. Joel shelved the original after some
+larger trains struggled. The template includes rerailer straights before,
+between, and after the bends. [See the mainline offset](SCREENSHOTS.md#joels-10-to-0-mainline).
 
 The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically.

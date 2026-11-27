@@ -15,6 +15,13 @@
 
 ### Fixes and Improvements
 
+- Organize the screenshot guide by the planner's example groups, use smaller
+  previews that open at full size, and move the phone views to their own page.
+- Add rerailer straights before, between, and after both S-bends in
+  Joel's 10-to-0 example.
+- Correct Joel's 10-to-0 example to use pairs of R120 curves outside and
+  R104 curves inside each turn. Record the unconfirmed
+  fractional straights and Joel's report that some larger trains struggled.
 - Increase track contrast with light and dark edges and soften the baseplate
   studs so long curves stay easy to follow at Fit view.
 - Recapture the documentation screenshots with the clearer track rendering,
