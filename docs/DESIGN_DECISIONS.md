@@ -211,10 +211,13 @@ here** cycle overlapping pieces. Drag the selected piece or selection. Keep
 modifier-key box selection, desktop panning, and touch gestures. Let Escape
 cancel a drag at any point; an outside direct drag cancels, while explicit
 Move remains ready to retry. Refresh the preview after camera movement.
+On desktop, give the drawing and sidebar the space left below the editor
+controls. The sidebar scrolls independently of the drawing.
 
 **Why.** Visible rails and ballast provide usable selection targets, including
 when pieces overlap. Empty space between crossover routes remains available
-for panning.
+for panning. The camera's **Fit view** uses the visible drawing even when the
+sidebar contains a long parts list.
 
 **Consequence.** For rail-end snapping, grab near an exposed rail end and keep
 the pointer close; prefer the nearest exposed end when choosing a valid joint.

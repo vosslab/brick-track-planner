@@ -12,6 +12,11 @@
 
 ### Fixes and Improvements
 
+- Simplify release tests around usable startup, saved track and export files,
+  and editor behavior. Drop checks tied to response headers, PDF internals,
+  and the exact number of arrangement suggestions.
+- Size the desktop drawing to the available browser height so Fit view keeps
+  the whole table visible while the sidebar scrolls independently.
 - Keep the Pages example files and geometry engine matched to the planner
   build so cached files from another release cannot break the gallery.
 - Show larger error messages near the top of the planner. Keep the example

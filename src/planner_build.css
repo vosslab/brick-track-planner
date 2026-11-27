@@ -698,6 +698,10 @@ body[data-project-open] .app-header {
   .editor-sidebar > .panel {
     block-size: 100%;
   }
+  #library-body,
+  .inspector {
+    overscroll-behavior-y: contain;
+  }
   .canvas-footer {
     display: none;
   }

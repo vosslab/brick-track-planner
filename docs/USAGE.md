@@ -315,6 +315,8 @@ Use empty-space drag, Space-drag, or two-finger scroll to pan with a mouse
 or trackpad. On touch, when no track is held, drag one finger anywhere in the
 drawing, including over track, to pan. Pinch with two fingers to zoom.
 **Fit view**, zoom, and view rotation share the top bar with Undo and Redo.
+On desktop, **Fit view** fits the layout inside the visible drawing. Scroll
+**Add track** or **Inspector** to see more without moving the drawing.
 View rotation turns the drawing while keeping each track piece in place.
 The icons show their names on hover or keyboard focus.
 

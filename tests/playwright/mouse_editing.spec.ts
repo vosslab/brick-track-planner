@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 
 import {
   boot,
+  createProject,
   drawingPoint,
   openEditingPlan,
   pickDrawing,
@@ -185,4 +186,30 @@ test("modified clicks toggle track and a selection box can finish outside the dr
 
   await expect(canvas.locator(".track-selection-box")).toHaveCount(0);
   await expect(canvas.locator('[data-kind="track"][aria-pressed="true"]')).toHaveCount(2);
+});
+
+test("Fit view keeps the drawing visible while Add track scrolls in a short window", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1120, height: 540 });
+  await boot(page, { startProject: false });
+  await createProject(page, { assignment: "general", width: "128", depth: "192" });
+  await page.getByRole("radio", { name: "Curves", exact: true }).check();
+  await page.getByText("More track parts", { exact: true }).click();
+
+  const library = page.locator("#library-body");
+  const canvas = page.getByRole("group", { name: "Track plan", exact: true });
+  const area = canvas.locator("[data-design-area]");
+
+  await page.getByRole("button", { name: "Fit view", exact: true }).click();
+  await expect(canvas).toBeInViewport({ ratio: 1 });
+  await expect(area).toBeInViewport({ ratio: 1 });
+
+  await library.hover();
+  const previousScroll = await library.evaluate((element) => element.scrollTop);
+  await page.mouse.wheel(0, 10_000);
+  await expect
+    .poll(() => library.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(previousScroll);
+  await expect(area).toBeInViewport({ ratio: 1 });
 });

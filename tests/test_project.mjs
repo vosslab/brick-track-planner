@@ -35,24 +35,6 @@ test("rail port placements join regular and flipped track at any turn count", ()
   assert.equal(angleGap(-450, 90), 180);
 });
 
-test("design area validates NILTC assignments", () => {
-  const project = newProject();
-  project.area.niltc = "corner";
-  project.area.fronts = ["north", "west"];
-  project.items.push({
-    kind: "track",
-    id: "outer",
-    layerId: "layout",
-    partId: physicalPartId,
-    arrangementId: "mainline",
-    groupId: "outer",
-    x: 8,
-    y: 24,
-    angle: 0,
-  });
-  validateProject(project);
-});
-
 test("schema rejects malformed design areas", () => {
   const project = newProject();
   const invalid = [

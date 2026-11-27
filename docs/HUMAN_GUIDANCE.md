@@ -71,6 +71,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   and mobile.
 - Use mouse editing on desktop and tap-to-move on mobile. Let members move
   several selected pieces together.
+- Size the drawing to the browser window so Fit view shows the working table
+  even when the Add track menu is long.
 - Pick up a track part when the member clicks its card, as in BrickLink Studio.
 - Make track editing feel like LibreOffice Draw or Inkscape. Keep moved,
   pasted, or duplicated track on the destination click or tap.

@@ -175,9 +175,9 @@ button.danger:not(:disabled) {
 }
 body {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 100dvh;
-  min-height: 590px;
+  /* Size the header and status first, then give the remaining space to the active main. */
+  grid-template-rows: auto auto minmax(0, 1fr);
+  block-size: 100dvh;
   margin: 0;
 }
 [hidden] {
@@ -695,8 +695,8 @@ dialog h2 {
 @media (max-width: 750px) {
   body {
     display: block;
-    height: auto;
-    min-height: 100dvh;
+    block-size: auto;
+    min-block-size: 100dvh;
   }
   .app-header {
     flex-wrap: wrap;

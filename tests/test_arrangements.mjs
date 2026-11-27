@@ -75,7 +75,7 @@ test("arrangement keeps invalid candidates out of the project", () => {
   assert.equal(result.issues[0]?.kind, "outside-area");
 });
 
-test("direct placement rejects overlap and overhang but accepts an end-to-end join", () => {
+test("guided gap filling rejects overlap and overhang but accepts an end-to-end join", () => {
   const first = {
     id: "first",
     kind: "track",

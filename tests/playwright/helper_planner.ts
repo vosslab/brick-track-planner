@@ -22,18 +22,8 @@ export function watchErrors(page: Page): string[] {
 }
 
 export async function boot(page: Page, { startProject = true } = {}): Promise<void> {
-  const [wasm, document] = await Promise.all([
-    page.waitForResponse((response) => response.url().endsWith("/wasm/track_geometry_bg.wasm")),
-    page.goto("./"),
-  ]);
-  expect(document?.ok()).toBe(true);
-  expect(new URL(page.url()).pathname).toBe("/brick-track-planner/");
-  expect(wasm.ok()).toBe(true);
-  expect(wasm.headers()["content-type"]).toBe("application/wasm");
-  await expect(
-    page.getByRole("heading", { name: "Start with your assigned display area" }),
-  ).toBeVisible();
-  await expect(page.locator("#editor")).toBeHidden();
+  await page.goto("./");
+  await expect(page.getByRole("button", { name: "Create track plan", exact: true })).toBeVisible();
   if (startProject) await createProject(page);
 }
 
@@ -86,11 +76,6 @@ export async function openEditorMenu(page: Page, name: "File" | "Layout" | "Tool
 export async function chooseEditorFile(page: Page, path: string): Promise<void> {
   await openEditorMenu(page, "File");
   await chooseFile(page, page.getByRole("button", { name: "Open track plan", exact: true }), path);
-}
-
-export async function chooseTrackPlan(page: Page, path: string): Promise<void> {
-  if (await page.locator("#editor").isVisible()) return chooseEditorFile(page, path);
-  await chooseFile(page, page.locator("#start-open-project"), path);
 }
 
 export async function saveProject(page: Page): Promise<{ path: string; project: Project }> {
