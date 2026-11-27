@@ -4,6 +4,8 @@
 
 ### Additions and New Features
 
+- Add the editable 100 by 70 inch R104 three-quarter return to **Browse examples**
+  and capture it in the screenshot guide.
 - Add Joel's Rockford-inspired 10-to-0 mainline as an editable template and
   screenshot. Two centered S-bends shift the mainlines 10 inches on a standard
   60 by 40 inch table.
@@ -20,6 +22,8 @@
 
 ### Behavior or Interface Changes
 
+- Add three rear storage tracks to the 100 by 40 inch Member R104 right yard
+  so all six storage tracks and both mainlines reach the right edge.
 - Extend the Member R104 right yard's three storage tracks to the right edge
   so five lines can connect onward.
 - Use the standard 40-inch depth for the 100-inch-wide Member R104 right yard.
@@ -50,6 +54,9 @@
 
 ### Fixes and Maintenance
 
+- Refresh all 33 documentation screenshots, including the Member R104 right
+  yard. During capture, check the layout files served by the Pages build
+  against the checkout.
 - Prune repeated browser checks, exact catalog snapshots, and test helpers
   that replay placement. Keep route and fit checks for packaged plans and
   browser coverage for editing, saving, and exporting.

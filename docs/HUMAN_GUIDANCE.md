@@ -25,6 +25,7 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Replace the U-shaped staging template with turnarounds based on the
   Downers Grove and Aurora show plans.
 - Name turnarounds for their shape and track parts.
+- Include the 100 by 70 inch R104 three-quarter return in the main example gallery.
 - Use NILTC R120/R104 mainline curves and L-Gauge standards. Remove 9V track.
 - Begin from common display sizes while accepting independent custom width and
   depth. A member may enter the size they were assigned.
@@ -40,7 +41,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use 40 inches from the plexiglass as the default NILTC display depth, including
   for the Member R104 right yard. Lead with a 60 by 40 inch display and also
   show a collection of 40 by 40 inch examples.
-- Run the three additional tracks in the Member R104 right yard to the far edge.
+- Extend the Member R104 right yard toward the back with three more storage
+  tracks. Run all six storage tracks to the right edge.
 - Use a standard 60 by 40 inch rectangle for Joel's 10-to-0 mainline example.
   Center the bends along the 60-inch frontage.
 - Give examples two-to-five-character alphanumeric codes based on their types.
@@ -58,6 +60,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   against the visible column edges.
 - Show each example layout in its own screenshot and show the start screen
   and blank editor separately.
+- I use the screenshots to judge quality. Refresh the affected screenshots
+  whenever the examples or interface change.
 - Write the README and screenshot walkthroughs for a first-time planner user.
 - Tell members what space and track an arrangement needs and why a preview
   cannot fit. Make moving and deleting selected track obvious on desktop

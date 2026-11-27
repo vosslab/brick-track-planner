@@ -59,14 +59,19 @@ test("members can save, reopen, and undo a five-inch design-area bump", async ({
   await expect(size).toContainText("60 \u00d7 45 in overall");
 });
 
-test("members can open a 40-inch example from the gallery", async ({ page }) => {
+test("members can open small and R104 return examples from the gallery", async ({ page }) => {
   await boot(page, { startProject: false });
-  await page.getByRole("button", { name: "Browse straight examples", exact: true }).click();
-  const gallery = page.getByRole("dialog", { name: "Straight examples", exact: true });
+  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+  const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
   await gallery.getByRole("button", { name: "Open PFS40 \u00b7 Compact freight spur" }).click();
   await expect(gallery).toBeHidden();
   await expect(page.getByLabel("Layout name")).toHaveValue("Compact freight spur");
   await expect(page.locator("#design-size")).toContainText("40 \u00d7 40");
+
+  await page.getByRole("button", { name: "Browse examples", exact: true }).click();
+  await gallery.getByRole("button", { name: "Open R104R \u00b7 R104 3/4-circle return" }).click();
+  await expect(page.getByLabel("Layout name")).toHaveValue("R104 3/4-circle return");
+  await expect(page.locator("#design-size")).toContainText("100 \u00d7 70");
 });
 
 test("members can move track in a rotated view and undo it", async ({ page, hasTouch }) => {

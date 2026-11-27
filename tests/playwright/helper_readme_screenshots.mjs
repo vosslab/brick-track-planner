@@ -6,14 +6,15 @@
  *   node tests/playwright/helper_readme_screenshots.mjs \
  *     http://127.0.0.1:4173/ /private/tmp/brick-track-planner-readme
  */
+import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import { expect } from "@playwright/test";
 import { chromium } from "playwright";
 
-import straightExamples from "../../data/straight_examples.json" with { type: "json" };
+import trackExamples from "../../data/track_examples.json" with { type: "json" };
 
 const [baseUrl, outputDirectory] = process.argv.slice(2);
 if (!baseUrl || !outputDirectory) {
@@ -25,6 +26,18 @@ await mkdir(output, { recursive: true });
 
 const desktopViewport = { width: 1280, height: 800 };
 const screenshotOptions = { animations: "disabled", caret: "hide" };
+async function verifyTemplate(page, file) {
+  const template = new URL(`../../templates/${file}`, import.meta.url);
+  const [response, source] = await Promise.all([
+    page.waitForResponse(new URL(`templates/${file}`, page.url()).href),
+    readFile(template),
+  ]);
+  assert.ok(
+    response.ok() && (await response.body()).equals(source),
+    `Served template ${file} differs from the checkout. Rebuild the local Pages site.`,
+  );
+}
+
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({
@@ -55,10 +68,13 @@ try {
   await capture("member_curve_options");
   await page.getByRole("radio", { name: /^Straight/ }).check();
 
-  await page.setViewportSize({ width: 1920, height: 1720 });
-  await page.locator("#start-browse-examples").click();
-  const gallery = page.getByRole("dialog", { name: "Straight examples", exact: true });
-  await expect(gallery.getByRole("button").locator("svg")).toHaveCount(straightExamples.length);
+  await page.setViewportSize({ width: 1920, height: 2000 });
+  await Promise.all([
+    ...trackExamples.map(({ file }) => verifyTemplate(page, file)),
+    page.locator("#start-browse-examples").click(),
+  ]);
+  const gallery = page.getByRole("dialog", { name: "Track examples", exact: true });
+  await expect(gallery.getByRole("button").locator("svg")).toHaveCount(trackExamples.length);
   const collections = gallery.locator("#template-gallery-sections");
   await expect
     .poll(() => collections.evaluate((groups) => groups.scrollHeight - groups.clientHeight))
@@ -132,7 +148,7 @@ try {
   ).toBeEnabled();
   await capture("select_multiple_track");
 
-  for (const { code, name } of straightExamples) {
+  for (const { code, name } of trackExamples) {
     const examplePage = await browser.newPage({
       viewport: desktopViewport,
       deviceScaleFactor: 1.5,
@@ -141,7 +157,7 @@ try {
       await start(examplePage);
       await examplePage.locator("#start-browse-examples").click();
       const exampleGallery = examplePage.getByRole("dialog", {
-        name: "Straight examples",
+        name: "Track examples",
         exact: true,
       });
       await exampleGallery
@@ -149,6 +165,10 @@ try {
         .click();
       await expect(examplePage.getByLabel("Layout name")).toHaveValue(name);
       await fit(examplePage);
+      if (code === "R104R") {
+        // Keep the lower bend clear of the camera controls in the capture.
+        await examplePage.getByRole("button", { name: "Zoom out", exact: true }).click();
+      }
       await capture(`example_${code.toLowerCase()}`, examplePage);
     } finally {
       await examplePage.close();
@@ -166,7 +186,10 @@ try {
     });
     try {
       await start(templatePage);
-      await templatePage.getByLabel("Start from a template").selectOption(file);
+      await Promise.all([
+        verifyTemplate(templatePage, file),
+        templatePage.getByLabel("Start from a template").selectOption(file),
+      ]);
       await expect(templatePage.locator("#tabletop [data-kind=track]").first()).toBeVisible();
       await fit(templatePage);
       const name =

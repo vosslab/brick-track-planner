@@ -2,6 +2,7 @@
   {
     "code": "ML",
     "frontage": 60,
+    "depth": 40,
     "file": "01-mainline-only.ldr",
     "name": "Mainline only",
     "purpose": "Keep both club lines clear and leave the full space behind them for your display."
@@ -9,6 +10,7 @@
   {
     "code": "BOS",
     "frontage": 60,
+    "depth": 40,
     "file": "06-long-back-out.ldr",
     "name": "Back-out siding",
     "purpose": "Park on 64 straight studs along the front. Reverse to return to the inner mainline."
@@ -16,6 +18,7 @@
   {
     "code": "DCX",
     "frontage": 60,
+    "depth": 40,
     "file": "07-double-crossover.ldr",
     "name": "Double crossover",
     "purpose": "Transfer between the two club lines within the mainline corridor."
@@ -23,6 +26,7 @@
   {
     "code": "DTS60",
     "frontage": 60,
+    "depth": 40,
     "file": "08-drive-through-siding.ldr",
     "name": "Drive-through siding",
     "purpose": "Park on 80 straight studs between the two ends of the inner mainline."
@@ -30,6 +34,7 @@
   {
     "code": "PT40",
     "frontage": 60,
+    "depth": 40,
     "file": "r40_right_pass_through.ldr",
     "name": "R40 right pass-through",
     "purpose": "Cross from the outer mainline to the rear track while the middle line stays independent."
@@ -37,6 +42,7 @@
   {
     "code": "PFS",
     "frontage": 60,
+    "depth": 40,
     "file": "12-perpendicular-freight-spur-short.ldr",
     "name": "Dual perpendicular freight spurs",
     "purpose": "From the west, either mainline serves both right-side spurs. Each has 32 straight studs."
@@ -44,6 +50,7 @@
   {
     "code": "TJ40",
     "frontage": 60,
+    "depth": 40,
     "file": "r40_t_junction.ldr",
     "name": "R40 T-junction",
     "purpose": "Reach a right-side spur from either end of the inner mainline."
@@ -51,6 +58,7 @@
   {
     "code": "4TRY",
     "frontage": 60,
+    "depth": 40,
     "file": "04-r40-right-yard.ldr",
     "name": "Four-track right yard",
     "purpose": "Arrive from the west on either mainline. All three storage tracks end flush at the right edge."
@@ -58,6 +66,7 @@
   {
     "code": "TJ56",
     "frontage": 60,
+    "depth": 40,
     "file": "r40_r56_t_junction.ldr",
     "name": "R40\u2013R56 T-junction",
     "purpose": "Use two perpendicular spurs on a private double-track line."
@@ -65,6 +74,7 @@
   {
     "code": "8TRY",
     "frontage": 60,
+    "depth": 40,
     "file": "eight_track_ladder_yard.ldr",
     "name": "Eight-track switch yard",
     "purpose": "Reach any row via alternating single crossovers. A diagonal links rows 8 and 1."
@@ -72,6 +82,7 @@
   {
     "code": "ML40",
     "frontage": 40,
+    "depth": 40,
     "file": "compact_mainline.ldr",
     "name": "Compact mainline",
     "purpose": "Keep the two club mainlines clear on a square display."
@@ -79,6 +90,7 @@
   {
     "code": "BOS40",
     "frontage": 40,
+    "depth": 40,
     "file": "compact_back_out.ldr",
     "name": "Short back-out siding",
     "purpose": "Park on 32 straight studs behind the mainlines. Reverse to return to the inner line."
@@ -86,6 +98,7 @@
   {
     "code": "DCX40",
     "frontage": 40,
+    "depth": 40,
     "file": "compact_crossover.ldr",
     "name": "Compact crossover",
     "purpose": "Transfer between the two club mainlines in a square display."
@@ -93,6 +106,7 @@
   {
     "code": "DTS40",
     "frontage": 40,
+    "depth": 40,
     "file": "compact_drive_through.ldr",
     "name": "Compact drive-through",
     "purpose": "Leave and rejoin the inner mainline at opposite ends of the siding."
@@ -100,8 +114,17 @@
   {
     "code": "PFS40",
     "frontage": 40,
+    "depth": 40,
     "file": "compact_freight_spur.ldr",
     "name": "Compact freight spur",
     "purpose": "Reach a right-side spur from either west mainline. The spur has 32 straight studs."
+  },
+  {
+    "code": "R104R",
+    "frontage": 100,
+    "depth": 70,
+    "file": "r104-three-quarter-return.ldr",
+    "name": "R104 3/4-circle return",
+    "purpose": "Return trains from one mainline to the other using only R104 curves."
   }
 ]

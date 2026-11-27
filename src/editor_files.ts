@@ -1,5 +1,5 @@
 import type { Analysis } from "./engine";
-import straightExamples from "../data/straight_examples.json" with { type: "json" };
+import trackExamples from "../data/track_examples.json" with { type: "json" };
 import { button, dialog, element, input, select, textNode } from "./editor_dom";
 import { evaluate } from "./engine";
 import { MAX_TRACK_PLAN_FILE_BYTES, openTrackPlan, saveTrackPlan } from "./ldraw";
@@ -30,7 +30,7 @@ const templates: readonly Template[] = [
   {
     file: "member-yard.ldr",
     name: "Member yard",
-    purpose: "100 by 40 inch R104 yard with three additional tracks reaching the right edge.",
+    purpose: "100 by 40 inch R104 yard with six storage tracks reaching the right edge.",
   },
   {
     file: "r104-semicircle-return.ldr",
@@ -202,7 +202,7 @@ export function setupFiles(
   const galleryCards = new Map<string, { opener: HTMLButtonElement; description: HTMLElement }>();
   const showGallery = (): void => {
     gallery.showModal();
-    for (const template of straightExamples) {
+    for (const template of trackExamples) {
       let card = galleryCards.get(template.file);
       if (!card) {
         const container = document.createElement("article");
@@ -223,7 +223,7 @@ export function setupFiles(
         });
         card = { opener, description };
         galleryCards.set(template.file, card);
-        element(`template-gallery-cards-${template.frontage}`).append(container);
+        element(`template-gallery-cards-${template.frontage}x${template.depth}`).append(container);
       }
       const { opener, description } = card;
       if (opener.dataset.preview === "ready" || opener.dataset.preview === "loading") continue;

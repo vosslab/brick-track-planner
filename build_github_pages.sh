@@ -25,7 +25,7 @@ required_templates=(
 while IFS= read -r template; do
 	required_templates+=("templates/$template")
 done < <(
-	node -e 'for (const template of require("./data/straight_examples.json")) console.log(template.file)'
+	node -e 'for (const template of require("./data/track_examples.json")) console.log(template.file)'
 )
 for template in "${required_templates[@]}"; do
 	if [ ! -s "$template" ]; then

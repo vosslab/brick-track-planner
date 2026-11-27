@@ -55,7 +55,7 @@
         <div class="project-actions">
           <button type="button" id="edit-design-area">Design area</button>
           <button type="button" id="new-project">New design</button>
-          <button type="button" id="browse-examples">Browse straight examples</button>
+          <button type="button" id="browse-examples">Browse examples</button>
           <label class="screen-reader" for="templates">Track templates</label>
           <select id="templates">
             <option value="">Other templates&hellip;</option>
@@ -359,7 +359,7 @@
         <div id="startup-form"></div>
         <div class="start-alternatives" aria-label="Existing plans">
           <div>
-            <button type="button" id="start-browse-examples">Browse straight examples</button>
+            <button type="button" id="start-browse-examples">Browse examples</button>
             <button type="button" id="start-open-project">Open track plan</button>
             <label class="screen-reader" for="start-templates">Start from a template</label>
             <select id="start-templates">
@@ -536,16 +536,20 @@
       </div>
     </dialog>
     <dialog id="template-gallery" aria-labelledby="template-gallery-title">
-      <h2 id="template-gallery-title">Straight examples</h2>
+      <h2 id="template-gallery-title">Track examples</h2>
       <p class="dialog-intro">Sizes are width along the track &times; depth. Select a drawing to open it.</p>
       <div id="template-gallery-sections" class="template-gallery-sections" aria-live="polite">
-        <section aria-labelledby="gallery-60-title">
-          <h3 id="gallery-60-title">60 &times; 40 inches</h3>
-          <div id="template-gallery-cards-60" class="template-gallery-cards"></div>
+        <section aria-labelledby="gallery-60x40-title">
+          <h3 id="gallery-60x40-title">60 &times; 40 inches</h3>
+          <div id="template-gallery-cards-60x40" class="template-gallery-cards"></div>
         </section>
-        <section aria-labelledby="gallery-40-title">
-          <h3 id="gallery-40-title">40 &times; 40 inches</h3>
-          <div id="template-gallery-cards-40" class="template-gallery-cards"></div>
+        <section aria-labelledby="gallery-40x40-title">
+          <h3 id="gallery-40x40-title">40 &times; 40 inches</h3>
+          <div id="template-gallery-cards-40x40" class="template-gallery-cards"></div>
+        </section>
+        <section aria-labelledby="gallery-100x70-title">
+          <h3 id="gallery-100x70-title">100 &times; 70 inches</h3>
+          <div id="template-gallery-cards-100x70" class="template-gallery-cards"></div>
         </section>
       </div>
       <form method="dialog" class="dialog-actions">

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import catalog from "../data/catalog.json" with { type: "json" };
-import straightExamples from "../data/straight_examples.json" with { type: "json" };
+import trackExamples from "../data/track_examples.json" with { type: "json" };
 import { findArrangementAnchors } from "../src/arrangement_anchors.ts";
 import { moveOutlineEdge, outlineSupports } from "../src/area_outline.ts";
 import { placementWarnings, previewArrangement } from "../src/arrangements.ts";
@@ -12,6 +12,8 @@ import { openTrackPlan } from "../src/ldraw.ts";
 import { newProject } from "../src/project.ts";
 import { traceRoute } from "../src/route_trace.ts";
 import { showInventory } from "../src/show_inventory.ts";
+
+const straightExamples = trackExamples.filter(({ depth }) => depth === 40);
 
 const template = (name) =>
   openTrackPlan(
@@ -35,7 +37,7 @@ test("a clean joint at a named handoff can lead past the design border", () => {
   assert.deepEqual(placementWarnings(analysis, catalog), []);
 });
 
-test("the 100 by 40 R104 yard reaches three 144-stud storage tracks at the east edge", () => {
+test("the 100 by 40 R104 yard connects six storage tracks to the east edge", () => {
   const result = evaluate(template("member-yard"));
   const { area, items } = result.project;
   assert.deepEqual([area.width, area.depth, area.niltc], [320, 128, "straight"]);
@@ -43,27 +45,28 @@ test("the 100 by 40 R104 yard reaches three 144-stud storage tracks at the east 
   const storageIds = new Set(
     items.filter(({ groupId }) => groupId === "r104-yard-storage").map(({ id }) => id),
   );
-  const outputs = result.ports.filter(
-    ({ pieceId, type, joined }) => storageIds.has(pieceId) && type === "regular" && !joined,
-  );
+  const open = result.ports.filter(({ type, joined }) => type === "regular" && !joined);
+  assert.equal(open.length, 10);
+  const outputs = open.filter(({ pieceId }) => storageIds.has(pieceId));
   const [west, east] = area.exits;
+  assert.ok(reaches(result.routes, west.outer, east.outer));
   assert.ok(reaches(result.routes, west.inner, east.inner));
-  assert.equal(outputs.length, 3);
+  assert.deepEqual(
+    outputs.map(({ y }) => Math.round(y)).sort((a, b) => a - b),
+    [40, 56, 72, 88, 104, 120],
+  );
   for (const end of outputs) {
-    const route = traceRoute(result.routes, west.inner, end);
-    assert.ok(route);
-    const length = route
-      .filter(({ kind, from }) => kind === "internal" && storageIds.has(from.pieceId))
-      .reduce((sum, link) => sum + link.length, 0);
-    assert.ok(length >= 144, "each storage track has at least 144 straight studs");
+    assert.ok(reaches(result.routes, west.inner, end));
     assert.ok(Math.abs(end.x - area.width) < 0.05);
+    assert.deepEqual([end.angle, end.heightPlates], [0, 2]);
   }
 });
 
-test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", () => {
+test("return templates join the 8- and 24-stud lanes with no curves tighter than R104", () => {
   for (const [file, width, depth, edge] of [
     ["r104-semicircle-return", 416, 224, "east"],
     ["r120-corner-return", 384, 288, "west"],
+    ["r104-three-quarter-return", 320, 224, "west"],
   ]) {
     const project = template(file);
     assert.deepEqual([project.area.width, project.area.depth], [width, depth]);
@@ -84,7 +87,9 @@ test("both show turnarounds connect the 8- and 24-stud lanes at one boundary", (
       assert.equal(port.angle, edge === "east" ? 0 : 180);
       assert.equal(port.heightPlates, 2);
     }
-    assert.ok(reaches(result.routes, handoff.outer, handoff.inner));
+    const route = traceRoute(result.routes, handoff.outer, handoff.inner);
+    assert.ok(route);
+    assert.ok(route.every(({ radius }) => radius === undefined || radius >= 104));
   }
 });
 

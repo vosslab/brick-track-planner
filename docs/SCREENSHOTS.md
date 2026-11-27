@@ -4,14 +4,14 @@
 &middot; [Select several pieces](#select-several-pieces)
 &middot; [Compare two versions](#compare-two-versions)
 &middot; [Change the table outline](#change-the-table-outline)
-&middot; [Straight examples](#straight-examples)
+&middot; [Track examples](#track-examples)
 &middot; [Other templates](#other-templates)
 
 ## Start a plan
 
 ### Start screen
 
-To try a layout right away, choose **Browse straight examples** and pick
+To try a layout right away, choose **Browse examples** and pick
 **BOS** under **60 &times; 40 inches**. To start your own plan, enter your
 assigned display size, choose a track shape, and select **Create track plan**.
 Choose **Curve** to see both corner options.
@@ -96,14 +96,14 @@ original outline. The opposite edge moves inward by the same amount.
 
 When the rail handoffs themselves are offset, see [Joel's 10-to-0 mainline](#joels-10-to-0-mainline).
 
-## Straight examples
+## Track examples
 
-Open these plans with **Browse straight examples**. Both collections use
-40 inches of depth. The first number is the width along the track. Jump to
-[60 by 40 inches](#60-by-40-inches) or [40 by 40 inches](#40-by-40-inches).
+Open these plans with **Browse examples**. The first number is the width
+along the track. Jump to [60 by 40 inches](#60-by-40-inches),
+[40 by 40 inches](#40-by-40-inches), or [100 by 70 inches](#100-by-70-inches).
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![Gallery showing both sizes with their type codes and piece counts](screenshots/straight_examples.webp)
+![Track gallery showing three sizes with their type codes and piece counts](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
 ### 60 by 40 inches
@@ -213,6 +213,18 @@ shows one move at a time.
 ![A crossover feeding a single perpendicular freight spur on the right](screenshots/example_pfs40.webp)
 <!-- screenshots:end -->
 
+### 100 by 70 inches
+
+#### R104R - R104 three-quarter return
+
+This return links the two mainlines at the same edge. It uses a 258.75-degree
+R104 bend, a 25-stud diagonal, and a 78.75-degree R104 bend in the opposite
+direction. [Download the editable track plan](../templates/r104-three-quarter-return.ldr)
+
+<!-- screenshots:begin (managed by screenshot-docs) -->
+![The R104 three-quarter return on a rectangular 100 by 70 inch display](screenshots/example_r104r.webp)
+<!-- screenshots:end -->
+
 ## Other templates
 
 Open these plans from **Other templates** on the start screen or in the editor.
@@ -236,7 +248,7 @@ You can also download the [R104 yard](../templates/member-yard.ldr),
 ### Member R104 right yard
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
-![A 100 by 40 inch R104 right yard with two mainlines and three storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
+![A 100 by 40 inch R104 right yard with two mainlines and six storage tracks reaching the right edge](screenshots/member_r104_yard.webp)
 <!-- screenshots:end -->
 
 ### R104 semicircle return
@@ -265,7 +277,8 @@ R104 and R120 S-bends centered along the 60-inch frontage shift both mainlines
 ## Recapture the collection
 
 Use the local Pages build, Playwright Chromium, and the libwebp tools
-`cwebp` and `img2webp`. Build and serve the app from the repository root.
+`cwebp` and `img2webp`. Rebuild from the current checkout before capturing.
+Run these commands from the repository root.
 
 ```bash
 ./build_github_pages.sh
@@ -278,3 +291,7 @@ From a second terminal, capture to a temporary directory for inspection.
 node tests/playwright/helper_readme_screenshots.mjs \
   http://127.0.0.1:4173/brick-track-planner/ /tmp/brick-track-planner-readme
 ```
+
+The capture checks the served templates against the working tree. Inspect
+each affected view and replace its WebP in `docs/screenshots/` with the
+verified capture alongside the layout or interface change.

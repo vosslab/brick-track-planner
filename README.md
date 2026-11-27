@@ -17,9 +17,12 @@ branches off the inner mainline and gives a train a place to park.
 ![The Back-out siding example showing two shared mainlines and one parking track](docs/screenshots/example_bos.webp)
 <!-- screenshots:end -->
 
+For an end-of-layout turnaround, see the 100 by 70 inch R104 three-quarter
+return in the gallery. [Screenshot and track plan](docs/SCREENSHOTS.md#r104r---r104-three-quarter-return)
+
 ## Quick start
 
-1. Open the planner and choose **Browse straight examples**.
+1. Open the planner and choose **Browse examples**.
 2. Under **60 &times; 40 inches**, choose the **BOS** drawing for **Back-out siding**.
    The example opens as an editable drawing. Click a piece to select it.
 3. Choose **Duplicate plan** to experiment in a second layout tab. Click

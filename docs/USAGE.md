@@ -22,7 +22,7 @@ Choose the assigned mainline shape.
 
 Use **Open track plan** to continue an LDraw file saved by this planner.
 **Other templates** includes the 60 by 40 straight, the corner, the 100 by 40
-inch R104 yard with three additional right-edge tracks, the 130 by 70 inch R104
+inch R104 yard with six right-edge storage tracks, the 130 by 70 inch R104
 semicircle return, and the 120 by 90 inch R120 corner return with a 30 by 30
 inch corner cutout. Each turnaround links the two approach tracks at the same edge.
 [See the turnarounds](SCREENSHOTS.md#r104-semicircle-return).
@@ -33,13 +33,12 @@ The area is the member's usable display space. It is not a physical table map.
 The planner draws the 32-stud baseplate grid automatically, so members plan
 track instead of moving baseplates.
 
-## Compare the straight examples
+## Compare track examples
 
-Choose **Browse straight examples** on the start screen or in the editor.
-The gallery opens with ten plans for 60 inches along the track and 40 inches
-of depth, followed by five plans for a 40 by 40 inch display. In each size,
-the mainline and back-out siding come first. The remaining plans are ordered
-by physical track piece count.
+Choose **Browse examples** on the start screen or in the editor. The straight
+collections start with the mainline and back-out siding, then order the plans by
+physical track piece count. Under **100 &times; 70 inches**, choose **R104R** for a
+three-quarter return that connects the two mainlines on the same edge.
 
 Use **PFS** for two perpendicular freight spurs on the right. Each has 32
 straight studs with room to extend. Use **4TRY** for three storage tracks
@@ -60,10 +59,10 @@ gallery and returns to the current layout.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 
-![Straight examples grouped by 60 by 40 inch and 40 by 40 inch display sizes](screenshots/straight_examples.webp)
+![Track examples grouped into 60 by 40, 40 by 40, and 100 by 70 inch displays](screenshots/straight_examples.webp)
 <!-- screenshots:end -->
 
-[See each example in the editor](SCREENSHOTS.md#straight-examples).
+[See each example in the editor](SCREENSHOTS.md#track-examples).
 
 ## Work with layout tabs
 
@@ -184,8 +183,8 @@ heights for repair.
   64-stud tail.
 
 For a 100 by 40 inch example, choose **Member yard** under **Other templates**.
-The inner mainline remains open past the R104 switches. Each storage track has
-nine S16 straights and reaches the right edge alongside the two mainlines.
+The inner mainline feeds six parallel storage tracks through the R104 ladder.
+All six storage tracks and both mainlines reach the right edge.
 [See the 100 by 40 inch R104 yard](screenshots/member_r104_yard.webp).
 
 TrixBrix product sets can include required specialty connectors and separately
