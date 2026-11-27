@@ -21,6 +21,8 @@ const modelDrawings = new Map<string, Readonly<Record<string, string>>>(
   Object.entries({ ...trackSchematics, ...trackArtwork }),
 );
 const ballastWidths = { bare: 7.5, gray: 10.5, pennlug: 13 };
+const trackEdge = "#22272d";
+const trackHighlight = "#e3e7eb";
 
 export function partGeometry(part: Part): PartGeometry {
   let geometry = geometries.get(part);
@@ -87,16 +89,15 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
     }),
     svg("path", {
       d: geometry.rails,
-      style: "stroke: var(--track-rail, #2d302e)",
-      "stroke-width": 1,
+      style: `stroke: var(--track-rail, ${trackEdge})`,
+      "stroke-width": 1.25,
       "data-rail": "true",
     }),
     svg("path", {
       d: geometry.rails,
-      stroke: "#e8e9e3",
-      "stroke-width": 0.28,
+      stroke: trackHighlight,
+      "stroke-width": 0.46,
       "pointer-events": "none",
-      style: detailStyle,
     }),
   );
   // Keep the whole part's bounds available to marquee selection.
@@ -110,13 +111,24 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
       "fill-rule": "evenodd",
       style: "display: var(--track-sleepers, none)",
     });
-    // The silhouette under the visible faces keeps adjoining colors from revealing the grid.
+    // The light and dark edges stay visible across light and dark baseplates.
+    if (artwork["outline"]) {
+      model.append(
+        svg("path", {
+          d: artwork["outline"],
+          fill: "none",
+          stroke: trackHighlight,
+          "stroke-width": 1.05,
+          "pointer-events": "none",
+        }),
+      );
+    }
     const tones = [
-      ["outline", 20],
+      ["outline", 15],
       ["bevel", 26],
       ["body", 34],
       ["middle", 44],
-      ["top", 58],
+      ["top", 69],
       ["gold-edge", "#ac7d21"],
       ["gold", "#f5ce40"],
     ] as const;
@@ -130,7 +142,7 @@ export function partDrawing(defs: SVGDefsElement, id: string, part: Part): void 
       model.append(
         svg("path", {
           d: drawing,
-          style: `fill: ${fill}${tone === "outline" ? `; stroke: ${fill}; stroke-width: .13` : ""}`,
+          style: `fill: ${fill}${tone === "outline" ? `; stroke: ${fill}; stroke-width: .69` : ""}`,
         }),
       );
     }
@@ -256,8 +268,8 @@ function studPattern(id: string, color: BaseplateColor): SVGPatternElement {
     "data-stud-color": color,
   });
   pattern.append(
-    svg("circle", { cx: 0.52, cy: 0.56, r: 0.31, fill: "#1b2318", opacity: 0.42 }),
-    svg("circle", { cx: 0.485, cy: 0.47, r: 0.29, fill: "#fff", opacity: 0.49 }),
+    svg("circle", { cx: 0.52, cy: 0.56, r: 0.31, fill: "#1b2318", opacity: 0.24 }),
+    svg("circle", { cx: 0.485, cy: 0.47, r: 0.29, fill: "#fff", opacity: 0.27 }),
     svg("circle", { cx: 0.505, cy: 0.5, r: 0.235, fill }),
   );
   return pattern;

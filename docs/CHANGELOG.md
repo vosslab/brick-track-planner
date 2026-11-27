@@ -15,6 +15,10 @@
 
 ### Fixes and Improvements
 
+- Increase track contrast with light and dark edges and soften the baseplate
+  studs so long curves stay easy to follow at Fit view.
+- Recapture the documentation screenshots with the clearer track rendering,
+  including Joel's 10-to-0 mainline and the R104 return.
 - Refresh the screenshots that show the new part picker, the overlap warning,
   and the fitted drawing during multi-selection.
 - Center the startup form vertically when it fits below the header and keep
